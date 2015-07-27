@@ -1,0 +1,49 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: GOsa² School Manager Add-On
+Upstream-Contact: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+Source: https://code.it-zukunft-schule.de/gitweb?p=upstream/gosa-plugin-schoolmanager.git;a=summary
+
+Files: addons/schoolmanager/class_managecourses.inc
+ addons/schoolmanager/class_manageparents.inc
+ addons/schoolmanager/class_managestudents.inc
+ addons/schoolmanager/class_manageteachers.inc
+ addons/schoolmanager/class_schoolmgr.inc
+ addons/schoolmanager/main.inc
+ addons/schoolmanager/tabs_schoolmgr.inc
+Copyright: 2015, Marius Rasch
+  2015, Mike Gabriel
+License: GPL-2+
+
+Files: addons/schoolmanager/content_managecourses.tpl
+ addons/schoolmanager/content_manageparents.tpl
+ addons/schoolmanager/content_managestudents.tpl
+ addons/schoolmanager/content_manageteachers.tpl
+ html/images/schoolmgr.png
+ plugin.dsc
+ locale/*
+Copyright: *No copyright*
+License: GPL-2+
+Comment:
+ Assuming same license as used in .inc source files.
+
+Files: debian/*
+Copyright: 2015, Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+License: GPL-2+
+
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this package; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License 2 can be found in `/usr/share/common-licenses/GPL-2'.

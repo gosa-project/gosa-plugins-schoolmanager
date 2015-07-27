@@ -1,0 +1,3 @@
+addons		usr/share/gosa/plugins/
+locale		usr/share/gosa/locale/plugins/schoolmanager/
+html/images	usr/share/gosa/html/plugins/schoolmanager/

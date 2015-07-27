@@ -1,0 +1,7 @@
+Install Instructions.
+--------------------
+
+Apart from installing this package, you have to add the below config
+section to /etc/gosa/gosa.conf:
+
+@Marius: FIXME, add gosa.conf XML passage here...

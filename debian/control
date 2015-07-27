@@ -1,0 +1,26 @@
+Source: gosa-plugin-schoolmanager
+Section: web
+Priority: optional
+Maintainer: Debian Edu Packaging Team <debian-edu-pkg-team@lists.alioth.debian.org>
+Uploaders:
+ Mike Gabriel <sunweaver@debian.org>,
+Build-Depends:
+ debhelper (>= 9),
+ cdbs,
+ subversion,
+Standards-Version: 3.9.6
+Homepage: https://wiki.it-zukunft-schule.de/Entwicklung/GOsaPluginSchoolmanager
+Vcs-Git: git://anonscm.debian.org/debian-edu/pkg-team/gosa-plugin-schoolmanager.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=debian-edu/pkg-team/gosa-plugin-schoolmanager.git
+
+Package: gosa-plugin-schoolmanager
+Architecture: all
+Depends: 
+ ${misc:Depends},
+ gosa (>= 2.7),
+Description: School Management Add-On for GOsa²
+ Ease managing users and groups at schools (and how they interact) with
+ GOsa².
+ .
+ GOsa² is a combination of system-administrator and end-user web
+ interface, designed to handle LDAP based setups.
