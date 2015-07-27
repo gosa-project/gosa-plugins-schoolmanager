@@ -1,0 +1,340 @@
+#: addons/schoolmanager/content_manageteachers.tpl:2
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:2
+msgid ""
+"The Manage Teachers plug-in provides methods to update teacher user accounts "
+"from a file containing Comma Separated Values."
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:7
+#: addons/schoolmanager/content_managecourses.tpl:7
+#: addons/schoolmanager/content_manageparents.tpl:7
+#: addons/schoolmanager/content_managestudents.tpl:7
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:7
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:7
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:7
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:7
+msgid "CSV export"
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:10
+#: addons/schoolmanager/content_managecourses.tpl:10
+#: addons/schoolmanager/content_manageparents.tpl:10
+#: addons/schoolmanager/content_managestudents.tpl:10
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:10
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:10
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:10
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:10
+msgid "Select CSV file to import"
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:14
+#: addons/schoolmanager/content_managecourses.tpl:14
+#: addons/schoolmanager/content_manageparents.tpl:14
+#: addons/schoolmanager/content_managestudents.tpl:14
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:14
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:14
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:14
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:14
+msgid "Browse"
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:19
+#: addons/schoolmanager/content_managecourses.tpl:19
+#: addons/schoolmanager/content_manageparents.tpl:19
+#: addons/schoolmanager/content_managestudents.tpl:19
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:19
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:19
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:19
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:19
+msgid "Select template"
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:34
+#: addons/schoolmanager/content_managecourses.tpl:34
+#: addons/schoolmanager/content_manageparents.tpl:34
+#: addons/schoolmanager/content_managestudents.tpl:34
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:34
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:34
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:34
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:34
+msgid "All entries have been written to the LDAP database successfully."
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:36
+#: addons/schoolmanager/content_managecourses.tpl:36
+#: addons/schoolmanager/content_manageparents.tpl:36
+#: addons/schoolmanager/content_managestudents.tpl:36
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:36
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:36
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:36
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:36
+msgid "There was an error during the import of your data."
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:39
+#: addons/schoolmanager/content_managecourses.tpl:39
+#: addons/schoolmanager/content_manageparents.tpl:39
+#: addons/schoolmanager/content_managestudents.tpl:39
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:39
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:39
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:39
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:39
+msgid "Here is the status report for the import:"
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:44
+#: addons/schoolmanager/content_managecourses.tpl:44
+#: addons/schoolmanager/content_manageparents.tpl:44
+#: addons/schoolmanager/content_managestudents.tpl:44
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:44
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:44
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:44
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:44
+msgid "Status report"
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:80
+#: addons/schoolmanager/content_managecourses.tpl:80
+#: addons/schoolmanager/content_manageparents.tpl:80
+#: addons/schoolmanager/content_managestudents.tpl:80
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:80
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:80
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:80
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:80
+msgid "Selected Template"
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:83
+#: addons/schoolmanager/content_managecourses.tpl:83
+#: addons/schoolmanager/content_manageparents.tpl:83
+#: addons/schoolmanager/content_managestudents.tpl:83
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:83
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:83
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:83
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:83
+msgid "Template selection"
+msgstr ""
+
+#: addons/schoolmanager/content_manageteachers.tpl:111
+#: addons/schoolmanager/content_manageteachers.tpl:115
+#: addons/schoolmanager/content_managecourses.tpl:111
+#: addons/schoolmanager/content_managecourses.tpl:115
+#: addons/schoolmanager/content_manageparents.tpl:111
+#: addons/schoolmanager/content_manageparents.tpl:115
+#: addons/schoolmanager/content_managestudents.tpl:111
+#: addons/schoolmanager/content_managestudents.tpl:115
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:111
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageteachers.tpl:115
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:111
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:115
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:111
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:115
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:111
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:115
+msgid "Import"
+msgstr ""
+
+#: addons/schoolmanager/class_manageteachers.inc:26
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:26
+msgid "Manage Teachers"
+msgstr ""
+
+#: addons/schoolmanager/class_manageteachers.inc:27
+#: addons/schoolmanager/class_manageparents.inc:27
+#: addons/schoolmanager/class_managestudents.inc:27
+#: addons/schoolmanager/class_managecourses.inc:27
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:27
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:27
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:27
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:27
+msgid "This does something"
+msgstr ""
+
+#: addons/schoolmanager/class_manageteachers.inc:100
+#: addons/schoolmanager/class_manageparents.inc:100
+#: addons/schoolmanager/class_managestudents.inc:100
+#: addons/schoolmanager/class_managecourses.inc:100
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:100
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:100
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:100
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:100
+msgid "Permission error"
+msgstr ""
+
+#: addons/schoolmanager/class_manageteachers.inc:100
+#: addons/schoolmanager/class_manageparents.inc:100
+#: addons/schoolmanager/class_managestudents.inc:100
+#: addons/schoolmanager/class_managecourses.inc:100
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:100
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:100
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:100
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:100
+msgid "You've no permission to import CSV files!"
+msgstr ""
+
+#: addons/schoolmanager/class_manageteachers.inc:120
+#: addons/schoolmanager/class_manageteachers.inc:125
+#: addons/schoolmanager/class_manageteachers.inc:131
+#: addons/schoolmanager/class_manageteachers.inc:136
+#: addons/schoolmanager/class_manageparents.inc:120
+#: addons/schoolmanager/class_manageparents.inc:125
+#: addons/schoolmanager/class_manageparents.inc:131
+#: addons/schoolmanager/class_manageparents.inc:136
+#: addons/schoolmanager/class_managestudents.inc:120
+#: addons/schoolmanager/class_managestudents.inc:125
+#: addons/schoolmanager/class_managestudents.inc:131
+#: addons/schoolmanager/class_managestudents.inc:136
+#: addons/schoolmanager/class_managecourses.inc:120
+#: addons/schoolmanager/class_managecourses.inc:125
+#: addons/schoolmanager/class_managecourses.inc:131
+#: addons/schoolmanager/class_managecourses.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:136
+msgid "Error"
+msgstr ""
+
+#: addons/schoolmanager/class_manageteachers.inc:120
+#: addons/schoolmanager/class_manageteachers.inc:125
+#: addons/schoolmanager/class_manageteachers.inc:131
+#: addons/schoolmanager/class_manageteachers.inc:136
+#: addons/schoolmanager/class_manageparents.inc:120
+#: addons/schoolmanager/class_manageparents.inc:125
+#: addons/schoolmanager/class_manageparents.inc:131
+#: addons/schoolmanager/class_manageparents.inc:136
+#: addons/schoolmanager/class_managestudents.inc:120
+#: addons/schoolmanager/class_managestudents.inc:125
+#: addons/schoolmanager/class_managestudents.inc:131
+#: addons/schoolmanager/class_managestudents.inc:136
+#: addons/schoolmanager/class_managecourses.inc:120
+#: addons/schoolmanager/class_managecourses.inc:125
+#: addons/schoolmanager/class_managecourses.inc:131
+#: addons/schoolmanager/class_managecourses.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:136
+#, php-format
+msgid "Cannot read uploaded file: %s"
+msgstr ""
+
+#: addons/schoolmanager/class_manageteachers.inc:120
+#: addons/schoolmanager/class_manageteachers.inc:131
+#: addons/schoolmanager/class_manageparents.inc:120
+#: addons/schoolmanager/class_manageparents.inc:131
+#: addons/schoolmanager/class_managestudents.inc:120
+#: addons/schoolmanager/class_managestudents.inc:131
+#: addons/schoolmanager/class_managecourses.inc:120
+#: addons/schoolmanager/class_managecourses.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:131
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:120
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:131
+msgid "file not found"
+msgstr ""
+
+#: addons/schoolmanager/class_manageteachers.inc:125
+#: addons/schoolmanager/class_manageparents.inc:125
+#: addons/schoolmanager/class_managestudents.inc:125
+#: addons/schoolmanager/class_managecourses.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:125
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:125
+msgid "file is empty"
+msgstr ""
+
+#: addons/schoolmanager/class_manageteachers.inc:136
+#: addons/schoolmanager/class_manageparents.inc:136
+#: addons/schoolmanager/class_managestudents.inc:136
+#: addons/schoolmanager/class_managecourses.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageteachers.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:136
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:136
+msgid "file not readable"
+msgstr ""
+
+#: addons/schoolmanager/class_manageparents.inc:26
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_manageparents.inc:26
+msgid "Manage Parents"
+msgstr ""
+
+#: addons/schoolmanager/content_managecourses.tpl:2
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managecourses.tpl:2
+msgid ""
+"The Manage Courses plug-in provides methods to update courses from a file "
+"containing Comma Separated Values."
+msgstr ""
+
+#: addons/schoolmanager/content_manageparents.tpl:2
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_manageparents.tpl:2
+msgid ""
+"The Manage Parents plug-in provides methods to update parents user accounts "
+"from a file containing Comma Separated Values."
+msgstr ""
+
+#: addons/schoolmanager/class_managestudents.inc:26
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managestudents.inc:26
+msgid "Manage Students"
+msgstr ""
+
+#: addons/schoolmanager/class_schoolmgr.inc:26
+#: addons/schoolmanager/class_schoolmgr.inc:62
+#: addons/schoolmanager/class_schoolmgr.inc:68
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_schoolmgr.inc:26
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_schoolmgr.inc:62
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_schoolmgr.inc:68
+msgid "School Manager"
+msgstr ""
+
+#: addons/schoolmanager/class_schoolmgr.inc:27
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_schoolmgr.inc:27
+msgid "Management utility for schools"
+msgstr ""
+
+#: addons/schoolmanager/class_schoolmgr.inc:63
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_schoolmgr.inc:63
+msgid "Administration Utility for Schools"
+msgstr ""
+
+#: addons/schoolmanager/class_managecourses.inc:26
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_managecourses.inc:26
+msgid "Manage Courses"
+msgstr ""
+
+#: addons/schoolmanager/content_managestudents.tpl:2
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_managestudents.tpl:2
+msgid ""
+"The Manage Students plug-in provides methods to update student user accounts "
+"from a file containing Comma Separated Values."
+msgstr ""
