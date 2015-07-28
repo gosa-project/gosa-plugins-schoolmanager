@@ -84,7 +84,35 @@ class managestudents extends plugin
 
     /* Generate Template Array, Attribute Array */
     if(!isset($this->csvinfo['arrtempls'])){
+          /* Generating attributes */
+      $attrs = @get_class_vars("user");
+      $this->csvinfo['attr']  = $attrs['attributes'];
 
+      /* Attach the choise none to discard a csv col */
+      $new = array();
+      $new[0]="none";
+      $new[1]="userPassword";
+      for($c = 0; $c < count($this->csvinfo['attr']);$c++){
+        $new[$c+2]=$this->csvinfo['attr'][$c];
+      }
+
+      $this->csvinfo['attr'] = $new;
+
+      /* Search all Templates    */
+      $this->csvinfo['templates'] = $ldap->search("(objectClass=gosaUserTemplate)",array("*"));
+
+      /* Array to handle selected Form fiels */
+      $this->csvinfo['arrtempls'][$tempvar]['name'] = "";
+      $this->csvinfo['arrtempls'][$tempvar]['dn']   = "";
+
+      $this->csvinfo['arrtemplates'][]="None";
+
+      while($temp = $ldap->fetch($this->csvinfo['templates'])){
+        $tempvar ++;
+        $this->csvinfo['arrtemplates'][$tempvar] = $temp['sn'][0]." - ".$this->config->idepartments[preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/')."/i", "", $temp['dn'])];
+        $this->csvinfo['arrtempls']   [$tempvar]['name'] = $temp['sn'][0]; 
+        $this->csvinfo['arrtempls']   [$tempvar]['dn']   = $temp['dn'];
+      }
     }
 
     $arr_temp  = array_flip($this->csvinfo['attr']);
