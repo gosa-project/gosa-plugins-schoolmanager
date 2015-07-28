@@ -7,7 +7,6 @@ Uploaders:
 Build-Depends:
  debhelper (>= 9),
  cdbs,
- subversion,
 Standards-Version: 3.9.6
 Homepage: https://wiki.it-zukunft-schule.de/Entwicklung/GOsaPluginSchoolmanager
 Vcs-Git: git://anonscm.debian.org/debian-edu/pkg-team/gosa-plugin-schoolmanager.git
