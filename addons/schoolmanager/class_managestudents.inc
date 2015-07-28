@@ -167,6 +167,147 @@ class managestudents extends plugin
         else
         {
 
+          $smarty->assign("fileup",TRUE);
+          $str = "";
+
+
+          /* Reading content */
+          while(!feof($handle)) {
+            $str .= fread($handle,1024);
+          }
+
+          $lines = preg_split("/\n/",$str);
+          $anz  = 0;
+          $rest = 0;
+          $data = array();
+
+          /* check colum count */
+          if(is_array($lines))
+            foreach($lines as $line) {
+              /* continue if theres a comment */
+              if(substr(trim($line),0,1)=="#"){
+                continue;
+              }
+
+              $line= str_replace ("\t","",$line);
+              $cells  = explode(",",$line )  ;
+
+              if(count($cells)> $anz ){
+                $anz = count($cells);
+              }
+            }
+
+          /* At least one entry */
+          if($anz >1) {
+
+            /* Generate array with outpu info  */
+            if(is_array($lines))
+              foreach($lines as $line) {
+                $rest = 0;
+                $cnt  = 0;
+
+                /* dont use comments or empty lines */
+                if((substr(trim($line),0,1)=="#")||(empty($line))){
+                  continue;
+                }
+
+                /* replace \t to , */
+                $line= str_replace ("\t"  ,"" ,$line);
+
+                /* get all elements  */
+                $cells  = explode(",",$line )  ;
+
+                /* attach all elements to data array */
+                if(is_array($cells))
+                  foreach($cells as $cell) {
+                    if(!empty($cell)) {
+                      $cnt++; 
+                      $data[]=trim($cell);
+                    }
+                  }
+
+                /* cell count less than anz, attach some empty fields */
+                if(($cnt != $anz)&&(!empty($cnt))) {
+                  $rest = $anz - $cnt;
+                  for($i = 0 ; $i < $rest ; $i ++){
+                    $data[] = " ";
+                  }
+                }
+              }    
+
+            unset($this->csvinfo['sorteddata']);
+            unset($this->csvinfo['colsstr']);
+            unset($this->csvinfo['sorteddata']);
+
+            $this->csvinfo['cols']        = $anz;
+            $this->csvinfo['data']        = array();
+            $this->csvinfo['data']        = $data;
+            $this->csvinfo['count']       = count($this->csvinfo['data']);
+
+            if($this->csvinfo['count']> (6* $this->csvinfo['cols'])) {
+              /* only show 6 rows in ouptuttablei */
+              $datouttemp =  array_chunk($this->csvinfo['data'],(6* $this->csvinfo['cols']));
+              $this->csvinfo['dataout']=$datouttemp[0];
+              $this->csvinfo['shownrowscount'] = 6;
+            } else {
+              $this->csvinfo['shownrowscount'] = (count($this->csvinfo['data']))/$this->csvinfo['cols'];
+              $this->csvinfo['dataout']= $this->csvinfo['data'];  
+            }
+
+            $this->csvinfo['tplid']       = $_POST['template'];
+            $this->csvinfo['templatestr'] = $this->csvinfo['arrtemplates' ][$this->csvinfo['tplid']];
+            $this->csvinfo['count']       = count($this->csvinfo['data']);
+            $this->csvinfo['rows']        = (count($this->csvinfo['data'])/$anz);
+
+            $i =  0; 
+            $tmp = $tmp2= array();
+            if(is_array($this->csvinfo['dataout']))
+              foreach($this->csvinfo['dataout'] as $dat){
+                $tmp[]= $dat;
+                $i++;
+                if($i >=$this->csvinfo['cols']){
+                  $i = 0;
+                  $tmp2[] = $tmp;
+                  $tmp = array();
+                }
+
+              }
+
+            /* Set Templateid  */
+            $smarty->assign("tplid",$this->csvinfo['tplid']);
+
+            /* Set Template  */
+            $smarty->assign("tpl",$this->csvinfo['templatestr']);
+
+            /* Temp var 1 */
+            $smarty->assign("ia",1); 
+
+            /* Temp var 2 */
+            $smarty->assign("i",0); 
+
+            /* Num rows    */
+            $smarty->assign("rows",$this->csvinfo['shownrowscount']);
+
+
+            for($i  = 0 ; $i < $anz; $i ++)
+              $this->csvinfo['arr_selected'][]="0";
+
+            $smarty->assign("selectedattrs",$this->csvinfo['arr_selected']);
+
+            /* Entrie count5 */
+            $smarty->assign("anz",$this->csvinfo['cols']);                                                    
+
+            /* Array with data */
+            $smarty->assign("data",$tmp2);   
+
+            @fclose($handle);
+          } else {
+            $smarty->assign("tpl",$this->csvinfo['attr'][$_POST['template']]);
+            $smarty->assign("LDIFError",TRUE);
+            $smarty->assign("fileup",FALSE);
+        msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);
+          }
+
 
         }
       }
