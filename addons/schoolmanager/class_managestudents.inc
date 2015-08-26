@@ -165,6 +165,8 @@ class managestudents extends plugin
 
           /* Get elemenet */
           $dat = $this->csvinfo['sorteddata'][$i];
+          
+          var_dump($dat);
 
           /* If not all needed vars set .... */
           if(         ( empty($dat['sn']))||( empty($dat['gn']))||TRUE||
@@ -181,8 +183,6 @@ class managestudents extends plugin
                 $rand_str .= substr($feed, rand(0, strlen($feed)-1), 1);
               }
               $password = $rand_str;
-
-             var_dump($dat);
 
             /* Insert in the LDAP tree */
             /*if(count($this->usertab->check())) {
