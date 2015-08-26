@@ -183,7 +183,7 @@ class managestudents extends plugin
           
           foreach ($dat as $key => $value) {
             if(substr( $key, 0, 12 ) === "subjectclass") {
-              $dat['$key'] = strtolower($value);
+              $dat[$key] = strtolower($value);
             }
           }
           
