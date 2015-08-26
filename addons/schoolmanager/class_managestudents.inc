@@ -165,8 +165,6 @@ class managestudents extends plugin
 
           /* Get elemenet */
           $dat = $this->csvinfo['sorteddata'][$i];
-          
-          var_dump($dat);
 
           /* If not all needed vars set .... */
           if(         ( empty($dat['sn']))||( empty($dat['gn']))||
@@ -176,47 +174,6 @@ class managestudents extends plugin
         msg_dialog::display(_("Error"), sprintf(_("Need at least %s, %s and %s to create users!"), bold("sn"), bold("gn"), bold("uid")), ERROR_DIALOG);
           } else {
 
-            /* Register usertab to trigger edit dialog */
-            $this->usertab= new usertabs($this->config, $this->config->data['TABS']['USERTABS'], 'new');
-            $keys = array_keys($dat);
-
-
-            /* Set all submitted vars  */
-            if(is_array($keys)){
-              foreach($keys as $key) {
-                if($key != "status"){
-                  $this->usertab->$key = $dat[$key];
-                  foreach($this->usertab->by_object as $pname => $plugin){
-                    if(isset($this->usertab->by_object[$pname]->$key)){
-                      $this->usertab->by_object[$pname]->$key = $dat[$key];
-                    }
-                  }
-                }
-              }
-            }
-
-            /* Initialize template */
-            if($this->csvinfo['tplid']!=0){
-              $tpl_dn = $this->csvinfo['arrtempls'][$this->csvinfo['tplid']]['dn'];
-              $this->usertab->adapt_from_template($tpl_dn,array("uid","cn","givenName","sn"));
-              $tpl_base  = preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/i')."/", '', $tpl_dn);
-              $this->usertab->by_object['user']->base= $tpl_base;
-            } else {
-
-              /* Reset vars */
-              if(is_array($keys))
-                foreach($keys as $key) {
-                  if($key != "status"){
-                    $this->usertab->by_object['user']->$key = $dat[$key];
-                  }
-                }
-            }
-
-            // Setting user Password 
-            if((isset($dat['userPassword']))&&(!empty($dat['userPassword'])))
-              $password = $dat['userPassword']; 
-            else
-            {
               $rand_str="";
               $feed = "0123456789abcdefghijklmnopqrstuvwxyz";
               for ($i=0; $i < 8; $i++)
@@ -224,7 +181,8 @@ class managestudents extends plugin
                 $rand_str .= substr($feed, rand(0, strlen($feed)-1), 1);
               }
               $password = $rand_str;
-            }
+
+             var_dump($dat);
 
             /* Insert in the LDAP tree */
             /*if(count($this->usertab->check())) {
@@ -331,7 +289,6 @@ class managestudents extends plugin
         /* Set other vars  */
         $smarty->assign("i",1);
         $smarty->assign("ie",0);
-        $smarty->assign("tplid",$this->csvinfo['tplid']);
 
         $smarty->assign("pointsafter",$pointsafter);
         $smarty->assign("pointsbefore",$pointsbefore);
