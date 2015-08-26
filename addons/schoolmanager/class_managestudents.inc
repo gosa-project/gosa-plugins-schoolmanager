@@ -114,7 +114,6 @@ class managestudents extends plugin
         $j =  count($new) - 1;
       }
       $tmp[$i] = $j;
-      $i++;
     }
     $this->csvinfo['arr_selected']= $tmp;
 
