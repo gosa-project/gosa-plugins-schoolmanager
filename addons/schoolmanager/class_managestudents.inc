@@ -187,27 +187,35 @@ class managestudents extends plugin
             }
           }
           
-          var_dump("New user: sn: ".$dat['sn']."\ngivenName: ".$dat['givenName']."\nbirthday: ".$dat['birthday']."\ngender: ".$dat['gender']."\nclass: ".$dat['class']);
+          
+          $student = array();
+          $student['sn'] = array($dat['sn']);
+          $student['givenName'] = array($dat['givenName']);
+          $student['birthday'] = array($dat['birthday']);
+          $student['gender'] = array($dat['gender']);
+          
+          $mother = array();
+          $mother['sn'] = array($dat['mothersn']);
+          $mother['givenName'] = array($dat['mothergn']);
+          $mother['mail'] = array($dat['mothermail']);
+          
+          $father = array();
+          $father['sn'] = array($dat['fathersn']);
+          $father['givenName'] = array($dat['fathergn']);
+          $father['mail'] = array($dat['fathermail']);
+          
+          
+          var_dump($student,$mother,$father);
             
-            $this->csvinfo['sorteddata'][$i]=$dat;
+          $this->csvinfo['sorteddata'][$i]=$dat;
             
-            /* Insert in the LDAP tree */
-            /*
-            if(count($this->usertab->check())) {
-              msg_dialog::displayChecks($this->usertab->check());
-              $this->csvinfo['sorteddata'][$i]['status']="<b>"._("failed")."</b>";
-              $failing = $i+1;
-              break;
-            } else {
-              $this->csvinfo['sorteddata'][$i]['status']=_("OK");
-              $this->usertab->save();
-              if(!change_password($this->usertab->dn,$password,FALSE,'','', $message)){
-                msg_dialog::displayChecks(array($message));
-              }
-            }
-            */
+            
           }
         }
+
+
+
+
 
         $pointsbefore = FALSE;
         $pointsafter  = FALSE;
