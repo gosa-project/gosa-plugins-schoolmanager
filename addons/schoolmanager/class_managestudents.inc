@@ -175,13 +175,21 @@ class managestudents extends plugin
         msg_dialog::display(_("Error"), sprintf(_("Need at least %s, %s and %s to create users!"), bold("sn"), bold("gn"), bold("uid")), ERROR_DIALOG);
           } else {
           
-          $tmpclassparts = explode(".", $dat['class']);
+          $tmpclassparts = explode(".", strtolower($dat['class']));
           $tmpclassparts[0] = trim($tmpclassparts[0]);
           $tmpclassparts[1] = trim($tmpclassparts[1]);
           $tmpclassparts[1] = substr($tmpclassparts[1], 1);
           $dat['class'] = $tmpclassparts[0] . "." . $tmpclassparts[1];
           
+          foreach ($dat as $key => $value) {
+            if(substr( $key, 0, 12 ) === "subjectclass") {
+              $dat['$key'] = strtolower($value);
+            }
+          }
+          
           var_dump("New user: sn: ".$dat['sn']."\ngivenName: ".$dat['givenName']."\nbirthday: ".$dat['birthday']."\ngender: ".$dat['gender']."\nclass: ".$dat['class']);
+            
+            $this->csvinfo['sorteddata'][$i]=$dat;
             
             /* Insert in the LDAP tree */
             /*
