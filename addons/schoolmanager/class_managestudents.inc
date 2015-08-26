@@ -168,7 +168,7 @@ class managestudents extends plugin
           
 
           /* If not all needed vars set .... */
-          if(         ( empty($dat['sn']))||( empty($dat['gn']))||
+          if(         ( empty($dat['sn']))||( empty($dat['givenName']))||
               (!isset($dat['sn']))||(!isset($dat['gn']))){
 
             /* Output Error */
