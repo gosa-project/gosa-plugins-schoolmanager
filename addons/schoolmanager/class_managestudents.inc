@@ -69,46 +69,31 @@ class managestudents extends plugin
     /* Get the LDAP link, to generate the Export */
     $ldap = $this->config->get_ldap_link();
 
-    $arrtemplates = array();
-    $tempvar =0;
-
-    /* Array to fill in Formfields */
-    $arrtemplates[$tempvar] = "None";
     if(!is_array($this->csvinfo)){
       $this->csvinfo=array();
     }
 
-    /* Set Usertemplate information and get all Attribute from userclass */
-    unset ($this->csvinfo['arrtemplates']);
-    unset ($this->csvinfo['arrtempls']);
 
-    /* Generate Template Array, Attribute Array */
-    if(!isset($this->csvinfo['arrtempls'])){
+    $new = array();
+    $new[0] = "no";
+    $new[1] = "id";
+    $new[2] = "sn";
+    $new[3] = "gn";
+    $new[4] = "birthday";
+    $new[5] = "gender";
+    $new[6] = "class";
+    $new[7] = "mothersn";
+    $new[8] = "mothergn";
+    $new[9] = "mothermail";
+    $new[10] = "fathersn";
+    $new[11] = "fathergn";
+    $new[12] = "fathermail";
+    $new[13] = "subjectclass";
 
-      $new = array();
-      $new[0] = "no";
-      $new[1] = "id";
-      $new[2] = "sn";
-      $new[3] = "gn";
-      $new[4] = "birthday";
-      $new[5] = "gender";
-      $new[6] = "class";
-      $new[7] = "mothersn";
-      $new[8] = "mothergn";
-      $new[9] = "mothermail";
-      $new[10] = "fathersn";
-      $new[11] = "fathergn";
-      $new[12] = "fathermail";
-      $new[13] = "subjectclass";
-
-      $this->csvinfo['attr'] = $new;
-
-      $this->csvinfo['arrtemplates'][]="None";
-
-    }
+    $this->csvinfo['attr'] = $new;
 
     $tmp = array();
-    for($i = 0; $i < 20; $i++) {
+    for($i = 0; $i < 33; $i++) {
       $j = $i;
       if($i >= count($new)) {
         $j =  count($new) - 1;
@@ -117,9 +102,6 @@ class managestudents extends plugin
     }
     $this->csvinfo['arr_selected']= $tmp;
 
-
-
-    $smarty->assign("templates",$this->csvinfo['arrtemplates']);
     $smarty->assign("attrs",$this->csvinfo['attr']);
 
     /* Check permissions for import */
@@ -213,7 +195,7 @@ class managestudents extends plugin
                 }
 
                 /* replace \t to , */
-                $line= str_replace ("\t"  ,"" ,$line);
+                $line= str_replace ("\t"  ,"," ,$line);
 
                 /* get all elements  */
                 $cells  = explode(",",$line )  ;
@@ -252,10 +234,6 @@ class managestudents extends plugin
               $this->csvinfo['shownrowscount'] = (count($this->csvinfo['data']))/$this->csvinfo['cols'];
               $this->csvinfo['dataout']= $this->csvinfo['data'];  
             }
-
-            $this->csvinfo['tplid']       = $_POST['template'];
-            $this->csvinfo['templatestr'] = $this->csvinfo['arrtemplates' ][$this->csvinfo['tplid']];
-            $this->csvinfo['count']       = count($this->csvinfo['data']);
             $this->csvinfo['rows']        = (count($this->csvinfo['data'])/$anz);
 
             $i =  0; 
@@ -271,12 +249,6 @@ class managestudents extends plugin
                 }
 
               }
-
-            /* Set Templateid  */
-            $smarty->assign("tplid",$this->csvinfo['tplid']);
-
-            /* Set Template  */
-            $smarty->assign("tpl",$this->csvinfo['templatestr']);
 
             /* Temp var 1 */
             $smarty->assign("ia",1); 
@@ -301,7 +273,6 @@ class managestudents extends plugin
 
             @fclose($handle);
           } else {
-            $smarty->assign("tpl",$this->csvinfo['attr'][$_POST['template']]);
             $smarty->assign("LDIFError",TRUE);
             $smarty->assign("fileup",FALSE);
         msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);

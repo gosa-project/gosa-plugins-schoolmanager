@@ -14,17 +14,6 @@
 		<input id="userfile" name="userfile" type="file" value="{t}Browse{/t}">
 		</td>
 	</tr>
-	<tr>
-		<td>
-		<LABEL for="template">{t}Select template{/t}</LABEL>
-		</td>
-		<td>
-		<select id="template" name="template" size="1" title="">
-			{html_options options=$templates selected=""}	
-		</select>
-		</td>
-		
-	</tr>
 </table>
 {elseif $sorted != FALSE}
 
@@ -77,7 +66,6 @@
 	</table>
 
 {else}
-<br><b>{t}Selected Template{/t}:</b> {$tpl}
 <br>
 <br>
 	<table summary="{t}Template selection{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
