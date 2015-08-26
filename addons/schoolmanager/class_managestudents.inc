@@ -169,7 +169,7 @@ class managestudents extends plugin
 
           /* If not all needed vars set .... */
           if(         ( empty($dat['sn']))||( empty($dat['givenName']))||
-              (!isset($dat['sn']))||(!isset($dat['gn']))){
+              (!isset($dat['sn']))||(!isset($dat['givenName']))){
 
             /* Output Error */
         msg_dialog::display(_("Error"), sprintf(_("Need at least %s, %s and %s to create users!"), bold("sn"), bold("gn"), bold("uid")), ERROR_DIALOG);
