@@ -89,7 +89,7 @@ class managestudents extends plugin
     $new[11] = "fathergn";
     $new[12] = "fathermail";
     
-    for($i = 13; $i < 33; i++) {
+    for($i = 13; $i < 33; $i++) {
       $new[$i] = "subjectclass".($i-12);
     }
 
