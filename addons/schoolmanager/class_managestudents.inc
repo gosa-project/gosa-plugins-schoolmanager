@@ -169,7 +169,7 @@ class managestudents extends plugin
           var_dump($dat);
 
           /* If not all needed vars set .... */
-          if(         ( empty($dat['sn']))||( empty($dat['gn']))
+          if(         ( empty($dat['sn']))||( empty($dat['gn']))||
               (!isset($dat['sn']))||(!isset($dat['gn']))){
 
             /* Output Error */
