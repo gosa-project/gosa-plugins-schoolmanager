@@ -78,7 +78,7 @@ class managestudents extends plugin
     $new[0] = "no";
     $new[1] = "id";
     $new[2] = "sn";
-    $new[3] = "gn";
+    $new[3] = "givenName";
     $new[4] = "birthday";
     $new[5] = "gender";
     $new[6] = "class";
@@ -166,7 +166,6 @@ class managestudents extends plugin
           /* Get elemenet */
           $dat = $this->csvinfo['sorteddata'][$i];
           
-          /* var_dump($dat); */
 
           /* If not all needed vars set .... */
           if(         ( empty($dat['sn']))||( empty($dat['gn']))||
@@ -176,16 +175,7 @@ class managestudents extends plugin
         msg_dialog::display(_("Error"), sprintf(_("Need at least %s, %s and %s to create users!"), bold("sn"), bold("gn"), bold("uid")), ERROR_DIALOG);
           } else {
           
-          /*
-              $rand_str="";
-              $feed = "0123456789abcdefghijklmnopqrstuvwxyz";
-              for ($i=0; $i < 8; $i++)
-              {
-                $rand_str .= substr($feed, rand(0, strlen($feed)-1), 1);
-              }
-              $password = $rand_str;
-
-            */
+          var_dump("New user: sn: %s\ngivenName: %s\nbirthday: %s\ngender: %s, $dat['sn'], $dat['givenName'], $dat['birthday'], $dat['gender']);
             
             /* Insert in the LDAP tree */
             /*
