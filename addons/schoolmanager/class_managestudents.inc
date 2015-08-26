@@ -169,8 +169,8 @@ class managestudents extends plugin
           var_dump($dat);
 
           /* If not all needed vars set .... */
-          if(         ( empty($dat['sn']))||( empty($dat['gn']))||( empty($dat['uid']))||
-              (!isset($dat['sn']))||(!isset($dat['gn']))||(!isset($dat['uid']))){
+          if(         ( empty($dat['sn']))||( empty($dat['gn']))||
+              (!isset($dat['sn']))||(!isset($dat['gn']))){
 
             /* Output Error */
         msg_dialog::display(_("Error"), sprintf(_("Need at least %s, %s and %s to create users!"), bold("sn"), bold("gn"), bold("uid")), ERROR_DIALOG);
@@ -227,7 +227,7 @@ class managestudents extends plugin
             }
 
             /* Insert in the LDAP tree */
-            if(count($this->usertab->check())) {
+            /*if(count($this->usertab->check())) {
               msg_dialog::displayChecks($this->usertab->check());
               $this->csvinfo['sorteddata'][$i]['status']="<b>"._("failed")."</b>";
               $failing = $i+1;
@@ -238,7 +238,7 @@ class managestudents extends plugin
               if(!change_password($this->usertab->dn,$password,FALSE,'','', $message)){
                 msg_dialog::displayChecks(array($message));
               }
-            }
+            }*/
           }
         }
 
