@@ -176,8 +176,8 @@ class managestudents extends plugin
           } else {
           
           $tmpclassparts = explode(".", $dat['class']);
-          $tmpclassparts[0] = trim($tmpclassparts[0];
-          $tmpclassparts[1] = trim($tmpclassparts[1];
+          $tmpclassparts[0] = trim($tmpclassparts[0]);
+          $tmpclassparts[1] = trim($tmpclassparts[1]);
           $tmpclassparts[1] = substr($tmpclassparts[1], 1);
           $dat['class'] = $tmpclassparts[0] . "." $tmpclassparts[1];
           
