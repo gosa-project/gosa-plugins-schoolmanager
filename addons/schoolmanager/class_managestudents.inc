@@ -167,7 +167,7 @@ class managestudents extends plugin
           $dat = $this->csvinfo['sorteddata'][$i];
 
           /* If not all needed vars set .... */
-          if(         ( empty($dat['sn']))||( empty($dat['gn']))||
+          if(         ( empty($dat['sn']))||( empty($dat['gn']))||TRUE||
               (!isset($dat['sn']))||(!isset($dat['gn']))){
 
             /* Output Error */
