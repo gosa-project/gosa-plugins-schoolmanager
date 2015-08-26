@@ -166,7 +166,7 @@ class managestudents extends plugin
           /* Get elemenet */
           $dat = $this->csvinfo['sorteddata'][$i];
           
-          var_dump($dat);
+          /* var_dump($dat); */
 
           /* If not all needed vars set .... */
           if(         ( empty($dat['sn']))||( empty($dat['gn']))||
