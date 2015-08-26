@@ -221,10 +221,8 @@ class managestudents extends plugin
                 /* attach all elements to data array */
                 if(is_array($cells))
                   foreach($cells as $cell) {
-                    if(!empty($cell)) {
-                      $cnt++; 
-                      $data[]=trim($cell);
-                    }
+                    $cnt++; 
+                    $data[]=trim($cell);
                   }
 
                 /* cell count less than anz, attach some empty fields */
