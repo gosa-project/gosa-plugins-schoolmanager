@@ -179,7 +179,7 @@ class managestudents extends plugin
           $tmpclassparts[0] = trim($tmpclassparts[0]);
           $tmpclassparts[1] = trim($tmpclassparts[1]);
           $tmpclassparts[1] = substr($tmpclassparts[1], 1);
-          $dat['class'] = $tmpclassparts[0] . "." $tmpclassparts[1];
+          $dat['class'] = $tmpclassparts[0] . "." . $tmpclassparts[1];
           
           var_dump("New user: sn: ".$dat['sn']."\ngivenName: ".$dat['givenName']."\nbirthday: ".$dat['birthday']."\ngender: ".$dat['gender']."\nclass: ".$dat['class']);
             
