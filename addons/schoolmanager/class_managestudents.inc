@@ -88,17 +88,16 @@ class managestudents extends plugin
     $new[10] = "fathersn";
     $new[11] = "fathergn";
     $new[12] = "fathermail";
-    $new[13] = "subjectclass";
+    
+    for($i = 13; $i < 33; i++) {
+      $new[$i] = "subjectclass".($i-12);
+    }
 
     $this->csvinfo['attr'] = $new;
 
     $tmp = array();
     for($i = 0; $i < 33; $i++) {
-      $j = $i;
-      if($i >= count($new)) {
-        $j =  count($new) - 1;
-      }
-      $tmp[$i] = $j;
+      $tmp[$i] = $i;
     }
     $this->csvinfo['arr_selected']= $tmp;
 
