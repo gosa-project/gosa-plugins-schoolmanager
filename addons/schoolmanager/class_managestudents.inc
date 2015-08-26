@@ -169,7 +169,7 @@ class managestudents extends plugin
           var_dump($dat);
 
           /* If not all needed vars set .... */
-          if(         ( empty($dat['sn']))||( empty($dat['gn']))||TRUE||
+          if(         ( empty($dat['sn']))||( empty($dat['gn']))
               (!isset($dat['sn']))||(!isset($dat['gn']))){
 
             /* Output Error */
@@ -185,7 +185,8 @@ class managestudents extends plugin
               $password = $rand_str;
 
             /* Insert in the LDAP tree */
-            /*if(count($this->usertab->check())) {
+            /*
+            if(count($this->usertab->check())) {
               msg_dialog::displayChecks($this->usertab->check());
               $this->csvinfo['sorteddata'][$i]['status']="<b>"._("failed")."</b>";
               $failing = $i+1;
@@ -196,7 +197,8 @@ class managestudents extends plugin
               if(!change_password($this->usertab->dn,$password,FALSE,'','', $message)){
                 msg_dialog::displayChecks(array($message));
               }
-            }*/
+            }
+            */
           }
         }
 
