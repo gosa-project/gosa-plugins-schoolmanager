@@ -204,14 +204,17 @@ class managestudents extends plugin
         $pointsafter  = FALSE;
 
         /* Get Attributs for Tableheadline  */
+        /*
         $this->csvinfo['colsstr'] = array();
         for($i =0; $i <= $this->csvinfo['cols']; $i++) {
           if(!empty($_POST[('row'.$i)])){
             $this->csvinfo['colsstr'][$i] = $this->csvinfo['attr'][$_POST[('row'.$i)]];
           }
         }
+        */
 
         /*Create array with data for the template */
+        /*
         if($failing == FALSE){
 
           $dataouts= array();
@@ -258,6 +261,7 @@ class managestudents extends plugin
         }
         $tmparr2  = $this->csvinfo['colsstr'];
         $tmparr2[]=_("status");
+        */
 
         /* Error? */
         if ($failing){
@@ -266,6 +270,7 @@ class managestudents extends plugin
         $smarty->assign("error",$failing);
 
         /* Set vars to smarty */
+        /*
         $smarty->assign("cols",count($tmparr2));
         $smarty->assign("anz" ,$this->csvinfo['count']);
         $smarty->assign("rows",$this->csvinfo['shownrowscount']);
@@ -285,6 +290,7 @@ class managestudents extends plugin
           }  
         $smarty->assign("head",$tmparr2);
         $smarty->assign("data",$tmp3);
+        */
 
         /* Set other vars  */
         $smarty->assign("i",1);
