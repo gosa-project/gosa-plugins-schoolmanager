@@ -175,7 +175,8 @@ class managestudents extends plugin
             /* Output Error */
         msg_dialog::display(_("Error"), sprintf(_("Need at least %s, %s and %s to create users!"), bold("sn"), bold("gn"), bold("uid")), ERROR_DIALOG);
           } else {
-
+          
+          /*
               $rand_str="";
               $feed = "0123456789abcdefghijklmnopqrstuvwxyz";
               for ($i=0; $i < 8; $i++)
@@ -184,6 +185,8 @@ class managestudents extends plugin
               }
               $password = $rand_str;
 
+            */
+            
             /* Insert in the LDAP tree */
             /*
             if(count($this->usertab->check())) {
