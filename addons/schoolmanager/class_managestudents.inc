@@ -57,21 +57,18 @@ class managestudents extends plugin {
 
         /* initiate smarty */
         $smarty=get_smarty ();
-        $smarty->assign ("selectedattrs",array (0=>""));
-        $smarty->assign ("data",array (0=>""));
-        $smarty->assign ("head",array (0=>""));
 
-
+        /* PHASE 1 done, set $file_uploaded to TRUE */
         $smarty->assign ("file_uploaded",0);
 
-        /* PHASE 1 */
+        /* PHASE 2 done, set $templates_selected to TRUE  */
         $smarty->assign ("templates_selected",0);
 
-        /* PHASE 2 */
+        /* PHASE 3 done, set $data_sorted to TRUE  */
         $smarty->assign ("data_sorted",0);
 
-        /* PHASE 3 */
-        /* View Summary */
+        /* PHASE 4 done, set $summary_accepted to TRUE  */
+        $smarty->assign ("summary_accepted",0);
 
         /* Get the LDAP link, to generate the Export */
         $ldap=$this->config->get_ldap_link ();
@@ -99,14 +96,7 @@ class managestudents extends plugin {
         for ($i=13;$i<33;$i++) {
             $new[$i]="subjectclass". ($i-12);
         }
-        $this->csvinfo['attr']=$new;
-        $tmp=array ();
-        for ($i=0;$i<33;$i++) {
-            $tmp[$i]=$i;
-        }
-        $this->csvinfo['arr_selected']=$tmp;
-        $smarty->assign ("attrs",$this->csvinfo['attr']);
-
+        $this->csvinfo['attrs']=$new;
         /* Check permissions for import */
         $acl=$this->ui->get_permissions ($this->config->current['BASE'],"all/all");
         if (!preg_match ("/w/",$acl)) {
@@ -125,7 +115,9 @@ class managestudents extends plugin {
          * 3: Importing to LDAP
          */
         /*
-         * PHASE 1: CSV has been selected for upload, we now upload the file and select user object template for the to be import user accounts
+         * PHASE 1: CSV file has been selected for upload. We now upload the file and parse its data.
+         *          For PHASE 2 we search LDAP for available gosaUserTemplate objects and provide them
+         *          in $this->csvinfo['templates'].
          */
         if (isset ($_POST['phase1'])) {
 
@@ -179,6 +171,7 @@ class managestudents extends plugin {
                         $this->csvinfo['templates']['DNs'] = array();
                         $this->csvinfo['templates']['DNs'][]   = "";
 
+                        /* add found gosaUserTemplate objects */
                         while($result = $ldap->fetch($this->csvinfo['templates']['ldapsearch'])){
                             $index ++;
                             $this->csvinfo['templates']['formfields'][] = $result['sn'][0]." - ".$this->config->idepartments[preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/')."/i", "", $result['dn'])];
@@ -198,32 +191,49 @@ class managestudents extends plugin {
         }
 
         /*
-         * PHASE 2: After the admin has assigned LDAP attributes to CSV columns we create
-         *          the data structure that will finally be imported into LDAP.
+         * PHASE 2: After the admin has assigned available user object templates,
+         *          we will display the CSV data and allow assigned columns
+         *          LDAP attributes to columns in the CSV file.
+         *
+         *          NOTE: For the sake of better readibility, we turn the CSV
+         *                around a 90° angle counter-clockwise.
          */
         elseif (isset ($_POST['phase2'])) {
 
-            /* Template Handling */
+            /* template handling */
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("templates_selected",TRUE);
 
-            /* Temp var 1 */
-            $smarty->assign ("ia",1);
+            /* initialize $this->csvinfo['attrs_selected'], only do this here and once */
+            $tmp_array=array ();
+            for ($i=0;$i<33;$i++) {
+                $tmp_array[$i]=$i;
+            }
+            $this->csvinfo['attrs_selected']=$tmp_array;
 
-            /* Temp var 2 */
-            $smarty->assign ("i",0);
+            /* student import attributes */
+            $smarty->assign ("attrs",$this->csvinfo['attrs']);
 
-            /* Num rows    */
-            $smarty->assign ("rows",$this->csvinfo['shownrowscount']);
-            for ($i=0;$i<$anz;$i++)
-                $this->csvinfo['arr_selected'][]="0";
-            $smarty->assign ("selectedattrs",$this->csvinfo['arr_selected']);
+            /* per row selected student import attributes */
+            $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
 
-            /* Entrie count5 */
-            $smarty->assign ("anz",$this->csvinfo['cols']);
+            /* number of CSV columns -> number of rows in 90°-counter-clockwise-rotated table */
+            $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
 
-            /* Array with data */
-            $smarty->assign ("data",$tmp2);
+            /* CSV data */
+            $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
+
+        }
+        /*
+         * PHASE 3: After the admin has assigned LDAP attributes to CSV columns we create
+         *          the data structure that will finally be imported into LDAP.
+         */
+        elseif (isset ($_POST['phase3'])) {
+
+            /* template handling */
+            $smarty->assign ("file_uploaded",TRUE);
+            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("data_sorted",TRUE);
 
             for ($i=0;$i<$this->csvinfo['rows'];$i++) {
 
@@ -231,18 +241,18 @@ class managestudents extends plugin {
                 $this->csvinfo['sorteddata'][$i]=array ();
 
                 /* Go through every col */
-                for ($a=0;$a<= ($this->csvinfo['cols']);$a++) {
+                for ($a=0;$a<= ($this->csvinfo['num_cols']);$a++) {
 
                     /* Append a status col at last, to show possibly errors */
-                    if ($a== ($this->csvinfo['cols'])) {
+                    if ($a== ($this->csvinfo['num_cols'])) {
                         $this->csvinfo['sorteddata'][$i]["status"]="-";
                     }
                     else {
-                        $cc= ($i* ($this->csvinfo['cols']))+$a;
+                        $cc= ($i* ($this->csvinfo['num_cols']))+$a;
 
                         /* If theres a Attribut given for this col */
                         if (!empty ($_POST[ ('row'. ($a))])) {
-                            $this->csvinfo['sorteddata'][$i][$this->csvinfo['attr'][$_POST[ ('row'. ($a))]]]=$this->csvinfo['data'][ ($cc)];
+                            $this->csvinfo['sorteddata'][$i][$this->csvinfo['attrs'][$_POST[ ('row'. ($a))]]]=$this->csvinfo['data'][ ($cc)];
                         }
                     }
                 }
@@ -254,10 +264,10 @@ class managestudents extends plugin {
                 $rowcnt++;
 
                 /* Set the col count */
-                $tblcolcount=count ($this->csvinfo['cols']);
+                $tblcolcount=count ($this->csvinfo['num_cols']);
 
                 /* entrie count */
-                $tbl_entries=count ($this->csvinfo['count']);
+                $tbl_entries=count ($this->csvinfo['num_rows']);
 
                 /* row count */
                 $tbl_rows=$tbl_entries/$tblcolcount;
@@ -310,9 +320,9 @@ class managestudents extends plugin {
 
                 /* Get Attributs for Tableheadline  */
                 $this->csvinfo['colsstr']=array ();
-                for ($i=0;$i<=$this->csvinfo['cols'];$i++) {
+                for ($i=0;$i<=$this->csvinfo['num_cols'];$i++) {
                     if (!empty ($_POST[ ('row'.$i)])) {
-                        $this->csvinfo['colsstr'][$i]=$this->csvinfo['attr'][$_POST[ ('row'.$i)]];
+                        $this->csvinfo['colsstr'][$i]=$this->csvinfo['attrs'][$_POST[ ('row'.$i)]];
                     }
                 }
 
@@ -366,7 +376,7 @@ class managestudents extends plugin {
 
                 /* Set vars to smarty */
                 $smarty->assign ("cols",count ($tmparr2));
-                $smarty->assign ("anz",$this->csvinfo['count']);
+                $smarty->assign ("anz",$this->csvinfo['num_rows']);
                 $smarty->assign ("rows",$this->csvinfo['shownrowscount']);
                 $cnt=0;
                 $tmp2=$tmp3=array ();
@@ -422,11 +432,11 @@ class managestudents extends plugin {
     function parseCSV($raw_csv_data)
     {
         $lines=preg_split ("/\n/",$raw_csv_data);
-        $anz=0;
+        $num_columns=0;
         $rest=0;
         $data=array ();
 
-        /* check colum count */
+        /* check colum count, if it stays zero, we probably don't have a comma separated CSV file */
         if (is_array ($lines))
             foreach ($lines as $line) {
 
@@ -436,77 +446,49 @@ class managestudents extends plugin {
                 }
                 $line=str_replace ("\t","",$line);
                 $cells=explode (",",$line);
-                if (count ($cells)>$anz) {
-                    $anz=count ($cells);
+                if (count ($cells)>$num_columns) {
+                    $num_columns=count ($cells);
                 }
             }
 
-        /* At least one entry */
-        if ($anz>1) {
+        /* parse rows and import into $this->csvinfo */
+        if ($num_columns > 1) {
 
-            /* Generate array with outpu info  */
+            /* Generate array with output info  */
             if (is_array ($lines))
                 foreach ($lines as $line) {
                     $rest=0;
                     $cnt=0;
 
-                    /* dont use comments or empty lines */
+                    /* do not use comments or empty lines */
                     if ( (substr (trim ($line),0,1)=="#")|| (empty ($line))) {
                         continue;
                     }
 
-                /* replace \t to , */
-                $line=str_replace ("\t",",",$line);
+                    /* replace \t to , */
+                    $line=str_replace ("\t",",",$line);
 
-                /* get all elements  */
-                $cells=explode (",",$line);
+                    /* get all elements  */
+                    $cells=explode (",",$line);
 
-                /* attach all elements to data array */
-                if (is_array ($cells))
-                    foreach ($cells as $cell) {
-                        $cnt++;
-                        $data[]=trim ($cell);
+                    /* attach all elements to data array */
+                    if (is_array ($cells))
+
+                        /* cell count less than num_columns, attach some empty fields */
+                        if ( count($cells) <= $num_columns ) {
+                            $rest=$num_columns - count($cells);
+                            for ($i=0;$i<$rest;$i++) {
+                                $cells[]="";
+                            }
+                        }
+                    $data[]=$cells;
                 }
-
-                /* cell count less than anz, attach some empty fields */
-                if ( ($cnt!=$anz)&& (!empty ($cnt))) {
-                    $rest=$anz-$cnt;
-                    for ($i=0;$i<$rest;$i++) {
-                        $data[]=" ";
-                    }
-                }
-            }
-            unset ($this->csvinfo['sorteddata']);
-            unset ($this->csvinfo['colsstr']);
-            unset ($this->csvinfo['sorteddata']);
-            $this->csvinfo['cols']=$anz;
-            $this->csvinfo['data']=array ();
+            // unset ($this->csvinfo['sorteddata']);
+            // unset ($this->csvinfo['colsstr']);
+            // unset ($this->csvinfo['sorteddata']);
+            $this->csvinfo['num_cols']=$num_columns;
             $this->csvinfo['data']=$data;
-            $this->csvinfo['count']=count ($this->csvinfo['data']);
-            if ($this->csvinfo['count']> (6*$this->csvinfo['cols'])) {
-
-                /* only show 6 rows in ouptuttablei */
-                $datouttemp=array_chunk ($this->csvinfo['data'], (6*$this->csvinfo['rows']));
-                $this->csvinfo['dataout']=$datouttemp[0];
-                $this->csvinfo['showncolscount']=6;
-            }
-            else {
-                $this->csvinfo['showncolscount']= (count ($this->csvinfo['data']))/$this->csvinfo['rows'];
-                $this->csvinfo['dataout']=$this->csvinfo['data'];
-            }
-            $this->csvinfo['rows']= (count ($this->csvinfo['data'])/$anz);
-            $i=0;
-            $tmp=$tmp2=array ();
-            if (is_array ($this->csvinfo['dataout']))
-                foreach ($this->csvinfo['dataout'] as $dat) {
-                    $tmp[]=$dat;
-                $i++;
-                if ($i>=$this->csvinfo['cols']) {
-                    $i=0;
-                    $tmp2[]=$tmp;
-                    $tmp=array ();
-                }
-            }
+            $this->csvinfo['num_rows']=count($this->csvinfo['data']);
             return TRUE;
         }
         return FALSE;

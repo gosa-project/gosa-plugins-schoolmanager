@@ -1,6 +1,15 @@
 <p>
     {t}With GOsa² School Manager's {/t}<b>{t}Manage Students Module{/t}</b>{t} you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
 </p>
+<hr>
+
+<!-- PHASE 1: CSV file upload -->
+
+{if $file_uploaded != TRUE}
+<input type="hidden" name="phase1">
+
+<br><h3>{t}STEP 1: Upload CSV File{/t}</h3>
+
 <p>
     {t}The data provided via the uploadable CSV file needs to be of the following data format:{/t}
 </p>
@@ -8,12 +17,6 @@
     FIXME! Todo...
 </p>
 
-<hr>
-
-<!-- PHASE 1: CSV file upload -->
-
-{if $file_uploaded != TRUE}
-<input type="hidden" name="phase1">
 <table summary="{t}Upload CSV File{/t}">
 	<tr>
 		<td style="vertical-align: middle;">
@@ -32,11 +35,15 @@
 {elseif $templates_selected != TRUE}
 <input type="hidden" name="phase2">
 
+<br><h3>{t}STEP 2: Select user object templates{/t}</h3>
+
 <p>
 {t}Please choose from the availble GOsa² user object templates what account templates to use for students and for their parents.{/t}
 <br><br>
 FIXME: Provide a checkbox to disable parent imports.
 </p>
+
+
 <table summary="{t}Select user object templates{/t}">
 	<tr>
 		<td style="vertical-align: middle;">
@@ -65,6 +72,12 @@ FIXME: Provide a checkbox to disable parent imports.
 
 {elseif $data_sorted != TRUE}
 <input type="hidden" name="phase3">
+
+<br><h3>{t}STEP 3: Check CSV data and assign to LDAP attributes{/t}</h3>
+
+<p>
+{t}Please sort assign LDAP attributes to the CSV data columns. Note that the CSV file has been rotated counter-clockwise for better readability.{/t}
+</p>
 <br>
 <br>
 <table summary="{t}Check CSV data{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
@@ -72,7 +85,7 @@ FIXME: Provide a checkbox to disable parent imports.
 	<tr>
 		<td bgcolor="#BBBBBB">
 			<select name="row{$key}" size="1" title="">
-				{html_options options=$attrs selected=$selectedattrs[$key]}
+				{html_options options=$attrs selected=$attrs_selected[$key]}
 			</select>
 		</td>
 		{foreach from=$data item=val2 key=key2}
@@ -80,13 +93,23 @@ FIXME: Provide a checkbox to disable parent imports.
 				{$data[$key2][$key]}&nbsp;
 			</td>
 		{/foreach}
+		{if $key == 0}
+		<td  style="vertical-align: middle;" bgcolor="#EEEEEE" rowspan={$num_rows}>&nbsp;&nbsp;&nbsp;<b>...</b>&nbsp;&nbsp;&nbsp;</td>
+		{/if}
 	</tr>
 {/foreach}
 </table>
 
-{else}
-
+{elseif $summary_accepted != TRUE}
 <input type="hidden" name="phase4">
+
+<br><h3>{t}STEP 4: Accept summary and proceed to final LDAP import{/t}</h3>
+<br>
+<br>
+
+{else}
+<input type="hidden" name="phase5">
+
 <br>
 
 {if $error == FALSE}
@@ -120,12 +143,12 @@ FIXME: Provide a checkbox to disable parent imports.
 <hr>
 <div class="plugin-actions">
 	{if $file_uploaded != TRUE}
-	Continue here, when ready: <button type='submit' name='fileup'>{t}Upload CSV and Select User Templates (Step 1/4){/t}</button>
+	Continue here, when ready: <button type='submit' name='fileup'>{t}Select User Templates (Step 2/5){/t}</button>
 	{elseif $templates_selected != TRUE}
-	Continue here, when ready: <input name="sorted" value="{t}Check and Sort CSV Data (Step 2/4){/t}" type ="submit">
+	Continue here, when ready: <input name="sorted" value="{t}Check and Sort CSV Data (Step 3/5){/t}" type ="submit">
 	{elseif $data_sorted != TRUE}
-	Continue here, when ready: <input name="sorted" value="{t}View Summary before Import (Step 3/4){/t}" type ="submit">
+	Continue here, when ready: <input name="sorted" value="{t}View Summary before Import (Step 4/5){/t}" type ="submit">
 	{elseif $summary_checked != TRUE}
-	Continue here, when ready: <input name="sorted" value="{t}Import Data into LDAP (Step 4/4){/t}" type ="submit">
+	Continue here, when ready: <input name="sorted" value="{t}Import Data into LDAP (Step 5/5){/t}" type ="submit">
 	{/if}
 </div>
