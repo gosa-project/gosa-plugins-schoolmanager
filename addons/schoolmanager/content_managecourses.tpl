@@ -20,10 +20,10 @@
 		</td>
 		<td>
 		<select id="template" name="template" size="1" title="">
-			{html_options options=$templates selected=""}	
+			{html_options options=$templates selected=""}
 		</select>
 		</td>
-		
+
 	</tr>
 </table>
 {elseif $sorted != FALSE}
@@ -52,12 +52,12 @@
 		{if $pointsbefore == TRUE}
 		<tr>
 			<td colspan={$i} bgcolor = "#EEEEEE">
-				...	
+				...
 			</td>
 		</tr>
 		{/if}
-		
-		{foreach from=$data item=row key=key}	
+
+		{foreach from=$data item=row key=key}
 		<tr>
 			{foreach from=$data[$key] item=col key=key2}
 			<td bgcolor="#EEEEEE">
@@ -73,7 +73,7 @@
 	        </td>
 	    </tr>
 	    {/if}
-																		   
+
 	</table>
 
 {else}
@@ -99,7 +99,7 @@
 			{/foreach}
 		</tr>
 		{/foreach}
-		
+
 	</table>
 
 < ! - - {html_table loop=$data cols=$anz table_attr='border="1"'}- - >

@@ -142,7 +142,7 @@ class managecourses extends plugin
 
         }
       }
-    }                                              
+    }
 
     /* Show main page */
     return ($smarty->fetch (get_template_path('content_managecourses.tpl', TRUE)));

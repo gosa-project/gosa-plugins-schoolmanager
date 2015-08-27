@@ -60,17 +60,19 @@ class managestudents extends plugin {
         $smarty->assign ("selectedattrs",array (0=>""));
         $smarty->assign ("data",array (0=>""));
         $smarty->assign ("head",array (0=>""));
-        
+
 
         $smarty->assign ("file_uploaded",0);
 
         /* PHASE 1 */
-        $smarty->assign ("data_sorted",0);
-
-        /* PHASE 2 */
         $smarty->assign ("templates_selected",0);
 
+        /* PHASE 2 */
+        $smarty->assign ("data_sorted",0);
+
         /* PHASE 3 */
+        /* View Summary */
+
         /* Get the LDAP link, to generate the Export */
         $ldap=$this->config->get_ldap_link ();
 
@@ -118,12 +120,12 @@ class managestudents extends plugin {
          * PHASES
          *
          * 0: File Upload
-         * 1: Data Sorting
-         * 2: Selecting User Templates
+         * 1: Selecting User Templates
+         * 2: Data Sorting
          * 3: Importing to LDAP
          */
         /*
-         * PHASE 1: CSV has been selected for upload, now we load the file and analyze it for data sorting
+         * PHASE 1: CSV has been selected for upload, we now upload the file and select user object template for the to be import user accounts
          */
         if (isset ($_POST['phase1'])) {
 
@@ -151,99 +153,19 @@ class managestudents extends plugin {
                 }
                 else {
                     $smarty->assign ("file_uploaded",TRUE);
-                    $str="";
+                    $raw_csv_data="";
 
                     /* Reading content */
                     while (!feof ($handle)) {
-                        $str.=fread ($handle,1024);
-                    }
-                    $lines=preg_split ("/\n/",$str);
-                    $anz=0;
-                    $rest=0;
-                    $data=array ();
-
-                    /* check colum count */
-                    if (is_array ($lines)) 
-                        foreach ($lines as $line) {
-
-                            /* continue if theres a comment */
-                            if (substr (trim ($line),0,1)=="#") {
-                                continue;
-                        }
-                        $line=str_replace ("\t","",$line);
-                        $cells=explode (",",$line);
-                        if (count ($cells)>$anz) {
-                            $anz=count ($cells);
-                        }
+                        $raw_csv_data.=fread ($handle,1024);
                     }
 
-                    /* At least one entry */
-                    if ($anz>1) {
+                    @fclose ($handle);
 
-                        /* Generate array with outpu info  */
-                        if (is_array ($lines)) 
-                            foreach ($lines as $line) {
-                                $rest=0;
-                            $cnt=0;
+                    $parser_ok = parseCSV($raw_csv_data);
 
-                            /* dont use comments or empty lines */
-                            if ( (substr (trim ($line),0,1)=="#")|| (empty ($line))) {
-                                continue;
-                            }
-
-                            /* replace \t to , */
-                            $line=str_replace ("\t",",",$line);
-
-                            /* get all elements  */
-                            $cells=explode (",",$line);
-
-                            /* attach all elements to data array */
-                            if (is_array ($cells)) 
-                                foreach ($cells as $cell) {
-                                    $cnt++;
-                                $data[]=trim ($cell);
-                            }
-
-                            /* cell count less than anz, attach some empty fields */
-                            if ( ($cnt!=$anz)&& (!empty ($cnt))) {
-                                $rest=$anz-$cnt;
-                                for ($i=0;$i<$rest;$i++) {
-                                    $data[]=" ";
-                                }
-                            }
-                        }
-                        unset ($this->csvinfo['sorteddata']);
-                        unset ($this->csvinfo['colsstr']);
-                        unset ($this->csvinfo['sorteddata']);
-                        $this->csvinfo['cols']=$anz;
-                        $this->csvinfo['data']=array ();
-                        $this->csvinfo['data']=$data;
-                        $this->csvinfo['count']=count ($this->csvinfo['data']);
-                        if ($this->csvinfo['count']> (6*$this->csvinfo['cols'])) {
-
-                            /* only show 6 rows in ouptuttablei */
-                            $datouttemp=array_chunk ($this->csvinfo['data'], (6*$this->csvinfo['rows']));
-                            $this->csvinfo['dataout']=$datouttemp[0];
-                            $this->csvinfo['showncolscount']=6;
-                        }
-                        else {
-                            $this->csvinfo['showncolscount']= (count ($this->csvinfo['data']))/$this->csvinfo['rows'];
-                            $this->csvinfo['dataout']=$this->csvinfo['data'];
-                        }
-                        $this->csvinfo['rows']= (count ($this->csvinfo['data'])/$anz);
-                        $i=0;
-                        $tmp=$tmp2=array ();
-                        if (is_array ($this->csvinfo['dataout'])) 
-                            foreach ($this->csvinfo['dataout'] as $dat) {
-                                $tmp[]=$dat;
-                            $i++;
-                            if ($i>=$this->csvinfo['cols']) {
-                                $i=0;
-                                $tmp2[]=$tmp;
-                                $tmp=array ();
-                            }
-                        }
-
+                    if ($parser_ok)
+                    {
                         /* Temp var 1 */
                         $smarty->assign ("ia",1);
 
@@ -252,7 +174,7 @@ class managestudents extends plugin {
 
                         /* Num rows    */
                         $smarty->assign ("rows",$this->csvinfo['shownrowscount']);
-                        for ($i=0;$i<$anz;$i++) 
+                        for ($i=0;$i<$anz;$i++)
                             $this->csvinfo['arr_selected'][]="0";
                         $smarty->assign ("selectedattrs",$this->csvinfo['arr_selected']);
 
@@ -261,11 +183,10 @@ class managestudents extends plugin {
 
                         /* Array with data */
                         $smarty->assign ("data",$tmp2);
-                        @fclose ($handle);
                     }
                     else {
                         $smarty->assign ("LDIFError",TRUE);
-                        $smarty->assign ("fileup",FALSE);
+                        $smarty->assign ("file_uploaded",FALSE);
                         msg_dialog::display (_ ("Error"),_ ("Cannot find CSV data in the selected file!"),ERROR_DIALOG);
                     }
                 }
@@ -280,7 +201,7 @@ class managestudents extends plugin {
 
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
+            $smarty->assign ("templates_selected",TRUE);
             for ($i=0;$i<$this->csvinfo['rows'];$i++) {
 
                 /* Preparing given Data */
@@ -304,7 +225,7 @@ class managestudents extends plugin {
                 }
             }
 
-            /* aleast one entry */
+            /* at least one entry */
             $rowcnt=0;
             if (isset ($this->csvinfo['sorteddata'])) {
                 $rowcnt++;
@@ -400,7 +321,7 @@ class managestudents extends plugin {
                         $pointsafter=FALSE;
                     }
                     $this->csvinfo['shownrowscount']=$end-$begin;
-                    if ($this->csvinfo['shownrowscount']>$this->csvinfo['rows']) 
+                    if ($this->csvinfo['shownrowscount']>$this->csvinfo['rows'])
                         $this->csvinfo['shownrowscount']=$this->csvinfo['rows'];
                     $dataouts=array ();
                     for ($i=$begin;$i<=$end;$i++) {
@@ -426,7 +347,7 @@ class managestudents extends plugin {
                 $smarty->assign ("rows",$this->csvinfo['shownrowscount']);
                 $cnt=0;
                 $tmp2=$tmp3=array ();
-                if (is_array ($dataouts)) 
+                if (is_array ($dataouts))
                     foreach ($dataouts as $tmp) {
                         $tmp2[]=$tmp;
                     $cnt++;
@@ -459,20 +380,113 @@ class managestudents extends plugin {
 
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
             $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("data_sorted",TRUE);
 
             /*
              * PHASE 4: Finally write everything to LDAP
              */
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
             $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("data_sorted",TRUE);
         }
 
         /* Show main page */
         return ($smarty->fetch (get_template_path ('content_managestudents.tpl',TRUE)));
+    }
+
+    function parseCSV($raw)
+    {
+        $lines=preg_split ("/\n/",$str);
+        $anz=0;
+        $rest=0;
+        $data=array ();
+
+        /* check colum count */
+        if (is_array ($lines))
+            foreach ($lines as $line) {
+
+                /* continue if theres a comment */
+                if (substr (trim ($line),0,1)=="#") {
+                    continue;
+                }
+                $line=str_replace ("\t","",$line);
+                $cells=explode (",",$line);
+                if (count ($cells)>$anz) {
+                    $anz=count ($cells);
+                }
+            }
+
+        /* At least one entry */
+        if ($anz>1) {
+
+            /* Generate array with outpu info  */
+            if (is_array ($lines))
+                foreach ($lines as $line) {
+                    $rest=0;
+                    $cnt=0;
+
+                    /* dont use comments or empty lines */
+                    if ( (substr (trim ($line),0,1)=="#")|| (empty ($line))) {
+                        continue;
+                    }
+
+                /* replace \t to , */
+                $line=str_replace ("\t",",",$line);
+
+                /* get all elements  */
+                $cells=explode (",",$line);
+
+                /* attach all elements to data array */
+                if (is_array ($cells))
+                    foreach ($cells as $cell) {
+                        $cnt++;
+                        $data[]=trim ($cell);
+                }
+
+                /* cell count less than anz, attach some empty fields */
+                if ( ($cnt!=$anz)&& (!empty ($cnt))) {
+                    $rest=$anz-$cnt;
+                    for ($i=0;$i<$rest;$i++) {
+                        $data[]=" ";
+                    }
+                }
+            }
+            unset ($this->csvinfo['sorteddata']);
+            unset ($this->csvinfo['colsstr']);
+            unset ($this->csvinfo['sorteddata']);
+            $this->csvinfo['cols']=$anz;
+            $this->csvinfo['data']=array ();
+            $this->csvinfo['data']=$data;
+            $this->csvinfo['count']=count ($this->csvinfo['data']);
+            if ($this->csvinfo['count']> (6*$this->csvinfo['cols'])) {
+
+                /* only show 6 rows in ouptuttablei */
+                $datouttemp=array_chunk ($this->csvinfo['data'], (6*$this->csvinfo['rows']));
+                $this->csvinfo['dataout']=$datouttemp[0];
+                $this->csvinfo['showncolscount']=6;
+            }
+            else {
+                $this->csvinfo['showncolscount']= (count ($this->csvinfo['data']))/$this->csvinfo['rows'];
+                $this->csvinfo['dataout']=$this->csvinfo['data'];
+            }
+            $this->csvinfo['rows']= (count ($this->csvinfo['data'])/$anz);
+            $i=0;
+            $tmp=$tmp2=array ();
+            if (is_array ($this->csvinfo['dataout']))
+                foreach ($this->csvinfo['dataout'] as $dat) {
+                    $tmp[]=$dat;
+                $i++;
+                if ($i>=$this->csvinfo['cols']) {
+                    $i=0;
+                    $tmp2[]=$tmp;
+                    $tmp=array ();
+                }
+            }
+            return TRUE;
+        }
+        return FALSE;
     }
 }
 

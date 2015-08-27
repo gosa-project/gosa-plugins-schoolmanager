@@ -142,7 +142,7 @@ class manageparents extends plugin
 
         }
       }
-    }                                              
+    }
 
     /* Show main page */
     return ($smarty->fetch (get_template_path('content_manageparents.tpl', TRUE)));
