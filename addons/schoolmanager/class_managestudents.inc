@@ -79,15 +79,15 @@ class managestudents extends plugin
     $new[1] = "id";
     $new[2] = "sn";
     $new[3] = "givenName";
-    $new[4] = "birthday";
+    $new[4] = "dateOfBirth";
     $new[5] = "gender";
     $new[6] = "class";
-    $new[7] = "mothersn";
-    $new[8] = "mothergn";
-    $new[9] = "mothermail";
-    $new[10] = "fathersn";
-    $new[11] = "fathergn";
-    $new[12] = "fathermail";
+    $new[7] = "mother_sn";
+    $new[8] = "mother_givenName";
+    $new[9] = "mother_mail";
+    $new[10] = "father_sn";
+    $new[11] = "father_givenName";
+    $new[12] = "father_mail";
     
     for($i = 13; $i < 33; $i++) {
       $new[$i] = "subjectclass".($i-12);
@@ -191,18 +191,18 @@ class managestudents extends plugin
           $student = array();
           $student['sn'] = array($dat['sn']);
           $student['givenName'] = array($dat['givenName']);
-          $student['birthday'] = array($dat['birthday']);
+          $student['birthday'] = array($dat['dateOfBirth']);
           $student['gender'] = array($dat['gender']);
           
           $mother = array();
-          $mother['sn'] = array($dat['mothersn']);
-          $mother['givenName'] = array($dat['mothergn']);
-          $mother['mail'] = array($dat['mothermail']);
+          $mother['sn'] = array($dat['mother_sn']);
+          $mother['givenName'] = array($dat['mother_givenName']);
+          $mother['mail'] = array($dat['mother_mail']);
           
           $father = array();
-          $father['sn'] = array($dat['fathersn']);
-          $father['givenName'] = array($dat['fathergn']);
-          $father['mail'] = array($dat['fathermail']);
+          $father['sn'] = array($dat['father_sn']);
+          $father['givenName'] = array($dat['father_givenName']);
+          $father['mail'] = array($dat['father_mail']);
           
           
           var_dump($student,$mother,$father);
