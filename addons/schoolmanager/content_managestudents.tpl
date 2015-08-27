@@ -27,10 +27,28 @@
 </table>
 
 
-<!-- PHASE 2: CSV data sorting -->
+<!-- PHASE 2: Selecting templates -->
+
+{elseif $templates_selected != TRUE}
+<input type="hidden" name="phase2">
+<table summary="{t}Upload CSV File{/t}">
+	<tr>
+		<td style="vertical-align: middle;">
+			<LABEL for="template">{t}Select template{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			<select id="template" name="template" size="1" title="">
+			{html_options options=$templates selected=""}
+			</select>
+		</td>
+	</tr>
+</table>
+
+
+<!-- PHASE 3: CSV data sorting -->
 
 {elseif $data_sorted != TRUE}
-<input type="hidden" name="phase2">
+<input type="hidden" name="phase3">
 <br>
 <br>
 <table summary="{t}Template selection{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
@@ -49,13 +67,6 @@
 	</tr>
 {/foreach}
 </table>
-
-
-<!-- PHASE 3: Selecting templates -->
-
-{elseif $templates_selected != FALSE}
-
-    FIXME: User Templates Selection
 
 {else}
 
@@ -77,7 +88,7 @@
 			<td bgcolor="#BBBBBB">
 				<b>{$h}</b>
 			</td>
-			{foreach from=$data item=row key=key}	
+			{foreach from=$data item=row key=key}
 			<td bgcolor="#EEEEEE">
 				{$data[$key][$key2]}
 			</td>
@@ -93,8 +104,12 @@
 <hr>
 <div class="plugin-actions">
 	{if $file_uploaded != TRUE}
-	Continue here, when ready: <button type='submit' name='fileup'>{t}Upload CSV and Check (Step 1/4){/t}</button>
+	Continue here, when ready: <button type='submit' name='fileup'>{t}Upload CSV and Select User Templates (Step 1/4){/t}</button>
+	{elseif $templates_selected != TRUE}
+	Continue here, when ready: <input name="sorted" value="{t}Check and Sort CSV Data (Step 2/4){/t}" type ="submit">
 	{elseif $data_sorted != TRUE}
-	Continue here, when ready: <input name="sorted" value="{t}Select User Templates (Step 2/4){/t}" type ="submit">
+	Continue here, when ready: <input name="sorted" value="{t}View Summary before Import (Step 3/4){/t}" type ="submit">
+	{elseif $summary_checked != TRUE}
+	Continue here, when ready: <input name="sorted" value="{t}Import Data into LDAP (Step 4/4){/t}" type ="submit">
 	{/if}
 </div>
