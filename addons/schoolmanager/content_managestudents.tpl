@@ -33,27 +33,22 @@
 <input type="hidden" name="phase2">
 <br>
 <br>
-	<table summary="{t}Template selection{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
-		<tr>
-			{foreach from=$data[0] item=item key=key}
-			<td bgcolor="#BBBBBB">
-				<select name="row{$key}" size="1" title="">
-		    		 {html_options options=$attrs selected=$selectedattrs[$key]}
-				</select>
-			</td>
-			{/foreach}
-		</tr>
-		{foreach from=$data item=val key=key}
-		<tr>
-			{foreach from=$data[$key] item=val2 key=key2}
-			<td bgcolor="#EEEEEE">
-				{$data[$key][$key2]}&nbsp;
-			</td>
-			{/foreach}
-		</tr>
+<table summary="{t}Template selection{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
+	{foreach from=$data item=val key=key}
+		{foreach from=$data[$key] item=val2 key=key2}
+			<tr>
+				<td bgcolor="#BBBBBB">
+					<select name="row{$key2}" size="1" title="">
+						{html_options options=$attrs selected=$selectedattrs[$key2]}
+					</select>
+				</td>
+				<td bgcolor="#EEEEEE">
+					{$data[$key][$key2]}&nbsp;
+				</td>
+			</tr>
 		{/foreach}
-		
-	</table>
+	{/foreach}
+</table>
 
 
 <!-- PHASE 3: Selecting templates -->
