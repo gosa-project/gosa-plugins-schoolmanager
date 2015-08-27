@@ -1,5 +1,4 @@
 <?php
-
 /*
   This code is an addon for GOsa (https://gosa.gonicus.de)
   Copyright (C) 2015 Mike Gabriel
@@ -19,7 +18,6 @@
   with this program; if not, write to the Free Software Foundation, Inc.,
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-
 class managestudents extends plugin {
 
     /* Definitions */
@@ -37,7 +35,9 @@ class managestudents extends plugin {
 
     /* constructor */
     function managestudents (&$config,$dn=NULL) {
+
         $this->initTime=microtime (TRUE);
+
         /* Include config object */
         $this->config=&$config;
         $this->ui=get_userinfo ();
@@ -60,21 +60,26 @@ class managestudents extends plugin {
         $smarty->assign ("selectedattrs",array (0=>""));
         $smarty->assign ("data",array (0=>""));
         $smarty->assign ("head",array (0=>""));
+        
 
+        $smarty->assign ("file_uploaded",0);
 
-        $smarty->assign ("file_uploaded",0); /* PHASE 1 */
-        $smarty->assign ("data_sorted",0); /* PHASE 2 */
-        $smarty->assign ("templates_selected",0); /* PHASE 3 */
+        /* PHASE 1 */
+        $smarty->assign ("data_sorted",0);
 
+        /* PHASE 2 */
+        $smarty->assign ("templates_selected",0);
+
+        /* PHASE 3 */
         /* Get the LDAP link, to generate the Export */
         $ldap=$this->config->get_ldap_link ();
 
-	/* initialize CSV Info array */
+        /* initialize CSV Info array */
         if (!is_array ($this->csvinfo)) {
             $this->csvinfo=array ();
         }
 
-	/* CSV columns required for import */
+        /* CSV columns required for import */
         $new=array ();
         $new[0]="no";
         $new[1]="id";
@@ -109,14 +114,14 @@ class managestudents extends plugin {
             return ($smarty->fetch (get_template_path ('content_managestudents.tpl',TRUE)));
         }
 
-	/*
+        /*
          * PHASES
          *
          * 0: File Upload
          * 1: Data Sorting
          * 2: Selecting User Templates
          * 3: Importing to LDAP
-
+         */
         /*
          * PHASE 1: CSV has been selected for upload, now we load the file and analyze it for data sorting
          */
@@ -191,6 +196,7 @@ class managestudents extends plugin {
 
                             /* get all elements  */
                             $cells=explode (",",$line);
+
                             /* attach all elements to data array */
                             if (is_array ($cells)) 
                                 foreach ($cells as $cell) {
@@ -219,7 +225,6 @@ class managestudents extends plugin {
                             $datouttemp=array_chunk ($this->csvinfo['data'], (6*$this->csvinfo['rows']));
                             $this->csvinfo['dataout']=$datouttemp[0];
                             $this->csvinfo['showncolscount']=6;
-
                         }
                         else {
                             $this->csvinfo['showncolscount']= (count ($this->csvinfo['data']))/$this->csvinfo['rows'];
@@ -290,6 +295,7 @@ class managestudents extends plugin {
                     }
                     else {
                         $cc= ($i* ($this->csvinfo['cols']))+$a;
+
                         /* If theres a Attribut given for this col */
                         if (!empty ($_POST[ ('row'. ($a))])) {
                             $this->csvinfo['sorteddata'][$i][$this->csvinfo['attr'][$_POST[ ('row'. ($a))]]]=$this->csvinfo['data'][ ($cc)];
@@ -326,7 +332,6 @@ class managestudents extends plugin {
 
                         /* Output Error */
                         msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s, %s and %s to create users!"),bold ("sn"),bold ("gn"),bold ("uid")),ERROR_DIALOG);
-
                     }
                     else {
                         $tmpclassparts=explode (".",strtolower ($dat['class']));
@@ -358,6 +363,7 @@ class managestudents extends plugin {
                 }
                 $pointsbefore=FALSE;
                 $pointsafter=FALSE;
+
                 /* Get Attributs for Tableheadline  */
                 $this->csvinfo['colsstr']=array ();
                 for ($i=0;$i<=$this->csvinfo['cols'];$i++) {
@@ -365,6 +371,7 @@ class managestudents extends plugin {
                         $this->csvinfo['colsstr'][$i]=$this->csvinfo['attr'][$_POST[ ('row'.$i)]];
                     }
                 }
+
                 /*Create array with data for the template */
                 if ($failing==FALSE) {
                     $dataouts=array ();
@@ -406,11 +413,13 @@ class managestudents extends plugin {
                 }
                 $tmparr2=$this->csvinfo['colsstr'];
                 $tmparr2[]=_ ("status");
+
                 /* Error? */
                 if ($failing) {
                     msg_dialog::display (_ ("Error"),sprintf (_ ("Cannot add entry %s!"),bold ($failing)),ERROR_DIALOG);
                 }
                 $smarty->assign ("error",$failing);
+
                 /* Set vars to smarty */
                 $smarty->assign ("cols",count ($tmparr2));
                 $smarty->assign ("anz",$this->csvinfo['count']);
@@ -429,6 +438,7 @@ class managestudents extends plugin {
                 }
                 $smarty->assign ("head",$tmparr2);
                 $smarty->assign ("data",$tmp3);
+
                 /* Set other vars  */
                 $smarty->assign ("i",1);
                 $smarty->assign ("ie",0);
@@ -438,6 +448,7 @@ class managestudents extends plugin {
             else {
                 msg_dialog::display (_ ("Information"),_ ("Nothing to import!"),INFO_DIALOG);
             }
+
             /* If theres a File uploaded */
         }
 
@@ -445,16 +456,15 @@ class managestudents extends plugin {
          * PHASE 3: The user object templates have been selected, now we create the use objects from templates.
          */
         elseif (isset ($_POST['phase3'])) {
+
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("data_sorted",TRUE);
             $smarty->assign ("templates_selected",TRUE);
 
-
-        /*
-         * PHASE 4: Finally write everything to LDAP
-         */
-
+            /*
+             * PHASE 4: Finally write everything to LDAP
+             */
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("data_sorted",TRUE);
@@ -463,8 +473,8 @@ class managestudents extends plugin {
 
         /* Show main page */
         return ($smarty->fetch (get_template_path ('content_managestudents.tpl',TRUE)));
-
     }
 }
+
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
 ?>
