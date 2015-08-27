@@ -84,7 +84,7 @@ FIXME: Provide a checkbox to disable parent imports.
 {foreach from=$data[0] item=val key=key}
 	<tr>
 		<td bgcolor="#BBBBBB">
-			<select name="row{$key}" size="1" title="">
+			<select name="column_head_{$key}" size="1" title="">
 				{html_options options=$attrs selected=$attrs_selected[$key]}
 			</select>
 		</td>

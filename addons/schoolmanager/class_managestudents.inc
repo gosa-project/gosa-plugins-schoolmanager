@@ -235,28 +235,19 @@ class managestudents extends plugin {
             $smarty->assign ("templates_selected",TRUE);
             $smarty->assign ("data_sorted",TRUE);
 
-            for ($i=0;$i<$this->csvinfo['rows'];$i++) {
-
-                /* Preparing given Data */
-                $this->csvinfo['sorteddata'][$i]=array ();
-
-                /* Go through every col */
-                for ($a=0;$a<= ($this->csvinfo['num_cols']);$a++) {
-
-                    /* Append a status col at last, to show possibly errors */
-                    if ($a== ($this->csvinfo['num_cols'])) {
-                        $this->csvinfo['sorteddata'][$i]["status"]="-";
-                    }
-                    else {
-                        $cc= ($i* ($this->csvinfo['num_cols']))+$a;
-
-                        /* If theres a Attribut given for this col */
-                        if (!empty ($_POST[ ('row'. ($a))])) {
-                            $this->csvinfo['sorteddata'][$i][$this->csvinfo['attrs'][$_POST[ ('row'. ($a))]]]=$this->csvinfo['data'][ ($cc)];
-                        }
-                    }
+            $new_attrs_selected = array();
+            for ($i=0; $i<count($this->csvinfo['attrs_selected']);$i++)
+            {
+                if(isset($_POST["column_head_$i"]))
+                {
+                    $new_attrs_selected[] = $_POST["column_head_$i"];
+                }
+                else {
+                    $new_attrs_selected[] = $i;
                 }
             }
+            $this->csvinfo['attrs_selected'] = $new_attrs_selected;
+
 
             /* at least one entry */
             $rowcnt=0;
