@@ -162,27 +162,31 @@ class managestudents extends plugin {
 
                     @fclose ($handle);
 
-                    $parser_ok = parseCSV($raw_csv_data);
+                    $parser_ok = managestudents::parseCSV($raw_csv_data);
 
-                    if ($parser_ok)
+                    if ($parser_ok != FALSE)
                     {
-                        /* Temp var 1 */
-                        $smarty->assign ("ia",1);
 
-                        /* Temp var 2 */
-                        $smarty->assign ("i",0);
+                        /* Populate the Template Selectors for PHASE 2 */
 
-                        /* Num rows    */
-                        $smarty->assign ("rows",$this->csvinfo['shownrowscount']);
-                        for ($i=0;$i<$anz;$i++)
-                            $this->csvinfo['arr_selected'][]="0";
-                        $smarty->assign ("selectedattrs",$this->csvinfo['arr_selected']);
+                        /* Search all Templates    */
+                        $this->csvinfo['templates'] = array();
+                        $this->csvinfo['templates']['ldapsearch'] = $ldap->search("(objectClass=gosaUserTemplate)",array("*"));
 
-                        /* Entrie count5 */
-                        $smarty->assign ("anz",$this->csvinfo['cols']);
+                        /* add the "None" template first */
+                        $this->csvinfo['templates']['formfields'] = array();
+                        $this->csvinfo['templates']['formfields'][] = "None";
+                        $this->csvinfo['templates']['DNs'] = array();
+                        $this->csvinfo['templates']['DNs'][]   = "";
 
-                        /* Array with data */
-                        $smarty->assign ("data",$tmp2);
+                        while($result = $ldap->fetch($this->csvinfo['templates']['ldapsearch'])){
+                            $index ++;
+                            $this->csvinfo['templates']['formfields'][] = $result['sn'][0]." - ".$this->config->idepartments[preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/')."/i", "", $result['dn'])];
+                            $this->csvinfo['templates']['DNs'][] = $result['dn'];
+                        }
+
+                        $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
+
                     }
                     else {
                         $smarty->assign ("LDIFError",TRUE);
@@ -202,6 +206,25 @@ class managestudents extends plugin {
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("templates_selected",TRUE);
+
+            /* Temp var 1 */
+            $smarty->assign ("ia",1);
+
+            /* Temp var 2 */
+            $smarty->assign ("i",0);
+
+            /* Num rows    */
+            $smarty->assign ("rows",$this->csvinfo['shownrowscount']);
+            for ($i=0;$i<$anz;$i++)
+                $this->csvinfo['arr_selected'][]="0";
+            $smarty->assign ("selectedattrs",$this->csvinfo['arr_selected']);
+
+            /* Entrie count5 */
+            $smarty->assign ("anz",$this->csvinfo['cols']);
+
+            /* Array with data */
+            $smarty->assign ("data",$tmp2);
+
             for ($i=0;$i<$this->csvinfo['rows'];$i++) {
 
                 /* Preparing given Data */
@@ -384,7 +407,7 @@ class managestudents extends plugin {
             $smarty->assign ("data_sorted",TRUE);
 
             /*
-             * PHASE 4: Finally write everything to LDAP
+             * PHASE 4: Finally write everything to LDAP (directly, no futher $_POST['phase4']...)
              */
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
@@ -396,9 +419,9 @@ class managestudents extends plugin {
         return ($smarty->fetch (get_template_path ('content_managestudents.tpl',TRUE)));
     }
 
-    function parseCSV($raw)
+    function parseCSV($raw_csv_data)
     {
-        $lines=preg_split ("/\n/",$str);
+        $lines=preg_split ("/\n/",$raw_csv_data);
         $anz=0;
         $rest=0;
         $data=array ();

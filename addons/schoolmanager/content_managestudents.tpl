@@ -31,13 +31,29 @@
 
 {elseif $templates_selected != TRUE}
 <input type="hidden" name="phase2">
-<table summary="{t}Upload CSV File{/t}">
+
+<p>
+{t}Please choose from the availble GOsa² user object templates what account templates to use for students and for their parents.{/t}
+<br><br>
+FIXME: Provide a checkbox to disable parent imports.
+</p>
+<table summary="{t}Select user object templates{/t}">
 	<tr>
 		<td style="vertical-align: middle;">
-			<LABEL for="template">{t}Select template{/t}</LABEL>
+			<LABEL for="template">{t}Select template for student accounts{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="template" name="template" size="1" title="">
+			<select id="template" name="template_students" size="1" title="">
+			{html_options options=$templates selected=""}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="vertical-align: middle;">
+			<LABEL for="template">{t}Select template for parent accounts{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			<select id="template" name="template_parent" size="1" title="">
 			{html_options options=$templates selected=""}
 			</select>
 		</td>
@@ -51,7 +67,7 @@
 <input type="hidden" name="phase3">
 <br>
 <br>
-<table summary="{t}Template selection{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
+<table summary="{t}Check CSV data{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
 {foreach from=$data[0] item=val key=key}
 	<tr>
 		<td bgcolor="#BBBBBB">
