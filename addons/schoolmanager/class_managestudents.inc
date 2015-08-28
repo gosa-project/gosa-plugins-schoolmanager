@@ -88,8 +88,14 @@ class managestudents extends manageaccounts {
                 $student=array ();
                 $student['sn']=array ($row_sorted['sn']);
                 $student['givenName']=array ($row_sorted['givenName']);
-                $student['birthday']=array ($row_sorted['dateOfBirth']);
-                $student['gender']=array ($row_sorted['gender']);
+
+                $_dateOfBirth= $row_sorted['dateOfBirth'];
+                if (strpos($_dateOfBirth,'.')) {
+                    list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
+                    $_dateOfBirth = $year."-".$month."-".$day;
+                }
+                $student['dateOfBirth']=array ($_dateOfBirth);
+                $student['gender']=array (strtoupper($row_sorted['gender']));
                 /* Keeping the memory footprint low:
                  *
                  *     $student['_template']
@@ -98,7 +104,9 @@ class managestudents extends manageaccounts {
                  * Retrieve the actual template DN string later like this
                  * $template_dn = $this->csvinfo['templates']['DNs'][$student['_template']];
                  */
-                $student['_template']=$this->csvinfo['template_main'];
+                $student['_template']=array($this->csvinfo['template_main']);
+                $student['_status']=array('unchecked');
+                $student['_action']=array('none');
 
                 /* auxiliary accounts */
                 $parent1=array ();
@@ -106,14 +114,18 @@ class managestudents extends manageaccounts {
                 $parent1['givenName']=array ($row_sorted['parent1_givenName']);
                 $parent1['mail']=array ($row_sorted['parent1_mail']);
                 /* see above for how to retrieve the template's DN */
-                $parent1['_template']=$this->csvinfo['template_aux'];
+                $parent1['_template']=array($this->csvinfo['template_aux']);
+                $parent1['_status']=array('unchecked');
+                $parent1['_action']=array('none');
 
                 $parent2=array ();
                 $parent2['sn']=array ($row_sorted['parent2_sn']);
                 $parent2['givenName']=array ($row_sorted['parent2_givenName']);
                 $parent2['mail']=array ($row_sorted['parent2_mail']);
                 /* see above for how to retrieve the template's DN */
-                $parent2['_template']=$this->csvinfo['template_aux'];
+                $parent2['_template']=array($this->csvinfo['template_aux']);
+                $parent2['_status']=array('unchecked');
+                $parent2['_action']=array('none');
 
                 /* groups for this account */
 

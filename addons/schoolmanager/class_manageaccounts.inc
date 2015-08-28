@@ -279,9 +279,15 @@ class manageaccounts extends plugin{
             $smarty->assign ("templates_selected",TRUE);
             if (is_array($this->csvinfo['data_preldap']) and (!empty($this->csvinfo['data_preldap'])))
             {
+                $this->accountStatusCheck();
+
                 $smarty->assign ("data_sorted",TRUE);
                 $smarty->assign ("data",array_slice($this->csvinfo['data_preldap'], 0, 5));
+
+                /* free some memory... */
+                unset ($this->csvinfo['data_sorted']);
             }
+
         }
 
         /*
@@ -367,6 +373,98 @@ class manageaccounts extends plugin{
     {
         /* adapt this in sub-classes!!! */
         return array();
+    }
+
+    function compareAccounts($account_a, $account_b, $attrs=array("sn", "givenName"))
+    {
+        $success = TRUE;
+        foreach ($attrs as $key => $attr)
+        {
+            $val_a = $account_a[$attr][0];
+            $val_b = $account_b[$attr][0];
+
+            if ($val_a != $val_b)
+            {
+                $success = FALSE;
+                break;
+            }
+        }
+        return $success;
+    }
+
+    function accountStatusCheck()
+    {
+        $ldap = $this->config->get_ldap_link();
+
+        /*
+         * This all may get us in deep trouble on huge LDAP databases
+         * when memory limits and/or execution time in PHP are set too low.
+         */
+
+        $ldapsearch = $ldap->search("(objectClass=gosaAccount)",array("sn","givenName","gender","dateOfBirth", "mail"));
+
+        /* this will probably scale very very badly... Improvement needed. Suggestions? */
+        while ($gosa_account = $ldap->fetch($ldapsearch))
+        {
+            foreach ($this->csvinfo['data_preldap'] as $key => $row)
+            {
+                if (isset($row['main_account']))
+                {
+                    if ($this->compareAccounts($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth")))
+                    {
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'exists';
+                        /*
+                         * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
+                         *        Later, we need to make actions more configurable...
+                         */
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_action'][0]= 'skip';
+
+                        /* break out of the inner loop if the $gosa_account has been found */
+                        break;
+                    }
+                }
+                if (isset($row['aux_accounts']))
+                {
+                    foreach ($row['aux_accounts'] as $aux_key => $aux_account)
+                    {
+                        if ($this->compareAccounts($aux_account, $gosa_account, array("sn", "givenName", "mail")))
+                        {
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'exists';
+                            /*
+                             * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
+                             *        Later, we need to make actions more configurable...
+                             */
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['action'][0]= 'skip';
+
+                            /* break out of the inner loop if the $gosa_account has been found */
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        foreach ($this->csvinfo['data_preldap'] as $key => $row)
+        {
+            if (isset($row['main_account']))
+            {
+                if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]==='unchecked')
+                {
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'not-found';
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_action'][0]= 'create';
+                }
+                if (isset($row['aux_accounts']))
+                {
+                    foreach ($row['aux_accounts'] as $aux_key => $aux_account)
+                    {
+                        if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]==='unchecked')
+                        {
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'not-found';
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_action'][0]= 'create';
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

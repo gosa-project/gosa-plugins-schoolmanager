@@ -82,9 +82,16 @@ class manageteachers extends manageaccounts {
                 $teacher=array ();
                 $teacher['sn']=array ($row_sorted['sn']);
                 $teacher['givenName']=array ($row_sorted['givenName']);
-                $teacher['birthday']=array ($row_sorted['dateOfBirth']);
-                $teacher['gender']=array ($row_sorted['gender']);
-                $teacher['_template']=$this->csvinfo['template_main'];
+                $teacher['gender']=array (strtoupper($row_sorted['gender']));
+                $_dateOfBirth= $row_sorted['dateOfBirth'];
+                if (strpos($_dateOfBirth,'.')) {
+                    list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
+                    $_dateOfBirth = $year."-".$month."-".$day;
+                }
+                $teacher['dateOfBirth']=array ($_dateOfBirth);
+                $teacher['_template']=array($this->csvinfo['template_main']);
+                $teacher['_status']=array('unchecked');
+                $teacher['_action']=array('none');
             }
 
  /* groups for this account */
