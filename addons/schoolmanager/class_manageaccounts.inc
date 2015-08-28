@@ -44,9 +44,6 @@ class manageaccounts extends plugin{
         $this->config=&$config;
         $this->ui=get_userinfo ();
         stats::log ('plugin',$class=get_class ($this),$category=array ($this->acl_category),$action='open',$amount=1,$duration= (microtime (TRUE)-$this->initTime));
-
-        /* Call parent execute */
-        plugin::execute ();
     }
 
     function getAttributes()
@@ -62,6 +59,9 @@ class manageaccounts extends plugin{
     }
 
     function execute () {
+
+        /* Call parent execute */
+        plugin::execute ();
 
         $import_account_type = substr(get_class($this), 6, strlen(get_class($this)));
 
