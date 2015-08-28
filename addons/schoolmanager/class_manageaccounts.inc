@@ -242,7 +242,6 @@ class manageaccounts extends plugin{
             /* template handling */
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("templates_selected",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
 
             $new_attrs_selected = array();
             for ($i=0; $i<count($this->csvinfo['attrs_selected']);$i++)
@@ -273,29 +272,26 @@ class manageaccounts extends plugin{
 
             $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
 
-            /* DROP LATER */
-            echo "<pre>";
-            var_dump($this->csvinfo['data_preldap']);
-            echo "</pre>";
+            /* Template Handling */
+            $smarty->assign ("file_uploaded",TRUE);
+            $smarty->assign ("templates_selected",TRUE);
+            if (is_array($this->csvinfo['data_preldap']) and (!empty($this->csvinfo['data_preldap'])))
+            {
+                $smarty->assign ("data_sorted",TRUE);
+                $smarty->assign ("data",array_slice($this->csvinfo['data_preldap'], 0, 5));
+            }
         }
 
         /*
-         * PHASE 4: The user object templates have been selected, now we create the use objects from templates.
+         * PHASE 4: Finally write everything to LDAP (directly, no futher $_POST['phase4']...)
          */
-        elseif (isset ($_POST['phase3'])) {
+        elseif (isset ($_POST['phase5'])) {
 
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("templates_selected",TRUE);
             $smarty->assign ("data_sorted",TRUE);
-
-            /*
-             * PHASE 5: Finally write everything to LDAP (directly, no futher $_POST['phase4']...)
-             */
-            /* Template Handling */
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("templates_selected",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
+            $smarty->assign ("summary_accepted",TRUE);
         }
 
         /* Show main page */

@@ -131,6 +131,89 @@
 <br><h3>{t}STEP 4: Accept summary and proceed to final LDAP import{/t}</h3>
 <br>
 <br>
+{foreach from=$data item=row key=key}
+<table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}New account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
+
+	<tr>
+	{if $data[$key]['aux_accounts']}
+	<td bgcolor="#BBBBBB" colspan={2 + count($data[$key]['aux_accounts'])}>
+	{else}
+	<td bgcolor="#BBBBBB" colspan="2">
+	{/if}
+		{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}New account: %1, %2{/t}
+	</td>
+	</tr>
+
+	{if $data[$key]['aux_accounts']}
+	<tr>
+	<td>
+	<table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}Account group for %1, %2{/t}"
+	{/if}
+	{foreach from=$data[$key]['main_account'] item=value key=property}
+	<tr>
+		<td bgcolor="#EEEEEE">
+		<b>{$property}:</b>
+		</td>
+		<td bgcolor="#FEFEFE">
+		{$data[$key]['main_account'][$property][0]}
+		</td>
+	</tr>
+	{/foreach}
+	{if $data[$key]['aux_accounts']}
+	</table>
+	{foreach $data[$key]['aux_accounts'] item=aux_account key=idx_aux_account}
+	<td>
+		<table summary="{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}New account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
+			<tr>
+			<td bgcolor="#BBBBBB" colspan="2">
+				{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}New associated account: %1, %2{/t}
+			</td>
+			</tr>
+
+			{foreach from=$aux_account item=value key=property}
+			<tr>
+				<td bgcolor="#EEEEEE">
+				<b>{$property}:</b>
+				</td>
+				<td bgcolor="#FEFEFE">
+				{$aux_account[$property][0]}
+			</td>
+			</tr>
+			{/foreach}
+		</table>
+	</td>
+	{/foreach}
+	</tr>
+	</table>
+	</td>
+	</tr>
+	{/if}
+</table>
+
+{if $data[$key]['groups']}
+{foreach $data[$key]['groups'] item=group key=idx_groups}
+<table summary="{t 1=$group['cn'][0]}New account: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
+	<tr>
+	<td bgcolor="#BBBBBB" colspan="2">
+		{t 1=$group['cn'][0]}New group: %1{/t}
+	</td>
+	</tr>
+	{foreach from=$group item=value key=property}
+	<tr>
+		<td bgcolor="#EEEEEE">
+		<b>{$property}:</b>
+		</td>
+		<td bgcolor="#FEFEFE">
+		{$group[$property][0]}
+		</td>
+        </tr>
+	{/foreach}
+</table>
+{/foreach}
+{/if}
+<br>
+
+{/foreach}
 
 {else}
 <input type="hidden" name="phase5">
@@ -170,10 +253,10 @@
     {if $file_uploaded != TRUE}
     Continue here, when ready: <button type='submit' name='fileup'>{t}Select User Templates (Step 2/5){/t}</button>
     {elseif $templates_selected != TRUE}
-    Continue here, when ready: <input name="sorted" value="{t}Check and Sort CSV Data (Step 3/5){/t}" type ="submit">
+    Continue here, when ready: <input name="btn_template_selected" value="{t}Check and Sort CSV Data (Step 3/5){/t}" type ="submit">
     {elseif $data_sorted != TRUE}
-    Continue here, when ready: <input name="sorted" value="{t}View Summary before Import (Step 4/5){/t}" type ="submit">
-    {elseif $summary_checked != TRUE}
-    Continue here, when ready: <input name="sorted" value="{t}Import Data into LDAP (Step 5/5){/t}" type ="submit">
+    Continue here, when ready: <input name="btn_data_sorted" value="{t}View Summary before Import (Step 4/5){/t}" type ="submit">
+    {elseif $summary_accepted != TRUE}
+    Continue here, when ready: <input name="btn_summary_accepted" value="{t}Import Data into LDAP (Step 5/5){/t}" type ="submit">
     {/if}
 </div>

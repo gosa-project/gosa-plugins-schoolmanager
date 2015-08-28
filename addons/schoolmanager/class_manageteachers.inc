@@ -91,7 +91,7 @@ class manageteachers extends manageaccounts {
 
                 /* class group */
                 $class_group= array ();
-                $class_group['cn']= 'class_'.$row_sorted['class'];
+                $class_group['cn']= array('class_'.$row_sorted['class']);
                 $class_group['objectClass']= array(
                     'top',
                     'posixGroup',
@@ -109,7 +109,7 @@ class manageteachers extends manageaccounts {
                                     'top',
                                     'posixGroup',
                                 ),
-                                'cn' => 'course_'.$row_sorted[$key]
+                                'cn' => array('course_'.$row_sorted[$key])
                             );
                         }
                     }

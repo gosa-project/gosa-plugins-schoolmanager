@@ -119,7 +119,7 @@ class managestudents extends manageaccounts {
 
                 /* class group */
                 $class_group= array ();
-                $class_group['cn']= 'class_'.$row_sorted['class'];
+                $class_group['cn']= array('class_'.$row_sorted['class']);
                 $class_group['objectClass']= array(
                     'top',
                     'posixGroup',
@@ -137,13 +137,13 @@ class managestudents extends manageaccounts {
                                     'top',
                                     'posixGroup',
                                 ),
-                                'cn' => 'course_'.$row_sorted[$key]
+                                'cn' => array('course_'.$row_sorted[$key])
                             );
                         }
                     }
                 }
                 $parent_group= array ();
-                $parent_group['cn']= 'parents_{%uid}';
+                $parent_group['cn']= array('parents_{%uid}');
                 $parent_group['objectClass'] = array(
                     'top',
                     'groupOfNames'
