@@ -61,6 +61,57 @@ class managestudents extends manageaccounts {
 
         return $attrs;
     }
+
+    function prepareLdapImport($csv_data_sorted)
+    {
+        /* Get elemenet */
+        $data_preldap= array();
+
+        foreach ($csv_data_sorted as $row_sorted)
+        {
+            /* If not all needed vars set .... */
+            if ( (empty ($row_sorted['sn'])) || (empty ($row_sorted['givenName']))|| (!isset ($row_sorted['sn']))|| (!isset ($row_sorted['givenName']))) {
+
+                /* Output Error */
+                msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s and %s to create users!"),bold ("sn"),bold ("gn")),ERROR_DIALOG);
+            }
+            else {
+                $tmpclassparts=explode (".", strtolower ($row_sorted['class']));
+                $tmpclassparts[0]=trim ($tmpclassparts[0]);
+                $tmpclassparts[1]=trim ($tmpclassparts[1]);
+                $tmpclassparts[1]=substr ($tmpclassparts[1],1);
+                $row_sorted['class']=$tmpclassparts[0].".".$tmpclassparts[1];
+                foreach ($row_sorted as $key=>$value) {
+                    if (substr ($key,0,12)==="subjectclass") {
+                        $row_sorted[$key]=strtolower ($value);
+                    }
+                }
+                $student=array ();
+                $student['sn']=array ($row_sorted['sn']);
+                $student['givenName']=array ($row_sorted['givenName']);
+                $student['birthday']=array ($row_sorted['dateOfBirth']);
+                $student['gender']=array ($row_sorted['gender']);
+
+                $mother=array ();
+                $mother['sn']=array ($row_sorted['mother_sn']);
+                $mother['givenName']=array ($row_sorted['mother_givenName']);
+                $mother['mail']=array ($row_sorted['mother_mail']);
+
+                $father=array ();
+                $father['sn']=array ($row_sorted['father_sn']);
+                $father['givenName']=array ($row_sorted['father_givenName']);
+                $father['mail']=array ($row_sorted['father_mail']);
+            }
+            $data_preldap[]= array(
+                'main_account' => $student,
+                'aux_accounts' => array(
+                    0 => $mother,
+                    1 => $father
+                )
+            );
+        }
+        return $data_preldap;
+    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:

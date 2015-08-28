@@ -55,6 +55,43 @@ class manageteachers extends manageaccounts {
 
         return $attrs;
     }
+
+    function prepareLdapImport($csv_data_sorted)
+    {
+        /* Get elemenet */
+        $data_preldap= array();
+
+        foreach ($csv_data_sorted as $row_sorted)
+        {
+            /* If not all needed vars set .... */
+            if ( (empty ($row_sorted['sn'])) || (empty ($row_sorted['givenName']))|| (!isset ($row_sorted['sn']))|| (!isset ($row_sorted['givenName']))) {
+
+                /* Output Error */
+                msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s and %s to create users!"),bold ("sn"),bold ("gn")),ERROR_DIALOG);
+            }
+            else {
+                $tmpclassparts=explode (".", strtolower ($row_sorted['class']));
+                $tmpclassparts[0]=trim ($tmpclassparts[0]);
+                $tmpclassparts[1]=trim ($tmpclassparts[1]);
+                $tmpclassparts[1]=substr ($tmpclassparts[1],1);
+                $row_sorted['class']=$tmpclassparts[0].".".$tmpclassparts[1];
+                foreach ($row_sorted as $key=>$value) {
+                    if (substr ($key,0,12)==="subjectclass") {
+                        $row_sorted[$key]=strtolower ($value);
+                    }
+                }
+                $teacher=array ();
+                $teacher['sn']=array ($row_sorted['sn']);
+                $teacher['givenName']=array ($row_sorted['givenName']);
+                $teacher['birthday']=array ($row_sorted['dateOfBirth']);
+                $teacher['gender']=array ($row_sorted['gender']);
+            }
+            $data_preldap[]= array(
+                'main_account' => $teacher
+            );
+        }
+        return $data_preldap;
+    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:

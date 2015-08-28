@@ -249,156 +249,25 @@ class manageaccounts extends plugin{
             }
             $this->csvinfo['attrs_selected'] = $new_attrs_selected;
 
-            /* at least one entry */
-            $rowcnt=0;
-            if (isset ($this->csvinfo['sorteddata'])) {
-                $rowcnt++;
+            /* sort the CSV date table according to how it got re-ordered by the webUI admin user */
+            $this->csvinfo['data_sorted'] = array();
+            foreach ($this->csvinfo['data'] as $data_row) {
 
-                /* Set the col count */
-                $tblcolcount=count ($this->csvinfo['num_cols']);
+                $data_row_sorted= array();
 
-                /* entrie count */
-                $tbl_entries=count ($this->csvinfo['num_rows']);
-
-                /* row count */
-                $tbl_rows=$tbl_entries/$tblcolcount;
-
-                /* No error occurred */
-                $failing=FALSE;
-
-                /* For every row */
-                for ($i=0;$i<$this->csvinfo['rows'];$i++) {
-
-                    /* Get elemenet */
-                    $dat=$this->csvinfo['sorteddata'][$i];
-
-                    /* If not all needed vars set .... */
-                    if ( (empty ($dat['sn']))|| (empty ($dat['givenName']))|| (!isset ($dat['sn']))|| (!isset ($dat['givenName']))) {
-
-                        /* Output Error */
-                        msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s, %s and %s to create users!"),bold ("sn"),bold ("gn"),bold ("uid")),ERROR_DIALOG);
-                    }
-                    else {
-                        $tmpclassparts=explode (".",strtolower ($dat['class']));
-                        $tmpclassparts[0]=trim ($tmpclassparts[0]);
-                        $tmpclassparts[1]=trim ($tmpclassparts[1]);
-                        $tmpclassparts[1]=substr ($tmpclassparts[1],1);
-                        $dat['class']=$tmpclassparts[0].".".$tmpclassparts[1];
-                        foreach ($dat as $key=>$value) {
-                            if (substr ($key,0,12)==="subjectclass") {
-                                $dat[$key]=strtolower ($value);
-                            }
-                        }
-                        $student=array ();
-                        $student['sn']=array ($dat['sn']);
-                        $student['givenName']=array ($dat['givenName']);
-                        $student['birthday']=array ($dat['dateOfBirth']);
-                        $student['gender']=array ($dat['gender']);
-                        $mother=array ();
-                        $mother['sn']=array ($dat['mother_sn']);
-                        $mother['givenName']=array ($dat['mother_givenName']);
-                        $mother['mail']=array ($dat['mother_mail']);
-                        $father=array ();
-                        $father['sn']=array ($dat['father_sn']);
-                        $father['givenName']=array ($dat['father_givenName']);
-                        $father['mail']=array ($dat['father_mail']);
-                        var_dump ($student,$mother,$father);
-                        $this->csvinfo['sorteddata'][$i]=$dat;
-                    }
-                }
-                $pointsbefore=FALSE;
-                $pointsafter=FALSE;
-
-                /* Get Attributs for Tableheadline  */
-                $this->csvinfo['colsstr']=array ();
-                for ($i=0;$i<=$this->csvinfo['num_cols'];$i++) {
-                    if (!empty ($_POST[ ('row'.$i)])) {
-                        $this->csvinfo['colsstr'][$i]=$this->csvinfo['attrs'][$_POST[ ('row'.$i)]];
-                    }
+                for ($i=0;$i<count($data_row);$i++)
+                {
+                        $data_row_sorted[$this->csvinfo['attrs'][$i]]= $data_row[$this->csvinfo['attrs_selected'][$i]];
                 }
 
-                /*Create array with data for the template */
-                if ($failing==FALSE) {
-                    $dataouts=array ();
-                    for ($i=1;$i<=$this->csvinfo['shownrowscount'];$i++) {
-                        if (is_array ($this->csvinfo['sorteddata'][ ($i-1)])) {
-                            foreach ($this->csvinfo['sorteddata'][ ($i-1)] as $dat) {
-                                $dataouts[]=$dat;
-                            }
-                        }
-                    }
-                    if ($this->csvinfo['rows']>$this->csvinfo['shownrowscount']) {
-                        $pointsafter=TRUE;
-                    }
-                }
-                else {
-                    $pointsbefore=TRUE;
-                    $pointsafter=TRUE;
-                    $begin=$failing-3;
-                    if ($begin<0) {
-                        $begin=0;
-                        $pointsbefore=FALSE;
-                    }
-                    $end=$failing+2;
-                    if ($end>$this->csvinfo['rows']) {
-                        $end=$this->csvinfo['rows']+1;
-                        $pointsafter=FALSE;
-                    }
-                    $this->csvinfo['shownrowscount']=$end-$begin;
-                    if ($this->csvinfo['shownrowscount']>$this->csvinfo['rows'])
-                        $this->csvinfo['shownrowscount']=$this->csvinfo['rows'];
-                    $dataouts=array ();
-                    for ($i=$begin;$i<=$end;$i++) {
-                        if (is_array ($this->csvinfo['sorteddata'][ ($i-1)])) {
-                            foreach ($this->csvinfo['sorteddata'][ ($i-1)] as $dat) {
-                                $dataouts[]=$dat;
-                            }
-                        }
-                    }
-                }
-                $tmparr2=$this->csvinfo['colsstr'];
-                $tmparr2[]=_ ("status");
-
-                /* Error? */
-                if ($failing) {
-                    msg_dialog::display (_ ("Error"),sprintf (_ ("Cannot add entry %s!"),bold ($failing)),ERROR_DIALOG);
-                }
-                $smarty->assign ("error",$failing);
-
-                /* Set vars to smarty */
-                $smarty->assign ("cols",count ($tmparr2));
-                $smarty->assign ("anz",$this->csvinfo['num_rows']);
-                $smarty->assign ("rows",$this->csvinfo['shownrowscount']);
-                $cnt=0;
-                $tmp2=$tmp3=array ();
-                if (is_array ($dataouts))
-                    foreach ($dataouts as $tmp) {
-                        $tmp2[]=$tmp;
-                    $cnt++;
-                    if ($cnt>=count ($tmparr2)) {
-                        $tmp3[]=$tmp2;
-                        $tmp2=array ();
-                        $cnt=0;
-                    }
-                }
-                $smarty->assign ("head",$tmparr2);
-                $smarty->assign ("data",$tmp3);
-
-                /* Set other vars  */
-                $smarty->assign ("i",1);
-                $smarty->assign ("ie",0);
-                $smarty->assign ("pointsafter",$pointsafter);
-                $smarty->assign ("pointsbefore",$pointsbefore);
-            }
-            else {
-                msg_dialog::display (_ ("Information"),_ ("Nothing to import!"),INFO_DIALOG);
+                $this->csvinfo['data_sorted'][] = $data_row_sorted;
             }
 
-            /* If theres a File uploaded */
+            $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
         }
 
         /*
-         * PHASE 3: The user object templates have been selected, now we create the use objects from templates.
+         * PHASE 4: The user object templates have been selected, now we create the use objects from templates.
          */
         elseif (isset ($_POST['phase3'])) {
 
@@ -408,7 +277,7 @@ class manageaccounts extends plugin{
             $smarty->assign ("data_sorted",TRUE);
 
             /*
-             * PHASE 4: Finally write everything to LDAP (directly, no futher $_POST['phase4']...)
+             * PHASE 5: Finally write everything to LDAP (directly, no futher $_POST['phase4']...)
              */
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
@@ -474,15 +343,19 @@ class manageaccounts extends plugin{
                         }
                     $data[]=$cells;
                 }
-            // unset ($this->csvinfo['sorteddata']);
-            // unset ($this->csvinfo['colsstr']);
-            // unset ($this->csvinfo['sorteddata']);
+            unset ($this->csvinfo['data_sorted']);
             $this->csvinfo['num_cols']=$num_columns;
             $this->csvinfo['data']=$data;
             $this->csvinfo['num_rows']=count($this->csvinfo['data']);
             return TRUE;
         }
         return FALSE;
+    }
+
+    function prepareLdapImport($csv_data_sorted)
+    {
+        /* adapt this in sub-classes!!! */
+        return array();
     }
 }
 
