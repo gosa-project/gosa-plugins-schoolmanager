@@ -154,6 +154,8 @@ class manageaccounts extends plugin{
                     }
 
                     @fclose ($handle);
+                    
+                    $raw_csv_data = utf8_encode($raw_csv_data);
 
                     $parser_ok = manageaccounts::parseCSV($raw_csv_data);
 
