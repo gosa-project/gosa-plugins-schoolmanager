@@ -78,13 +78,6 @@ class manageteachers extends manageaccounts {
                 $tmpclassparts[1]=substr ($tmpclassparts[1],1);
                 $row_sorted['class']=$tmpclassparts[0].".".$tmpclassparts[1];
 
-                /* course values shall be all lower case */
-                foreach ($row_sorted as $key=>$value) {
-                    if (substr ($key,0,6)==="course") {
-                        $row_sorted[$key]=strtolower ($value);
-                    }
-                }
-
                 /* main account */
                 $teacher=array ();
                 $teacher['sn']=array ($row_sorted['sn']);
@@ -93,8 +86,42 @@ class manageteachers extends manageaccounts {
                 $teacher['gender']=array ($row_sorted['gender']);
                 $teacher['_template']=$this->csvinfo['template_main'];
             }
+
+ /* groups for this account */
+
+                /* class group */
+                $class_group= array ();
+                $class_group['cn']= 'class_'.$row_sorted['class'];
+                $class_group['objectClass']= array(
+                    'top',
+                    'posixGroup',
+                );
+
+                /* course groups */
+                $course_groups= array ();
+                foreach ($row_sorted as $key=>$value) {
+                    if (substr ($key,0,6)==="course") {
+                        $row_sorted[$key]=str_replace(':', '.', strtolower ($value));
+                        if ($row_sorted[$key])
+                        {
+                            $course_groups[]= array(
+                                'objectClass' => array(
+                                    'top',
+                                    'posixGroup',
+                                ),
+                                'cn' => 'course_'.$row_sorted[$key]
+                            );
+                        }
+                    }
+                }
+
+                /* FIXME: missing group (todo) -> one group per at-school-taught subject...
+
+                $groups= array ($class_group) + $course_groups;
+
             $data_preldap[]= array(
-                'main_account' => $teacher
+                'main_account' => $teacher,
+                'groups' => $groups
             );
         }
         return $data_preldap;

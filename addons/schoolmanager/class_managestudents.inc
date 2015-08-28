@@ -84,13 +84,6 @@ class managestudents extends manageaccounts {
                 $tmpclassparts[1]=substr ($tmpclassparts[1],1);
                 $row_sorted['class']=$tmpclassparts[0].".".$tmpclassparts[1];
 
-                /* course values shall be all lower case */
-                foreach ($row_sorted as $key=>$value) {
-                    if (substr ($key,0,6)==="course") {
-                        $row_sorted[$key]=strtolower ($value);
-                    }
-                }
-
                 /* main account */
                 $student=array ();
                 $student['sn']=array ($row_sorted['sn']);
@@ -121,13 +114,55 @@ class managestudents extends manageaccounts {
                 $parent2['mail']=array ($row_sorted['parent2_mail']);
                 /* see above for how to retrieve the template's DN */
                 $parent2['_template']=$this->csvinfo['template_aux'];
+
+                /* groups for this account */
+
+                /* class group */
+                $class_group= array ();
+                $class_group['cn']= 'class_'.$row_sorted['class'];
+                $class_group['objectClass']= array(
+                    'top',
+                    'posixGroup',
+                );
+
+                /* course groups */
+                $course_groups= array ();
+                foreach ($row_sorted as $key=>$value) {
+                    if (substr ($key,0,6)==="course") {
+                        $row_sorted[$key]=str_replace(':', '.', strtolower ($value));
+                        if ($row_sorted[$key])
+                        {
+                            $course_groups[]= array(
+                                'objectClass' => array(
+                                    'top',
+                                    'posixGroup',
+                                ),
+                                'cn' => 'course_'.$row_sorted[$key]
+                            );
+                        }
+                    }
+                }
+                $parent_group= array ();
+                $parent_group['cn']= 'parents_{%uid}';
+                $parent_group['objectClass'] = array(
+                    'top',
+                    'groupOfNames'
+                );
+                /* FIXME: can we generate the DN here already??? */
+                $parent_group['member']= array(
+                    '{%dn[parent1]}',
+                    '{%dn[parent2]}'
+                );
+                $groups= array ($class_group, $parent_group) + $course_groups;
+
             }
             $data_preldap[]= array(
                 'main_account' => $student,
                 'aux_accounts' => array(
                     0 => $parent1,
                     1 => $parent2
-                )
+                ),
+                'groups' => $groups
             );
         }
         return $data_preldap;
