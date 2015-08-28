@@ -22,7 +22,7 @@ class manageaccounts extends plugin{
 
     /* Definitions */
     var $plHeadline="Manage Accounts";
-    var $plDescription="This does something";
+    var $plDescription="GOsa² School Manager super-class for managing accounts";
     var $access="";
 
     /* Array with csv informations */
@@ -33,11 +33,10 @@ class manageaccounts extends plugin{
     var $objectclasses=array ();
     var $view_logged=FALSE;
 
+    var $import_account_type="";
+
     /* constructor */
     function manageaccounts (&$config,$dn=NULL) {
-
-        /* Call parent execute */
-        plugin::execute ();
 
         $this->initTime=microtime (TRUE);
 
@@ -45,11 +44,26 @@ class manageaccounts extends plugin{
         $this->config=&$config;
         $this->ui=get_userinfo ();
         stats::log ('plugin',$class=get_class ($this),$category=array ($this->acl_category),$action='open',$amount=1,$duration= (microtime (TRUE)-$this->initTime));
+
+        /* Call parent execute */
+        plugin::execute ();
+    }
+
+    function getAttributes()
+    {
+        /* CSV columns required for import */
+        $attrs= array ();
+
+        $attrs[0]= "uid";
+        $attrs[1]= "sn";
+        $attrs[2]= "givenName";
+
+        return $attrs;
     }
 
     function execute () {
 
-        $type = substr(get_class($this), 6, strlen(get_class($this)));
+        $import_account_type = substr(get_class($this), 6, strlen(get_class($this)));
 
         /* Log view */
         if (!$this->view_logged) {
@@ -60,8 +74,8 @@ class manageaccounts extends plugin{
         /* initiate smarty */
         $smarty=get_smarty ();
 
-    /* Import students or teachers */
-    $smarty->assign ("type",$type);
+        /* Import students or teachers */
+        $smarty->assign ("import_account_type",$import_account_type);
 
         /* PHASE 1 done, set $file_uploaded to TRUE */
         $smarty->assign ("file_uploaded",0);
@@ -83,40 +97,7 @@ class manageaccounts extends plugin{
             $this->csvinfo=array ();
         }
 
-        /* CSV columns required for import */
-        $new=array ();
-
-    if($type == "students") {
-	    $new[0]="no";
-	    $new[1]="id";
-	    $new[2]="sn";
-	    $new[3]="givenName";
-	    $new[4]="dateOfBirth";
-	    $new[5]="gender";
-	    $new[6]="class";
-	    $new[7]="mother_sn";
-	    $new[8]="mother_givenName";
-	    $new[9]="mother_mail";
-	    $new[10]="father_sn";
-	    $new[11]="father_givenName";
-	    $new[12]="father_mail";
-	    for ($i=13;$i<33;$i++) {
-    	$new[$i]="subjectclass". ($i-12);
-        }
-	} elseif($type == "teachers") {
-        $new[0]="no";
-        $new[1]="uid";
-        $new[2]="sn";
-        $new[3]="givenName";
-        $new[4]="dateOfBirth";
-        $new[5]="gender";
-        $new[6]="subjects";
-        for ($i=13;$i<20;$i++) {
-	$new[$i]="subjectclass". ($i-6);
-        }
-    }
-
-        $this->csvinfo['attrs']=$new;
+        $this->csvinfo['attrs']=$this->getAttributes();
         /* Check permissions for import */
         $acl=$this->ui->get_permissions ($this->config->current['BASE'],"all/all");
         if (!preg_match ("/w/",$acl)) {

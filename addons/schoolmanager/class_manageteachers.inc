@@ -22,20 +22,39 @@ class manageteachers extends manageaccounts {
 
     /* Definitions */
     var $plHeadline="Manage Teachers";
-    var $plDescription="This does something";
+    var $plDescription="GOsa² School Manager Module: Manage Teachers";
     var $access="";
 
     /* constructor */
     function manageteachers (&$config,$dn=NULL) {
-        parent::manageaccounts($config,$dn=NULL);
+
         $this->initTime=microtime (TRUE);
 
         /* Include config object */
         $this->config=&$config;
         $this->ui=get_userinfo ();
         stats::log ('plugin',$class=get_class ($this),$category=array ($this->acl_category),$action='open',$amount=1,$duration= (microtime (TRUE)-$this->initTime));
+
+        parent::manageaccounts($config,$dn=NULL);
     }
 
+    function getAttributes()
+    {
+        $attrs= array();
+
+        $attrs[0]= "no";
+        $attrs[1]= "uid";
+        $attrs[2]= "sn";
+        $attrs[3]= "givenName";
+        $attrs[4]= "dateOfBirth";
+        $attrs[5]= "gender";
+        $attrs[6]= "subjects";
+        for ($i=7;$i<20;$i++) {
+            $attrs[$i]="subjectclass". ($i-6);
+        }
+
+        return $attrs;
+    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
