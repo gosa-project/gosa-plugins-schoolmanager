@@ -264,6 +264,11 @@ class manageaccounts extends plugin{
             }
 
             $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
+
+            /* DROP LATER */
+            echo "<pre>";
+            var_dump($this->csvinfo['data_preldap']);
+            echo "</pre>";
         }
 
         /*
