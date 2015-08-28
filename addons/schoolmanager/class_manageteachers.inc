@@ -115,7 +115,7 @@ class manageteachers extends manageaccounts {
                     }
                 }
 
-                /* FIXME: missing group (todo) -> one group per at-school-taught subject...
+                /* FIXME: missing group (todo) -> one group per at-school-taught subject... */
 
                 $groups= array ($class_group) + $course_groups;
 
