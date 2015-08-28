@@ -49,12 +49,12 @@ class managestudents extends manageaccounts {
         $attrs[4]= "dateOfBirth";
         $attrs[5]= "gender";
         $attrs[6]= "class";
-        $attrs[7]= "mother_sn";
-        $attrs[8]= "mother_givenName";
-        $attrs[9]= "mother_mail";
-        $attrs[10] ="father_sn";
-        $attrs[11]= "father_givenName";
-        $attrs[12]= "father_mail";
+        $attrs[7]= "parent1_sn";
+        $attrs[8]= "parent1_givenName";
+        $attrs[9]= "parent1_mail";
+        $attrs[10] ="parent2_sn";
+        $attrs[11]= "parent2_givenName";
+        $attrs[12]= "parent2_mail";
         for ($i=13;$i<33;$i++) {
             $attrs[$i]="subjectclass". ($i-12);
         }
@@ -92,21 +92,21 @@ class managestudents extends manageaccounts {
                 $student['birthday']=array ($row_sorted['dateOfBirth']);
                 $student['gender']=array ($row_sorted['gender']);
 
-                $mother=array ();
-                $mother['sn']=array ($row_sorted['mother_sn']);
-                $mother['givenName']=array ($row_sorted['mother_givenName']);
-                $mother['mail']=array ($row_sorted['mother_mail']);
+                $parent1=array ();
+                $parent1['sn']=array ($row_sorted['parent1_sn']);
+                $parent1['givenName']=array ($row_sorted['parent1_givenName']);
+                $parent1['mail']=array ($row_sorted['parent1_mail']);
 
-                $father=array ();
-                $father['sn']=array ($row_sorted['father_sn']);
-                $father['givenName']=array ($row_sorted['father_givenName']);
-                $father['mail']=array ($row_sorted['father_mail']);
+                $parent2=array ();
+                $parent2['sn']=array ($row_sorted['parent2_sn']);
+                $parent2['givenName']=array ($row_sorted['parent2_givenName']);
+                $parent2['mail']=array ($row_sorted['parent2_mail']);
             }
             $data_preldap[]= array(
                 'main_account' => $student,
                 'aux_accounts' => array(
-                    0 => $mother,
-                    1 => $father
+                    0 => $parent1,
+                    1 => $parent2
                 )
             );
         }
