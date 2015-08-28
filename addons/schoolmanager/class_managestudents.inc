@@ -56,7 +56,7 @@ class managestudents extends manageaccounts {
         $attrs[11]= "parent2_givenName";
         $attrs[12]= "parent2_mail";
         for ($i=13;$i<33;$i++) {
-            $attrs[$i]="subjectclass". ($i-12);
+            $attrs[$i]="course". ($i-12);
         }
 
         return $attrs;
@@ -76,22 +76,29 @@ class managestudents extends manageaccounts {
                 msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s and %s to create users!"),bold ("sn"),bold ("gn")),ERROR_DIALOG);
             }
             else {
+
+                /* parse value for attribute "class", requires later work to make it more generic */
                 $tmpclassparts=explode (".", strtolower ($row_sorted['class']));
                 $tmpclassparts[0]=trim ($tmpclassparts[0]);
                 $tmpclassparts[1]=trim ($tmpclassparts[1]);
                 $tmpclassparts[1]=substr ($tmpclassparts[1],1);
                 $row_sorted['class']=$tmpclassparts[0].".".$tmpclassparts[1];
+
+                /* course values shall be all lower case */
                 foreach ($row_sorted as $key=>$value) {
-                    if (substr ($key,0,12)==="subjectclass") {
+                    if (substr ($key,0,6)==="course") {
                         $row_sorted[$key]=strtolower ($value);
                     }
                 }
+
+                /* main account */
                 $student=array ();
                 $student['sn']=array ($row_sorted['sn']);
                 $student['givenName']=array ($row_sorted['givenName']);
                 $student['birthday']=array ($row_sorted['dateOfBirth']);
                 $student['gender']=array ($row_sorted['gender']);
 
+                /* auxiliary accounts */
                 $parent1=array ();
                 $parent1['sn']=array ($row_sorted['parent1_sn']);
                 $parent1['givenName']=array ($row_sorted['parent1_givenName']);

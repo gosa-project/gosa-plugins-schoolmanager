@@ -50,7 +50,7 @@ class manageteachers extends manageaccounts {
         $attrs[5]= "gender";
         $attrs[6]= "subjects";
         for ($i=7;$i<20;$i++) {
-            $attrs[$i]="subjectclass". ($i-6);
+            $attrs[$i]="course". ($i-6);
         }
 
         return $attrs;
@@ -70,16 +70,22 @@ class manageteachers extends manageaccounts {
                 msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s and %s to create users!"),bold ("sn"),bold ("gn")),ERROR_DIALOG);
             }
             else {
+
+                /* parse value for attribute "class", requires later work to make it more generic */
                 $tmpclassparts=explode (".", strtolower ($row_sorted['class']));
                 $tmpclassparts[0]=trim ($tmpclassparts[0]);
                 $tmpclassparts[1]=trim ($tmpclassparts[1]);
                 $tmpclassparts[1]=substr ($tmpclassparts[1],1);
                 $row_sorted['class']=$tmpclassparts[0].".".$tmpclassparts[1];
+
+                /* course values shall be all lower case */
                 foreach ($row_sorted as $key=>$value) {
-                    if (substr ($key,0,12)==="subjectclass") {
+                    if (substr ($key,0,6)==="course") {
                         $row_sorted[$key]=strtolower ($value);
                     }
                 }
+
+                /* main account */
                 $teacher=array ();
                 $teacher['sn']=array ($row_sorted['sn']);
                 $teacher['givenName']=array ($row_sorted['givenName']);
