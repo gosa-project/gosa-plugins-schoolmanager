@@ -97,17 +97,30 @@ class managestudents extends manageaccounts {
                 $student['givenName']=array ($row_sorted['givenName']);
                 $student['birthday']=array ($row_sorted['dateOfBirth']);
                 $student['gender']=array ($row_sorted['gender']);
+                /* Keeping the memory footprint low:
+                 *
+                 *     $student['_template']
+                 * is only an int value.
+                 *
+                 * Retrieve the actual template DN string later like this
+                 * $template_dn = $this->csvinfo['templates']['DNs'][$student['_template']];
+                 */
+                $student['_template']=$this->csvinfo['template_main'];
 
                 /* auxiliary accounts */
                 $parent1=array ();
                 $parent1['sn']=array ($row_sorted['parent1_sn']);
                 $parent1['givenName']=array ($row_sorted['parent1_givenName']);
                 $parent1['mail']=array ($row_sorted['parent1_mail']);
+                /* see above for how to retrieve the template's DN */
+                $parent1['_template']=$this->csvinfo['template_aux'];
 
                 $parent2=array ();
                 $parent2['sn']=array ($row_sorted['parent2_sn']);
                 $parent2['givenName']=array ($row_sorted['parent2_givenName']);
                 $parent2['mail']=array ($row_sorted['parent2_mail']);
+                /* see above for how to retrieve the template's DN */
+                $parent2['_template']=$this->csvinfo['template_aux'];
             }
             $data_preldap[]= array(
                 'main_account' => $student,

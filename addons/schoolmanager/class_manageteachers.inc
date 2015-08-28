@@ -91,6 +91,7 @@ class manageteachers extends manageaccounts {
                 $teacher['givenName']=array ($row_sorted['givenName']);
                 $teacher['birthday']=array ($row_sorted['dateOfBirth']);
                 $teacher['gender']=array ($row_sorted['gender']);
+                $teacher['_template']=$this->csvinfo['template_main'];
             }
             $data_preldap[]= array(
                 'main_account' => $teacher

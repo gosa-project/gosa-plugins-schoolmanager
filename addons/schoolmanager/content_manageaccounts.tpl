@@ -72,7 +72,7 @@
 	    <LABEL for="template">{t}Select template for parent accounts{/t}</LABEL>
 	</td>
 	<td style="vertical-align: middle;">
-	    <select id="template" name="template_parent" size="1" title="">
+	    <select id="template" name="template_students_aux" size="1" title="">
 	    {html_options options=$templates selected=""}
 	    </select>
 	</td>
@@ -84,7 +84,7 @@
 	    <LABEL for="template">{t}Select template for teacher accounts{/t}</LABEL>
 	</td>
 	<td style="vertical-align: middle;">
-	    <select id="template" name="template_teacher" size="1" title="">
+	    <select id="template" name="template_teachers" size="1" title="">
 	    {html_options options=$templates selected=""}
 	    </select>
 	</td>

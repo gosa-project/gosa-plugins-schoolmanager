@@ -202,28 +202,36 @@ class manageaccounts extends plugin{
         elseif (isset ($_POST['phase2'])) {
 
             /* template handling */
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("templates_selected",TRUE);
+            if (isset ($_POST["template_".$import_account_type]))
+            {
+                $this->csvinfo['template_main'] = $_POST["template_".$import_account_type];
 
-            /* initialize $this->csvinfo['attrs_selected'], only do this here and once */
-            $tmp_array=array ();
-            for ($i=0;$i<33;$i++) {
-                $tmp_array[$i]=$i;
+                if (isset ($_POST["template_".$import_account_type."_aux"]))
+                {
+                    $this->csvinfo['template_aux'] = $_POST["template_".$import_account_type."_aux"];
+                }
+                $smarty->assign ("file_uploaded",TRUE);
+                $smarty->assign ("templates_selected",TRUE);
+
+                /* initialize $this->csvinfo['attrs_selected'], only do this here and once */
+                $tmp_array=array ();
+                for ($i=0;$i<33;$i++) {
+                    $tmp_array[$i]=$i;
+                }
+                $this->csvinfo['attrs_selected']=$tmp_array;
+
+                /* student import attributes */
+                $smarty->assign ("attrs",$this->csvinfo['attrs']);
+
+                /* per row selected student import attributes */
+                $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
+
+                /* number of CSV columns -> number of rows in 90°-counter-clockwise-rotated table */
+                $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
+
+                /* CSV data */
+                $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
             }
-            $this->csvinfo['attrs_selected']=$tmp_array;
-
-            /* student import attributes */
-            $smarty->assign ("attrs",$this->csvinfo['attrs']);
-
-            /* per row selected student import attributes */
-            $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
-
-            /* number of CSV columns -> number of rows in 90°-counter-clockwise-rotated table */
-            $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
-
-            /* CSV data */
-            $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
-
         }
         /*
          * PHASE 3: After the admin has assigned LDAP attributes to CSV columns we create
