@@ -1,5 +1,9 @@
 <p>
-    {t}With GOsa² School Manager's {/t}<b>{t}Manage {$type} Module{/t}</b>{t} you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
+    {if $import_account_type=="students"}
+    {t}With GOsa² School Manager's {/t}<b>{t}Manage Students Module{/t}</b>{t} you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
+    {elseif $import_account_type == "teachers"}
+    {t}With GOsa² School Manager's {/t}<b>{t}Manage Teachers Module{/t}</b>{t} you can import teacher user accounts and course groups from a CSV file containing.{/t}
+    {/if}
 </p>
 <hr>
 
@@ -20,7 +24,7 @@
 <table summary="{t}Upload CSV File{/t}">
     <tr>
 	<td style="vertical-align: middle;">
-	    <LABEL for="userfile">{t}Select CSV file with {$type} data to import:{/t}</LABEL>
+	    <LABEL for="userfile">{t}Select CSV file with {$import_account_type} data to import:{/t}</LABEL>
 	</td>
 	<td style="vertical-align: middle;">
 	    <input type="hidden" name="MAX_FILE_SIZE" value="2097152">
@@ -37,22 +41,22 @@
 
 <br><h3>{t}STEP 2: Select user object templates{/t}</h3>
 
-{if $type == 'students'}
+{if $import_account_type == 'students'}
     <p>
     {t}Please choose from the available GOsa² user object templates what account templates to use for students and for their parents.{/t}
     <br><br>
     FIXME: Provide a checkbox to disable parent imports.
     </p>
 {/if}
-{if $type == 'teachers'}
+{if $import_account_type == 'teachers'}
     <p>
-    {t}Please choose from teh available GOsa² user object templates what account template to use for teachers.{/t}
+    {t}Please choose from the available GOsa² user object templates what account template to use for teachers.{/t}
     </p>
 {/if}
 
 
 <table summary="{t}Select user object templates{/t}">
-    {if $type == 'students'}
+    {if $import_account_type == 'students'}
     <tr>
 	<td style="vertical-align: middle;">
 	    <LABEL for="template">{t}Select template for student accounts{/t}</LABEL>
@@ -74,7 +78,7 @@
 	</td>
     </tr>
     {/if}
-    {if $type == 'teachers'}
+    {if $import_account_type == 'teachers'}
     <tr>
 	<td style="vertical-align: middle;">
 	    <LABEL for="template">{t}Select template for teacher accounts{/t}</LABEL>
