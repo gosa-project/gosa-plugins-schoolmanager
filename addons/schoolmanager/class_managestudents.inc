@@ -129,7 +129,7 @@ class managestudents extends manageaccounts {
                 $course_groups= array ();
                 foreach ($row_sorted as $key=>$value) {
                     if (substr ($key,0,6)==="course") {
-                        $row_sorted[$key]=str_replace(':', '.', strtolower ($value));
+                        $row_sorted[$key]=str_replace('-', '.', strtolower ($value));
                         if ($row_sorted[$key])
                         {
                             $course_groups[]= array(
