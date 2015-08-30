@@ -49,12 +49,32 @@ class manageteachers extends manageaccounts {
         $attrs[4]= "dateOfBirth";
         $attrs[5]= "gender";
         $attrs[6]= "subjects";
-        for ($i=7;$i<20;$i++) {
-            $attrs[$i]="course". ($i-6);
-        }
+        $attrs[7]= "course";
 
         return $attrs;
     }
+
+    function getMultiAttributes()
+    {
+        $multiAttrs=array();
+        $multiAttrs[0]="course";
+        return $multiAttrs;
+    }
+
+    function getAttrsPreSelection($size)
+    {
+        $selection = array();
+        for($i=0; $i<7; $i++)
+        {
+             $selection[] = $i;
+        }
+        for($i=7; $i<$size; $i++)
+        {
+             $selection[] = 7;
+        }
+        return $selection;
+    }
+
 
     function prepareLdapImport($csv_data_sorted)
     {

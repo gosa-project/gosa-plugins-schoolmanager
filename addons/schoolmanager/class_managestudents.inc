@@ -52,15 +52,35 @@ class managestudents extends manageaccounts {
         $attrs[7]= "parent1_sn";
         $attrs[8]= "parent1_givenName";
         $attrs[9]= "parent1_mail";
-        $attrs[10] ="parent2_sn";
+        $attrs[10]= "parent2_sn";
         $attrs[11]= "parent2_givenName";
         $attrs[12]= "parent2_mail";
-        for ($i=13;$i<33;$i++) {
-            $attrs[$i]="course". ($i-12);
-        }
+        $attrs[13]= "course";
 
         return $attrs;
     }
+
+    function getMultiAttributes()
+    {
+        $multiAttrs=array();
+        $multiAttrs[0]="course";
+        return $multiAttrs;
+    }
+
+    function getAttrsPreSelection($size)
+    {
+        $selection = array();
+        for($i=0; $i<13; $i++)
+        {
+             $selection[] = $i;
+        }
+        for($i=13; $i<$size; $i++)
+        {
+             $selection[] = 13;
+        }
+        return $selection;
+    }
+
 
     function prepareLdapImport($csv_data_sorted)
     {

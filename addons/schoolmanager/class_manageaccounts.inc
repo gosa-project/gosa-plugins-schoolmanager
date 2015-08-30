@@ -57,6 +57,17 @@ class manageaccounts extends plugin{
 
         return $attrs;
     }
+    
+    function getMultiAttributes()
+    {
+        /* adapt this in sub-classes!!! */
+        return array();
+    }
+    function getAttrsPreSelection()
+    {
+        /* adapt this in sub-classes!!! */
+        return array();
+    }
 
     function execute () {
 
@@ -98,6 +109,7 @@ class manageaccounts extends plugin{
         }
 
         $this->csvinfo['attrs']=$this->getAttributes();
+        $this->csvinfo['attrs'][] = "ignore";
         /* Check permissions for import */
         $acl=$this->ui->get_permissions ($this->config->current['BASE'],"all/all");
         if (!preg_match ("/w/",$acl)) {
@@ -260,13 +272,34 @@ class manageaccounts extends plugin{
 
             /* sort the CSV date table according to how it got re-ordered by the webUI admin user */
             $this->csvinfo['data_sorted'] = array();
+            $multi_attrs=$this->getMultiAttributes();
             foreach ($this->csvinfo['data'] as $data_row) {
 
+                $attrs_counter=array();
                 $data_row_sorted= array();
 
                 for ($i=0;$i<count($data_row);$i++)
                 {
-                        $data_row_sorted[$this->csvinfo['attrs'][$i]]= $data_row[$this->csvinfo['attrs_selected'][$i]];
+                        $data_in_cell = $data_row[$i];
+                        $selection_in_cell = $this->csvinfo['attrs_selected'][$i];
+                        $value_of_selection = $this->csvinfo['attrs'][$selection_in_cell];
+                        if($value_of_selection == "ignore")
+                        {
+                        } elseif(in_array($value_of_selection,$multi_attrs))
+                        {
+                                $attrs_counter[$value_of_selection]=$attrs_counter[$value_of_selection] ?: 0;
+                                $data_row_sorted[$value_of_selection . $attrs_counter[$value_of_selection]] = $data_in_cell;
+                                $attrs_counter[$value_of_selection]++;
+                        } elseif(empty($attrs_counter[$value_of_selection]))
+                        {
+                                $data_row_sorted[$value_of_selection] = $data_in_cell;
+                                $attrs_counter[$value_of_selection] = 1;
+                        } else 
+                        {
+                                $smarty->assign ("LDIFError",TRUE);
+                                $smarty->assign ("file_uploaded",FALSE);
+                                msg_dialog::display (_ ("Error"),sprintf (_ ("The attribute %s is only allowed to select once!"),bold ($value_of_selection)),ERROR_DIALOG);
+                        }
                 }
 
                 $this->csvinfo['data_sorted'][] = $data_row_sorted;
