@@ -63,7 +63,7 @@ class manageaccounts extends plugin{
         /* adapt this in sub-classes!!! */
         return array();
     }
-    function getAttrsPreSelection()
+    function getAttrsPreSelection($size)
     {
         /* adapt this in sub-classes!!! */
         return array();
@@ -228,11 +228,7 @@ class manageaccounts extends plugin{
                 $smarty->assign ("templates_selected",TRUE);
 
                 /* initialize $this->csvinfo['attrs_selected'], only do this here and once */
-                $tmp_array=array ();
-                for ($i=0;$i<33;$i++) {
-                    $tmp_array[$i]=$i;
-                }
-                $this->csvinfo['attrs_selected']=$tmp_array;
+                $this->csvinfo['attrs_selected']=$this->getAttrsPreSelection($this->csvinfo['num_cols']);
 
                 /* student import attributes */
                 $smarty->assign ("attrs",$this->csvinfo['attrs']);
