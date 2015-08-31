@@ -1,8 +1,8 @@
 <p>
     {if $import_account_type=="students"}
-    {t}With GOsa² School Manager's {/t}<b>{t}Manage Students Module{/t}</b>{t} you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
+    {t}With GOsa² School Manager's{/t} <b>{t}Manage Students Module{/t}</b> {t}you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
     {elseif $import_account_type == "teachers"}
-    {t}With GOsa² School Manager's {/t}<b>{t}Manage Teachers Module{/t}</b>{t} you can import teacher user accounts and course groups from a CSV file containing.{/t}
+    {t}With GOsa² School Manager's{/t} <b>{t}Manage Teachers Module{/t}</b> {t}you can import teacher user accounts and course groups from a CSV file containing.{/t}
     {/if}
 </p>
 <hr>
