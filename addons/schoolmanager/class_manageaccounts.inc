@@ -129,6 +129,10 @@ class manageaccounts extends plugin{
          * 2: Data Sorting
          * 3: Importing to LDAP
          */
+
+        /* reset our failure status from last template view... */
+        $this->failure_in_last_phase = FALSE;
+
         /*
          * PHASE 1: CSV file has been selected for upload. We now upload the file and parse its data.
          *          For PHASE 2 we search LDAP for available gosaUserTemplate objects and provide them
@@ -294,7 +298,7 @@ class manageaccounts extends plugin{
                                 $attrs_counter[$value_of_selection] = 1;
                         } else 
                         {
-                                $failure_in_last_phase=TRUE;
+                                $this->failure_in_last_phase=TRUE;
                                 $smarty->assign ("LDIFError",TRUE);
                                 msg_dialog::display (_ ("Error"),sprintf (_ ("The attribute %s is only allowed to select once!"),bold ($value_of_selection)),ERROR_DIALOG);
                         }
@@ -303,7 +307,8 @@ class manageaccounts extends plugin{
                 $this->csvinfo['data_sorted'][] = $data_row_sorted;
             }
 
-            if($failure_in_last_phase)
+
+            if($this->failure_in_last_phase)
             {
                 $smarty->assign ("data_sorted",FALSE);
                 $smarty->assign ("attrs",$this->csvinfo['attrs']);
