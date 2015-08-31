@@ -99,8 +99,11 @@ class manageaccounts extends plugin{
         /* PHASE 3 done, set $data_sorted to TRUE  */
         $smarty->assign ("data_sorted",0);
 
-        /* PHASE 4 done, set $summary_accepted to TRUE  */
-        $smarty->assign ("summary_accepted",0);
+        /* PHASE 4 done, set $groups_reviewed to TRUE  */
+        $smarty->assign ("groups_reviewed",0);
+
+        /* PHASE 5 done, set $accounts_reviewed to TRUE  */
+        $smarty->assign ("accounts_reviewed",0);
 
         /* Get the LDAP link, to generate the Export */
         $ldap=$this->config->get_ldap_link ();
@@ -313,17 +316,53 @@ class manageaccounts extends plugin{
                 $this->csvinfo['data_sorted'][] = $data_row_sorted;
             }
 
-
             if($this->failure_in_last_phase)
             {
-                $smarty->assign ("data_sorted",FALSE);
                 $smarty->assign ("attrs",$this->csvinfo['attrs']);
                 $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
                 $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
                 $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
             }
             else {
+
+                /* transform data_sorted to data_preldap array */
                 $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
+                /* free some memory... */
+                unset ($this->csvinfo['data_sorted']);
+
+
+                /* TODO: prepare group review view screen */
+
+                $smarty->assign ("data_sorted",TRUE);
+            }
+        }
+        /*
+         * PHASE 4: Review group names and existing/to-be-created groups
+         */
+        elseif (isset ($_POST['phase4'])) {
+
+            $smarty->assign ("file_uploaded",TRUE);
+            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("data_sorted",TRUE);
+            /* setting groups_reviewed to FALSE for now until we further investigated user input (below) */
+            $smarty->assign ("groups_reviewed",FALSE);
+
+
+            /* TODO: evaluate group review (selections, input, etc.) */
+
+
+            if ($this->failure_in_last_phase)
+            {
+
+
+                /* TODO: - show error message
+                 *       - reset smarty assignments to phase3 variables/values
+                 */
+
+            }
+            else {
+
+                /* prepare summary view for account creation */
 
                 /* Template Handling */
                 $smarty->assign ("file_uploaded",TRUE);
@@ -334,15 +373,14 @@ class manageaccounts extends plugin{
 
                     $smarty->assign ("data_sorted",TRUE);
                     $smarty->assign ("data",array_slice($this->csvinfo['data_preldap'], 0, 5));
-
-                    /* free some memory... */
-                    unset ($this->csvinfo['data_sorted']);
                 }
             }
-        }
 
+            /* groups review has been successful */
+            $smarty->assign ("groups_reviewed",TRUE);
+        }
         /*
-         * PHASE 4: Finally write everything to LDAP (directly, no futher $_POST['phase4']...)
+         * PHASE 5: Finally write everything to LDAP
          */
         elseif (isset ($_POST['phase5'])) {
 
@@ -350,7 +388,8 @@ class manageaccounts extends plugin{
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("templates_selected",TRUE);
             $smarty->assign ("data_sorted",TRUE);
-            $smarty->assign ("summary_accepted",TRUE);
+            $smarty->assign ("groups_reviewed",TRUE);
+            $smarty->assign ("accounts_reviewed",TRUE);
         }
 
         /* Show main page */

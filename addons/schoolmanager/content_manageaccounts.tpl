@@ -125,10 +125,18 @@
 {/foreach}
 </table>
 
-{elseif $summary_accepted != TRUE}
+{elseif $groups_reviewed != TRUE}
 <input type="hidden" name="phase4">
 
-<br><h3>{t}STEP 4: Accept summary and proceed to final LDAP import{/t}</h3>
+<br><h3>{t}STEP 4: Review group objects before adding them to LDAP{/t}</h3>
+<br>
+<br>
+TODO
+
+{elseif $accounts_reviewed != TRUE}
+<input type="hidden" name="phase5">
+
+<br><h3>{t}STEP 5: Review user account objects before adding them to LDAP{/t}</h3>
 <br>
 <br>
 {foreach from=$data item=row key=key}
@@ -251,12 +259,14 @@
 <hr>
 <div class="plugin-actions">
     {if $file_uploaded != TRUE}
-    Continue here, when ready: <button type='submit' name='fileup'>{t}Select User Templates (Step 2/5){/t}</button>
+    {t}Continue here, when ready{/t}: <button type='submit' name='fileup'>{t}Select User Templates (Step 2/6){/t}</button>
     {elseif $templates_selected != TRUE}
-    Continue here, when ready: <input name="btn_template_selected" value="{t}Check and Sort CSV Data (Step 3/5){/t}" type ="submit">
+    {t}Continue here, when ready{/t}: <input name="btn_template_selected" value="{t}Check and Sort CSV Data (Step 3/6){/t}" type ="submit">
     {elseif $data_sorted != TRUE}
-    Continue here, when ready: <input name="btn_data_sorted" value="{t}View Summary before Import (Step 4/5){/t}" type ="submit">
-    {elseif $summary_accepted != TRUE}
-    Continue here, when ready: <input name="btn_summary_accepted" value="{t}Import Data into LDAP (Step 5/5){/t}" type ="submit">
+    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Review imported group objects (Step 4/6){/t}" type ="submit">
+    {elseif $accounts_reviewed != TRUE}
+    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Review imported user account objects (Step 5/6){/t}" type ="submit">
+    {elseif $accounts_reviewed != TRUE}
+    {t}Continue here, when ready{/t}: <input name="btn_accounts_reviewed" value="{t}Import Data into LDAP (Step 6/5){/t}" type ="submit">
     {/if}
 </div>
