@@ -172,7 +172,7 @@ class manageaccounts extends plugin{
                     }
 
                     @fclose ($handle);
-                    
+
                     $raw_csv_data = utf8_encode($raw_csv_data);
 
                     $parser_ok = manageaccounts::parseCSV($raw_csv_data);
@@ -249,16 +249,22 @@ class manageaccounts extends plugin{
                 $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
             }
         }
+
         /*
          * PHASE 3: After the admin has assigned LDAP attributes to CSV columns we create
          *          the data structure that will finally be imported into LDAP.
+         *          This data structure will be presented to the admin in two stages:
+         *            - groups review (PHASE 4)
+         *            - user accounts review (PHASE 5)
          */
         elseif (isset ($_POST['phase3'])) {
 
-            /* template handling */
+            /* sanity checks on LDAP attributes assignments */
+
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("templates_selected",TRUE);
 
+            /* read attributes assignments from $_POST */
             $new_attrs_selected = array();
             for ($i=0; $i<count($this->csvinfo['attrs_selected']);$i++)
             {
