@@ -114,7 +114,7 @@ class manageaccounts extends plugin{
         }
 
         $this->csvinfo['attrs']=$this->getAttributes();
-        $this->csvinfo['attrs'][] = "ignore";
+        $this->csvinfo['attrs'][] = "---";
         /* Check permissions for import */
         $acl=$this->ui->get_permissions ($this->config->current['BASE'],"all/all");
         if (!preg_match ("/w/",$acl)) {
@@ -294,7 +294,7 @@ class manageaccounts extends plugin{
                         $data_in_cell = $data_row[$i];
                         $selection_in_cell = $this->csvinfo['attrs_selected'][$i];
                         $value_of_selection = $this->csvinfo['attrs'][$selection_in_cell];
-                        if($value_of_selection == "ignore")
+                        if($value_of_selection == "---")
                         {
                         } elseif(in_array($value_of_selection,$multi_attrs))
                         {
