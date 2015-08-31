@@ -33,6 +33,8 @@ class manageaccounts extends plugin{
     var $objectclasses=array ();
     var $view_logged=FALSE;
 
+    var $failure_in_last_phase=FALSE;
+
     var $import_account_type="";
 
     /* constructor */
@@ -292,8 +294,8 @@ class manageaccounts extends plugin{
                                 $attrs_counter[$value_of_selection] = 1;
                         } else 
                         {
+                                $failure_in_last_phase=TRUE;
                                 $smarty->assign ("LDIFError",TRUE);
-                                $smarty->assign ("file_uploaded",FALSE);
                                 msg_dialog::display (_ ("Error"),sprintf (_ ("The attribute %s is only allowed to select once!"),bold ($value_of_selection)),ERROR_DIALOG);
                         }
                 }
@@ -301,22 +303,31 @@ class manageaccounts extends plugin{
                 $this->csvinfo['data_sorted'][] = $data_row_sorted;
             }
 
-            $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
-
-            /* Template Handling */
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("templates_selected",TRUE);
-            if (is_array($this->csvinfo['data_preldap']) and (!empty($this->csvinfo['data_preldap'])))
+            if($failure_in_last_phase)
             {
-                $this->accountStatusCheck();
-
-                $smarty->assign ("data_sorted",TRUE);
-                $smarty->assign ("data",array_slice($this->csvinfo['data_preldap'], 0, 5));
-
-                /* free some memory... */
-                unset ($this->csvinfo['data_sorted']);
+                $smarty->assign ("data_sorted",FALSE);
+                $smarty->assign ("attrs",$this->csvinfo['attrs']);
+                $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
+                $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
+                $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
             }
+            else {
+                $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
 
+                /* Template Handling */
+                $smarty->assign ("file_uploaded",TRUE);
+                $smarty->assign ("templates_selected",TRUE);
+                if (is_array($this->csvinfo['data_preldap']) and (!empty($this->csvinfo['data_preldap'])))
+                {
+                    $this->accountStatusCheck();
+
+                    $smarty->assign ("data_sorted",TRUE);
+                    $smarty->assign ("data",array_slice($this->csvinfo['data_preldap'], 0, 5));
+
+                    /* free some memory... */
+                    unset ($this->csvinfo['data_sorted']);
+                }
+            }
         }
 
         /*
