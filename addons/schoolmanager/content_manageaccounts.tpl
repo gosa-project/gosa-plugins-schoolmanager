@@ -132,6 +132,7 @@
 <br>
 <br>
 {foreach from=$data item=group key=key}
+<div style="float:left; width:20em;">
 <table summary="{t 1=$group['cn'][0]}Group object: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
 	<tr>
 	<td bgcolor="#BBBBBB" colspan="2">
@@ -150,7 +151,9 @@
 	{/foreach}
 </table>
 <br>
+</div>
 {/foreach}
+<div class="clear"></div>
 
 
 {elseif $accounts_reviewed != TRUE}
