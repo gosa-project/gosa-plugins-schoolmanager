@@ -131,7 +131,27 @@
 <br><h3>{t}STEP 4: Review group objects before adding them to LDAP{/t}</h3>
 <br>
 <br>
-TODO
+{foreach from=$data item=group key=key}
+<table summary="{t 1=$group['cn'][0]}Group object: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
+	<tr>
+	<td bgcolor="#BBBBBB" colspan="2">
+		{t 1=$key}Group object: %1{/t}
+	</td>
+	</tr>
+	{foreach from=$group item=value key=property}
+	<tr>
+		<td bgcolor="#EEEEEE">
+		<b>{$property}:</b>
+		</td>
+		<td bgcolor="#FEFEFE">
+		{$group[$property][0]}
+		</td>
+        </tr>
+	{/foreach}
+</table>
+<br>
+{/foreach}
+
 
 {elseif $accounts_reviewed != TRUE}
 <input type="hidden" name="phase5">
@@ -197,30 +217,6 @@ TODO
 	</tr>
 	{/if}
 </table>
-
-{if $data[$key]['groups']}
-{foreach $data[$key]['groups'] item=group key=idx_groups}
-<table summary="{t 1=$group['cn'][0]}New account: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
-	<tr>
-	<td bgcolor="#BBBBBB" colspan="2">
-		{t 1=$group['cn'][0]}New group: %1{/t}
-	</td>
-	</tr>
-	{foreach from=$group item=value key=property}
-	<tr>
-		<td bgcolor="#EEEEEE">
-		<b>{$property}:</b>
-		</td>
-		<td bgcolor="#FEFEFE">
-		{$group[$property][0]}
-		</td>
-        </tr>
-	{/foreach}
-</table>
-{/foreach}
-{/if}
-<br>
-
 {/foreach}
 
 {else}

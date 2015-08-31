@@ -330,10 +330,11 @@ class manageaccounts extends plugin{
                 /* free some memory... */
                 unset ($this->csvinfo['data_sorted']);
 
-
-                /* TODO: prepare group review view screen */
+                $this->csvinfo['data_preldap_posixgroups'] = array();
+                $this->groupStatusCheck();
 
                 $smarty->assign ("data_sorted",TRUE);
+                $smarty->assign ("data",$this->csvinfo['data_preldap_posixgroups']);
             }
         }
         /*
@@ -362,7 +363,7 @@ class manageaccounts extends plugin{
             }
             else {
 
-                /* prepare summary view for account creation */
+                /* prepare review view for account creation */
 
                 /* Template Handling */
                 $smarty->assign ("file_uploaded",TRUE);
@@ -371,13 +372,11 @@ class manageaccounts extends plugin{
                 {
                     $this->accountStatusCheck();
 
-                    $smarty->assign ("data_sorted",TRUE);
+                    /* groups review has been successful */
+                    $smarty->assign ("groups_reviewed",TRUE);
                     $smarty->assign ("data",array_slice($this->csvinfo['data_preldap'], 0, 5));
                 }
             }
-
-            /* groups review has been successful */
-            $smarty->assign ("groups_reviewed",TRUE);
         }
         /*
          * PHASE 5: Finally write everything to LDAP
@@ -556,6 +555,65 @@ class manageaccounts extends plugin{
             }
         }
     }
+
+    function groupStatusCheck()
+    {
+        $ldap = $this->config->get_ldap_link();
+        $ldapsearch = $ldap->search("(objectClass=posixGroup)",array("cn","memberUid"));
+
+        /* this will probably scale very very badly... Improvement needed. Suggestions? */
+        while ($gosa_posix_group = $ldap->fetch($ldapsearch))
+        {
+            foreach ($this->csvinfo['data_preldap'] as $key => $row)
+            {
+                if (isset($row['groups']))
+                {
+                    foreach ($row['groups'] as $group_key => $group)
+                    {
+                        if ($this->compareAccounts($group, $gosa_posix_group, array("cn")))
+                        {
+                            $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'exists';
+                            /*
+                             * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
+                             *        Later, we need to make actions more configurable...
+                             */
+                            $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['action'][0]= 'drop-all-members';
+
+                            /* break out of the inner loop if the $gosa_account has been found */
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ($this->csvinfo['data_preldap'] as $key => $row)
+        {
+            if (isset($row['groups']))
+            {
+                foreach ($row['groups'] as $group_key => $group)
+                {
+                    if ($this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]==='unchecked')
+                    {
+                        $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'not-found';
+                        $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'create';
+                    }
+
+                    /* grab posix groups (classes, courses) into their own array */
+                    $group_name = $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['cn'][0];
+                    if (!in_array($group_name, array_keys($this->csvinfo['data_preldap_posixgroups'])))
+                    {
+                        if (in_array("posixGroup", $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['objectClass']))
+                        {
+                            $this->csvinfo['data_preldap_posixgroups'][$group_name] = $this->csvinfo['data_preldap'][$key]['groups'][$group_key];
+                        }
+                    }
+                }
+            }
+        }
+        ksort($this->csvinfo['data_preldap_posixgroups']);
+    }
+
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:

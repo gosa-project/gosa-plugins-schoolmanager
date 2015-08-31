@@ -123,6 +123,8 @@ class manageteachers extends manageaccounts {
                     'top',
                     'posixGroup',
                 );
+                $class_group['_status']=array('unchecked');
+                $class_group['_action']=array('none');
 
                 /* course groups */
                 $course_groups= array ();
@@ -136,7 +138,9 @@ class manageteachers extends manageaccounts {
                                     'top',
                                     'posixGroup',
                                 ),
-                                'cn' => array('course_'.$row_sorted[$key])
+                                'cn' => array('course_'.$row_sorted[$key]),
+                                '_status' => array('unchecked'),
+                                '_action' => array('none')
                             );
                         }
                     }
