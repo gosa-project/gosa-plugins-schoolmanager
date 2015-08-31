@@ -189,6 +189,7 @@ class managestudents extends manageaccounts {
                     '{%dn[parent1]}',
                     '{%dn[parent2]}'
                 );
+                $parent2['_status']=array('none');
                 $groups= array($class_group, $parent_group) + $course_groups;
             }
             $data_preldap[]= array(

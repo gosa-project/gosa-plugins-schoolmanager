@@ -197,7 +197,6 @@ class manageaccounts extends plugin{
 
                         /* add found gosaUserTemplate objects */
                         while($result = $ldap->fetch($this->csvinfo['templates']['ldapsearch'])){
-                            $index ++;
                             $this->csvinfo['templates']['formfields'][] = $result['sn'][0]." - ".$this->config->idepartments[preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/')."/i", "", $result['dn'])];
                             $this->csvinfo['templates']['DNs'][] = $result['dn'];
                         }
