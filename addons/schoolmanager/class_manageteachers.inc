@@ -21,8 +21,8 @@
 class manageteachers extends manageaccounts {
 
     /* Definitions */
-    var $plHeadline="Manage Teachers";
-    var $plDescription="GOsa² School Manager Module: Manage Teachers";
+    var $plHeadline=_("Manage Teachers");
+    var $plDescription=_("GOsa2 School Manager Module: Manage Teachers");
     var $access="";
 
     /* constructor */
@@ -100,6 +100,8 @@ class manageteachers extends manageaccounts {
 
                 /* main account */
                 $teacher=array ();
+                $teacher['uid']=array (strtolower(trim($row_sorted['uid'])));
+                $teacher['departmentNumber']=array(preq_replace('/;/','_',trim($row_sorted['subjects'])));
                 $teacher['sn']=array (trim($row_sorted['sn']));
                 $teacher['givenName']=array (trim($row_sorted['givenName']));
                 $teacher['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));

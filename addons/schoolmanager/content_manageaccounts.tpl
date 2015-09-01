@@ -1,8 +1,8 @@
 <p>
     {if $import_account_type == "students"}
-    {t}With GOsa² School Manager's{/t} <b>{t}Manage Students Module{/t}</b> {t}you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
+    {t}With GOsa2 School Manager's{/t} <b>{t}Manage Students Module{/t}</b> {t}you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
     {elseif $import_account_type == "teachers"}
-    {t}With GOsa² School Manager's{/t} <b>{t}Manage Teachers Module{/t}</b> {t}you can import teacher user accounts and course groups from a CSV file containing.{/t}
+    {t}With GOsa2 School Manager's{/t} <b>{t}Manage Teachers Module{/t}</b> {t}you can import teacher user accounts and course groups from a CSV file containing.{/t}
     {/if}
 </p>
 <hr>
@@ -43,14 +43,14 @@
 
 {if $import_account_type == 'students'}
     <p>
-    {t}Please choose from the available GOsa² user object templates what account templates to use for students and for their parents.{/t}
+    {t}Please choose from the available GOsa2 user object templates what account templates to use for students and for their parents.{/t}
     <br><br>
     FIXME: Provide a checkbox to disable parent imports.
     </p>
 {/if}
 {if $import_account_type == 'teachers'}
     <p>
-    {t}Please choose from the available GOsa² user object templates what account template to use for teachers.{/t}
+    {t}Please choose from the available GOsa2 user object templates what account template to use for teachers.{/t}
     </p>
 {/if}
 

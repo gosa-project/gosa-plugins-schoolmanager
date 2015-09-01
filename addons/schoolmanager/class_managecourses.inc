@@ -23,8 +23,8 @@
 class managecourses extends plugin
 {
     /* Definitions */
-    var $plHeadline= "Manage Courses";
-    var $plDescription= "GOsa² School Manager Module: Manage Courses";
+    var $plHeadline= _("Manage Courses");
+    var $plDescription= _("GOsa2 School Manager Module: Manage Courses");
     var $access= "";
 
     /* Array with csv informations*/

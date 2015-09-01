@@ -23,8 +23,8 @@
 class manageparents extends plugin
 {
     /* Definitions */
-    var $plHeadline= "Manage Parents";
-    var $plDescription= "GOsa² School Manager Module: Manage Parents";
+    var $plHeadline= _("Manage Parents");
+    var $plDescription= _("GOsa2 School Manager Module: Manage Parents");
     var $access= "";
 
     /* Array with csv informations*/
