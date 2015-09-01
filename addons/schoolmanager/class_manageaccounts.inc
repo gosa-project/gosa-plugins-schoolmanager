@@ -674,13 +674,13 @@ class manageaccounts extends plugin{
     {
         switch (strtolower($gender))
         {
-            "male":
+            case "male":
                 $gender="M";
-            _("male"):
+            case _("male"):
                 $gender="M";
-            "female":
+            case "female":
                 $gender="F";
-            _("female"):
+            case _("female"):
                 $gender="F";
         }
         return $gender;
