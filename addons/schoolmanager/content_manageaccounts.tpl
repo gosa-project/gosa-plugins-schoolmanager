@@ -203,6 +203,7 @@
 <br>
 <br>
 {foreach from=$data item=row key=key}
+<div style="float:left; width:20em;">
 <table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}New account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
 
 	<tr>
@@ -260,7 +261,10 @@
 	</tr>
 	{/if}
 </table>
+<br>
+</div>
 {/foreach}
+<div class="clear"></div>
 
 {else}
 <input type="hidden" name="phase5">
