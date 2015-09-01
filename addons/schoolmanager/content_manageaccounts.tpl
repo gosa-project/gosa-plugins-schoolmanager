@@ -24,7 +24,11 @@
 <table summary="{t}Upload CSV File{/t}">
     <tr>
 	<td style="vertical-align: middle;">
-	    <LABEL for="userfile">{t}Select CSV file with {$import_account_type} data to import:{/t}</LABEL>
+		{if $import_account_type=="students"}
+		<LABEL for="userfile">{t}Select CSV file with students' data to import:{/t}</LABEL>
+		{elseif $import_account_type=="teachers"}
+		<LABEL for="userfile">{t}Select CSV file with teachers' data to import:{/t}</LABEL>
+		{/if}
 	</td>
 	<td style="vertical-align: middle;">
 	    <input type="hidden" name="MAX_FILE_SIZE" value="2097152">
