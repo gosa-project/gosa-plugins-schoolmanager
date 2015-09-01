@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-schoolmanager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-01 12:51+0200\n"
+"POT-Creation-Date: 2015-09-01 13:36+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>\n"
 "Language-Team: \n"
@@ -52,15 +52,6 @@ msgstr "GOsa2 Schulverwaltungsmodul: Eltern verwalten"
 #: addons/schoolmanager/content_manageparents.tpl:2
 msgid "GOsa2 School Manager's"
 msgstr "GOsa² Schulverwaltung"
-
-#: addons/schoolmanager/content_managecourses.tpl:2
-msgid "Manage Courses Module"
-msgstr "Kursverwaltungsmodul"
-
-#: addons/schoolmanager/content_managecourses.tpl:2
-#: addons/schoolmanager/content_manageparents.tpl:2
-msgid "has not been implemented, yet."
-msgstr "wurde noch nicht implementiert."
 
 #: addons/schoolmanager/class_manageaccounts.inc:24
 msgid "Manage Accounts"
@@ -120,10 +111,6 @@ msgstr "männlich"
 msgid "female"
 msgstr "weiblich"
 
-#: addons/schoolmanager/content_manageparents.tpl:2
-msgid "Manage Parents Module"
-msgstr "Elternkonten Module"
-
 #: addons/schoolmanager/class_managestudents.inc:24
 msgid "Manage Students"
 msgstr "SuS verwalten"
@@ -153,6 +140,25 @@ msgstr "Kurse verwalten"
 #: addons/schoolmanager/class_managecourses.inc:27
 msgid "GOsa2 School Manager Module: Manage Courses"
 msgstr "GOsa² Schulverwaltungsmodul: Kursverwaltung"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:3
+msgid ""
+"With GOsa2 School Manager's <b>Manage Students Module</b> you can import "
+"student user accounts, parent accounts and course groups from a CSV file "
+"containing."
+msgstr ""
+"Mit dem <b>SuS Verwalten</b> Modul des GOsa² Schulverwaltungs-Addons können "
+"Schüler/Studenten-Konten, Elternkonten und Klassen- bzw. Kursgruppen aus "
+"einer CSV Datei importiert werden."
+
+#: addons/schoolmanager/content_manageaccounts.tpl:5
+msgid ""
+"With GOsa2 School Manager's <b>Manage Teachers Module</b> you can import "
+"teacher user accounts and course groups from a CSV file containing."
+msgstr ""
+"Mit dem <b>Lehrer Verwalten</b> Modul des GOsa² Schulverwaltungs-Addons "
+"können Lehrer-Konten und Klassen- bzw. Kursgruppen aus einer CSV Datei "
+"importiert werden."
 
 #: addons/schoolmanager/content_manageaccounts.tpl:15
 msgid "STEP 1: Upload CSV File"
@@ -237,6 +243,11 @@ msgstr ""
 msgid "STEP 4: Review group objects before LDAP import"
 msgstr "Schritt 4: Gruppenobjekte vor LDAP-Import überprüfen"
 
+#: addons/schoolmanager/content_manageaccounts.tpl:144
+#: addons/schoolmanager/content_manageaccounts.tpl:147
+msgid "Group object: %1"
+msgstr "Gruppenobjekt: %1"
+
 #: addons/schoolmanager/content_manageaccounts.tpl:176
 msgid ""
 "STEP 5 (LDAP import status): User account objects have been imported into "
@@ -247,6 +258,20 @@ msgstr ""
 #: addons/schoolmanager/content_manageaccounts.tpl:178
 msgid "STEP 5: Review user account objects before LDAP import"
 msgstr "Schritt 5: Benutzerobjekte vor LDAP-Import überprüfen"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:183
+#: addons/schoolmanager/content_manageaccounts.tpl:191
+#: addons/schoolmanager/content_manageaccounts.tpl:214
+msgid "New account: %1, %2"
+msgstr "Neues Nutzerkonto: %1, %2"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:198
+msgid "Account group for %1, %2"
+msgstr "Kontogruppen für %1, %2"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:217
+msgid "New associated account: %1, %2"
+msgstr "Neues assoziiertes Konto: %1, %2"
 
 #: addons/schoolmanager/content_manageaccounts.tpl:248
 msgid "All entries have been written to the LDAP database successfully."
@@ -273,26 +298,29 @@ msgstr "Statusreport"
 msgid "Continue here, when ready"
 msgstr "Hier klicken, um fortzusetzen"
 
-#: addons/schoolmanager/content_manageaccounts.tpl:278
-msgid "Select User Templates (Step 2/7)"
-msgstr "Benutzervorlagen auswählen (Schritt 2/7)"
+#~ msgid "Manage Courses Module"
+#~ msgstr "Kursverwaltungsmodul"
 
-#: addons/schoolmanager/content_manageaccounts.tpl:280
-msgid "Check and Sort CSV Data (Step 3/7)"
-msgstr "Prüfe und sortiere CSV-Daten (Schritt 3/7)"
+#~ msgid "has not been implemented, yet."
+#~ msgstr "wurde noch nicht implementiert."
 
-#: addons/schoolmanager/content_manageaccounts.tpl:282
-msgid "Review group objects (Step 4/7)"
-msgstr "Gruppenobjekte prüfen (Schritt 4/7)"
+#~ msgid "Manage Parents Module"
+#~ msgstr "Elternkonten Module"
 
-#: addons/schoolmanager/content_manageaccounts.tpl:284
-msgid "Import group objects into LDAP (Step 5/7)"
-msgstr "Gruppenobjekte nach LDAP importieren (Schritt 5/7)"
+#~ msgid "Select User Templates (Step 2/7)"
+#~ msgstr "Benutzervorlagen auswählen (Schritt 2/7)"
 
-#: addons/schoolmanager/content_manageaccounts.tpl:286
-msgid "Review user account objects (Step 6/7)"
-msgstr "Benutzerobjekte prüfen (Schritt 6/7)"
+#~ msgid "Check and Sort CSV Data (Step 3/7)"
+#~ msgstr "Prüfe und sortiere CSV-Daten (Schritt 3/7)"
 
-#: addons/schoolmanager/content_manageaccounts.tpl:288
-msgid "Import user account objects into LDAP (Step 7/7)"
-msgstr "Benutzerkonten nach LDAP importieren (Schritt 7/7)"
+#~ msgid "Review group objects (Step 4/7)"
+#~ msgstr "Gruppenobjekte prüfen (Schritt 4/7)"
+
+#~ msgid "Import group objects into LDAP (Step 5/7)"
+#~ msgstr "Gruppenobjekte nach LDAP importieren (Schritt 5/7)"
+
+#~ msgid "Review user account objects (Step 6/7)"
+#~ msgstr "Benutzerobjekte prüfen (Schritt 6/7)"
+
+#~ msgid "Import user account objects into LDAP (Step 7/7)"
+#~ msgstr "Benutzerkonten nach LDAP importieren (Schritt 7/7)"
