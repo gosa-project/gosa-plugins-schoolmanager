@@ -182,7 +182,18 @@ class manageaccounts extends plugin{
 
                     @fclose ($handle);
 
-                    $raw_csv_data = utf8_encode($raw_csv_data);
+                    if(!mb_check_encoding($raw_csv_data, "UTF-8"))
+                    {
+                        if(mb_check_encoding($raw_csv_data, "iso-8859-1"))
+                        {
+                            $raw_csv_data = utf8_encode($raw_csv_data);
+                        } else
+                        {
+                            $smarty->assign ("LDIFError",TRUE);
+                            $smarty->assign ("file_uploaded",FALSE);
+                            msg_dialog::display (_ ("Error"),_ ("File has an unsupported encoding!"),ERROR_DIALOG);
+                        }
+                    }
 
                     $parser_ok = manageaccounts::parseCSV($raw_csv_data);
 
