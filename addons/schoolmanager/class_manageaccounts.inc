@@ -186,7 +186,7 @@ class manageaccounts extends plugin{
 
                     $parser_ok = manageaccounts::parseCSV($raw_csv_data);
 
-                    if ($parser_ok != FALSE)
+                    if ($parser_ok!==FALSE)
                     {
 
                         /* Populate the Template Selectors for PHASE 2 */
@@ -378,7 +378,7 @@ class manageaccounts extends plugin{
                     $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou=Students,'.$this->config->current['BASE'], "groups" );
 
                     /* Don't do anything if _action on this group is set to "none" */
-                    if(strpos($posixgroup['_action'][0],'none') !== FALSE)
+                    if(strpos($posixgroup['_action'][0],'none')!==FALSE)
                     {
                             // FIXME: logging seems to fail from time to time...
                             new log("modify","groups/group",$grouptab->dn, array(), "SchoolManager: Nothing to do for this group.");
@@ -398,7 +398,7 @@ class manageaccounts extends plugin{
                             "cn" => $posixgroup['cn'][0],
                             "description" => $posixgroup['description'][0]
                         );
-                        if(strpos($posixgroup['_action'][0],'update') !== FALSE)
+                        if(strpos($posixgroup['_action'][0],'update')!==FALSE)
                         {
                             $_group_properties["mail"]= $posixgroup['mail'][0];
                         }
@@ -426,7 +426,7 @@ class manageaccounts extends plugin{
                         }
 
                         /* Drop all group members, if requested */
-                        if(strpos($posixgroup['_action'][0],'drop-all-members') !== FALSE)
+                        if(strpos($posixgroup['_action'][0],'drop-all-members')!==FALSE)
                         {
                             $group_members=$grouptab->by_object['group']->memberUid;
                             foreach($group_members as $group_member)
@@ -591,7 +591,7 @@ class manageaccounts extends plugin{
                 $val_b = $object_b[$attr][0];
             }
 
-            if ($val_a != $val_b)
+            if ($val_a!==$val_b)
             {
                 $success = FALSE;
                 break;
@@ -655,7 +655,7 @@ class manageaccounts extends plugin{
         {
             if (isset($row['main_account']))
             {
-                if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]==='unchecked')
+                if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]== 'unchecked')
                 {
                     $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'not-found';
                     $this->csvinfo['data_preldap'][$key]['main_account']['_action'][0]= 'create';
@@ -664,7 +664,7 @@ class manageaccounts extends plugin{
                 {
                     foreach ($row['aux_accounts'] as $aux_key => $aux_account)
                     {
-                        if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]==='unchecked')
+                        if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]== 'unchecked')
                         {
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'not-found';
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_action'][0]= 'create';
@@ -734,7 +734,7 @@ class manageaccounts extends plugin{
             {
                 foreach ($row['groups'] as $group_key => $group)
                 {
-                    if ($this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]==='unchecked')
+                    if ($this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]== 'unchecked')
                     {
                         $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'not-found';
                         $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'create';
