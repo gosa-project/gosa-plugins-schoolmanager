@@ -96,7 +96,7 @@
     {/if}
     <tr>
 	<td style="vertical-align: middle;">
-	    <LABEL for="template">{t}Select OUs for new groups{/t}</LABEL>
+	    <LABEL for="template">{t}Select OU for new groups{/t}</LABEL>
 	</td>
 	<td style="vertical-align: middle;">
 	    <select id="ou" name="ou" size="1" title="">
