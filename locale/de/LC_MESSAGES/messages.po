@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-schoolmanager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-01 10:31+0200\n"
+"POT-Creation-Date: 2015-09-01 12:51+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>\n"
 "Language-Team: \n"
@@ -27,8 +27,9 @@ msgstr "GOsa² Schulverwaltungsmodul: Lehrer administrieren"
 #: addons/schoolmanager/class_manageaccounts.inc:161
 #: addons/schoolmanager/class_manageaccounts.inc:167
 #: addons/schoolmanager/class_manageaccounts.inc:171
-#: addons/schoolmanager/class_manageaccounts.inc:216
-#: addons/schoolmanager/class_manageaccounts.inc:323
+#: addons/schoolmanager/class_manageaccounts.inc:194
+#: addons/schoolmanager/class_manageaccounts.inc:227
+#: addons/schoolmanager/class_manageaccounts.inc:334
 #: addons/schoolmanager/class_managestudents.inc:96
 msgid "Error"
 msgstr "Fehler"
@@ -98,20 +99,24 @@ msgstr "Datei ist leer"
 msgid "file not readable"
 msgstr "Datei ist nicht lesbar"
 
-#: addons/schoolmanager/class_manageaccounts.inc:216
+#: addons/schoolmanager/class_manageaccounts.inc:194
+msgid "File has an unsupported encoding!"
+msgstr "Textenkodierung der Datei wird nicht unterstützt!"
+
+#: addons/schoolmanager/class_manageaccounts.inc:227
 msgid "Cannot find CSV data in the selected file!"
 msgstr "Es können keine CSV-Daten in der ausgewählten Datei gefunden werden!"
 
-#: addons/schoolmanager/class_manageaccounts.inc:323
+#: addons/schoolmanager/class_manageaccounts.inc:334
 #, php-format
 msgid "The attribute %s is only allowed to select once!"
 msgstr "Das Attribut %s darf nur einmal verwendet werden!"
 
-#: addons/schoolmanager/class_manageaccounts.inc:679
+#: addons/schoolmanager/class_manageaccounts.inc:690
 msgid "male"
 msgstr "männlich"
 
-#: addons/schoolmanager/class_manageaccounts.inc:683
+#: addons/schoolmanager/class_manageaccounts.inc:694
 msgid "female"
 msgstr "weiblich"
 
@@ -149,31 +154,6 @@ msgstr "Kurse verwalten"
 msgid "GOsa2 School Manager Module: Manage Courses"
 msgstr "GOsa² Schulverwaltungsmodul: Kursverwaltung"
 
-#: addons/schoolmanager/content_manageaccounts.tpl:3
-#: addons/schoolmanager/content_manageaccounts.tpl:5
-msgid "With GOsa2 School Manager's"
-msgstr "Mit GOsa² Schulverwaltung's"
-
-#: addons/schoolmanager/content_manageaccounts.tpl:3
-msgid "Manage Students Module"
-msgstr "Verwaltungsmodul Schüler/Studenten"
-
-#: addons/schoolmanager/content_manageaccounts.tpl:3
-msgid ""
-"you can import student user accounts, parent accounts and course groups from "
-"a CSV file containing."
-msgstr ""
-
-#: addons/schoolmanager/content_manageaccounts.tpl:5
-msgid "Manage Teachers Module"
-msgstr "Verwaltungsmodul Lehrer"
-
-#: addons/schoolmanager/content_manageaccounts.tpl:5
-msgid ""
-"you can import teacher user accounts and course groups from a CSV file "
-"containing."
-msgstr ""
-
 #: addons/schoolmanager/content_manageaccounts.tpl:15
 msgid "STEP 1: Upload CSV File"
 msgstr "Schritt 1: CSV-Datei hochladen"
@@ -203,12 +183,16 @@ msgid ""
 "Please choose from the available GOsa2 user object templates what account "
 "templates to use for students and for their parents."
 msgstr ""
+"Bitte für die Erstellung von Schüler/Studenten- und Eltern-Konten jeweils "
+"eine der in GOsa² verfügbaren Benutzerobjektvorlagen auswählen."
 
 #: addons/schoolmanager/content_manageaccounts.tpl:53
 msgid ""
 "Please choose from the available GOsa2 user object templates what account "
 "template to use for teachers."
 msgstr ""
+"Bitte für die Erstellung von Lehrer-Konten eine der in GOsa² verfügbaren "
+"Benutzerobjektvorlagen auswählen."
 
 #: addons/schoolmanager/content_manageaccounts.tpl:58
 msgid "Select user object templates"
@@ -232,9 +216,13 @@ msgstr "Schritt 3: CSV-Daten überprüfen und LDAP-Attributen zuweisen"
 
 #: addons/schoolmanager/content_manageaccounts.tpl:104
 msgid ""
-"Please sort assign LDAP attributes to the CSV data columns. Note that the "
-"CSV file has been rotated counter-clockwise for better readability."
+"Please assign the offered (LDAP) attributes to the CSV data columns. Note "
+"that the CSV file has been rotated 90DEGREES counter-clockwise for better "
+"readability."
 msgstr ""
+"Bitte die angebotenen (LDAP) Attribute den Spalten des CSV-Datensatzes "
+"zuweisen. Die CSV-Datei wurde zur besseren Lesbarkeit um 90° gegen den "
+"Uhrzeigersinn gedreht."
 
 #: addons/schoolmanager/content_manageaccounts.tpl:108
 msgid "Check CSV data"
@@ -254,6 +242,7 @@ msgid ""
 "STEP 5 (LDAP import status): User account objects have been imported into "
 "LDAP"
 msgstr ""
+"Schritt 5 (LDAP-Importstatus): Benutzerobjekte wurden nach LDAP importiert."
 
 #: addons/schoolmanager/content_manageaccounts.tpl:178
 msgid "STEP 5: Review user account objects before LDAP import"
@@ -307,30 +296,3 @@ msgstr "Benutzerobjekte prüfen (Schritt 6/7)"
 #: addons/schoolmanager/content_manageaccounts.tpl:288
 msgid "Import user account objects into LDAP (Step 7/7)"
 msgstr "Benutzerkonten nach LDAP importieren (Schritt 7/7)"
-
-#~ msgid "CSV export"
-#~ msgstr "CSV-Export"
-
-#~ msgid "Select CSV file to import"
-#~ msgstr "CSV_Datei für Import auswählen"
-
-#~ msgid "Template selection"
-#~ msgstr "Vorlagenauswahl"
-
-#~ msgid "Import"
-#~ msgstr "Import"
-
-#~ msgid "This does something"
-#~ msgstr "Dies macht etwas"
-
-#~ msgid "status"
-#~ msgstr "Status"
-
-#~ msgid "Cannot add entry %s!"
-#~ msgstr "Kann Eintrag %s nicht hinzufügen!"
-
-#~ msgid "Information"
-#~ msgstr "Information"
-
-#~ msgid "Nothing to import!"
-#~ msgstr "Nicht zu importieren!"

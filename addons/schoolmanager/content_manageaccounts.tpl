@@ -1,8 +1,8 @@
 <p>
     {if $import_account_type == "students"}
-    {t}With GOsa2 School Manager's{/t} <b>{t}Manage Students Module{/t}</b> {t}you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
+    {t escape=no}With GOsa2 School Manager's <b>Manage Students Module</b> you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
     {elseif $import_account_type == "teachers"}
-    {t}With GOsa2 School Manager's{/t} <b>{t}Manage Teachers Module{/t}</b> {t}you can import teacher user accounts and course groups from a CSV file containing.{/t}
+    {t escape=no}With GOsa2 School Manager's <b>Manage Teachers Module</b> you can import teacher user accounts and course groups from a CSV file containing.{/t}
     {/if}
 </p>
 <hr>
@@ -101,7 +101,7 @@
 <br><h3>{t}STEP 3: Check CSV data and assign to LDAP attributes{/t}</h3>
 
 <p>
-{t}Please sort assign LDAP attributes to the CSV data columns. Note that the CSV file has been rotated counter-clockwise for better readability.{/t}
+{t}Please assign the offered (LDAP) attributes to the CSV data columns. Note that the CSV file has been rotated 90DEGREES counter-clockwise for better readability.{/t}
 </p>
 <br>
 <br>

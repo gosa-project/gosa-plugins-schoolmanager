@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-01 10:31+0200\n"
+"POT-Creation-Date: 2015-09-01 12:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,8 +30,9 @@ msgstr ""
 #: addons/schoolmanager/class_manageaccounts.inc:161
 #: addons/schoolmanager/class_manageaccounts.inc:167
 #: addons/schoolmanager/class_manageaccounts.inc:171
-#: addons/schoolmanager/class_manageaccounts.inc:216
-#: addons/schoolmanager/class_manageaccounts.inc:323
+#: addons/schoolmanager/class_manageaccounts.inc:194
+#: addons/schoolmanager/class_manageaccounts.inc:227
+#: addons/schoolmanager/class_manageaccounts.inc:334
 #: addons/schoolmanager/class_managestudents.inc:96
 msgid "Error"
 msgstr ""
@@ -101,20 +102,24 @@ msgstr ""
 msgid "file not readable"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:216
+#: addons/schoolmanager/class_manageaccounts.inc:194
+msgid "File has an unsupported encoding!"
+msgstr ""
+
+#: addons/schoolmanager/class_manageaccounts.inc:227
 msgid "Cannot find CSV data in the selected file!"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:323
+#: addons/schoolmanager/class_manageaccounts.inc:334
 #, php-format
 msgid "The attribute %s is only allowed to select once!"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:679
+#: addons/schoolmanager/class_manageaccounts.inc:690
 msgid "male"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:683
+#: addons/schoolmanager/class_manageaccounts.inc:694
 msgid "female"
 msgstr ""
 
@@ -150,31 +155,6 @@ msgstr ""
 
 #: addons/schoolmanager/class_managecourses.inc:27
 msgid "GOsa2 School Manager Module: Manage Courses"
-msgstr ""
-
-#: addons/schoolmanager/content_manageaccounts.tpl:3
-#: addons/schoolmanager/content_manageaccounts.tpl:5
-msgid "With GOsa2 School Manager's"
-msgstr ""
-
-#: addons/schoolmanager/content_manageaccounts.tpl:3
-msgid "Manage Students Module"
-msgstr ""
-
-#: addons/schoolmanager/content_manageaccounts.tpl:3
-msgid ""
-"you can import student user accounts, parent accounts and course groups from "
-"a CSV file containing."
-msgstr ""
-
-#: addons/schoolmanager/content_manageaccounts.tpl:5
-msgid "Manage Teachers Module"
-msgstr ""
-
-#: addons/schoolmanager/content_manageaccounts.tpl:5
-msgid ""
-"you can import teacher user accounts and course groups from a CSV file "
-"containing."
 msgstr ""
 
 #: addons/schoolmanager/content_manageaccounts.tpl:15
@@ -233,8 +213,9 @@ msgstr ""
 
 #: addons/schoolmanager/content_manageaccounts.tpl:104
 msgid ""
-"Please sort assign LDAP attributes to the CSV data columns. Note that the "
-"CSV file has been rotated counter-clockwise for better readability."
+"Please assign the offered (LDAP) attributes to the CSV data columns. Note "
+"that the CSV file has been rotated 90DEGREES counter-clockwise for better "
+"readability."
 msgstr ""
 
 #: addons/schoolmanager/content_manageaccounts.tpl:108
