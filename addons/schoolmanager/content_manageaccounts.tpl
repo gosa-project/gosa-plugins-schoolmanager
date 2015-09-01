@@ -125,10 +125,18 @@
 {/foreach}
 </table>
 
-{elseif $groups_reviewed != TRUE}
+{elseif $groups_reviewed != TRUE || $groups_imported != TRUE}
+{if $groups_reviewed}
+<input type="hidden" name="phase4_status">
+{else}
 <input type="hidden" name="phase4">
+{/if}
 
-<br><h3>{t}STEP 4: Review group objects before adding them to LDAP{/t}</h3>
+{if $groups_reviewed}
+<br><h3>{t}STEP 4 (LDAP import status): Group objects have been imported into LDAP{/t}</h3>
+{else}
+<br><h3>{t}STEP 4: Review group objects before LDAP import{/t}</h3>
+{/if}
 <br>
 <br>
 {foreach from=$data item=group key=key}
@@ -152,14 +160,23 @@
 </table>
 <br>
 </div>
+<div style="float:left; width:1em;">&nbsp;</div>
 {/foreach}
 <div class="clear"></div>
 
 
-{elseif $accounts_reviewed != TRUE}
+{elseif $accounts_reviewed != TRUE || $accounts_imported != TRUE}
+{if $accounts_reviewed}
+<input type="hidden" name="phase5_status">
+{else}
 <input type="hidden" name="phase5">
+{/if}
 
-<br><h3>{t}STEP 5: Review user account objects before adding them to LDAP{/t}</h3>
+{if $accounts_reviewed}
+<br><h3>{t}STEP 5 (LDAP import status): User account objects have been imported into LDAP{/t}</h3>
+{else}
+<br><h3>{t}STEP 5: Review user account objects before LDAP import{/t}</h3>
+{/if}
 <br>
 <br>
 {foreach from=$data item=row key=key}
@@ -258,14 +275,16 @@
 <hr>
 <div class="plugin-actions">
     {if $file_uploaded != TRUE}
-    {t}Continue here, when ready{/t}: <button type='submit' name='fileup'>{t}Select User Templates (Step 2/6){/t}</button>
+    {t}Continue here, when ready{/t}: <button type='submit' name='fileup'>{t}Select User Templates (Step 2/7){/t}</button>
     {elseif $templates_selected != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_template_selected" value="{t}Check and Sort CSV Data (Step 3/6){/t}" type ="submit">
+    {t}Continue here, when ready{/t}: <input name="btn_template_selected" value="{t}Check and Sort CSV Data (Step 3/7){/t}" type ="submit">
     {elseif $data_sorted != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Review imported group objects (Step 4/6){/t}" type ="submit">
+    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Review group objects (Step 4/7){/t}" type ="submit">
+    {elseif $groups_reviewed != TRUE}
+    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Import group objects into LDAP (Step 5/7){/t}" type ="submit">
+    {elseif $groups_imported != TRUE}
+    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Review user account objects (Step 6/7){/t}" type ="submit">
     {elseif $accounts_reviewed != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Review imported user account objects (Step 5/6){/t}" type ="submit">
-    {elseif $accounts_reviewed != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_accounts_reviewed" value="{t}Import Data into LDAP (Step 6/5){/t}" type ="submit">
+    {t}Continue here, when ready{/t}: <input name="btn_accounts_reviewed" value="{t}Import user account objects into LDAP (Step 7/7){/t}" type ="submit">
     {/if}
 </div>

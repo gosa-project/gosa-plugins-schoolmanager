@@ -102,20 +102,20 @@ class managestudents extends manageaccounts {
                 $tmpclassparts[0]=trim ($tmpclassparts[0]);
                 $tmpclassparts[1]=trim ($tmpclassparts[1]);
                 $tmpclassparts[1]=substr ($tmpclassparts[1],1);
-                $row_sorted['class']=$tmpclassparts[0].".".$tmpclassparts[1];
+                $row_sorted['class']=$tmpclassparts[0]."-".$tmpclassparts[1];
 
                 /* main account */
                 $student=array ();
-                $student['sn']=array ($row_sorted['sn']);
-                $student['givenName']=array ($row_sorted['givenName']);
+                $student['sn']=array (trim($row_sorted['sn']));
+                $student['givenName']=array (trim($row_sorted['givenName']));
 
-                $_dateOfBirth= $row_sorted['dateOfBirth'];
+                $_dateOfBirth= trim($row_sorted['dateOfBirth']);
                 if (strpos($_dateOfBirth,'.')) {
                     list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
                     $_dateOfBirth = $year."-".$month."-".$day;
                 }
                 $student['dateOfBirth']=array ($_dateOfBirth);
-                $student['gender']=array (strtoupper($row_sorted['gender']));
+                $student['gender']=array (trim(strtoupper($row_sorted['gender'])));
                 /* Keeping the memory footprint low:
                  *
                  *     $student['_template']
@@ -130,20 +130,20 @@ class managestudents extends manageaccounts {
 
                 /* auxiliary accounts */
                 $parent1=array ();
-                $parent1['sn']=array ($row_sorted['parent1_sn']);
-                $parent1['givenName']=array ($row_sorted['parent1_givenName']);
-                $parent1['mail']=array ($row_sorted['parent1_mail']);
+                $parent1['sn']=array (trim($row_sorted['parent1_sn']));
+                $parent1['givenName']=array (trim($row_sorted['parent1_givenName']));
+                $parent1['mail']=array (trim($row_sorted['parent1_mail']));
                 /* see above for how to retrieve the template's DN */
                 $parent1['_template']=array($this->csvinfo['template_aux']);
                 $parent1['_status']=array('unchecked');
                 $parent1['_action']=array('none');
 
                 $parent2=array ();
-                $parent2['sn']=array ($row_sorted['parent2_sn']);
-                $parent2['givenName']=array ($row_sorted['parent2_givenName']);
-                $parent2['mail']=array ($row_sorted['parent2_mail']);
+                $parent2['sn']=array (trim($row_sorted['parent2_sn']));
+                $parent2['givenName']=array (trim($row_sorted['parent2_givenName']));
+                $parent2['mail']=array (trim($row_sorted['parent2_mail']));
                 /* see above for how to retrieve the template's DN */
-                $parent2['_template']=array($this->csvinfo['template_aux']);
+                $parent2['_template']=array(trim($this->csvinfo['template_aux']));
                 $parent2['_status']=array('unchecked');
                 $parent2['_action']=array('none');
 
@@ -151,11 +151,12 @@ class managestudents extends manageaccounts {
 
                 /* class group */
                 $class_group= array ();
-                $class_group['cn']= array('class_'.$row_sorted['class']);
+                $class_group['cn']= array('class_'.trim($row_sorted['class']));
                 $class_group['objectClass']= array(
-                    'top',
                     'posixGroup',
                 );
+                $class_group['description']= array("SchoolManager class group ".$class_group['cn'][0]);
+                $class_group['mail']= array($class_group['cn'][0].'@intern');
                 $class_group['_status']= array('unchecked');
                 $class_group['_action']= array('none');
 
@@ -163,15 +164,17 @@ class managestudents extends manageaccounts {
                 $course_groups= array ();
                 foreach ($row_sorted as $key=>$value) {
                     if (substr ($key,0,6)==="course") {
-                        $row_sorted[$key]=str_replace('-', '.', strtolower ($value));
+                        $row_sorted[$key]=strtolower ($value);
                         if ($row_sorted[$key])
                         {
                             $course_groups[]= array(
                                 'objectClass' => array(
-                                    'top',
                                     'posixGroup',
                                 ),
-                                'cn' => array('course_'.$row_sorted[$key]),
+                                'cn' => array('course_'.trim($row_sorted[$key])),
+                                'description' => array('SchoolManager course group course_'.$row_sorted[$key]),
+                                /* FIXME: do not hard-code email address domain here */
+                                'mail' => array('course_'.$row_sorted[$key].'@intern'),
                                 '_status' => array('unchecked'),
                                 '_action' => array('none')
                             );
@@ -181,7 +184,6 @@ class managestudents extends manageaccounts {
                 $parent_group= array ();
                 $parent_group['cn']= array('parents_{%uid}');
                 $parent_group['objectClass'] = array(
-                    'top',
                     'groupOfNames'
                 );
                 /* FIXME: can we generate the DN here already??? */
@@ -189,7 +191,8 @@ class managestudents extends manageaccounts {
                     '{%dn[parent1]}',
                     '{%dn[parent2]}'
                 );
-                $parent2['_status']=array('none');
+                $parent_group['_status']=array('none');
+                $parent_group['_action']=array('skip');
                 $groups= array($class_group, $parent_group) + $course_groups;
             }
             $data_preldap[]= array(

@@ -96,14 +96,14 @@ class manageteachers extends manageaccounts {
                 $tmpclassparts[0]=trim ($tmpclassparts[0]);
                 $tmpclassparts[1]=trim ($tmpclassparts[1]);
                 $tmpclassparts[1]=substr ($tmpclassparts[1],1);
-                $row_sorted['class']=$tmpclassparts[0].".".$tmpclassparts[1];
+                $row_sorted['class']=$tmpclassparts[0]."-".$tmpclassparts[1];
 
                 /* main account */
                 $teacher=array ();
-                $teacher['sn']=array ($row_sorted['sn']);
-                $teacher['givenName']=array ($row_sorted['givenName']);
-                $teacher['gender']=array (strtoupper($row_sorted['gender']));
-                $_dateOfBirth= $row_sorted['dateOfBirth'];
+                $teacher['sn']=array (trim($row_sorted['sn']));
+                $teacher['givenName']=array (trim($row_sorted['givenName']));
+                $teacher['gender']=array (strtoupper(trim($row_sorted['gender'])));
+                $_dateOfBirth= trim($row_sorted['dateOfBirth']);
                 if (strpos($_dateOfBirth,'.')) {
                     list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
                     $_dateOfBirth = $year."-".$month."-".$day;
@@ -112,17 +112,18 @@ class manageteachers extends manageaccounts {
                 $teacher['_template']=array($this->csvinfo['template_main']);
                 $teacher['_status']=array('unchecked');
                 $teacher['_action']=array('none');
-            }
 
- /* groups for this account */
+                 /* groups for this account */
 
                 /* class group */
                 $class_group= array ();
-                $class_group['cn']= array('class_'.$row_sorted['class']);
+                $class_group['cn']= array('class_'.trim($row_sorted['class']));
                 $class_group['objectClass']= array(
-                    'top',
                     'posixGroup',
                 );
+                $class_group['description']= array("SchoolManager class group ".$class_group['cn'][0]);
+                /* FIXME: do not hard-code email address domain here */
+                $class_group['mail']= array($class_group['cn'][0].'@intern');
                 $class_group['_status']=array('unchecked');
                 $class_group['_action']=array('none');
 
@@ -130,15 +131,16 @@ class manageteachers extends manageaccounts {
                 $course_groups= array ();
                 foreach ($row_sorted as $key=>$value) {
                     if (substr ($key,0,6)==="course") {
-                        $row_sorted[$key]=str_replace(':', '.', strtolower ($value));
+                        $row_sorted[$key]=str_replace(':', '-', strtolower ($value));
                         if ($row_sorted[$key])
                         {
                             $course_groups[]= array(
                                 'objectClass' => array(
-                                    'top',
-                                    'posixGroup',
+                                    'posixGroup'
                                 ),
-                                'cn' => array('course_'.$row_sorted[$key]),
+                                'cn' => array('course_'.trim($row_sorted[$key])),
+                                'description' => array('SchoolManager course group course_'.$row_sorted[$key]),
+                                'mail' => array('course_'.$row_sorted[$key].'@intern'),
                                 '_status' => array('unchecked'),
                                 '_action' => array('none')
                             );
@@ -150,10 +152,11 @@ class manageteachers extends manageaccounts {
 
                 $groups= array ($class_group) + $course_groups;
 
-            $data_preldap[]= array(
-                'main_account' => $teacher,
-                'groups' => $groups
-            );
+                $data_preldap[]= array(
+                    'main_account' => $teacher,
+                    'groups' => $groups
+                );
+            }
         }
         return $data_preldap;
     }

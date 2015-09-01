@@ -102,8 +102,14 @@ class manageaccounts extends plugin{
         /* PHASE 4 done, set $groups_reviewed to TRUE  */
         $smarty->assign ("groups_reviewed",0);
 
+        /* PHASE 4 (status after import) done, set $groups_imported to TRUE  */
+        $smarty->assign ("groups_imported",0);
+
         /* PHASE 5 done, set $accounts_reviewed to TRUE  */
         $smarty->assign ("accounts_reviewed",0);
+
+        /* PHASE 5 (status after import) done, set $accounts_imported to TRUE  */
+        $smarty->assign ("accounts_imported",0);
 
         /* Get the LDAP link, to generate the Export */
         $ldap=$this->config->get_ldap_link ();
@@ -350,16 +356,12 @@ class manageaccounts extends plugin{
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("templates_selected",TRUE);
             $smarty->assign ("data_sorted",TRUE);
-            /* setting groups_reviewed to FALSE for now until we further investigated user input (below) */
-            $smarty->assign ("groups_reviewed",FALSE);
-
+            $smarty->assign ("groups_reviewed",TRUE);
 
             /* TODO: evaluate group review (selections, input, etc.) */
 
-
             if ($this->failure_in_last_phase)
             {
-
 
                 /* TODO: - show error message
                  *       - reset smarty assignments to phase3 variables/values
@@ -368,21 +370,128 @@ class manageaccounts extends plugin{
             }
             else {
 
+                /* Add groups to LDAP */
+
+                foreach($this->csvinfo['data_preldap_posixgroups'] as $group_name => $posixgroup)
+                {
+
+                    /* Retrieve group object from LDAP via GOsa²'s API */
+                    $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou=Students,'.$this->config->current['BASE'], "groups" );
+
+                    /* Don't do anything if _action on this group is set to "none" */
+                    if(strpos($posixgroup['_action'][0],'none') !== FALSE)
+                    {
+                            // FIXME: logging seems to fail from time to time...
+                            new log("modify","groups/group",$grouptab->dn, array(), "SchoolManager: Nothing to do for this group.");
+                    }
+                    {
+
+                        /*
+                         * FIXME: Don't hard-code class and course groups into ou=Students. Make this configurable.
+                         */
+
+                        /*
+                         * FIXME: Create ou prior to populating it...
+                         */
+
+                        /* Collect group properties from $posixgroup */
+                        $_group_properties= array(
+                            "cn" => $posixgroup['cn'][0],
+                            "description" => $posixgroup['description'][0]
+                        );
+                        if(strpos($posixgroup['_action'][0],'update') !== FALSE)
+                        {
+                            $_group_properties["mail"]= $posixgroup['mail'][0];
+                        }
+
+                        /*
+                         * FIXME: Make mail address creation (from CN) configurable somewhere...
+                         */
+
+                        /* if we do import mail properties, make sure the mailgroup object is activated */
+                        if ((isset($_group_properties['mail']) && isset($grouptab->by_object['mailgroup'])))
+                        {
+                            $grouptab->by_object['mailgroup']->is_account= TRUE;
+                        }
+                        /* Populate sub-object attributes for $grouptab with same values */
+                        foreach($_group_properties as $attr => $val)
+                        {
+                            $grouptab->$attr = $val;
+                            foreach($grouptab->by_object as $pname => $plugin)
+                            {
+                                if(isset($grouptab->by_object[$pname]->$attr))
+                                {
+                                    $grouptab->by_object[$pname]->$attr = $val;
+                                }
+                            }
+                        }
+
+                        /* Drop all group members, if requested */
+                        if(strpos($posixgroup['_action'][0],'drop-all-members') !== FALSE)
+                        {
+                            $group_members=$grouptab->by_object['group']->memberUid;
+                            foreach($group_members as $group_member)
+                            {
+                                $grouptab->by_object['group']->removeUser($group_member);
+                            }
+                        }
+
+                        /* Run GOsa²'s groups/group checks */
+                        $grouptab->check();
+                        /* Save group object to LDAP */
+                        $grouptab->save();
+
+                        /* Present a status update in GOsa²''s logging system (/var/log/syslog mostly) */
+                        if(strpos($posixgroup['_action'][0],'create')!==FALSE)
+                        {
+                            new log("create","groups/group",$grouptab->dn, array(), "New group created via SchoolManager add-on.");
+                        }
+                        elseif(strpos($posixgroup['_action'][0],'none')!==FALSE) {
+                            new log("modify","groups/group",$grouptab->dn, array(), "Existing group modified via SchoolManager add-on.");
+                        }
+
+                        /* Smarty: Prepare PHASE 4 (status view) */
+                        $this->csvinfo['data_preldap_posixgroups'] = array();
+                        $this->groupStatusCheck();
+                        $smarty->assign ("data",$this->csvinfo['data_preldap_posixgroups']);
+                    }
+                }
+            }
+        }
+
+        /*
+         * PHASE 4 (status): Show status of LDAP group imports
+         */
+        elseif (isset ($_POST['phase4_status']))
+        {
+            $smarty->assign ("file_uploaded",TRUE);
+            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("data_sorted",TRUE);
+            $smarty->assign ("groups_reviewed",TRUE);
+
+            if ($this->failure_in_last_phase)
+            {
+
+                /* TODO: - show error message
+                 *       - reset smarty assignments to phase4 variables/values
+                 */
+
+            }
+            else {
+
                 /* prepare review view for account creation */
 
-                /* Template Handling */
-                $smarty->assign ("file_uploaded",TRUE);
-                $smarty->assign ("templates_selected",TRUE);
                 if (is_array($this->csvinfo['data_preldap']) and (!empty($this->csvinfo['data_preldap'])))
                 {
                     $this->accountStatusCheck();
 
-                    /* groups review has been successful */
-                    $smarty->assign ("groups_reviewed",TRUE);
-                    $smarty->assign ("data",array_slice($this->csvinfo['data_preldap'], 0, 5));
+                    /* groups have been reviewed and imported successfully */
+                    $smarty->assign ("groups_imported",TRUE);
+                    $smarty->assign("data",$this->csvinfo['data_preldap']);
                 }
             }
         }
+
         /*
          * PHASE 5: Finally write everything to LDAP
          */
@@ -469,13 +578,20 @@ class manageaccounts extends plugin{
         return array();
     }
 
-    function compareAccounts($account_a, $account_b, $attrs=array("sn", "givenName"))
+    function compareObjects($object_a, $object_b, $attrs=array("sn", "givenName"))
     {
         $success = TRUE;
         foreach ($attrs as $key => $attr)
         {
-            $val_a = $account_a[$attr][0];
-            $val_b = $account_b[$attr][0];
+            $val_a = $val_b = NULL;
+            if (isset($object_a[$attr][0]))
+            {
+                $val_a = $object_a[$attr][0];
+            }
+            if (isset($object_b[$attr][0]))
+            {
+                $val_b = $object_b[$attr][0];
+            }
 
             if ($val_a != $val_b)
             {
@@ -504,7 +620,7 @@ class manageaccounts extends plugin{
             {
                 if (isset($row['main_account']))
                 {
-                    if ($this->compareAccounts($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth")))
+                    if ($this->compareObjects($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth")))
                     {
                         $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'exists';
                         /*
@@ -521,7 +637,7 @@ class manageaccounts extends plugin{
                 {
                     foreach ($row['aux_accounts'] as $aux_key => $aux_account)
                     {
-                        if ($this->compareAccounts($aux_account, $gosa_account, array("sn", "givenName", "mail")))
+                        if ($this->compareObjects($aux_account, $gosa_account, array("sn", "givenName", "mail")))
                         {
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'exists';
                             /*
@@ -564,7 +680,7 @@ class manageaccounts extends plugin{
     function groupStatusCheck()
     {
         $ldap = $this->config->get_ldap_link();
-        $ldapsearch = $ldap->search("(objectClass=posixGroup)",array("cn","memberUid"));
+        $ldapsearch = $ldap->search("(objectClass=posixGroup)",array("cn","memberUid","mail"));
 
         /* this will probably scale very very badly... Improvement needed. Suggestions? */
         while ($gosa_posix_group = $ldap->fetch($ldapsearch))
@@ -575,14 +691,35 @@ class manageaccounts extends plugin{
                 {
                     foreach ($row['groups'] as $group_key => $group)
                     {
-                        if ($this->compareAccounts($group, $gosa_posix_group, array("cn")))
+                        if ($this->compareObjects($group, $gosa_posix_group, array("cn", "mail")))
                         {
                             $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'exists';
                             /*
                              * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
                              *        Later, we need to make actions more configurable...
                              */
-                            $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['action'][0]= 'drop-all-members';
+                            if(isset($gosa_posix_group['memberUid']['count']) && ($gosa_posix_group['memberUid']['count'] > 0))
+                            {
+                                $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'drop-all-members';
+                            }
+                            else {
+                                $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'none';
+                            }
+                        }
+                        elseif ($this->compareObjects($group, $gosa_posix_group, array("cn")))
+                        {
+                            $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'exists';
+                            /*
+                             * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
+                             *        Later, we need to make actions more configurable...
+                             */
+                            if(isset($gosa_posix_group['memberUid']['count']) && ($gosa_posix_group['memberUid']['count'] > 0))
+                            {
+                                $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'drop-all-members,update';
+                            }
+                            else {
+                                $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'update';
+                            }
 
                             /* break out of the inner loop if the $gosa_account has been found */
                             break;
