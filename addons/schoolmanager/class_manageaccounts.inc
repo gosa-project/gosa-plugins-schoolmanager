@@ -374,16 +374,11 @@ class manageaccounts extends plugin{
                 foreach($this->csvinfo['data_preldap_posixgroups'] as $group_name => $posixgroup)
                 {
 
-                    /* Retrieve group object from LDAP via GOsa²'s API */
-                    $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou=Students,'.$this->config->current['BASE'], "groups" );
-
-                    /* Don't do anything if _action on this group is set to "none" */
-                    if(strpos($posixgroup['_action'][0],'none')!==FALSE)
+                    /* only perform on this group if _action is other than none... */
+                    if(strpos($posixgroup['_action'][0],'none')===FALSE)
                     {
-                            // FIXME: logging seems to fail from time to time...
-                            new log("modify","groups/group",$grouptab->dn, array(), "SchoolManager: Nothing to do for this group.");
-                    }
-                    {
+                        /* Retrieve group object from LDAP via GOsa²'s API */
+                        $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou=Students,'.$this->config->current['BASE'], "groups" );
 
                         /*
                          * FIXME: Don't hard-code class and course groups into ou=Students. Make this configurable.
