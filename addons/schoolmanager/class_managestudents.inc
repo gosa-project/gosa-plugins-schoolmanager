@@ -97,13 +97,6 @@ class managestudents extends manageaccounts {
             }
             else {
 
-                /* parse value for attribute "class", requires later work to make it more generic */
-                $tmpclassparts=explode (".", strtolower ($row_sorted['class']));
-                $tmpclassparts[0]=trim ($tmpclassparts[0]);
-                $tmpclassparts[1]=trim ($tmpclassparts[1]);
-                $tmpclassparts[1]=substr ($tmpclassparts[1],1);
-                $row_sorted['class']=$tmpclassparts[0]."-".$tmpclassparts[1];
-
                 /* main account */
                 $student=array ();
                 $student['sn']=array (trim($row_sorted['sn']));
@@ -150,15 +143,26 @@ class managestudents extends manageaccounts {
                 /* groups for this account */
 
                 /* class group */
+
                 $class_group= array ();
-                $class_group['cn']= array('class_'.trim($row_sorted['class']));
-                $class_group['objectClass']= array(
-                    'posixGroup',
-                );
-                $class_group['description']= array("SchoolManager class group ".$class_group['cn'][0]);
-                $class_group['mail']= array($class_group['cn'][0].'@'.$this->csvinfo['domain_groups']);
-                $class_group['_status']= array('unchecked');
-                $class_group['_action']= array('none');
+                if (isset($row_sorted['class']) && $row_sorted['class'])
+                {
+                    /* parse value for attribute "class", requires later work to make it more generic */
+                    $tmpclassparts=explode (".", strtolower ($row_sorted['class']));
+                    $tmpclassparts[0]=trim ($tmpclassparts[0]);
+                    $tmpclassparts[1]=trim ($tmpclassparts[1]);
+                    $tmpclassparts[1]=substr ($tmpclassparts[1],1);
+                    $row_sorted['class']=$tmpclassparts[0]."-".$tmpclassparts[1];
+
+                    $class_group['cn']= array('class_'.trim($row_sorted['class']));
+                    $class_group['objectClass']= array(
+                        'posixGroup',
+                    );
+                    $class_group['description']= array("SchoolManager class group ".$class_group['cn'][0]);
+                    $class_group['mail']= array($class_group['cn'][0].'@'.$this->csvinfo['domain_groups']);
+                    $class_group['_status']= array('unchecked');
+                    $class_group['_action']= array('none');
+                }
 
                 /* course groups */
                 $course_groups= array ();
