@@ -297,7 +297,13 @@ class manageaccounts extends plugin{
                         {
                         } elseif(in_array($value_of_selection,$multi_attrs))
                         {
-                                $attrs_counter[$value_of_selection]=$attrs_counter[$value_of_selection] ?: 0;
+                                if(isset($attrs_counter[$value_of_selection]))
+                                {
+                                    $attrs_counter[$value_of_selection]=$attrs_counter[$value_of_selection];
+                                }
+                                else {
+                                    $attrs_counter[$value_of_selection]= 0;
+                                }
                                 $data_row_sorted[$value_of_selection . $attrs_counter[$value_of_selection]] = $data_in_cell;
                                 $attrs_counter[$value_of_selection]++;
                         } elseif(empty($attrs_counter[$value_of_selection]))
