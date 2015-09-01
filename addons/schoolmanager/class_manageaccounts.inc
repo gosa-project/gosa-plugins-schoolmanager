@@ -257,10 +257,23 @@ class manageaccounts extends plugin{
         elseif (isset ($_POST['phase2'])) {
 
             /* template handling */
-            if (isset ($_POST["template_".$import_account_type]) and isset ($_POST["ou"]))
+            if (isset ($_POST["template_".$import_account_type]) and isset ($_POST["ou"]) and isset ($_POST["domain"]))
             {
                 $this->csvinfo['template_main'] = $_POST["template_".$import_account_type];
                 $this->csvinfo['ou_groups'] = $this->csvinfo['ou']['OUs'][$_POST["ou"]];
+
+                if(empty($_POST["domain"]))
+                {
+                    $smarty->assign ("LDIFError",TRUE);
+                    $smarty->assign ("file_uploaded",FALSE);
+                    msg_dialog::display (_ ("Error"),_ ("Domain for new groups is empty!"),ERROR_DIALOG);
+                } elseif(substr($_POST["domain"],0,1) == "@")
+                {
+                    $this->csvinfo['domain_groups'] = substr($_POST["domain"],1,strlen($_POST["domain"]));
+                } else
+                {
+                    $this->csvinfo['domain_groups'] = $_POST["domain"];
+                }
 
                 if (isset ($_POST["template_".$import_account_type."_aux"]))
                 {

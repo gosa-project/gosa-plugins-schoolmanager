@@ -104,6 +104,15 @@
 	    </select>
 	</td>
     </tr>
+    <tr>
+	<td style="vertical-align: middle;">
+	    <LABEL for="domain">{t}Type mail domain for new groups{/t}</LABEL>
+	</td>
+	<td style="vertical-align: middle;">
+	    @
+	    <input type="text" id="domain" name="domain">
+	</td>
+    </tr>
 </table>
 
 

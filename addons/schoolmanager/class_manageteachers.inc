@@ -125,7 +125,7 @@ class manageteachers extends manageaccounts {
                 );
                 $class_group['description']= array("SchoolManager class group ".$class_group['cn'][0]);
                 /* FIXME: do not hard-code email address domain here */
-                $class_group['mail']= array($class_group['cn'][0].'@intern');
+                $class_group['mail']= array($class_group['cn'][0].'@'.$this->csvinfo['domain_groups']);
                 $class_group['_status']=array('unchecked');
                 $class_group['_action']=array('none');
 
@@ -142,7 +142,7 @@ class manageteachers extends manageaccounts {
                                 ),
                                 'cn' => array('course_'.trim($row_sorted[$key])),
                                 'description' => array('SchoolManager course group course_'.$row_sorted[$key]),
-                                'mail' => array('course_'.$row_sorted[$key].'@intern'),
+                                'mail' => array('course_'.trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_action' => array('none')
                             );
