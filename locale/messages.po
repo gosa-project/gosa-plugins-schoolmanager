@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-01 13:36+0200\n"
+"POT-Creation-Date: 2015-09-01 14:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,8 +52,9 @@ msgid "GOsa2 School Manager Module: Manage Parents"
 msgstr ""
 
 #: addons/schoolmanager/content_managecourses.tpl:2
-#: addons/schoolmanager/content_manageparents.tpl:2
-msgid "GOsa2 School Manager's"
+msgid ""
+"GOsa2 School Manager's <b>Manage Courses Module</b> has not been "
+"implemented, yet."
 msgstr ""
 
 #: addons/schoolmanager/class_manageaccounts.inc:24
@@ -112,6 +113,12 @@ msgstr ""
 
 #: addons/schoolmanager/class_manageaccounts.inc:694
 msgid "female"
+msgstr ""
+
+#: addons/schoolmanager/content_manageparents.tpl:2
+msgid ""
+"GOsa2 School Manager's <b>Manage Parents Module</b> has not been "
+"implemented, yet."
 msgstr ""
 
 #: addons/schoolmanager/class_managestudents.inc:24
@@ -282,4 +289,28 @@ msgstr ""
 #: addons/schoolmanager/content_manageaccounts.tpl:286
 #: addons/schoolmanager/content_manageaccounts.tpl:288
 msgid "Continue here, when ready"
+msgstr ""
+
+#: addons/schoolmanager/content_manageaccounts.tpl:278
+msgid "Select User Templates (Step 2/7)"
+msgstr ""
+
+#: addons/schoolmanager/content_manageaccounts.tpl:280
+msgid "Check and Sort CSV Data (Step 3/7)"
+msgstr ""
+
+#: addons/schoolmanager/content_manageaccounts.tpl:282
+msgid "Review group objects (Step 4/7)"
+msgstr ""
+
+#: addons/schoolmanager/content_manageaccounts.tpl:284
+msgid "Import group objects into LDAP (Step 5/7)"
+msgstr ""
+
+#: addons/schoolmanager/content_manageaccounts.tpl:286
+msgid "Review user account objects (Step 6/7)"
+msgstr ""
+
+#: addons/schoolmanager/content_manageaccounts.tpl:288
+msgid "Import user account objects into LDAP (Step 7/7)"
 msgstr ""
