@@ -1,0 +1,333 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: gosa-plugin-schoolmanager\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-09-01 14:36+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>\n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.6.10\n"
+
+#: addons/schoolmanager/class_manageteachers.inc:24
+msgid "Manage Teachers"
+msgstr "Manage Teachers"
+
+#: addons/schoolmanager/class_manageteachers.inc:25
+msgid "GOsa2 School Manager Module: Manage Teachers"
+msgstr "GOsa² School Manager Module: Manage Teachers"
+
+#: addons/schoolmanager/class_manageteachers.inc:90
+#: addons/schoolmanager/class_manageaccounts.inc:157
+#: addons/schoolmanager/class_manageaccounts.inc:161
+#: addons/schoolmanager/class_manageaccounts.inc:167
+#: addons/schoolmanager/class_manageaccounts.inc:171
+#: addons/schoolmanager/class_manageaccounts.inc:194
+#: addons/schoolmanager/class_manageaccounts.inc:227
+#: addons/schoolmanager/class_manageaccounts.inc:334
+#: addons/schoolmanager/class_managestudents.inc:96
+msgid "Error"
+msgstr "Error"
+
+#: addons/schoolmanager/class_manageteachers.inc:90
+#: addons/schoolmanager/class_managestudents.inc:96
+#, php-format
+msgid "Need at least %s and %s to create users!"
+msgstr "Need at least %s and %s to create users!"
+
+#: addons/schoolmanager/class_manageparents.inc:26
+msgid "Manage Parents"
+msgstr "Manage Parents"
+
+#: addons/schoolmanager/class_manageparents.inc:27
+msgid "GOsa2 School Manager Module: Manage Parents"
+msgstr "GOsa² School Manager Module: Manage Parents"
+
+#: addons/schoolmanager/content_managecourses.tpl:2
+msgid ""
+"GOsa2 School Manager's <b>Manage Courses Module</b> has not been "
+"implemented, yet."
+msgstr ""
+"GOsa² School Manager's <b>Manage Courses Module</b> has not been "
+"implemented, yet."
+
+#: addons/schoolmanager/class_manageaccounts.inc:24
+msgid "Manage Accounts"
+msgstr "Manage Accounts"
+
+#: addons/schoolmanager/class_manageaccounts.inc:25
+msgid "GOsa2 School Manager super-class for managing accounts"
+msgstr "GOsa² School Manager super-class for managing accounts"
+
+#: addons/schoolmanager/class_manageaccounts.inc:128
+msgid "Permission error"
+msgstr "Permission error"
+
+#: addons/schoolmanager/class_manageaccounts.inc:128
+msgid "You've no permission to import CSV files!"
+msgstr "You've no permission to import CSV files!"
+
+#: addons/schoolmanager/class_manageaccounts.inc:157
+#: addons/schoolmanager/class_manageaccounts.inc:161
+#: addons/schoolmanager/class_manageaccounts.inc:167
+#: addons/schoolmanager/class_manageaccounts.inc:171
+#, php-format
+msgid "Cannot read uploaded file: %s"
+msgstr "Cannot read uploaded file: %s"
+
+#: addons/schoolmanager/class_manageaccounts.inc:157
+#: addons/schoolmanager/class_manageaccounts.inc:167
+msgid "file not found"
+msgstr "file not found"
+
+#: addons/schoolmanager/class_manageaccounts.inc:161
+msgid "file is empty"
+msgstr "file is empty"
+
+#: addons/schoolmanager/class_manageaccounts.inc:171
+msgid "file not readable"
+msgstr "file not readable"
+
+#: addons/schoolmanager/class_manageaccounts.inc:194
+msgid "File has an unsupported encoding!"
+msgstr "File has an unsupported encoding!"
+
+#: addons/schoolmanager/class_manageaccounts.inc:227
+msgid "Cannot find CSV data in the selected file!"
+msgstr "Cannot find CSV data in the selected file!"
+
+#: addons/schoolmanager/class_manageaccounts.inc:334
+#, php-format
+msgid "The attribute %s is only allowed to select once!"
+msgstr "The attribute %s is only allowed to select once!"
+
+#: addons/schoolmanager/class_manageaccounts.inc:690
+msgid "male"
+msgstr "male"
+
+#: addons/schoolmanager/class_manageaccounts.inc:694
+msgid "female"
+msgstr "female"
+
+#: addons/schoolmanager/content_manageparents.tpl:2
+msgid ""
+"GOsa2 School Manager's <b>Manage Parents Module</b> has not been "
+"implemented, yet."
+msgstr ""
+"GOsa² School Manager's <b>Manage Parents Module</b> has not been "
+"implemented, yet."
+
+#: addons/schoolmanager/class_managestudents.inc:24
+msgid "Manage Students"
+msgstr "Manage Students"
+
+#: addons/schoolmanager/class_managestudents.inc:25
+msgid "GOsa2 School Manager Module: Manage Students"
+msgstr "GOsa² School Manager Module: Manage Students"
+
+#: addons/schoolmanager/class_schoolmgr.inc:26
+#: addons/schoolmanager/class_schoolmgr.inc:62
+#: addons/schoolmanager/class_schoolmgr.inc:68
+msgid "School Manager"
+msgstr "School Manager"
+
+#: addons/schoolmanager/class_schoolmgr.inc:27
+msgid "Management utility for schools"
+msgstr "Management utility for schools"
+
+#: addons/schoolmanager/class_schoolmgr.inc:63
+msgid "Administration Utility for Schools"
+msgstr "Administration Utility for Schools"
+
+#: addons/schoolmanager/class_managecourses.inc:26
+msgid "Manage Courses"
+msgstr "Manage Courses"
+
+#: addons/schoolmanager/class_managecourses.inc:27
+msgid "GOsa2 School Manager Module: Manage Courses"
+msgstr "GOsa² School Manager Module: Manage Courses"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:3
+msgid ""
+"With GOsa2 School Manager's <b>Manage Students Module</b> you can import "
+"student user accounts, parent accounts and course groups from a CSV file "
+"containing."
+msgstr ""
+"With GOsa² School Manager's <b>Manage Students Module</b> you can import "
+"student user accounts, parent accounts and course groups from a CSV file "
+"containing."
+
+#: addons/schoolmanager/content_manageaccounts.tpl:5
+msgid ""
+"With GOsa2 School Manager's <b>Manage Teachers Module</b> you can import "
+"teacher user accounts and course groups from a CSV file containing."
+msgstr ""
+"With GOsa² School Manager's <b>Manage Teachers Module</b> you can import "
+"teacher user accounts and course groups from a CSV file containing."
+
+#: addons/schoolmanager/content_manageaccounts.tpl:15
+msgid "STEP 1: Upload CSV File"
+msgstr "STEP 1: Upload CSV File"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:18
+msgid ""
+"The data provided via the uploadable CSV file needs to be of the following "
+"data format:"
+msgstr ""
+"The data provided via the uploadable CSV file needs to be of the following "
+"data format:"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:24
+msgid "Upload CSV File"
+msgstr "Upload CSV File"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:31
+msgid "Browse"
+msgstr "Browse"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:42
+msgid "STEP 2: Select user object templates"
+msgstr "STEP 2: Select user object templates"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:46
+msgid ""
+"Please choose from the available GOsa2 user object templates what account "
+"templates to use for students and for their parents."
+msgstr ""
+"Please choose from the available GOsa² user object templates what account "
+"templates to use for students and for their parents."
+
+#: addons/schoolmanager/content_manageaccounts.tpl:53
+msgid ""
+"Please choose from the available GOsa2 user object templates what account "
+"template to use for teachers."
+msgstr ""
+"Please choose from the available GOsa² user object templates what account "
+"template to use for teachers."
+
+#: addons/schoolmanager/content_manageaccounts.tpl:58
+msgid "Select user object templates"
+msgstr "Select user object templates"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:62
+msgid "Select template for student accounts"
+msgstr "Select template for student accounts"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:72
+msgid "Select template for parent accounts"
+msgstr "Select template for parent accounts"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:84
+msgid "Select template for teacher accounts"
+msgstr "Select template for teacher accounts"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:101
+msgid "STEP 3: Check CSV data and assign to LDAP attributes"
+msgstr "STEP 3: Check CSV data and assign to LDAP attributes"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:104
+msgid ""
+"Please assign the offered (LDAP) attributes to the CSV data columns. Note "
+"that the CSV file has been rotated 90DEGREES counter-clockwise for better "
+"readability."
+msgstr ""
+"Please assign the offered (LDAP) attributes to the CSV data columns. Note "
+"that the CSV file has been rotated 90° counter-clockwise for better "
+"readability."
+
+#: addons/schoolmanager/content_manageaccounts.tpl:108
+msgid "Check CSV data"
+msgstr "Check CSV data"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:136
+msgid "STEP 4 (LDAP import status): Group objects have been imported into LDAP"
+msgstr ""
+"STEP 4 (LDAP import status): Group objects have been imported into LDAP"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:138
+msgid "STEP 4: Review group objects before LDAP import"
+msgstr "STEP 4: Review group objects before LDAP import"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:144
+#: addons/schoolmanager/content_manageaccounts.tpl:147
+msgid "Group object: %1"
+msgstr "Group object: %1"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:176
+msgid ""
+"STEP 5 (LDAP import status): User account objects have been imported into "
+"LDAP"
+msgstr ""
+"STEP 5 (LDAP import status): User account objects have been imported into "
+"LDAP"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:178
+msgid "STEP 5: Review user account objects before LDAP import"
+msgstr "STEP 5: Review user account objects before LDAP import"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:183
+#: addons/schoolmanager/content_manageaccounts.tpl:191
+#: addons/schoolmanager/content_manageaccounts.tpl:214
+msgid "New account: %1, %2"
+msgstr "New account: %1, %2"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:198
+msgid "Account group for %1, %2"
+msgstr "Account group for %1, %2"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:217
+msgid "New associated account: %1, %2"
+msgstr "New associated account: %1, %2"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:248
+msgid "All entries have been written to the LDAP database successfully."
+msgstr "All entries have been written to the LDAP database successfully."
+
+#: addons/schoolmanager/content_manageaccounts.tpl:250
+msgid "There was an error during the import of your data."
+msgstr "There was an error during the import of your data."
+
+#: addons/schoolmanager/content_manageaccounts.tpl:253
+msgid "Here is the status report for the import:"
+msgstr "Here is the status report for the import:"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:256
+msgid "Status report"
+msgstr "Status report"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:278
+#: addons/schoolmanager/content_manageaccounts.tpl:280
+#: addons/schoolmanager/content_manageaccounts.tpl:282
+#: addons/schoolmanager/content_manageaccounts.tpl:284
+#: addons/schoolmanager/content_manageaccounts.tpl:286
+#: addons/schoolmanager/content_manageaccounts.tpl:288
+msgid "Continue here, when ready"
+msgstr "Continue here, when ready"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:278
+msgid "Select User Templates (Step 2/7)"
+msgstr "Select User Templates (Step 2/7)"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:280
+msgid "Check and Sort CSV Data (Step 3/7)"
+msgstr "Check and Sort CSV Data (Step 3/7)"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:282
+msgid "Review group objects (Step 4/7)"
+msgstr "Review group objects (Step 4/7)"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:284
+msgid "Import group objects into LDAP (Step 5/7)"
+msgstr "Import group objects into LDAP (Step 5/7)"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:286
+msgid "Review user account objects (Step 6/7)"
+msgstr "Review user account objects (Step 6/7)"
+
+#: addons/schoolmanager/content_manageaccounts.tpl:288
+msgid "Import user account objects into LDAP (Step 7/7)"
+msgstr "Import user account objects into LDAP (Step 7/7)"
