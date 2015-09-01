@@ -91,17 +91,14 @@ class manageteachers extends manageaccounts {
             }
             else {
 
-                /* parse value for attribute "class", requires later work to make it more generic */
-                $tmpclassparts=explode (".", strtolower ($row_sorted['class']));
-                $tmpclassparts[0]=trim ($tmpclassparts[0]);
-                $tmpclassparts[1]=trim ($tmpclassparts[1]);
-                $tmpclassparts[1]=substr ($tmpclassparts[1],1);
-                $row_sorted['class']=$tmpclassparts[0]."-".$tmpclassparts[1];
-
                 /* main account */
                 $teacher=array ();
                 $teacher['uid']=array (strtolower(trim($row_sorted['uid'])));
-                $teacher['departmentNumber']=array(preq_replace('/;/','_',trim($row_sorted['subjects'])));
+                if (isset($row_sorted['subjects']))
+                {
+                    $_subjects= str_replace(";","_", trim($row_sorted['subjects']));
+                    $teacher['departmentNumber']=array($_subjects);
+                }
                 $teacher['sn']=array (trim($row_sorted['sn']));
                 $teacher['givenName']=array (trim($row_sorted['givenName']));
                 $teacher['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
@@ -119,20 +116,55 @@ class manageteachers extends manageaccounts {
 
                 /* class group */
                 $class_group= array ();
-                $class_group['cn']= array('class_'.trim($row_sorted['class']));
-                $class_group['objectClass']= array(
-                    'posixGroup',
-                );
-                $class_group['description']= array("SchoolManager class group ".$class_group['cn'][0]);
-                /* FIXME: do not hard-code email address domain here */
-                $class_group['mail']= array($class_group['cn'][0].'@'.$this->csvinfo['domain_groups']);
-                $class_group['_status']=array('unchecked');
-                $class_group['_action']=array('none');
+                if (isset($row_sorted['class']) && $row_sorted['class'])
+                {
+                    /* parse value for attribute "class", requires later work to make it more generic */
+                    $tmpclassparts=explode (".", strtolower ($row_sorted['class']));
+                    $tmpclassparts[0]=trim ($tmpclassparts[0]);
+                    $tmpclassparts[1]=trim ($tmpclassparts[1]);
+                    $tmpclassparts[1]=substr ($tmpclassparts[1],1);
+                    $row_sorted['class']=$tmpclassparts[0]."-".$tmpclassparts[1];
+
+                    $class_group['cn']= array('class_'.trim($row_sorted['class']));
+                    $class_group['objectClass']= array(
+                        'posixGroup',
+                    );
+                    $class_group['description']= array("SchoolManager class group ".$class_group['cn'][0]);
+                    /* FIXME: do not hard-code email address domain here */
+                    $class_group['mail']= array($class_group['cn'][0].'@intern');
+                    $class_group['mail']= array($class_group['cn'][0].'@'.$this->csvinfo['domain_groups']);
+                    $class_group['_status']=array('unchecked');
+                    $class_group['_action']=array('none');
+                }
+
+                $subject_groups= array();
+                if (isset($row_sorted['subjects']) && $row_sorted['subjects'])
+                {
+                    /* the $_subjects variable has already been declared further above */
+                    foreach(explode("_", $_subjects) as $subject)
+                    {
+                        $_subject= trim(strtolower($subject));
+                        if ($_subject)
+                        {
+                            $subject_groups[]= array(
+                                'objectClass' => array(
+                                    'posixGroup'
+                                ),
+                                'cn' => array('subject_'.$_subject),
+                                'description' => array('SchoolManager subject group subject_'.$_subject),
+                                'mail' => array('subject_'.$_subject.'@intern'),
+                                '_status' => array('unchecked'),
+                                '_action' => array('none')
+                            );
+                        }
+                    }
+                }
 
                 /* course groups */
                 $course_groups= array ();
                 foreach ($row_sorted as $key=>$value) {
-                    if (substr ($key,0,6)==="course") {
+                    if ((substr ($key,0,6)==="course") && trim($value))
+                    {
                         $row_sorted[$key]=str_replace(':', '-', strtolower ($value));
                         if ($row_sorted[$key])
                         {
@@ -152,7 +184,10 @@ class manageteachers extends manageaccounts {
 
                 /* FIXME: missing group (todo) -> one group per at-school-taught subject... */
 
-                $groups= array ($class_group) + $course_groups;
+                $groups= array ();
+                if (!empty($class_group))    { $groups= array_merge($groups, array($class_group)); }
+                if (!empty($course_groups))  { $groups= array_merge($groups, $course_groups); }
+                if (!empty($subject_groups)) { $groups= array_merge($groups, $subject_groups); }
 
                 $data_preldap[]= array(
                     'main_account' => $teacher,
