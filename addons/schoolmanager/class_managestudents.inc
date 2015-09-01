@@ -196,7 +196,12 @@ class managestudents extends manageaccounts {
                 );
                 $parent_group['_status']=array('none');
                 $parent_group['_action']=array('skip');
-                $groups= array($class_group, $parent_group) + $course_groups;
+
+                $groups= array();
+                if (!empty($class_group))    { $groups= array_merge($groups, array($class_group)); }
+                if (!empty($parent_group))   { $groups= array_merge($groups, array($parent_group)); }
+                if (!empty($course_groups))  { $groups= array_merge($groups, $course_groups); }
+
             }
             $data_preldap[]= array(
                 'main_account' => $student,
