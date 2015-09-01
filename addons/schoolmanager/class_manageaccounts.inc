@@ -220,6 +220,22 @@ class manageaccounts extends plugin{
 
                         $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
 
+                        /* Search OUs with objectClass gosaDepartment */
+                        $this->csvinfo['ou'] = array();
+                        $this->csvinfo['ou']['ldapsearch'] = $ldap->search("(objectClass=gosaDepartment)",array("ou","description"));
+
+                        /* create arrays for search results */
+                        $this->csvinfo['ou']['formfields'] = array();
+                        $this->csvinfo['ou']['OUs'] = array();
+
+                        /* add found gosaDepartment objects */
+                        while($result = $ldap->fetch($this->csvinfo['ou']['ldapsearch'])) {
+                            $this->csvinfo['ou']['OUs'][] = $result['ou'][0];
+                            $this->csvinfo['ou']['formfields'][] = $result['ou'][0]." - ".$result['description'][0];
+                        }
+
+                        $smarty->assign("ou",$this->csvinfo['ou']['formfields']);
+
                     }
                     else {
                         $smarty->assign ("LDIFError",TRUE);
@@ -241,9 +257,10 @@ class manageaccounts extends plugin{
         elseif (isset ($_POST['phase2'])) {
 
             /* template handling */
-            if (isset ($_POST["template_".$import_account_type]))
+            if (isset ($_POST["template_".$import_account_type]) and isset ($_POST["ou"]))
             {
                 $this->csvinfo['template_main'] = $_POST["template_".$import_account_type];
+                $this->csvinfo['ou_groups'] = $this->csvinfo['ou']['OUs'][$_POST["ou"]];
 
                 if (isset ($_POST["template_".$import_account_type."_aux"]))
                 {
@@ -389,11 +406,7 @@ class manageaccounts extends plugin{
                     if(strpos($posixgroup['_action'][0],'none')===FALSE)
                     {
                         /* Retrieve group object from LDAP via GOsa²'s API */
-                        $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou=Students,'.$this->config->current['BASE'], "groups" );
-
-                        /*
-                         * FIXME: Don't hard-code class and course groups into ou=Students. Make this configurable.
-                         */
+                        $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou='.$this->csvinfo['ou_groups'].','.$this->config->current['BASE'], "groups" );
 
                         /*
                          * FIXME: Create ou prior to populating it...

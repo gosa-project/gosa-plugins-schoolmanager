@@ -94,6 +94,16 @@
 	</td>
     </tr>
     {/if}
+    <tr>
+	<td style="vertical-align: middle;">
+	    <LABEL for="template">{t}Select OUs for new groups{/t}</LABEL>
+	</td>
+	<td style="vertical-align: middle;">
+	    <select id="ou" name="ou" size="1" title="">
+	    {html_options options=$ou selected=""}
+	    </select>
+	</td>
+    </tr>
 </table>
 
 
