@@ -341,7 +341,6 @@ class manageaccounts extends plugin{
                 /* free some memory... */
                 unset ($this->csvinfo['data_sorted']);
 
-                $this->csvinfo['data_preldap_posixgroups'] = array();
                 $this->groupStatusCheck();
 
                 $smarty->assign ("data_sorted",TRUE);
@@ -450,12 +449,11 @@ class manageaccounts extends plugin{
                             new log("modify","groups/group",$grouptab->dn, array(), "Existing group modified via SchoolManager add-on.");
                         }
 
-                        /* Smarty: Prepare PHASE 4 (status view) */
-                        $this->csvinfo['data_preldap_posixgroups'] = array();
-                        $this->groupStatusCheck();
-                        $smarty->assign ("data",$this->csvinfo['data_preldap_posixgroups']);
                     }
                 }
+                /* Smarty: Prepare PHASE 4 (status view) */
+                $this->groupStatusCheck();
+                $smarty->assign ("data",$this->csvinfo['data_preldap_posixgroups']);
             }
         }
 
@@ -729,6 +727,7 @@ class manageaccounts extends plugin{
             }
         }
 
+        $this->csvinfo['data_preldap_posixgroups'] = array();
         foreach ($this->csvinfo['data_preldap'] as $key => $row)
         {
             if (isset($row['groups']))
