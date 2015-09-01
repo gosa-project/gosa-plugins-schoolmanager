@@ -21,8 +21,8 @@
 class manageaccounts extends plugin{
 
     /* Definitions */
-    var $plHeadline=_("Manage Accounts");
-    var $plDescription=_("GOsa2 School Manager super-class for managing accounts");
+    var $plHeadline= "Manage Accounts";
+    var $plDescription= "GOsa2 School Manager super-class for managing accounts";
     var $access="";
 
     /* Array with csv informations */

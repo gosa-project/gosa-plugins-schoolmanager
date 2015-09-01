@@ -21,8 +21,8 @@
 class managestudents extends manageaccounts {
 
     /* Definitions */
-    var $plHeadline=_("Manage Students");
-    var $plDescription=_("GOsa2 School Manager Module: Manage Students");
+    var $plHeadline= "Manage Students";
+    var $plDescription= "GOsa2 School Manager Module: Manage Students";
     var $access="";
 
     /* constructor */
