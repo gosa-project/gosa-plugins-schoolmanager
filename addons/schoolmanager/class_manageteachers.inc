@@ -102,7 +102,7 @@ class manageteachers extends manageaccounts {
                 $teacher=array ();
                 $teacher['sn']=array (trim($row_sorted['sn']));
                 $teacher['givenName']=array (trim($row_sorted['givenName']));
-                $teacher['gender']=array (strtoupper(trim($row_sorted['gender'])));
+                $teacher['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
                 $_dateOfBirth= trim($row_sorted['dateOfBirth']);
                 if (strpos($_dateOfBirth,'.')) {
                     list($day, $month, $year)= explode(".", $_dateOfBirth, 3);

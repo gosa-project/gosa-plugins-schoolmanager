@@ -670,6 +670,22 @@ class manageaccounts extends plugin{
         }
     }
 
+    function normalizeGenderString($gender)
+    {
+        switch (strtolower($gender))
+        {
+            "male":
+                $gender="M";
+            _("male"):
+                $gender="M";
+            "female":
+                $gender="F";
+            _("female"):
+                $gender="F";
+        }
+        return $gender;
+    }
+
     function groupStatusCheck()
     {
         $ldap = $this->config->get_ldap_link();

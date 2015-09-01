@@ -115,7 +115,7 @@ class managestudents extends manageaccounts {
                     $_dateOfBirth = $year."-".$month."-".$day;
                 }
                 $student['dateOfBirth']=array ($_dateOfBirth);
-                $student['gender']=array (trim(strtoupper($row_sorted['gender'])));
+                $student['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
                 /* Keeping the memory footprint low:
                  *
                  *     $student['_template']
