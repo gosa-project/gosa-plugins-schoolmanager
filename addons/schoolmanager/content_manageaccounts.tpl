@@ -213,7 +213,11 @@
 	{else}
 	<td bgcolor="#BBBBBB" colspan="2">
 	{/if}
-		{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}New account: %1, %2{/t}
+		{if $data[$key]['main_account']['_status'][0] === "not-found"}
+		{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}New user account: %1, %2{/t}
+		{else}
+		{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}User account: %1, %2{/t}
+		{/if}
 	</td>
 	</tr>
 
