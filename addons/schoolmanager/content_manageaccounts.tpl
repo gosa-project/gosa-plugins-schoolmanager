@@ -43,7 +43,7 @@
 {elseif $templates_selected != TRUE}
 <input type="hidden" name="phase2">
 
-<br><h3>{t}{t 1="2/9"}STEP %1: Select user object templates{/t}</h3>
+<br><h3>{t 1="2/9"}STEP %1: Select user object templates{/t}</h3>
 
 {if $import_account_type == 'students'}
     <p>
