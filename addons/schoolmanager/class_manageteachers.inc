@@ -162,7 +162,7 @@ class manageteachers extends manageaccounts {
                                 ),
                                 'cn' => array('subject_'.$_subject),
                                 'description' => array('SchoolManager subject group subject_'.$_subject),
-                                'mail' => array('subject_'.$_subject.'@intern'),
+                                'mail' => array('subject_'.$_subject.'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_action' => array('none')
                             );
