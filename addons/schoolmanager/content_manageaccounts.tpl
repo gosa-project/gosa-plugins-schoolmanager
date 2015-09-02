@@ -308,10 +308,10 @@
     {elseif $data_sorted != TRUE}
     {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Review group objects (Step 4/7){/t}" type ="submit">
     {elseif $groups_reviewed != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Import group objects into LDAP (Step 5/7){/t}" type ="submit">
+    {t}Continue here, when ready (this can take a while...){/t}: <input name="btn_data_sorted" value="{t}Import group objects into LDAP (Step 5/7){/t}" type ="submit">
     {elseif $groups_imported != TRUE}
     {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Review user account objects (Step 6/7){/t}" type ="submit">
     {elseif $accounts_reviewed != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_accounts_reviewed" value="{t}Import user account objects into LDAP (Step 7/7){/t}" type ="submit">
+    {t}Continue here, when ready (this can take a while...){/t}: <input name="btn_accounts_reviewed" value="{t}Import user account objects into LDAP (Step 7/7){/t}" type ="submit">
     {/if}
 </div>
