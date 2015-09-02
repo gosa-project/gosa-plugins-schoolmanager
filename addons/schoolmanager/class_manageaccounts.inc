@@ -417,74 +417,14 @@ class manageaccounts extends plugin{
 
                 /* Add groups to LDAP */
 
-                foreach($this->csvinfo['data_preldap_posixgroups'] as $group_name => $posixgroup)
+                foreach($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data)
                 {
 
                     /* only perform on this group if _action is other than none... */
-                    if(strpos($posixgroup['_action'][0],'none')===FALSE)
+                    if(strpos($group_data['_action'][0],'none')===FALSE)
                     {
-                        /* Retrieve group object from LDAP via GOsa²'s API */
-                        $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou='.$this->csvinfo['ou_groups'].','.$this->config->current['BASE'], "groups" );
 
-                        /*
-                         * FIXME: Create ou prior to populating it...
-                         */
-
-                        /* Collect group properties from $posixgroup */
-                        $_group_properties= array(
-                            "cn" => $posixgroup['cn'][0],
-                            "description" => $posixgroup['description'][0]
-                        );
-                        if((strpos($posixgroup['_action'][0],'update')!==FALSE) || (strpos($posixgroup['_action'][0],'create')!==FALSE))
-                        {
-                            $_group_properties["mail"]= $posixgroup['mail'][0];
-                        }
-
-                        /*
-                         * FIXME: Make mail address creation (from CN) configurable somewhere...
-                         */
-
-                        /* if we do import mail properties, make sure the mailgroup object is activated */
-                        if ((isset($_group_properties['mail']) && isset($grouptab->by_object['mailgroup'])))
-                        {
-                            $grouptab->by_object['mailgroup']->is_account= TRUE;
-                        }
-                        /* Populate sub-object attributes for $grouptab with same values */
-                        foreach($_group_properties as $attr => $val)
-                        {
-                            $grouptab->$attr = $val;
-                            foreach($grouptab->by_object as $pname => $plugin)
-                            {
-                                if(isset($grouptab->by_object[$pname]->$attr))
-                                {
-                                    $grouptab->by_object[$pname]->$attr = $val;
-                                }
-                            }
-                        }
-
-                        /* Drop all group members, if requested */
-                        if(strpos($posixgroup['_action'][0],'drop-all-members')!==FALSE)
-                        {
-                            $group_members=$grouptab->by_object['group']->memberUid;
-                            foreach($group_members as $group_member)
-                            {
-                                $grouptab->by_object['group']->removeUser($group_member);
-                            }
-                        }
-
-                        /* Run GOsa²'s groups/group checks */
-                        $grouptab->check();
-                        /* Save group object to LDAP */
-                        $grouptab->save();
-
-                        /* Present a status update in GOsa²''s logging system (/var/log/syslog mostly) */
-                        if(strpos($posixgroup['_action'][0],'create')!==FALSE)
-                        {
-                            new log("create","groups/group",$grouptab->dn, array(), "New group created via SchoolManager add-on.");
-                        }
-                        elseif(strpos($posixgroup['_action'][0],'none')!==FALSE) {
-                            new log("modify","groups/group",$grouptab->dn, array(), "Existing group modified via SchoolManager add-on.");
-                        }
+                        $this->importLDAPGroupObject($group_name, $group_data);
 
                     }
                 }
@@ -935,6 +875,73 @@ class manageaccounts extends plugin{
         }
 
         return $ok;
+    }
+
+    function importLDAPGroupObject($group_name, $group_data)
+    {
+
+        /* Retrieve group object from LDAP via GOsa²'s API */
+        $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou='.$this->csvinfo['ou_groups'].','.$this->config->current['BASE'], "groups" );
+
+        /*
+         * FIXME: Create ou prior to populating it...
+         */
+
+        /* Collect group properties from $group_data */
+        $_group_properties= array(
+            "cn" => $group_data['cn'][0],
+            "description" => $group_data['description'][0]
+        );
+        if((strpos($group_data['_action'][0],'update')!==FALSE) || (strpos($group_data['_action'][0],'create')!==FALSE))
+        {
+            $_group_properties["mail"]= $group_data['mail'][0];
+        }
+
+        /*
+         * FIXME: Make mail address creation (from CN) configurable somewhere...
+         */
+
+        /* if we do import mail properties, make sure the mailgroup object is activated */
+        if ((isset($_group_properties['mail']) && isset($grouptab->by_object['mailgroup'])))
+        {
+            $grouptab->by_object['mailgroup']->is_account= TRUE;
+        }
+        /* Populate sub-object attributes for $grouptab with same values */
+        foreach($_group_properties as $attr => $val)
+        {
+            $grouptab->$attr = $val;
+            foreach($grouptab->by_object as $pname => $plugin)
+            {
+                if(isset($grouptab->by_object[$pname]->$attr))
+                {
+                    $grouptab->by_object[$pname]->$attr = $val;
+                }
+            }
+        }
+
+        /* Drop all group members, if requested */
+        if(strpos($group_data['_action'][0],'drop-all-members')!==FALSE)
+        {
+            $group_members=$grouptab->by_object['group']->memberUid;
+            foreach($group_members as $group_member)
+            {
+                $grouptab->by_object['group']->removeUser($group_member);
+            }
+        }
+
+        /* Run GOsa²'s groups/group checks */
+        $grouptab->check();
+        /* Save group object to LDAP */
+        $grouptab->save();
+
+        /* Present a status update in GOsa²''s logging system (/var/log/syslog mostly) */
+        if(strpos($group_data['_action'][0],'create')!==FALSE)
+        {
+            new log("create","groups/group",$grouptab->dn, array(), "New group created via SchoolManager add-on.");
+        }
+        elseif(strpos($group_data['_action'][0],'none')!==FALSE) {
+            new log("modify","groups/group",$grouptab->dn, array(), "Existing group modified via SchoolManager add-on.");
+        }
     }
 }
 
