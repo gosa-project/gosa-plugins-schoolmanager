@@ -495,9 +495,36 @@ class manageaccounts extends plugin{
             else {
 
                 /*
-                 * FIXME: LDAP import of user account objects
-                 */ 
+                 * Add users to / update users in LDAP
+                 */
 
+                foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
+                {
+
+                    /* import the user's main account */
+                    if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
+                    {
+
+                        /* only perform on this group if _action is other than none... */
+                        if(strpos($user_data['main_account']['_action'][0],'skip')===FALSE)
+                        {
+
+                            $this->importLDAPUserObject($user_data['main_account']);
+
+                        }
+                    }
+
+                    /* import the user's aux account (e.g., parent accounts) */
+                    if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
+                    {
+                        foreach($user_data['aux_accounts'] as $idx_aux => $aux_account_data)
+                        {
+                            /* import aux account $aux_account_data */
+                            $this->importLDAPUserObject($aux_account_data);
+                        }
+                    }
+
+                }
                 $this->accountStatusCheck();
 
                 $smarty->assign ("accounts_reviewed",TRUE);
@@ -945,6 +972,119 @@ class manageaccounts extends plugin{
         }
         elseif(strpos($group_data['_action'][0],'none')!==FALSE) {
             new log("modify","groups/group",$grouptab->dn, array(), "Existing group modified via SchoolManager add-on.");
+        }
+    }
+
+
+    function importLDAPUserObject($user_data)
+    {
+
+        var_dump($user_data);
+        if((strpos($user_data['_action'][0],'update')!==FALSE) || (strpos($user_data['_action'][0],'create')!==FALSE))
+        {
+
+            $_user_properties_base= array();
+            $_user_properties_extras= array();
+            if (strpos($user_data['_action'][0],'create')!==FALSE)
+            {
+                /* instantiate a new user object */
+                $usertab= new usertabs($this->config, $this->config->data['TABS']['USERTABS'],'new');
+
+                /* The below attributes must exist and be set with meaningful data once we arrive here!!! */
+
+                /*
+                 * FIXME: If $user_data['uid'][0] is set to "%auto%" or is empty, do uid generation magic here!!!
+                 */
+
+                /*
+                 * FIXME: If $user_data['userPassword'][0] is set to "%auto%" or is empty, do password generation magic here!!!
+                 */
+
+                $_user_properties_base["uid"]= $user_data['uid'][0];
+                $_user_properties_base["sn"]= $user_data['sn'][0];
+                $_user_properties_base["givenName"]= $user_data['givenName'][0];
+                $_user_properties_extras["gender"]= $user_data['gender'][0];
+                $_user_properties_extras["dateOfBirth"]= $user_data['dateOfBirth'][0];
+
+            }
+            else {
+                /* Retrieve user object from LDAP */
+                $usertab= new usertabs($this->config, $this->config->data['TABS']['USERTABS'],$user_data['dn']);
+            }
+
+            /* on existing account, we allow the below attributes to be updated */
+            if(isset($user_data_extras['departmentNumber'])) { $_user_properties["departmentNumber"]= $user_data['departmentNumber'][0]; }
+            if(isset($user_data_extras['mail'])) { $_user_properties["mail"]= $user_data['mail'][0]; }
+
+            /* Populate sub-object attributes for $usertab with same values */
+            foreach($_user_properties_base as $attr => $val)
+            {
+                $usertab->$attr = $val;
+                foreach($usertab->by_object as $pname => $plugin)
+                {
+                    if(isset($usertab->by_object[$pname]->$attr))
+                    {
+                        $usertab->by_object[$pname]->$attr = $val;
+                    }
+                }
+            }
+            if (
+                (strpos($user_data['_action'][0],'create')!==FALSE) &&
+                ($user_data['_template'][0] != 0)
+               )
+            {
+                /* adapt new user object from a GOsa user object template */
+                $template_dn=  $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
+                $template_base= preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/i')."/", '', $template_dn);
+                $usertab->adapt_from_template($template_dn, array("uid","cn","givenName","sn"));
+                $usertab->by_object['user']->base= $template_base;
+            }
+
+            /* Populate sub-object attributes for $usertab with same values */
+            foreach($_user_properties_extras as $attr => $val)
+            {
+                $usertab->$attr = $val;
+                foreach($usertab->by_object as $pname => $plugin)
+                {
+                    if(isset($usertab->by_object[$pname]->$attr))
+                    {
+                        $usertab->by_object[$pname]->$attr = $val;
+                    }
+                }
+            }
+
+            /* Insert into the LDAP tree */
+            if(count($usertab->check())) {
+
+              msg_dialog::displayChecks($usertab->check());
+
+              /*
+               * FIXME: collect failure statistics here!!!
+               */
+
+              $this->failure_in_last_phase= TRUE;
+
+            } else {
+
+                /*
+                 * FIXME: collect success statistics here!!!
+                 */
+
+                $usertab->save();
+
+                if(!change_password($usertab->dn,$_user_properties['userPassword'],FALSE,'','', $message)){
+                    msg_dialog::displayChecks(array($message));
+                }
+            }
+
+            /* Present a status update in GOsa²''s logging system (/var/log/syslog mostly) */
+            if(strpos($user_data['_action'][0],'create')!==FALSE)
+            {
+                new log("create","users/user",$usertab->dn, array(), "New user created via SchoolManager add-on.");
+            }
+            elseif(strpos($user_data['_action'][0],'none')!==FALSE) {
+                new log("modify","users/user",$usertab->dn, array(), "Existing user modified via SchoolManager add-on.");
+            }
         }
     }
 }

@@ -118,10 +118,13 @@ class manageteachers extends manageaccounts {
                 $teacher['givenName']=array (trim($row_sorted['givenName']));
                 $teacher['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
                 $_dateOfBirth= trim($row_sorted['dateOfBirth']);
-                if (strpos($_dateOfBirth,'.')) {
-                    list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
-                    $_dateOfBirth = $year."-".$month."-".$day;
-                }
+
+                /* FIXME: On a German localized GOsa², this is not required..., but how about other locales??? */
+                //if (strpos($_dateOfBirth,'.')) {
+                //    list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
+                //    $_dateOfBirth = $year."-".$month."-".$day;
+                //}
+
                 $teacher['dateOfBirth']=array ($_dateOfBirth);
                 $teacher['_template']=array($this->csvinfo['template_main']);
                 $teacher['_status']=array('unchecked');
