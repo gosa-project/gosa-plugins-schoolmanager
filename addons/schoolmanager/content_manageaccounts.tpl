@@ -12,7 +12,7 @@
 {if $file_uploaded != TRUE}
 <input type="hidden" name="phase1">
 
-<br><h3>{t}STEP 1/9: Upload CSV File{/t}</h3>
+<br><h3>{t 1="1/9"}STEP %1: Upload CSV File{/t}</h3>
 
 <p>
     {t}The data provided via the uploadable CSV file needs to be of the following data format:{/t}
@@ -43,7 +43,7 @@
 {elseif $templates_selected != TRUE}
 <input type="hidden" name="phase2">
 
-<br><h3>{t}STEP 2/9: Select user object templates{/t}</h3>
+<br><h3>{t}{t 1="2/9"}STEP %1: Select user object templates{/t}</h3>
 
 {if $import_account_type == 'students'}
     <p>
@@ -121,7 +121,7 @@
 {elseif $data_sorted != TRUE}
 <input type="hidden" name="phase3">
 
-<br><h3>{t}STEP 3/9: Check CSV data and assign to LDAP attributes{/t}</h3>
+<br><h3>{t 1="3/9"}STEP %1: Check CSV data and assign to LDAP attributes{/t}</h3>
 
 <p>
 {t}Please assign the offered (LDAP) attributes to the CSV data columns. Note that the CSV file has been rotated 90DEGREES counter-clockwise for better readability.{/t}
@@ -156,9 +156,9 @@
 {/if}
 
 {if $groups_reviewed}
-<br><h3>{t}STEP 5/9 (LDAP import status): Group objects have been imported into LDAP{/t}</h3>
+<br><h3>{t 1="5/9"}STEP %1  (LDAP import status): Group objects have been imported into LDAP{/t}</h3>
 {else}
-<br><h3>{t}STEP 4/9: Review group objects before LDAP import{/t}</h3>
+<br><h3>{t 1="4/9"}STEP %1: Review group objects before LDAP import{/t}</h3>
 {/if}
 <br>
 <br>
@@ -197,9 +197,9 @@
 {/if}
 
 {if $accounts_reviewed}
-<br><h3>{t}STEP 7/9 (LDAP import status): User account objects have been imported into LDAP{/t}</h3>
+<br><h3>{t 1="7/9"}STEP %1  (LDAP import status): User account objects have been imported into LDAP{/t}</h3>
 {else}
-<br><h3>{t}STEP 6/9: Review user account objects before LDAP import{/t}</h3>
+<br><h3>{t 1="6/9"}STEP %1: Review user account objects before LDAP import{/t}</h3>
 {/if}
 <br>
 <br>
@@ -280,7 +280,7 @@
 {elseif $cleanup_completed != TRUE}
 <input type="hidden" name="phase6">
 
-<br><h3>{t}STEP 8/9: Check CSV data and assign to LDAP attributes{/t}</h3>
+<br><h3>{t 1="8/9"}STEP %1: Check CSV data and assign to LDAP attributes{/t}</h3>
 
 <p>
 FIXME: Some nice clean-up introduction text...
@@ -288,7 +288,7 @@ FIXME: Some nice clean-up introduction text...
 
 {else}
 
-<br><h3>{t}STEP 9/9: Check CSV data and assign to LDAP attributes{/t}</h3>
+<br><h3>{t 1="9/9"}STEP %1: LDAP import completed. Statistical overview of all import actions.{/t}</h3>
 
 <p>
 {if $error == FALSE}
