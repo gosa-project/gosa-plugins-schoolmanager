@@ -93,7 +93,8 @@ class manageteachers extends manageaccounts {
             if ( (empty ($row_sorted['sn'])) || (empty ($row_sorted['givenName']))|| (!isset ($row_sorted['sn']))|| (!isset ($row_sorted['givenName']))) {
 
                 /* Output Error */
-                msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s and %s to create users!"),bold ("sn"),bold ("gn")),ERROR_DIALOG);
+                msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s and %s to create users!"),bold ("sn"),bold ("givenName")),ERROR_DIALOG);
+                $this->failure_in_last_phase = TRUE;
             }
             else {
 

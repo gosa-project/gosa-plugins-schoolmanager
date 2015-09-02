@@ -368,6 +368,10 @@ class manageaccounts extends plugin{
                 $this->csvinfo['data_sorted'][] = $data_row_sorted;
             }
 
+            /* transform data_sorted to data_preldap array */
+            $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
+
+            /* $this->failure_in_last_phase may have been set above or in $this->prepareLdapImport ... */
             if($this->failure_in_last_phase)
             {
                 $smarty->assign ("attrs",$this->csvinfo['attrs']);
@@ -377,8 +381,6 @@ class manageaccounts extends plugin{
             }
             else {
 
-                /* transform data_sorted to data_preldap array */
-                $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
                 /* free some memory... */
                 unset ($this->csvinfo['data_sorted']);
 
