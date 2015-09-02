@@ -100,7 +100,7 @@ class managestudents extends manageaccounts {
             if ( (empty ($row_sorted['sn'])) || (empty ($row_sorted['givenName']))|| (!isset ($row_sorted['sn']))|| (!isset ($row_sorted['givenName']))) {
 
                 /* Output Error */
-                msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s and %s to create users (Check line %d in CSV file)!"),bold ("sn"),bold ("givenName"), $idx),ERROR_DIALOG);
+                msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s and %s to create users (Check line %d in CSV file)!"),bold ("sn"),bold ("givenName"), $idx+1),ERROR_DIALOG);
                 $this->failure_in_last_phase = TRUE;
             }
             else {
