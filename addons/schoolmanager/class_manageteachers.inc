@@ -49,7 +49,8 @@ class manageteachers extends manageaccounts {
         $attrs[4]= "dateOfBirth";
         $attrs[5]= "gender";
         $attrs[6]= "subjects";
-        $attrs[7]= "course";
+        $attrs[7]= "class";
+        $attrs[8]= "course";
 
         return $attrs;
     }
