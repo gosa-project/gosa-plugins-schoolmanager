@@ -52,6 +52,10 @@ class manageteachers extends manageaccounts {
         $attrs[]= "subjects";
         $attrs[]= "class";
         $attrs[]= "course";
+        /* FIXME: allow "mail" as possible attribute...
+         *        If "mail" is given, it should override the default value from the GOsa user
+         *        template (if provided there).
+         */
 
         return $attrs;
     }

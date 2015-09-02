@@ -58,6 +58,10 @@ class managestudents extends manageaccounts {
         $attrs[]= "parent2_givenName";
         $attrs[]= "parent2_mail";
         $attrs[]= "course";
+        /* FIXME: allow "mail" as possible attribute...
+         *        If "mail" is given, it should override the default value from the GOsa user
+         *        template (if provided there).
+         */
 
         return $attrs;
     }
