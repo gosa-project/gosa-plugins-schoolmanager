@@ -163,12 +163,13 @@
 <br>
 <br>
 {foreach from=$data item=group key=key}
-<div style="float:left; width:20em;">
+<div style="float:left; width:24em; height:30ex;">
 <table summary="{t 1=$group['cn'][0]}Group object: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
 	<tr>
 	<td bgcolor="#BBBBBB" colspan="2">
 		{t 1=$key}Group object: %1{/t}
 	</td>
+	<td style="width:1em;">&nbsp;</td>
 	</tr>
 	{foreach from=$group item=value key=property}
 	<tr>
@@ -178,12 +179,12 @@
 		<td bgcolor="#FEFEFE">
 		{$group[$property][0]}
 		</td>
+		<td style="width:1em;">&nbsp;</td>
         </tr>
 	{/foreach}
 </table>
 <br>
 </div>
-<div style="float:left; width:1em;">&nbsp;</div>
 {/foreach}
 <div class="clear"></div>
 
