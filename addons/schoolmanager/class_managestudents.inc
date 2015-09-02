@@ -42,20 +42,22 @@ class managestudents extends manageaccounts {
     {
         $attrs= array();
 
-        $attrs[0]= "no";
-        $attrs[1]= "employeeNumber";
-        $attrs[2]= "sn";
-        $attrs[3]= "givenName";
-        $attrs[4]= "dateOfBirth";
-        $attrs[5]= "gender";
-        $attrs[6]= "class";
-        $attrs[7]= "parent1_sn";
-        $attrs[8]= "parent1_givenName";
-        $attrs[9]= "parent1_mail";
-        $attrs[10]= "parent2_sn";
-        $attrs[11]= "parent2_givenName";
-        $attrs[12]= "parent2_mail";
-        $attrs[13]= "course";
+        $attrs[]= "no";
+        $attrs[]= "uid";
+        $attrs[]= "userPassword";
+        $attrs[]= "employeeNumber";
+        $attrs[]= "sn";
+        $attrs[]= "givenName";
+        $attrs[]= "dateOfBirth";
+        $attrs[]= "gender";
+        $attrs[]= "class";
+        $attrs[]= "parent1_sn";
+        $attrs[]= "parent1_givenName";
+        $attrs[]= "parent1_mail";
+        $attrs[]= "parent2_sn";
+        $attrs[]= "parent2_givenName";
+        $attrs[]= "parent2_mail";
+        $attrs[]= "course";
 
         return $attrs;
     }

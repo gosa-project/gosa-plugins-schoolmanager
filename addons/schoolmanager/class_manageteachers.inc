@@ -42,15 +42,16 @@ class manageteachers extends manageaccounts {
     {
         $attrs= array();
 
-        $attrs[0]= "no";
-        $attrs[1]= "uid";
-        $attrs[2]= "sn";
-        $attrs[3]= "givenName";
-        $attrs[4]= "dateOfBirth";
-        $attrs[5]= "gender";
-        $attrs[6]= "subjects";
-        $attrs[7]= "class";
-        $attrs[8]= "course";
+        $attrs[]= "no";
+        $attrs[]= "uid";
+        $attrs[]= "userPassword";
+        $attrs[]= "sn";
+        $attrs[]= "givenName";
+        $attrs[]= "dateOfBirth";
+        $attrs[]= "gender";
+        $attrs[]= "subjects";
+        $attrs[]= "class";
+        $attrs[]= "course";
 
         return $attrs;
     }
