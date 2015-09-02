@@ -135,7 +135,7 @@ class manageteachers extends manageaccounts {
                     $tmpclassparts[1]=substr ($tmpclassparts[1],1);
                     $row_sorted['class']=$tmpclassparts[0]."-".$tmpclassparts[1];
 
-                    $class_group['cn']= array('class_'.trim($row_sorted['class']));
+                    $class_group['cn']= str_replace(':', '-', str_replace(' ', '_',strtolower (trim($row_sorted['class']))));
                     $class_group['objectClass']= array(
                         'posixGroup',
                     );
@@ -153,7 +153,7 @@ class manageteachers extends manageaccounts {
                     /* the $_subjects variable has already been declared further above */
                     foreach(explode("_", $_subjects) as $subject)
                     {
-                        $_subject= trim(strtolower($subject));
+                        $_subject= str_replace(':', '-', str_replace(' ', '_',strtolower (trim($subject))));
                         if ($_subject)
                         {
                             $subject_groups[]= array(
@@ -175,14 +175,14 @@ class manageteachers extends manageaccounts {
                 foreach ($row_sorted as $key=>$value) {
                     if ((substr ($key,0,6)==="course") && trim($value))
                     {
-                        $row_sorted[$key]=str_replace(':', '-', strtolower ($value));
+                        $row_sorted[$key]=str_replace(':', '-', str_replace(' ', '_',strtolower (trim($value))));
                         if ($row_sorted[$key])
                         {
                             $course_groups[]= array(
                                 'objectClass' => array(
                                     'posixGroup'
                                 ),
-                                'cn' => array('course_'.trim($row_sorted[$key])),
+                                'cn' => array('course_'.$row_sorted[$key]),
                                 'description' => array('SchoolManager course group course_'.$row_sorted[$key]),
                                 'mail' => array('course_'.trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
