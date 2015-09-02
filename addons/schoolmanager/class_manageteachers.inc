@@ -133,9 +133,13 @@ class manageteachers extends manageaccounts {
                     $tmpclassparts[0]=trim ($tmpclassparts[0]);
                     $tmpclassparts[1]=trim ($tmpclassparts[1]);
                     $tmpclassparts[1]=substr ($tmpclassparts[1],1);
-                    $row_sorted['class']=$tmpclassparts[0]."-".$tmpclassparts[1];
+                    $row_sorted['class']=$tmpclassparts[0];
+                    if ($tmpclassparts[1])
+                    {
+                        $row_sorted['class']+= $row_sorted['class'].$tmpclassparts[1];
+                    }
 
-                    $class_group['cn']= str_replace(':', '-', str_replace(' ', '_',strtolower (trim($row_sorted['class']))));
+                    $class_group['cn']= array('class_'.str_replace(':', '-', str_replace(' ', '_',strtolower (trim($row_sorted['class'])))));
                     $class_group['objectClass']= array(
                         'posixGroup',
                     );
