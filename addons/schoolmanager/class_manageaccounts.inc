@@ -111,6 +111,9 @@ class manageaccounts extends plugin{
         /* PHASE 5 (status after import) done, set $accounts_imported to TRUE  */
         $smarty->assign ("accounts_imported",0);
 
+        /* PHASE 6 post-import clean-up  */
+        $smarty->assign ("cleanup_completed",0);
+
         /* Get the LDAP link, to generate the Export */
         $ldap=$this->config->get_ldap_link ();
 
@@ -485,6 +488,8 @@ class manageaccounts extends plugin{
 
                     }
                 }
+
+
                 /* Smarty: Prepare PHASE 4 (status view) */
                 $this->groupStatusCheck();
                 $smarty->assign ("data",$this->csvinfo['data_preldap_posixgroups']);
@@ -510,6 +515,12 @@ class manageaccounts extends plugin{
             }
             else {
 
+                /* FIXME: present a message dialog box that informs on the statistics of
+                 *        the LDAP group import. (How many groups got created? How many
+                 *        groups have been updated? How many groups were not empty and
+                 *        required dropping of all members? Etc.
+                 */
+
                 /* prepare review view for account creation */
 
                 if (is_array($this->csvinfo['data_preldap']) and (!empty($this->csvinfo['data_preldap'])))
@@ -524,7 +535,7 @@ class manageaccounts extends plugin{
         }
 
         /*
-         * PHASE 5: Finally write everything to LDAP
+         * PHASE 5: To-be-created / to-be-updated user accounts have been reviewed, prepare for LDAP import.
          */
         elseif (isset ($_POST['phase5'])) {
 
@@ -533,7 +544,101 @@ class manageaccounts extends plugin{
             $smarty->assign ("templates_selected",TRUE);
             $smarty->assign ("data_sorted",TRUE);
             $smarty->assign ("groups_reviewed",TRUE);
+            $smarty->assign ("groups_imported",TRUE);
+
+            if ($this->failure_in_last_phase)
+            {
+
+                /* Probably nothing to do here. Presume that group import has succeeded. */
+
+            }
+            else {
+
+                /*
+                 * FIXME: LDAP import of user account objects
+                 */ 
+
+                $this->accountStatusCheck();
+
+                $smarty->assign ("accounts_reviewed",TRUE);
+                $smarty->assign("data",$this->csvinfo['data_preldap']);
+
+            }
+        }
+        /*
+         * PHASE 5 (status): User accounts have been written to LDAP.
+         */
+        elseif (isset ($_POST['phase5_status'])) {
+
+            /* Template Handling */
+            $smarty->assign ("file_uploaded",TRUE);
+            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("data_sorted",TRUE);
+            $smarty->assign ("groups_reviewed",TRUE);
+            $smarty->assign ("groups_imported",TRUE);
             $smarty->assign ("accounts_reviewed",TRUE);
+
+            if ($this->failure_in_last_phase)
+            {
+
+                $this->accountStatusCheck();
+
+                $smarty->assign ("accounts_reviewed",TRUE);
+                $smarty->assign("data",$this->csvinfo['data_preldap']);
+
+            }
+            else {
+
+                /*
+                 * FIXME: More post-import checks? Maybe make sure that accounts
+                 *        really have been imported before proceeding to the
+                 *        clean-up phase (PHASE 6).
+                 */
+
+                /* FIXME: present a message dialog box that informs on the statistics of
+                 *        the LDAP user import. (How many users got created? How many
+                 *        users have been updated or skipped? Etc.
+                 */
+
+                $smarty->assign ("accounts_imported",TRUE);
+
+                /*
+                 * FIXME: Prepare post-import clean-up actions
+                 */
+
+            }
+        }
+        /*
+         * PHASE 6: Clean-up actions
+         */
+        elseif (isset ($_POST['phase6'])) {
+
+            /* Template Handling */
+            $smarty->assign ("file_uploaded",TRUE);
+            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("data_sorted",TRUE);
+            $smarty->assign ("groups_reviewed",TRUE);
+            $smarty->assign ("groups_imported",TRUE);
+            $smarty->assign ("accounts_reviewed",TRUE);
+            $smarty->assign ("accounts_imported",TRUE);
+
+            if ($this->failure_in_last_phase)
+            {
+
+                /* FIXME: no clue what to do on failures here... We will see. */
+
+            }
+            else {
+
+                /*
+                 * FIXME: If automatic password generation is used, present a download link
+                 *        for a generated credentials sheet of paper.
+                 */
+
+                /* Render the final SUCCESS page */
+                $smarty->assign ("cleanup_completed",TRUE);
+
+            }
         }
 
         /* Show main page */

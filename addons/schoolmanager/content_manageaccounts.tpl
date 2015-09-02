@@ -12,7 +12,7 @@
 {if $file_uploaded != TRUE}
 <input type="hidden" name="phase1">
 
-<br><h3>{t}STEP 1: Upload CSV File{/t}</h3>
+<br><h3>{t}STEP 1/9: Upload CSV File{/t}</h3>
 
 <p>
     {t}The data provided via the uploadable CSV file needs to be of the following data format:{/t}
@@ -43,7 +43,7 @@
 {elseif $templates_selected != TRUE}
 <input type="hidden" name="phase2">
 
-<br><h3>{t}STEP 2: Select user object templates{/t}</h3>
+<br><h3>{t}STEP 2/9: Select user object templates{/t}</h3>
 
 {if $import_account_type == 'students'}
     <p>
@@ -121,7 +121,7 @@
 {elseif $data_sorted != TRUE}
 <input type="hidden" name="phase3">
 
-<br><h3>{t}STEP 3: Check CSV data and assign to LDAP attributes{/t}</h3>
+<br><h3>{t}STEP 3/9: Check CSV data and assign to LDAP attributes{/t}</h3>
 
 <p>
 {t}Please assign the offered (LDAP) attributes to the CSV data columns. Note that the CSV file has been rotated 90DEGREES counter-clockwise for better readability.{/t}
@@ -156,9 +156,9 @@
 {/if}
 
 {if $groups_reviewed}
-<br><h3>{t}STEP 4 (LDAP import status): Group objects have been imported into LDAP{/t}</h3>
+<br><h3>{t}STEP 5/9 (LDAP import status): Group objects have been imported into LDAP{/t}</h3>
 {else}
-<br><h3>{t}STEP 4: Review group objects before LDAP import{/t}</h3>
+<br><h3>{t}STEP 4/9: Review group objects before LDAP import{/t}</h3>
 {/if}
 <br>
 <br>
@@ -197,9 +197,9 @@
 {/if}
 
 {if $accounts_reviewed}
-<br><h3>{t}STEP 5 (LDAP import status): User account objects have been imported into LDAP{/t}</h3>
+<br><h3>{t}STEP 7/9 (LDAP import status): User account objects have been imported into LDAP{/t}</h3>
 {else}
-<br><h3>{t}STEP 5: Review user account objects before LDAP import{/t}</h3>
+<br><h3>{t}STEP 6/9: Review user account objects before LDAP import{/t}</h3>
 {/if}
 <br>
 <br>
@@ -277,34 +277,31 @@
 {/foreach}
 <div class="clear"></div>
 
+{elseif $cleanup_completed != TRUE}
+<input type="hidden" name="phase6">
+
+<br><h3>{t}STEP 8/9: Check CSV data and assign to LDAP attributes{/t}</h3>
+
+<p>
+FIXME: Some nice clean-up introduction text...
+</p>
+
 {else}
-<input type="hidden" name="phase5">
 
-<br>
+<br><h3>{t}STEP 9/9: Check CSV data and assign to LDAP attributes{/t}</h3>
 
+<p>
 {if $error == FALSE}
 <b>{t}All entries have been written to the LDAP database successfully.{/t}</b>
 {else}
-<b style="color:red">{t}There was an error during the import of your data.{/t}</b>
+<b style="color:red">{t}There has been at least one error during the import of your data.{/t}</b>
 {/if}
+</p>
 
 <b>{t}Here is the status report for the import:{/t} </b>
 <br>
 <br>
-    <table summary="{t}Status report{/t}" cellspacing="1" border=0 cellpadding="4"  bgcolor="#FEFEFE">
-	{foreach from=$head item=h}
-	<tr>
-	    <td bgcolor="#BBBBBB">
-		<b>{$h}</b>
-	    </td>
-	    {foreach from=$data item=row key=key}
-	    <td bgcolor="#EEEEEE">
-		{$data[$key][$key2]}
-	    </td>
-	    {/foreach}
-	</tr>
-    {/foreach}
-    </table>
+FIXME: Todo.
 {/if}
 
 
@@ -313,16 +310,20 @@
 <hr>
 <div class="plugin-actions">
     {if $file_uploaded != TRUE}
-    {t}Continue here, when ready{/t}: <button type='submit' name='fileup'>{t}Select User Templates (Step 2/7){/t}</button>
+    {t}Continue here, when ready{/t}: <button type='submit' name='fileup'>{t 1="2/9"}Select User Templates (Step %1){/t}</button>
     {elseif $templates_selected != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_template_selected" value="{t}Check and Sort CSV Data (Step 3/7){/t}" type ="submit">
+    {t}Continue here, when ready{/t}: <input name="btn_template_selected" value="{t 1="3/9"}Check and Sort CSV Data (Step %1){/t}" type ="submit">
     {elseif $data_sorted != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Review group objects (Step 4/7){/t}" type ="submit">
+    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t 1="4/9"}Review group objects (Step %1){/t}" type ="submit">
     {elseif $groups_reviewed != TRUE}
-    {t}Continue here, when ready (this can take a while...){/t}: <input name="btn_data_sorted" value="{t}Import group objects into LDAP (Step 5/7){/t}" type ="submit">
+    {t}Continue here, when ready (this can take a while...){/t}: <input name="btn_data_sorted" value="{t 1="5/9"}Import group objects into LDAP (Step %1){/t}" type ="submit">
     {elseif $groups_imported != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t}Review user account objects (Step 6/7){/t}" type ="submit">
+    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t 1="6/9"}Review user account objects (Step %1){/t}" type ="submit">
     {elseif $accounts_reviewed != TRUE}
-    {t}Continue here, when ready (this can take a while...){/t}: <input name="btn_accounts_reviewed" value="{t}Import user account objects into LDAP (Step 7/7){/t}" type ="submit">
+    {t}Continue here, when ready (this can take a while...){/t}: <input name="btn_accounts_reviewed" value="{t 1="7/9"}Import user account objects into LDAP (Step %1){/t}" type ="submit">
+    {elseif $accounts_imported != TRUE}
+    {t}Continue here, when ready{/t}: <input name="btn_accounts_reviewed" value="{t 1="8/9"}Some post-import clean-ups (Step %1){/t}" type ="submit">
+    {elseif $cleanup_completed != TRUE}
+    {t}Continue here, when ready{/t}: <input name="btn_accounts_reviewed" value="{t 1="9/9"}Finish LDAP import (Step %1){/t}" type ="submit">
     {/if}
 </div>
