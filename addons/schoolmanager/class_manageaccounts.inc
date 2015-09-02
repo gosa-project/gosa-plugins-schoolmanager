@@ -759,12 +759,16 @@ class manageaccounts extends plugin{
         {
             case "male":
                 $gender="M";
+                break;
             case _("male"):
                 $gender="M";
+                break;
             case "female":
                 $gender="F";
+                break;
             case _("female"):
                 $gender="F";
+                break;
         }
         return $gender;
     }
