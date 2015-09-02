@@ -59,20 +59,24 @@ class manageteachers extends manageaccounts {
     function getMultiAttributes()
     {
         $multiAttrs=array();
-        $multiAttrs[0]="course";
+        $multiAttrs[]="course";
         return $multiAttrs;
     }
 
     function getAttrsPreSelection($size)
     {
+        /* FIXME: Make this more generic by analyzing the return value of $this->getAttributes()
+         *        When done -> move method to parent class (manageaccounts).
+         */
+
         $selection = array();
-        for($i=0; $i<7; $i++)
+        for($i=0; $i<9; $i++)
         {
              $selection[] = $i;
         }
-        for($i=7; $i<$size; $i++)
+        for($i=9; $i<$size; $i++)
         {
-             $selection[] = 7;
+             $selection[] = 9;
         }
         return $selection;
     }
