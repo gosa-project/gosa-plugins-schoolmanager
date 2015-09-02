@@ -124,8 +124,7 @@ class manageteachers extends manageaccounts {
 
                  /* groups for this account */
 
-                /* class group */
-                $class_group= array ();
+                /* class group(s) */
                 if (isset($row_sorted['class']) && $row_sorted['class'])
                 {
                     /* parse value for attribute "class", requires later work to make it more generic */
@@ -139,14 +138,25 @@ class manageteachers extends manageaccounts {
                         $row_sorted['class']+= $row_sorted['class'].$tmpclassparts[1];
                     }
 
-                    $class_group['cn']= array('class_'.str_replace(':', '-', str_replace(' ', '_',strtolower (trim($row_sorted['class'])))));
-                    $class_group['objectClass']= array(
-                        'posixGroup',
-                    );
-                    $class_group['description']= array("SchoolManager class group ".$class_group['cn'][0]);
-                    $class_group['mail']= array($class_group['cn'][0].'@'.$this->csvinfo['domain_groups']);
-                    $class_group['_status']=array('unchecked');
-                    $class_group['_action']=array('none');
+                    $class_groups= array();
+                    $_classes= str_replace(";","_", trim($row_sorted['class']));
+                    foreach(explode("_", $_classes) as $class)
+                    {
+                        $_class= str_replace(':', '-', str_replace(' ', '_',strtolower (trim($class))));
+                        if ($_class)
+                        {
+                            $class_groups[]= array(
+                                'objectClass' => array(
+                                    'posixGroup'
+                                ),
+                                'cn' => array('class_'.$_class),
+                                'description' => array('SchoolManager class group class_'.$_subject),
+                                'mail' => array('class_'.$_class.'@'.$this->csvinfo['domain_groups']),
+                                '_status' => array('unchecked'),
+                                '_action' => array('none')
+                            );
+                        }
+                    }
                 }
 
                 $subject_groups= array();
@@ -197,7 +207,7 @@ class manageteachers extends manageaccounts {
                 /* FIXME: missing group (todo) -> one group per at-school-taught subject... */
 
                 $groups= array ();
-                if (!empty($class_group))    { $groups= array_merge($groups, array($class_group)); }
+                if (!empty($class_groups))   { $groups= array_merge($groups, $class_groups); }
                 if (!empty($course_groups))  { $groups= array_merge($groups, $course_groups); }
                 if (!empty($subject_groups)) { $groups= array_merge($groups, $subject_groups); }
 
