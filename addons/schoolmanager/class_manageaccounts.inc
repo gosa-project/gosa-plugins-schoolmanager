@@ -432,7 +432,7 @@ class manageaccounts extends plugin{
                             "cn" => $posixgroup['cn'][0],
                             "description" => $posixgroup['description'][0]
                         );
-                        if(strpos($posixgroup['_action'][0],'update')!==FALSE)
+                        if((strpos($posixgroup['_action'][0],'update')!==FALSE) || (strpos($posixgroup['_action'][0],'create')!==FALSE))
                         {
                             $_group_properties["mail"]= $posixgroup['mail'][0];
                         }
