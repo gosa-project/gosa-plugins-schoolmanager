@@ -99,6 +99,10 @@ class managestudents extends manageaccounts {
 
                 /* main account */
                 $student=array ();
+                if(isset($row_sorted['uid']))
+                {
+                    $student['uid']=array(strtolower(iconv('UTF-8', 'US-ASCII//TRANSLIT', trim($row_sorted['uid']))));
+                }
                 $student['sn']=array (trim($row_sorted['sn']));
                 $student['givenName']=array (trim($row_sorted['givenName']));
 

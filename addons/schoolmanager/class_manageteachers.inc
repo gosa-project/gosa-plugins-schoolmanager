@@ -93,7 +93,10 @@ class manageteachers extends manageaccounts {
 
                 /* main account */
                 $teacher=array ();
-                $teacher['uid']=array (strtolower(trim($row_sorted['uid'])));
+                if(isset($row_sorted['uid']))
+                {
+                    $teacher['uid']=array(strtolower(iconv('UTF-8', 'US-ASCII//TRANSLIT', trim($row_sorted['uid']))));
+                }
                 if (isset($row_sorted['subjects']))
                 {
                     $_subjects= str_replace(";","_", trim($row_sorted['subjects']));
