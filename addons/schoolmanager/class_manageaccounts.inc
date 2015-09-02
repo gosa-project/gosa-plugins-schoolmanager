@@ -504,9 +504,8 @@ class manageaccounts extends plugin{
             if ($this->failure_in_last_phase)
             {
 
-                /* TODO: - show error message
-                 *       - reset smarty assignments to phase4 variables/values
-                 */
+                $this->groupStatusCheck();
+                $smarty->assign ("data",$this->csvinfo['data_preldap_posixgroups']);
 
             }
             else {
