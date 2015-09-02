@@ -804,6 +804,33 @@ class manageaccounts extends plugin{
         ksort($this->csvinfo['data_preldap_posixgroups']);
     }
 
+    function CSVRowSanityChecksOk($csv_row)
+    {
+        $ok = FALSE;
+        if ( (empty ($csv_row['sn'])) || (empty ($csv_row['givenName']))|| (!isset ($csv_row['sn']))|| (!isset ($csv_row['givenName']))) {
+
+            /* Output Error about missing the least set of attributes */
+            msg_dialog::display (_ ("Error"),sprintf (_ ("Need at least %s and %s to create users (Check line %d in CSV file)!"),bold ("sn"),bold ("givenName"), $idx+1),ERROR_DIALOG);
+
+        }
+
+        /*
+         *
+         * FIXME: Add plenty of more CSV data sanity checks here!!!!
+         *
+         */
+
+        else {
+            $ok = TRUE;
+        }
+
+        if(!$ok)
+        {
+            $this->failure_in_last_phase = TRUE;
+        }
+
+        return $ok;
+    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
