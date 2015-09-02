@@ -111,10 +111,15 @@ class managestudents extends manageaccounts {
 
                 /* main account */
                 $student=array ();
-                if(isset($row_sorted['uid']))
+                if(isset($row_sorted['uid']) && $row_sorted['uid'] && ($row_sorted['uid'] != "%auto%"))
                 {
                     $student['uid']=array(strtolower(iconv('UTF-8', 'US-ASCII//TRANSLIT', trim($row_sorted['uid']))));
                 }
+                if(isset($row_sorted['userPassword']) && $row_sorted['userPassword'] && ($row_sorted['userPassword'] != "%auto%"))
+                {
+                    $student['userPassword']=array($row_sorted['userPassword']);
+                }
+
                 $student['sn']=array (trim($row_sorted['sn']));
                 $student['givenName']=array (trim($row_sorted['givenName']));
 

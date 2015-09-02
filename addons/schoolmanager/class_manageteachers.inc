@@ -104,9 +104,16 @@ class manageteachers extends manageaccounts {
 
                 /* main account */
                 $teacher=array ();
-                if(isset($row_sorted['uid']))
+                if(isset($row_sorted['uid']) && $row_sorted['uid'] && ($row_sorted['uid'] != "%auto%"))
                 {
                     $teacher['uid']=array(strtolower(iconv('UTF-8', 'US-ASCII//TRANSLIT', trim($row_sorted['uid']))));
+                }
+                else {
+                    $teacher['uid']="{%uid}";
+                }
+                if(isset($row_sorted['userPassword']) && $row_sorted['userPassword'] && ($row_sorted['userPassword'] != "%auto%"))
+                {
+                    $teacher['userPassword']=array($row_sorted['userPassword']);
                 }
                 if (isset($row_sorted['subjects']))
                 {

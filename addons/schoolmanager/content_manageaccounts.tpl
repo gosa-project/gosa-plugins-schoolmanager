@@ -232,7 +232,13 @@
 		<b>{$property}:</b>
 		</td>
 		<td bgcolor="#FEFEFE">
+		{if $property != "userPassword"}
 		{$data[$key]['main_account'][$property][0]}
+		{elseif $data[$key]['main_account']['_status'][0] === "exists"}
+		{t}<keep>{/t}
+		{else}
+		************
+		{/if}
 		</td>
 	</tr>
 	{/foreach}
