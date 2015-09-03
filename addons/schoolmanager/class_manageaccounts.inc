@@ -33,7 +33,7 @@ class manageaccounts extends plugin{
     var $objectclasses=array ();
     var $view_logged=FALSE;
 
-    var $failure_in_last_phase=FALSE;
+    var $failure_in_this_phase=FALSE;
 
     var $import_account_type="";
 
@@ -143,7 +143,7 @@ class manageaccounts extends plugin{
          */
 
         /* reset our failure status from last template view... */
-        $this->failure_in_last_phase = FALSE;
+        $this->failure_in_this_phase = FALSE;
 
         /*
          * PHASE 1: CSV file has been selected for upload. We now upload the file and parse its data.
@@ -271,7 +271,7 @@ class manageaccounts extends plugin{
                 {
                     $smarty->assign ("LDIFError",TRUE);
                     msg_dialog::display (_ ("Error"),_ ("Domain for new groups is empty!"),ERROR_DIALOG);
-                    $this->failure_in_last_phase= TRUE;
+                    $this->failure_in_this_phase= TRUE;
 
                 } elseif(substr($_POST["domain"],0,1) == "@")
                 {
@@ -292,7 +292,7 @@ class manageaccounts extends plugin{
                 else {
                     $this->csvinfo['flush_members'] = FALSE;
                 }
-                if(!$this->failure_in_last_phase)
+                if(!$this->failure_in_this_phase)
                 {
                     $smarty->assign ("import_configured",TRUE);
 
@@ -376,7 +376,7 @@ class manageaccounts extends plugin{
                                 $attrs_counter[$value_of_selection] = 1;
                         } else 
                         {
-                                $this->failure_in_last_phase=TRUE;
+                                $this->failure_in_this_phase=TRUE;
                                 $smarty->assign ("LDIFError",TRUE);
                                 msg_dialog::display (_ ("Error"),sprintf (_ ("The attribute %s is only allowed to select once!"),bold ($value_of_selection)),ERROR_DIALOG);
                         }
@@ -388,16 +388,9 @@ class manageaccounts extends plugin{
             /* transform data_sorted to data_preldap array */
             $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
 
-            /* $this->failure_in_last_phase may have been set above or in $this->prepareLdapImport ... */
-            if($this->failure_in_last_phase)
+            /* $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport ... */
+            if(!$this->failure_in_this_phase)
             {
-                $smarty->assign ("attrs",$this->csvinfo['attrs']);
-                $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
-                $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
-                $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
-            }
-            else {
-
                 /* free some memory... */
                 unset ($this->csvinfo['data_sorted']);
 
@@ -405,6 +398,13 @@ class manageaccounts extends plugin{
 
                 $smarty->assign ("data_sorted",TRUE);
                 $smarty->assign ("data",$this->csvinfo['data_preldap_posixgroups']);
+            }
+            else {
+                /* prepare for reloading this phase's web page again */
+                $smarty->assign ("attrs",$this->csvinfo['attrs']);
+                $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
+                $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
+                $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
             }
         }
         /*
@@ -419,35 +419,24 @@ class manageaccounts extends plugin{
 
             /* TODO: evaluate group review (selections, input, etc.) */
 
-            if ($this->failure_in_last_phase)
+            /* Add groups to LDAP */
+
+            foreach($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data)
             {
 
-                /* TODO: - show error message
-                 *       - reset smarty assignments to phase3 variables/values
-                 */
-
-            }
-            else {
-
-                /* Add groups to LDAP */
-
-                foreach($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data)
+                /* only perform on this group if _action is other than none... */
+                if(strpos($group_data['_action'][0],'none')===FALSE)
                 {
 
-                    /* only perform on this group if _action is other than none... */
-                    if(strpos($group_data['_action'][0],'none')===FALSE)
-                    {
+                    $this->importLDAPGroupObject($group_name, $group_data);
 
-                        $this->importLDAPGroupObject($group_name, $group_data);
-
-                    }
                 }
-
-
-                /* Smarty: Prepare PHASE 4 (status view) */
-                $this->groupStatusCheck();
-                $smarty->assign ("data",$this->csvinfo['data_preldap_posixgroups']);
             }
+
+
+            /* Smarty: Prepare PHASE 4 (status view) */
+            $this->groupStatusCheck();
+            $smarty->assign ("data",$this->csvinfo['data_preldap_posixgroups']);
         }
 
         /*
@@ -460,31 +449,21 @@ class manageaccounts extends plugin{
             $smarty->assign ("data_sorted",TRUE);
             $smarty->assign ("groups_reviewed",TRUE);
 
-            if ($this->failure_in_last_phase)
+            /* FIXME: present a message dialog box that informs on the statistics of
+             *        the LDAP group import. (How many groups got created? How many
+             *        groups have been updated? How many groups were not empty and
+             *        required dropping of all members? Etc.
+             */
+
+            /* prepare review view for account creation */
+
+            if (is_array($this->csvinfo['data_preldap']) and (!empty($this->csvinfo['data_preldap'])))
             {
+                $this->accountStatusCheck();
 
-                $this->groupStatusCheck();
-                $smarty->assign ("data",$this->csvinfo['data_preldap_posixgroups']);
-
-            }
-            else {
-
-                /* FIXME: present a message dialog box that informs on the statistics of
-                 *        the LDAP group import. (How many groups got created? How many
-                 *        groups have been updated? How many groups were not empty and
-                 *        required dropping of all members? Etc.
-                 */
-
-                /* prepare review view for account creation */
-
-                if (is_array($this->csvinfo['data_preldap']) and (!empty($this->csvinfo['data_preldap'])))
-                {
-                    $this->accountStatusCheck();
-
-                    /* groups have been reviewed and imported successfully */
-                    $smarty->assign ("groups_imported",TRUE);
-                    $smarty->assign("data",$this->csvinfo['data_preldap']);
-                }
+                /* groups have been reviewed and imported successfully */
+                $smarty->assign ("groups_imported",TRUE);
+                $smarty->assign("data",$this->csvinfo['data_preldap']);
             }
         }
 
@@ -500,50 +479,46 @@ class manageaccounts extends plugin{
             $smarty->assign ("groups_reviewed",TRUE);
             $smarty->assign ("groups_imported",TRUE);
 
-            if ($this->failure_in_last_phase)
+            /*
+             * Add users to / update users in LDAP
+             */
+
+            foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
             {
 
-                /* Probably nothing to do here. Presume that group import has succeeded. */
-
-            }
-            else {
-
-                /*
-                 * Add users to / update users in LDAP
-                 */
-
-                foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
+                /* import the user's main account */
+                if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
                 {
 
-                    /* import the user's main account */
-                    if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
+                    /* only perform on this group if _action is other than none... */
+                    if(strpos($user_data['main_account']['_action'][0],'skip')===FALSE)
                     {
 
-                        /* only perform on this group if _action is other than none... */
-                        if(strpos($user_data['main_account']['_action'][0],'skip')===FALSE)
-                        {
+                        $this->importLDAPUserObject($user_data['main_account']);
 
-                            $this->importLDAPUserObject($user_data['main_account']);
-
-                        }
                     }
-
-                    /* import the user's aux account (e.g., parent accounts) */
-                    if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
-                    {
-                        foreach($user_data['aux_accounts'] as $idx_aux => $aux_account_data)
-                        {
-                            /* import aux account $aux_account_data */
-                            $this->importLDAPUserObject($aux_account_data);
-                        }
-                    }
-
                 }
-                $this->accountStatusCheck();
 
+                /* import the user's aux account (e.g., parent accounts) */
+                if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
+                {
+                    foreach($user_data['aux_accounts'] as $idx_aux => $aux_account_data)
+                    {
+                        /* import aux account $aux_account_data */
+                        $this->importLDAPUserObject($aux_account_data);
+                    }
+                }
+            }
+
+            $this->accountStatusCheck();
+            if (!$this->failure_in_this_phase)
+            {
+                /* prepare for reloading this phase's web page again */
+                $smarty->assign("data",$this->csvinfo['data_preldap']);
+            }
+            else {
                 $smarty->assign ("accounts_reviewed",TRUE);
                 $smarty->assign("data",$this->csvinfo['data_preldap']);
-
             }
         }
         /*
@@ -559,35 +534,23 @@ class manageaccounts extends plugin{
             $smarty->assign ("groups_imported",TRUE);
             $smarty->assign ("accounts_reviewed",TRUE);
 
-            if ($this->failure_in_last_phase)
-            {
+            /*
+             * FIXME: More post-import checks? Maybe make sure that accounts
+             *        really have been imported before proceeding to the
+             *        clean-up phase (PHASE 6).
+             */
 
-                $this->accountStatusCheck();
+            /* FIXME: present a message dialog box that informs on the statistics of
+             *        the LDAP user import. (How many users got created? How many
+             *        users have been updated or skipped? Etc.
+             */
 
-                $smarty->assign ("accounts_reviewed",TRUE);
-                $smarty->assign("data",$this->csvinfo['data_preldap']);
+            $smarty->assign ("accounts_imported",TRUE);
 
-            }
-            else {
+            /*
+             * FIXME: Prepare post-import clean-up actions
+             */
 
-                /*
-                 * FIXME: More post-import checks? Maybe make sure that accounts
-                 *        really have been imported before proceeding to the
-                 *        clean-up phase (PHASE 6).
-                 */
-
-                /* FIXME: present a message dialog box that informs on the statistics of
-                 *        the LDAP user import. (How many users got created? How many
-                 *        users have been updated or skipped? Etc.
-                 */
-
-                $smarty->assign ("accounts_imported",TRUE);
-
-                /*
-                 * FIXME: Prepare post-import clean-up actions
-                 */
-
-            }
         }
         /*
          * PHASE 6: Clean-up actions
@@ -603,7 +566,7 @@ class manageaccounts extends plugin{
             $smarty->assign ("accounts_reviewed",TRUE);
             $smarty->assign ("accounts_imported",TRUE);
 
-            if ($this->failure_in_last_phase)
+            if ($this->failure_in_this_phase)
             {
 
                 /* FIXME: no clue what to do on failures here... We will see. */
@@ -922,7 +885,7 @@ class manageaccounts extends plugin{
 
         if(!$ok)
         {
-            $this->failure_in_last_phase = TRUE;
+            $this->failure_in_this_phase = TRUE;
         }
 
         return $ok;
@@ -1081,7 +1044,7 @@ class manageaccounts extends plugin{
                * FIXME: collect failure statistics here!!!
                */
 
-              $this->failure_in_last_phase= TRUE;
+              $this->failure_in_this_phase= TRUE;
 
             } else {
 
