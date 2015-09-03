@@ -65,20 +65,21 @@ FIXMEs:
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="template">{t}Select template for student accounts{/t}</LABEL>
+			<LABEL for="template_students">{t}Select template for student accounts{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="template" name="template_students" size="1" title="">
+			<select id="template_students" name="template_students" size="1" title="">
 			{html_options options=$templates selected=""}
 			</select>
 		</td>
 	</tr>
 	<tr>
+		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="template">{t}Select template for parent accounts{/t}</LABEL>
+			<LABEL for="template_students_aux">{t}Select template for parent accounts{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="template" name="template_students_aux" size="1" title="">
+			<select id="template_students_aux" name="template_students_aux" size="1" title="">
 			{html_options options=$templates selected=""}
 			</select>
 		</td>
@@ -94,10 +95,10 @@ FIXMEs:
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="template">{t}Select template for teacher accounts{/t}</LABEL>
+			<LABEL for="template_teachers">{t}Select template for teacher accounts{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="template" name="template_teachers" size="1" title="">
+			<select id="template_teachers" name="template_teachers" size="1" title="">
 			{html_options options=$templates selected=""}
 			</select>
 		</td>
@@ -112,7 +113,7 @@ FIXMEs:
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="template">{t}Select OU for new groups{/t}</LABEL>
+			<LABEL for="ou">{t}Select OU for new groups{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 			<select id="ou" name="ou" size="1" title="">
@@ -133,6 +134,21 @@ FIXMEs:
 		<td style="vertical-align: middle;">
 			@
 			<input type="text" id="domain" name="domain">
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3">
+			<p>{t}With the start of a new school year, it is advisable to flush group members from all class and course groups? At the beginning of a new school year, we recommend starting with an import of all teachers first and flush all group members during this import.{/t}</p>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="flush_members">{t}Flush members from course and class groups?{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			<input type="checkbox" id="flush_members" name="flush_members">
+			{t}(tick this check box, if yes){/t}
 		</td>
 	</tr>
 </table>

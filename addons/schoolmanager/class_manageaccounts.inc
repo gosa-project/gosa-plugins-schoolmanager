@@ -259,7 +259,9 @@ class manageaccounts extends plugin{
          */
         elseif (isset ($_POST['phase2'])) {
 
-            /* template handling */
+            $smarty->assign ("file_uploaded",TRUE);
+
+            /* configure options */
             if (isset ($_POST["template_".$import_account_type]) and isset ($_POST["ou"]) and isset ($_POST["domain"]))
             {
                 $this->csvinfo['template_main'] = $_POST["template_".$import_account_type];
@@ -268,8 +270,9 @@ class manageaccounts extends plugin{
                 if(empty($_POST["domain"]))
                 {
                     $smarty->assign ("LDIFError",TRUE);
-                    $smarty->assign ("file_uploaded",FALSE);
                     msg_dialog::display (_ ("Error"),_ ("Domain for new groups is empty!"),ERROR_DIALOG);
+                    $this->failure_in_last_phase= TRUE;
+
                 } elseif(substr($_POST["domain"],0,1) == "@")
                 {
                     $this->csvinfo['domain_groups'] = substr($_POST["domain"],1,strlen($_POST["domain"]));
@@ -282,23 +285,37 @@ class manageaccounts extends plugin{
                 {
                     $this->csvinfo['template_aux'] = $_POST["template_".$import_account_type."_aux"];
                 }
-                $smarty->assign ("file_uploaded",TRUE);
-                $smarty->assign ("import_configured",TRUE);
+                if (isset ($_POST["flush_members"]))
+                {
+                    $this->csvinfo['flush_members'] = TRUE;
+                }
+                else {
+                    $this->csvinfo['flush_members'] = FALSE;
+                }
+                if(!$this->failure_in_last_phase)
+                {
+                    $smarty->assign ("import_configured",TRUE);
 
-                /* initialize $this->csvinfo['attrs_selected'], only do this here and once */
-                $this->csvinfo['attrs_selected']=$this->getAttrsPreSelection($this->csvinfo['num_cols']);
+                    /* initialize $this->csvinfo['attrs_selected'], only do this here and once */
+                    $this->csvinfo['attrs_selected']=$this->getAttrsPreSelection($this->csvinfo['num_cols']);
 
-                /* student import attributes */
-                $smarty->assign ("attrs",$this->csvinfo['attrs']);
+                    /* student import attributes */
+                    $smarty->assign ("attrs",$this->csvinfo['attrs']);
 
-                /* per row selected student import attributes */
-                $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
+                    /* per row selected student import attributes */
+                    $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
 
-                /* number of CSV columns -> number of rows in 90°-counter-clockwise-rotated table */
-                $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
+                    /* number of CSV columns -> number of rows in 90°-counter-clockwise-rotated table */
+                    $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
 
-                /* CSV data */
-                $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
+                    /* CSV data */
+                    $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
+                }
+                else {
+                    /* prepare for reloading this phase's web page again */
+                    $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
+                    $smarty->assign("ou",$this->csvinfo['ou']['formfields']);
+                }
             }
         }
 
@@ -312,9 +329,6 @@ class manageaccounts extends plugin{
         elseif (isset ($_POST['phase3'])) {
 
             /* sanity checks on LDAP attributes assignments */
-
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("import_configured",TRUE);
 
             /* read attributes assignments from $_POST */
             $new_attrs_selected = array();
@@ -821,7 +835,10 @@ class manageaccounts extends plugin{
                              * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
                              *        Later, we need to make actions more configurable...
                              */
-                            if(isset($gosa_posix_group['memberUid']['count']) && ($gosa_posix_group['memberUid']['count'] > 0))
+                            if(
+                               ($this->csvinfo['flush_members']) and
+                               (isset($gosa_posix_group['memberUid']['count']) && ($gosa_posix_group['memberUid']['count'] > 0))
+                              )
                             {
                                 $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'drop-all-members';
                             }
@@ -836,7 +853,10 @@ class manageaccounts extends plugin{
                              * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
                              *        Later, we need to make actions more configurable...
                              */
-                            if(isset($gosa_posix_group['memberUid']['count']) && ($gosa_posix_group['memberUid']['count'] > 0))
+                            if(
+                               ($this->csvinfo['flush_members']) and
+                               (isset($gosa_posix_group['memberUid']['count']) && ($gosa_posix_group['memberUid']['count'] > 0))
+                              )
                             {
                                 $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'drop-all-members,update';
                             }
