@@ -814,7 +814,6 @@ class manageaccounts extends plugin{
 
     function groupStatusCheck()
     {
-        $ldap = $this->config->get_ldap_link();
         $ldapsearch = $this->_ldap->search("(objectClass=posixGroup)",array("cn","memberUid","mail", "description"));
 
         /* this will probably scale very very badly... Improvement needed. Suggestions? */
@@ -972,7 +971,6 @@ class manageaccounts extends plugin{
             {
                 foreach($grouptab->by_object as $pname => $plugin)
                 {
-                    print "$pname<br>";
                     $grouptab->by_object[$pname]->prepareForCopyPaste($source);
                 }
                 $remove_later_grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],$source['dn'], "groups" );
@@ -1031,7 +1029,6 @@ class manageaccounts extends plugin{
         /* Run GOsa²'s groups/group checks */
         if(count($grouptab->check()))
         {
-            print $this->grouptab->by_object['group']->base."<br>";
             msg_dialog::displayChecks($grouptab->check());
 
             /*
@@ -1045,7 +1042,6 @@ class manageaccounts extends plugin{
 
             if(isset($remove_later_grouptab))
             {
-                print "DELETING<br>";
                 $remove_later_grouptab->delete();
             }
             /* Save group object to LDAP */
