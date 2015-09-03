@@ -121,10 +121,10 @@ class managestudents extends manageaccounts {
 
                 $_dateOfBirth= trim($row_sorted['dateOfBirth']);
                 /* FIXME: On a German localized GOsa², this is not required..., but how about other locales??? */
-                //if (strpos($_dateOfBirth,'.')) {
-                //    list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
-                //    $_dateOfBirth = $year."-".$month."-".$day;
-                //}
+                if (strpos($_dateOfBirth,'.')) {
+                    list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
+                    $_dateOfBirth = $year."-".$month."-".$day;
+                }
                 $student['dateOfBirth']=array ($_dateOfBirth);
                 $student['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
                 /* Keeping the memory footprint low:

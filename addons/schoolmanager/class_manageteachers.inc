@@ -120,10 +120,10 @@ class manageteachers extends manageaccounts {
                 $_dateOfBirth= trim($row_sorted['dateOfBirth']);
 
                 /* FIXME: On a German localized GOsa², this is not required..., but how about other locales??? */
-                //if (strpos($_dateOfBirth,'.')) {
-                //    list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
-                //    $_dateOfBirth = $year."-".$month."-".$day;
-                //}
+                if (strpos($_dateOfBirth,'.')) {
+                    list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
+                    $_dateOfBirth = $year."-".$month."-".$day;
+                }
 
                 $teacher['dateOfBirth']=array ($_dateOfBirth);
                 $teacher['_template']=array($this->csvinfo['template_main']);
