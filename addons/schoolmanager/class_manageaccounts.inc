@@ -96,13 +96,6 @@ class manageaccounts extends plugin{
         /* PHASE 2 done, set $import_configured to TRUE  */
         $smarty->assign ("import_configured",0);
 
-        /* import configuration defaults */
-        $this->csvinfo["template_main"]= 0;
-        $this->csvinfo["template_aux"]= 0;
-        $this->csvinfo['ou_groups']= 0;
-        $this->csvinfo['domain_groups']= "intern";
-        $this->csvinfo['flush_members']= FALSE;
-
         /* PHASE 3 done, set $data_sorted to TRUE  */
         $smarty->assign ("data_sorted",0);
 
@@ -246,6 +239,13 @@ class manageaccounts extends plugin{
                         }
 
                         $smarty->assign("ous_available",$this->csvinfo['ou_tree']['formfields']);
+
+                        /* import configuration defaults, only set them if PHASE 1 has been successful */
+                        $this->csvinfo["template_main"]= 0;
+                        $this->csvinfo["template_aux"]= 0;
+                        $this->csvinfo['ou_groups']= 0;
+                        $this->csvinfo['domain_groups']= "intern";
+                        $this->csvinfo['flush_members']= FALSE;
 
                         /* provide pre-set values for account template forms */
                         $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
