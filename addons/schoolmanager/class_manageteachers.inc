@@ -150,7 +150,7 @@ class manageteachers extends manageaccounts {
                     $_classes= str_replace(";","_", trim($row_sorted['class']));
                     foreach(explode("_", $_classes) as $class)
                     {
-                        $_class= str_replace(':', '-', str_replace(' ', '_',strtolower (trim($class))));
+                        $_class= $this->validGroupName($class);
                         if ($_class)
                         {
                             $class_groups[]= array(
@@ -173,7 +173,7 @@ class manageteachers extends manageaccounts {
                     /* the $_subjects variable has already been declared further above */
                     foreach(explode("_", $_subjects) as $subject)
                     {
-                        $_subject= str_replace(':', '-', str_replace(' ', '_',strtolower (trim($subject))));
+                        $_subject= $this->validGroupName($subject);
                         if ($_subject)
                         {
                             $subject_groups[]= array(
@@ -195,7 +195,7 @@ class manageteachers extends manageaccounts {
                 foreach ($row_sorted as $key=>$value) {
                     if ((substr ($key,0,6)==="course") && trim($value))
                     {
-                        $row_sorted[$key]=str_replace(':', '-', str_replace(' ', '_',strtolower (trim($value))));
+                        $row_sorted[$key]=$this->validGroupName($value);
                         if ($row_sorted[$key])
                         {
                             $course_groups[]= array(

@@ -176,7 +176,7 @@ class managestudents extends manageaccounts {
                         $row_sorted['class'] = $row_sorted['class'].$tmpclassparts[1];
                     }
 
-                    $class_group['cn']= array('class_'.str_replace(':','-',str_replace(' ', '_',strtolower($row_sorted['class']))));
+                    $class_group['cn']= array('class_'.$this->validGroupName($row_sorted['class']));
                     $class_group['objectClass']= array(
                         'posixGroup',
                     );
@@ -190,7 +190,7 @@ class managestudents extends manageaccounts {
                 $course_groups= array ();
                 foreach ($row_sorted as $key=>$value) {
                     if (substr ($key,0,6)==="course") {
-                        $row_sorted[$key]=str_replace(':','-',str_replace(' ', '_',strtolower($value)));
+                        $row_sorted[$key]=$this->validGroupName($value);
                         if ($row_sorted[$key])
                         {
                             $course_groups[]= array(

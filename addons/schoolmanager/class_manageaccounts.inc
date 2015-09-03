@@ -1188,6 +1188,13 @@ class manageaccounts extends plugin{
         //    $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou='.$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
         }
     }
+
+    function validGroupName($group_name)
+    {
+        /* FIXME: This can be better done with regular expressions!!!
+         */
+       return str_replace('.','', str_replace(':', '-', str_replace(' ', '_',strtolower (trim($group_name)))));
+    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
