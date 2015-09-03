@@ -272,7 +272,7 @@ msgstr "Prüfe CSV-Datensatz"
 msgid ""
 "STEP %1  (LDAP import status): Group objects have been imported into LDAP"
 msgstr ""
-"Schritt %1 (LDAP-Importstatus): Gruppenobjekte wurde in LDAP importiert."
+"Schritt %1 (LDAP-Importstatus): Gruppenobjekte wurden in LDAP importiert."
 
 #: addons/schoolmanager/content_manageaccounts.tpl:161
 msgid "STEP %1: Review group objects before LDAP import"
