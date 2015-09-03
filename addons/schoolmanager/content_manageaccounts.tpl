@@ -359,7 +359,7 @@ FIXME: Todo.
 <hr>
 <div class="plugin-actions">
 	{if $file_uploaded != TRUE}
-	{t}Continue here, when ready{/t}: <button type='submit' name='fileup'>{t 1="2/9"}Select User Templates (Step %1){/t}</button>
+	{t}Continue here, when ready{/t}: <button type='submit' name='fileup'>{t 1="2/9"}Set import configuration option (Step %1){/t}</button>
 	{elseif $import_configured != TRUE}
 	{t}Continue here, when ready{/t}: <input name="btn_template_selected" value="{t 1="3/9"}Check and Sort CSV Data (Step %1){/t}" type ="submit">
 	{elseif $data_sorted != TRUE}
