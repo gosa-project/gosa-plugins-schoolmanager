@@ -350,6 +350,9 @@ class manageaccounts extends plugin{
          */
         elseif (isset ($_POST['phase3'])) {
 
+            $smarty->assign ("file_uploaded",TRUE);
+            $smarty->assign ("import_configured",TRUE);
+
             /* sanity checks on LDAP attributes assignments */
 
             /* read attributes assignments from $_POST */
