@@ -1,9 +1,9 @@
 <p>
-    {if $import_account_type == "students"}
-    {t escape=no}With GOsa2 School Manager's <b>Manage Students Module</b> you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
-    {elseif $import_account_type == "teachers"}
-    {t escape=no}With GOsa2 School Manager's <b>Manage Teachers Module</b> you can import teacher user accounts and course groups from a CSV file containing.{/t}
-    {/if}
+	{if $import_account_type == "students"}
+	{t escape=no}With GOsa2 School Manager's <b>Manage Students Module</b> you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
+	{elseif $import_account_type == "teachers"}
+	{t escape=no}With GOsa2 School Manager's <b>Manage Teachers Module</b> you can import teacher user accounts and course groups from a CSV file containing.{/t}
+	{/if}
 </p>
 <hr>
 
@@ -15,26 +15,26 @@
 <br><h3>{t 1="1/9"}STEP %1: Upload CSV File{/t}</h3>
 
 <p>
-    {t}The data provided via the uploadable CSV file needs to be of the following data format:{/t}
+	{t}The data provided via the uploadable CSV file needs to be of the following data format:{/t}
 </p>
 <p>
-    FIXME! Todo...
+	FIXME! Todo...
 </p>
 
 <table summary="{t}Upload CSV File{/t}">
-    <tr>
-	<td style="vertical-align: middle;">
-		{if $import_account_type=="students"}
-		<LABEL for="userfile">{t}Select CSV file with students' data to import:{/t}</LABEL>
-		{elseif $import_account_type=="teachers"}
-		<LABEL for="userfile">{t}Select CSV file with teachers' data to import:{/t}</LABEL>
-		{/if}
-	</td>
-	<td style="vertical-align: middle;">
-	    <input type="hidden" name="MAX_FILE_SIZE" value="2097152">
-	    <input id="userfile" name="userfile" type="file" value="{t}Browse{/t}">
-	</td>
-    </tr>
+	<tr>
+		<td style="vertical-align: middle;">
+			{if $import_account_type=="students"}
+				<LABEL for="userfile">{t}Select CSV file with students' data to import:{/t}</LABEL>
+				{elseif $import_account_type=="teachers"}
+				<LABEL for="userfile">{t}Select CSV file with teachers' data to import:{/t}</LABEL>
+			{/if}
+		</td>
+		<td style="vertical-align: middle;">
+			<input type="hidden" name="MAX_FILE_SIZE" value="2097152">
+			<input id="userfile" name="userfile" type="file" value="{t}Browse{/t}">
+		</td>
+	</tr>
 </table>
 
 
@@ -46,73 +46,73 @@
 <br><h3>{t 1="2/9"}STEP %1: Select user object templates{/t}</h3>
 
 {if $import_account_type == 'students'}
-    <p>
-    {t}Please choose from the available GOsa2 user object templates what account templates to use for students and for their parents.{/t}
-    <br><br>
-    FIXME: Provide a checkbox to disable parent imports.
-    </p>
+	<p>
+	{t}Please choose from the available GOsa2 user object templates what account templates to use for students and for their parents.{/t}
+	<br><br>
+	FIXME: Provide a checkbox to disable parent imports.
+	</p>
 {/if}
 {if $import_account_type == 'teachers'}
-    <p>
-    {t}Please choose from the available GOsa2 user object templates what account template to use for teachers.{/t}
-    </p>
+	<p>
+	{t}Please choose from the available GOsa2 user object templates what account template to use for teachers.{/t}
+	</p>
 {/if}
 
 
 <table summary="{t}Select user object templates{/t}">
-    {if $import_account_type == 'students'}
-    <tr>
-	<td style="vertical-align: middle;">
-	    <LABEL for="template">{t}Select template for student accounts{/t}</LABEL>
-	</td>
-	<td style="vertical-align: middle;">
-	    <select id="template" name="template_students" size="1" title="">
-	    {html_options options=$templates selected=""}
-	    </select>
-	</td>
-    </tr>
-    <tr>
-	<td style="vertical-align: middle;">
-	    <LABEL for="template">{t}Select template for parent accounts{/t}</LABEL>
-	</td>
-	<td style="vertical-align: middle;">
-	    <select id="template" name="template_students_aux" size="1" title="">
-	    {html_options options=$templates selected=""}
-	    </select>
-	</td>
-    </tr>
-    {/if}
-    {if $import_account_type == 'teachers'}
-    <tr>
-	<td style="vertical-align: middle;">
-	    <LABEL for="template">{t}Select template for teacher accounts{/t}</LABEL>
-	</td>
-	<td style="vertical-align: middle;">
-	    <select id="template" name="template_teachers" size="1" title="">
-	    {html_options options=$templates selected=""}
-	    </select>
-	</td>
-    </tr>
-    {/if}
-    <tr>
-	<td style="vertical-align: middle;">
-	    <LABEL for="template">{t}Select OU for new groups{/t}</LABEL>
-	</td>
-	<td style="vertical-align: middle;">
-	    <select id="ou" name="ou" size="1" title="">
-	    {html_options options=$ou selected=""}
-	    </select>
-	</td>
-    </tr>
-    <tr>
-	<td style="vertical-align: middle;">
-	    <LABEL for="domain">{t}Type mail domain for new groups{/t}</LABEL>
-	</td>
-	<td style="vertical-align: middle;">
-	    @
-	    <input type="text" id="domain" name="domain">
-	</td>
-    </tr>
+	{if $import_account_type == 'students'}
+	<tr>
+		<td style="vertical-align: middle;">
+			<LABEL for="template">{t}Select template for student accounts{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			<select id="template" name="template_students" size="1" title="">
+			{html_options options=$templates selected=""}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="vertical-align: middle;">
+			<LABEL for="template">{t}Select template for parent accounts{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			<select id="template" name="template_students_aux" size="1" title="">
+			{html_options options=$templates selected=""}
+			</select>
+		</td>
+	</tr>
+	{/if}
+	{if $import_account_type == 'teachers'}
+	<tr>
+		<td style="vertical-align: middle;">
+			<LABEL for="template">{t}Select template for teacher accounts{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			<select id="template" name="template_teachers" size="1" title="">
+			{html_options options=$templates selected=""}
+			</select>
+		</td>
+	</tr>
+	{/if}
+	<tr>
+		<td style="vertical-align: middle;">
+			<LABEL for="template">{t}Select OU for new groups{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			<select id="ou" name="ou" size="1" title="">
+			{html_options options=$ou selected=""}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="vertical-align: middle;">
+			<LABEL for="domain">{t}Type mail domain for new groups{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			@
+			<input type="text" id="domain" name="domain">
+		</td>
+	</tr>
 </table>
 
 
@@ -130,24 +130,24 @@
 <br>
 <table summary="{t}Check CSV data{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
 {foreach from=$data[0] item=val key=key}
-    <tr>
-	<td bgcolor="#BBBBBB">
-	    <select name="column_head_{$key}" size="1" title="">
-		{html_options options=$attrs selected=$attrs_selected[$key]}
-	    </select>
-	</td>
-	{foreach from=$data item=val2 key=key2}
-	    <td bgcolor="#EEEEEE">
-		{$data[$key2][$key]}&nbsp;
-	    </td>
-	{/foreach}
-	{if $key == 0}
+	<tr>
+		<td bgcolor="#BBBBBB">
+			<select name="column_head_{$key}" size="1" title="">
+				{html_options options=$attrs selected=$attrs_selected[$key]}
+			</select>
+		</td>
+		{foreach from=$data item=val2 key=key2}
+			<td bgcolor="#EEEEEE">
+				{$data[$key2][$key]}&nbsp;
+			</td>
+		{/foreach}
+		{if $key == 0}
 
-        <!-- FIXME: with very small data sets (up to 6 objects) the below dots should not be printed on screen!!! -->
+		<!-- FIXME: with very small data sets (up to 6 objects) the below dots should not be printed on screen!!! -->
 
-	<td  style="vertical-align: middle;" bgcolor="#EEEEEE" rowspan={$num_rows}>&nbsp;&nbsp;&nbsp;<b>...</b>&nbsp;&nbsp;&nbsp;</td>
-	{/if}
-    </tr>
+		<td  style="vertical-align: middle;" bgcolor="#EEEEEE" rowspan={$num_rows}>&nbsp;&nbsp;&nbsp;<b>...</b>&nbsp;&nbsp;&nbsp;</td>
+		{/if}
+	</tr>
 {/foreach}
 </table>
 
@@ -168,23 +168,23 @@
 {foreach from=$data item=group key=key}
 <div style="float:left; width:24em; height:30ex;">
 <table summary="{t 1=$group['cn'][0]}Group object: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
-	<tr>
-	<td bgcolor="#BBBBBB" colspan="2">
-		{t 1=$key}Group object: %1{/t}
-	</td>
-	<td style="width:1em;">&nbsp;</td>
-	</tr>
-	{foreach from=$group item=value key=property}
-	<tr>
-		<td bgcolor="#EEEEEE">
-		<b>{$property}:</b>
-		</td>
-		<td bgcolor="#FEFEFE">
-		{$group[$property][0]}
+		<tr>
+		<td bgcolor="#BBBBBB" colspan="2">
+				{t 1=$key}Group object: %1{/t}
 		</td>
 		<td style="width:1em;">&nbsp;</td>
-        </tr>
-	{/foreach}
+		</tr>
+		{foreach from=$group item=value key=property}
+		<tr>
+				<td bgcolor="#EEEEEE">
+				<b>{$property}:</b>
+				</td>
+				<td bgcolor="#FEFEFE">
+				{$group[$property][0]}
+				</td>
+				<td style="width:1em;">&nbsp;</td>
+		</tr>
+		{/foreach}
 </table>
 <br>
 </div>
@@ -206,79 +206,83 @@
 {/if}
 <br>
 <br>
+
 {foreach from=$data item=row key=key}
+{if (!$data[$key]['aux_accounts'])}
 <div style="float:left; width:22em; height: 45ex;">
+{/if}
 <table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}New account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
 
 	<tr>
-	{if $data[$key]['aux_accounts']}
-	<td bgcolor="#BBBBBB" colspan={2 + count($data[$key]['aux_accounts'])}>
-	{else}
-	<td bgcolor="#BBBBBB" colspan="2">
-	{/if}
-		{if $data[$key]['main_account']['_status'][0] === "not-found"}
-		{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}New user account: %1, %2{/t}
-		{else}
-		{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}User account: %1, %2{/t}
-		{/if}
-	</td>
-	</tr>
-
-	{if $data[$key]['aux_accounts']}
-	<tr>
-	<td>
-	<table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}Account group for %1, %2{/t}"
-	{/if}
-	{foreach from=$data[$key]['main_account'] item=value key=property}
-	<tr>
-		<td bgcolor="#EEEEEE">
-		<b>{$property}:</b>
-		</td>
-		<td bgcolor="#FEFEFE">
-		{if $property != "userPassword"}
-		{$data[$key]['main_account'][$property][0]}
-		{elseif $data[$key]['main_account']['_status'][0] === "exists"}
-		{t}<keep>{/t}
-		{else}
-		************
-		{/if}
+{if $data[$key]['aux_accounts']}
+		<td bgcolor="#BBBBBB" colspan={2 + count($data[$key]['aux_accounts'])}>
+{else}
+		<td bgcolor="#BBBBBB" colspan="2">
+{/if}
+{if $data[$key]['main_account']['_status'][0] === "not-found"}
+			{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}New user account: %1, %2{/t}
+{else}
+			{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}User account: %1, %2{/t}
+{/if}
 		</td>
 	</tr>
-	{/foreach}
-	{if $data[$key]['aux_accounts']}
-	</table>
-	{foreach $data[$key]['aux_accounts'] item=aux_account key=idx_aux_account}
-	<td>
-		<table summary="{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}New account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
-			<tr>
-			<td bgcolor="#BBBBBB" colspan="2">
-				{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}New associated account: %1, %2{/t}
-			</td>
-			</tr>
+{if $data[$key]['aux_accounts']}
+	<tr>
+		<td>
+			<table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}Account group for %1, %2{/t}"
+{/if}
+{foreach from=$data[$key]['main_account'] item=value key=property}
+				<tr>
+					<td bgcolor="#EEEEEE">
+						<b>{$property}:</b>
+					</td>
+					<td bgcolor="#FEFEFE">
+{if $property != "userPassword"}
+						{$data[$key]['main_account'][$property][0]}
+{elseif $data[$key]['main_account']['_status'][0] === "exists"}
+						{t}<keep>{/t}
+{else}
+						************
+{/if}
+					</td>
+				</tr>
+{/foreach}
+{if $data[$key]['aux_accounts']}
+			</table>
+		</td>
+{foreach $data[$key]['aux_accounts'] item=aux_account key=idx_aux_account}
+		<td>
+			<table summary="{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}New account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
+				<tr>
+					<td bgcolor="#BBBBBB" colspan="2">
+						{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}New associated account: %1, %2{/t}
+					</td>
+				</tr>
+{foreach from=$aux_account item=value key=property}
+				<tr>
+					<td bgcolor="#EEEEEE">
+						<b>{$property}:</b>
+					</td>
+					<td bgcolor="#FEFEFE">
+						{$aux_account[$property][0]}
+					</td>
+				</tr>
+{/foreach}
+			</table>
+		</td>
+{/foreach}
+	</tr>
+{/if}
 
-			{foreach from=$aux_account item=value key=property}
-			<tr>
-				<td bgcolor="#EEEEEE">
-				<b>{$property}:</b>
-				</td>
-				<td bgcolor="#FEFEFE">
-				{$aux_account[$property][0]}
-			</td>
-			</tr>
-			{/foreach}
-		</table>
-	</td>
-	{/foreach}
-	</tr>
-	</table>
-	</td>
-	</tr>
-	{/if}
 </table>
 <br>
+{if (!$data[$key]['aux_accounts'])}
 </div>
+{/if}
 {/foreach}
+{if (!$data[$key]['aux_accounts'])}
 <div class="clear"></div>
+{/if}
 
 {elseif $cleanup_completed != TRUE}
 <input type="hidden" name="phase6">
@@ -312,21 +316,21 @@ FIXME: Todo.
 
 <hr>
 <div class="plugin-actions">
-    {if $file_uploaded != TRUE}
-    {t}Continue here, when ready{/t}: <button type='submit' name='fileup'>{t 1="2/9"}Select User Templates (Step %1){/t}</button>
-    {elseif $templates_selected != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_template_selected" value="{t 1="3/9"}Check and Sort CSV Data (Step %1){/t}" type ="submit">
-    {elseif $data_sorted != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t 1="4/9"}Review group objects (Step %1){/t}" type ="submit">
-    {elseif $groups_reviewed != TRUE}
-    {t}Continue here, when ready (this can take a while...){/t}: <input name="btn_data_sorted" value="{t 1="5/9"}Import group objects into LDAP (Step %1){/t}" type ="submit">
-    {elseif $groups_imported != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t 1="6/9"}Review user account objects (Step %1){/t}" type ="submit">
-    {elseif $accounts_reviewed != TRUE}
-    {t}Continue here, when ready (this can take a while...){/t}: <input name="btn_accounts_reviewed" value="{t 1="7/9"}Import user account objects into LDAP (Step %1){/t}" type ="submit">
-    {elseif $accounts_imported != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_accounts_reviewed" value="{t 1="8/9"}Some post-import clean-ups (Step %1){/t}" type ="submit">
-    {elseif $cleanup_completed != TRUE}
-    {t}Continue here, when ready{/t}: <input name="btn_accounts_reviewed" value="{t 1="9/9"}Finish LDAP import (Step %1){/t}" type ="submit">
-    {/if}
+	{if $file_uploaded != TRUE}
+	{t}Continue here, when ready{/t}: <button type='submit' name='fileup'>{t 1="2/9"}Select User Templates (Step %1){/t}</button>
+	{elseif $templates_selected != TRUE}
+	{t}Continue here, when ready{/t}: <input name="btn_template_selected" value="{t 1="3/9"}Check and Sort CSV Data (Step %1){/t}" type ="submit">
+	{elseif $data_sorted != TRUE}
+	{t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t 1="4/9"}Review group objects (Step %1){/t}" type ="submit">
+	{elseif $groups_reviewed != TRUE}
+	{t}Continue here, when ready (this can take a while...){/t}: <input name="btn_data_sorted" value="{t 1="5/9"}Import group objects into LDAP (Step %1){/t}" type ="submit">
+	{elseif $groups_imported != TRUE}
+	{t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t 1="6/9"}Review user account objects (Step %1){/t}" type ="submit">
+	{elseif $accounts_reviewed != TRUE}
+	{t}Continue here, when ready (this can take a while...){/t}: <input name="btn_accounts_reviewed" value="{t 1="7/9"}Import user account objects into LDAP (Step %1){/t}" type ="submit">
+	{elseif $accounts_imported != TRUE}
+	{t}Continue here, when ready{/t}: <input name="btn_accounts_reviewed" value="{t 1="8/9"}Some post-import clean-ups (Step %1){/t}" type ="submit">
+	{elseif $cleanup_completed != TRUE}
+	{t}Continue here, when ready{/t}: <input name="btn_accounts_reviewed" value="{t 1="9/9"}Finish LDAP import (Step %1){/t}" type ="submit">
+	{/if}
 </div>

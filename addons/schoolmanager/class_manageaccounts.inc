@@ -250,8 +250,8 @@ class manageaccounts extends plugin{
         }
 
         /*
-         * PHASE 2: After the admin has assigned available user object templates,
-         *          we will display the CSV data and allow assigned columns
+         * PHASE 2: After the admin has configured the import options,
+         *          we will display the CSV data and allow the admin to assign
          *          LDAP attributes to columns in the CSV file.
          *
          *          NOTE: For the sake of better readibility, we turn the CSV
