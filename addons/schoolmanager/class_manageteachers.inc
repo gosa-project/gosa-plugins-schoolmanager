@@ -128,7 +128,7 @@ class manageteachers extends manageaccounts {
                 $teacher['dateOfBirth']=array ($_dateOfBirth);
                 $teacher['_template']=array($this->csvinfo['template_main']);
                 $teacher['_status']=array('unchecked');
-                $teacher['_action']=array('none');
+                $teacher['_actions']=array('none');
 
                  /* groups for this account */
 
@@ -158,10 +158,10 @@ class manageteachers extends manageaccounts {
                                     'posixGroup'
                                 ),
                                 'cn' => array('class_'.$_class),
-                                'description' => array('SchoolManager class group class_'.$_subject),
+                                'description' => array('SchoolManager class group class_'.$_class),
                                 'mail' => array('class_'.$_class.'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
-                                '_action' => array('none')
+                                '_actions' => array('none')
                             );
                         }
                     }
@@ -184,7 +184,7 @@ class manageteachers extends manageaccounts {
                                 'description' => array('SchoolManager subject group subject_'.$_subject),
                                 'mail' => array('subject_'.$_subject.'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
-                                '_action' => array('none')
+                                '_actions' => array('none')
                             );
                         }
                     }
@@ -206,7 +206,7 @@ class manageteachers extends manageaccounts {
                                 'description' => array('SchoolManager course group course_'.$row_sorted[$key]),
                                 'mail' => array('course_'.trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
-                                '_action' => array('none')
+                                '_actions' => array('none')
                             );
                         }
                     }

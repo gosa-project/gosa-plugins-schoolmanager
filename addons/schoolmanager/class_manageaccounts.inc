@@ -115,7 +115,7 @@ class manageaccounts extends plugin{
         $smarty->assign ("cleanup_completed",0);
 
         /* Get the LDAP link, to generate the Export */
-        $ldap=$this->config->get_ldap_link ();
+        $this->_ldap=$this->config->get_ldap_link ();
 
         /* initialize CSV Info array */
         if (!is_array ($this->csvinfo)) {
@@ -207,7 +207,7 @@ class manageaccounts extends plugin{
 
                         /* Search all Templates    */
                         $this->csvinfo['templates'] = array();
-                        $this->csvinfo['templates']['ldapsearch'] = $ldap->search("(objectClass=gosaUserTemplate)",array("*"));
+                        $this->csvinfo['templates']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaUserTemplate)",array("*"));
 
                         /* add the "None" template first */
                         $this->csvinfo['templates']['formfields'] = array();
@@ -216,7 +216,7 @@ class manageaccounts extends plugin{
                         $this->csvinfo['templates']['DNs'][]   = "";
 
                         /* add found gosaUserTemplate objects */
-                        while($result = $ldap->fetch($this->csvinfo['templates']['ldapsearch'])){
+                        while($result = $this->_ldap->fetch($this->csvinfo['templates']['ldapsearch'])){
                             $this->csvinfo['templates']['formfields'][] = $result['sn'][0]." - ".$this->config->idepartments[preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/')."/i", "", $result['dn'])];
                             $this->csvinfo['templates']['DNs'][] = $result['dn'];
                         }
@@ -225,14 +225,14 @@ class manageaccounts extends plugin{
 
                         /* Search OUs with objectClass gosaDepartment */
                         $this->csvinfo['ou_tree'] = array();
-                        $this->csvinfo['ou_tree']['ldapsearch'] = $ldap->search("(objectClass=gosaDepartment)",array("ou","description"));
+                        $this->csvinfo['ou_tree']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaDepartment)",array("ou","description"));
 
                         /* create arrays for search results */
                         $this->csvinfo['ou_tree']['formfields'] = array();
                         $this->csvinfo['ou_tree']['OUs'] = array();
 
                         /* add found gosaDepartment objects */
-                        while($result = $ldap->fetch($this->csvinfo['ou_tree']['ldapsearch'])) {
+                        while($result = $this->_ldap->fetch($this->csvinfo['ou_tree']['ldapsearch'])) {
                             $this->csvinfo['ou_tree']['OUs'][] = $result['ou'][0];
                             $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0]." - ".$result['description'][0];
                             $this->csvinfo['ou_tree']['DNs'][] = $result['dn'];
@@ -449,8 +449,9 @@ class manageaccounts extends plugin{
             foreach($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data)
             {
 
-                /* only perform on this group if _action is other than none... */
-                if(strpos($group_data['_action'][0],'none')===FALSE)
+
+                /* only perform on this group if _actions is not "none" */
+                if(strpos($group_data['_actions'][0],'none')===FALSE)
                 {
 
                     $this->importLDAPGroupObject($group_name, $group_data);
@@ -515,11 +516,12 @@ class manageaccounts extends plugin{
                 if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
                 {
 
-                    /* only perform on this group if _action is other than none... */
-                    if(strpos($user_data['main_account']['_action'][0],'skip')===FALSE)
+                    /* only perform on this group if _actions does not contain "skip"... */
+                    if(strpos($user_data['main_account']['_actions'][0],'skip')===FALSE)
                     {
 
                         $this->importLDAPUserObject($user_data['main_account']);
+                        $this->addLDAPUserObjectToGroups($user_data['main_account'], $user_data['groups']);
 
                     }
                 }
@@ -683,11 +685,13 @@ class manageaccounts extends plugin{
         return array();
     }
 
-    function compareObjects($object_a, $object_b, $attrs=array("sn", "givenName"))
+    function compareObjects($object_a, $object_b, $attrs=array("sn", "givenName"), $prefix="")
     {
-        $success = TRUE;
+
+        $unequal = array();
         foreach ($attrs as $key => $attr)
         {
+
             $val_a = $val_b = NULL;
             if (isset($object_a[$attr][0]))
             {
@@ -700,39 +704,45 @@ class manageaccounts extends plugin{
 
             if ($val_a!==$val_b)
             {
-                $success = FALSE;
-                break;
+                $unequal[] = $prefix.$attr;
             }
         }
-        return $success;
+        if(empty($unequal))
+        {
+            /* if TRUE is returned, objects regarding the given attributes are identical */
+
+            return TRUE;
+        }
+        else {
+            /* otherwise return those attribute names that did not give a match */
+            return $unequal;
+        }
     }
 
     function accountStatusCheck()
     {
-        $ldap = $this->config->get_ldap_link();
-
         /*
          * This all may get us in deep trouble on huge LDAP databases
          * when memory limits and/or execution time in PHP are set too low.
          */
 
-        $ldapsearch = $ldap->search("(objectClass=gosaAccount)",array("sn","givenName","gender","dateOfBirth", "mail"));
+        $ldapsearch = $this->_ldap->search("(objectClass=gosaAccount)",array("sn","givenName","gender","dateOfBirth", "mail"));
 
         /* this will probably scale very very badly... Improvement needed. Suggestions? */
-        while ($gosa_account = $ldap->fetch($ldapsearch))
+        while ($gosa_account = $this->_ldap->fetch($ldapsearch))
         {
             foreach ($this->csvinfo['data_preldap'] as $key => $row)
             {
                 if (isset($row['main_account']))
                 {
-                    if ($this->compareObjects($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth")))
+                    if ($this->compareObjects($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth"))===TRUE)
                     {
                         $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'exists';
                         /*
                          * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
                          *        Later, we need to make actions more configurable...
                          */
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_action'][0]= 'skip';
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'skip';
 
                         /* break out of the inner loop if the $gosa_account has been found */
                         break;
@@ -742,7 +752,7 @@ class manageaccounts extends plugin{
                 {
                     foreach ($row['aux_accounts'] as $aux_key => $aux_account)
                     {
-                        if ($this->compareObjects($aux_account, $gosa_account, array("sn", "givenName", "mail")))
+                        if ($this->compareObjects($aux_account, $gosa_account, array("sn", "givenName", "mail"))===TRUE)
                         {
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'exists';
                             /*
@@ -765,7 +775,7 @@ class manageaccounts extends plugin{
                 if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]== 'unchecked')
                 {
                     $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'not-found';
-                    $this->csvinfo['data_preldap'][$key]['main_account']['_action'][0]= 'create';
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'create';
                 }
                 if (isset($row['aux_accounts']))
                 {
@@ -774,7 +784,7 @@ class manageaccounts extends plugin{
                         if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]== 'unchecked')
                         {
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'not-found';
-                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_action'][0]= 'create';
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_actions'][0]= 'create';
                         }
                     }
                 }
@@ -805,10 +815,10 @@ class manageaccounts extends plugin{
     function groupStatusCheck()
     {
         $ldap = $this->config->get_ldap_link();
-        $ldapsearch = $ldap->search("(objectClass=posixGroup)",array("cn","memberUid","mail"));
+        $ldapsearch = $this->_ldap->search("(objectClass=posixGroup)",array("cn","memberUid","mail", "description"));
 
         /* this will probably scale very very badly... Improvement needed. Suggestions? */
-        while ($gosa_posix_group = $ldap->fetch($ldapsearch))
+        while ($gosa_posix_group = $this->_ldap->fetch($ldapsearch))
         {
             foreach ($this->csvinfo['data_preldap'] as $key => $row)
             {
@@ -816,41 +826,55 @@ class manageaccounts extends plugin{
                 {
                     foreach ($row['groups'] as $group_key => $group)
                     {
-                        if ($this->compareObjects($group, $gosa_posix_group, array("cn", "mail")))
+
+                        $_break_out_of_inner_loop= FALSE;
+
+                        /* detect status */
+                        if ($this->compareObjects($group, $gosa_posix_group, array("cn"))===TRUE)
                         {
-                            $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'exists';
-                            /*
-                             * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
-                             *        Later, we need to make actions more configurable...
-                             */
-                            if(
-                               ($this->csvinfo['flush_members']) and
-                               (isset($gosa_posix_group['memberUid']['count']) && ($gosa_posix_group['memberUid']['count'] > 0))
-                              )
+                            $expected_group_dn= 'cn='.$group['cn'][0].','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
+                            $gosa_group_dn= $gosa_posix_group['dn'];
+                            if(strtolower($gosa_group_dn)==strtolower($expected_group_dn))
                             {
-                                $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'drop-all-members';
+                                $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'exists';
                             }
                             else {
-                                $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'none';
+                                $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'exists-elsewhere';
                             }
                         }
-                        elseif ($this->compareObjects($group, $gosa_posix_group, array("cn")))
+
+                        /* detect actions */
+                        $_actions= array();
+                        if($this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]==='exists-elsewhere')
                         {
-                            $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'exists';
-                            /*
-                             * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
-                             *        Later, we need to make actions more configurable...
-                             */
+                            $_actions[]= "move";
+                        }
+                        if ($this->compareObjects($group, $gosa_posix_group, array("cn"))===TRUE)
+                        {
+
+                            /* if group exists, check for to-be-dropped members */
                             if(
                                ($this->csvinfo['flush_members']) and
                                (isset($gosa_posix_group['memberUid']['count']) && ($gosa_posix_group['memberUid']['count'] > 0))
                               )
                             {
-                                $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'drop-all-members,update';
+                                $_actions[]= "flush-all-members";
+                            }
+                            $_check_attrs= $this->compareObjects($group, $gosa_posix_group, array("mail","description"), "update-");
+                            if ($_check_attrs===TRUE)
+                            {
                             }
                             else {
-                                $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'update';
+                                $_actions= array_merge($_actions, $_check_attrs);
                             }
+                            /* no action detected? Set $_actions to ("none") */
+
+                            /* no action found till here, set the "none" action */
+                            if(empty($_actions))
+                            {
+                                $_actions[]= "none";
+                            }
+                            $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_actions'][0]= implode(",", $_actions);
 
                             /* break out of the inner loop if the $gosa_account has been found */
                             break;
@@ -870,7 +894,7 @@ class manageaccounts extends plugin{
                     if ($this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]== 'unchecked')
                     {
                         $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'not-found';
-                        $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_action'][0]= 'create';
+                        $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_actions'][0]= 'create';
                     }
 
                     /* grab posix groups (classes, courses) into their own array */
@@ -918,9 +942,44 @@ class manageaccounts extends plugin{
 
     function importLDAPGroupObject($group_name, $group_data)
     {
+        if((strpos($group_data['_actions'][0],'move')!==FALSE) or (strpos($group_data['_actions'][0],'move')!==FALSE))
+        {
 
-        /* Retrieve group object from LDAP via GOsa²'s API */
-        $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou='.$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
+            /* Instantiate a new group object via GOsa²'s API */
+
+            $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'new', "groups" );
+            $grouptab->by_object['group']->base= $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
+
+        }
+        else{
+
+            /* Retrieve group object from LDAP via GOsa²'s API */
+            $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
+
+        }
+
+        if(strpos($group_data['_actions'][0],'move')!==FALSE)
+        {
+            /* copy properties from source grouptabs object into our new grouptabs objects */
+
+            $_ldapsearch= $this->_ldap->search("(&(objectClass=posixGroup)(cn=".$group_name."))", array("*"));
+
+            /* There should only be _ONE_ object of this CN in the given LDAP (sub)tree scope.
+             * Thus, only fetching the first obejct.
+             */
+            $source= $this->_ldap->fetch("(&(objectClass=posixGroup)(memberUid=".$source['uid'][0]."))", array("cn", "description"));
+            var_dump($source);
+            echo "<br>";
+            if(!empty($source))
+            {
+                foreach($grouptab->by_object as $pname => $plugin)
+                {
+                    print "$pname<br>";
+                    $grouptab->by_object[$pname]->prepareForCopyPaste($source);
+                }
+                $remove_later_grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],$source['dn'], "groups" );
+            }
+        }
 
         /*
          * FIXME: Create ou prior to populating it...
@@ -929,12 +988,18 @@ class manageaccounts extends plugin{
         /* Collect group properties from $group_data */
         $_group_properties= array(
             "cn" => $group_data['cn'][0],
-            "description" => $group_data['description'][0]
         );
-        if((strpos($group_data['_action'][0],'update')!==FALSE) || (strpos($group_data['_action'][0],'create')!==FALSE))
+        if((strpos($group_data['_actions'][0],'update-description')!==FALSE) || (strpos($group_data['_actions'][0],'create')!==FALSE))
+        {
+            $_group_properties["description"]= $group_data['description'][0];
+        }
+        if((strpos($group_data['_actions'][0],'update-mail')!==FALSE) || (strpos($group_data['_actions'][0],'create')!==FALSE))
         {
             $_group_properties["mail"]= $group_data['mail'][0];
         }
+
+        var_dump($_group_properties);
+        echo "<br>";
 
         /*
          * FIXME: Make mail address creation (from CN) configurable somewhere...
@@ -959,7 +1024,7 @@ class manageaccounts extends plugin{
         }
 
         /* Drop all group members, if requested */
-        if(strpos($group_data['_action'][0],'drop-all-members')!==FALSE)
+        if(strpos($group_data['_actions'][0],'flush-all-members')!==FALSE)
         {
             $group_members=$grouptab->by_object['group']->memberUid;
             foreach($group_members as $group_member)
@@ -969,16 +1034,36 @@ class manageaccounts extends plugin{
         }
 
         /* Run GOsa²'s groups/group checks */
-        $grouptab->check();
-        /* Save group object to LDAP */
-        $grouptab->save();
+        if(count($grouptab->check()))
+        {
+            print $this->grouptab->by_object['group']->base."<br>";
+            msg_dialog::displayChecks($grouptab->check());
+
+            /*
+             * FIXME: collect failure statistics here!!!
+             */
+
+            $this->failure_in_this_phase= TRUE;
+
+        } else
+        {
+
+            if(isset($remove_later_grouptab))
+            {
+                print "DELETING<br>";
+                $remove_later_grouptab->delete();
+            }
+            /* Save group object to LDAP */
+            $grouptab->save();
+
+        }
 
         /* Present a status update in GOsa²''s logging system (/var/log/syslog mostly) */
-        if(strpos($group_data['_action'][0],'create')!==FALSE)
+        if(strpos($group_data['_actions'][0],'create')!==FALSE)
         {
             new log("create","groups/group",$grouptab->dn, array(), "New group created via SchoolManager add-on.");
         }
-        elseif(strpos($group_data['_action'][0],'none')!==FALSE) {
+        elseif(strpos($group_data['_actions'][0],'none')!==FALSE) {
             new log("modify","groups/group",$grouptab->dn, array(), "Existing group modified via SchoolManager add-on.");
         }
     }
@@ -987,12 +1072,12 @@ class manageaccounts extends plugin{
     function importLDAPUserObject($user_data)
     {
 
-        if((strpos($user_data['_action'][0],'update')!==FALSE) || (strpos($user_data['_action'][0],'create')!==FALSE))
+        if((strpos($user_data['_actions'][0],'update')!==FALSE) || (strpos($user_data['_actions'][0],'create')!==FALSE))
         {
 
             $_user_properties_base= array();
             $_user_properties_extras= array();
-            if (strpos($user_data['_action'][0],'create')!==FALSE)
+            if (strpos($user_data['_actions'][0],'create')!==FALSE)
             {
                 /* instantiate a new user object */
                 $usertab= new usertabs($this->config, $this->config->data['TABS']['USERTABS'],'new');
@@ -1036,7 +1121,7 @@ class manageaccounts extends plugin{
                 }
             }
             if (
-                (strpos($user_data['_action'][0],'create')!==FALSE) &&
+                (strpos($user_data['_actions'][0],'create')!==FALSE) &&
                 ($user_data['_template'][0] != 0)
                )
             {
@@ -1085,13 +1170,22 @@ class manageaccounts extends plugin{
             }
 
             /* Present a status update in GOsa²''s logging system (/var/log/syslog mostly) */
-            if(strpos($user_data['_action'][0],'create')!==FALSE)
+            if(strpos($user_data['_actions'][0],'create')!==FALSE)
             {
                 new log("create","users/user",$usertab->dn, array(), "New user created via SchoolManager add-on.");
             }
-            elseif(strpos($user_data['_action'][0],'none')!==FALSE) {
+            elseif(strpos($user_data['_actions'][0],'none')!==FALSE) {
                 new log("modify","users/user",$usertab->dn, array(), "Existing user modified via SchoolManager add-on.");
             }
+        }
+    }
+
+    function addLDAPUserObjectToGroups($user_data, $groups_data)
+    {
+        foreach($groups_data as $idx => $group_data)
+        {
+        //     /* Retrieve group object from LDAP via GOsa²'s API */
+        //    $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou='.$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
         }
     }
 }

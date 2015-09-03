@@ -137,7 +137,7 @@ class managestudents extends manageaccounts {
                  */
                 $student['_template']=array($this->csvinfo['template_main']);
                 $student['_status']=array('unchecked');
-                $student['_action']=array('none');
+                $student['_actions']=array('none');
 
                 /* auxiliary accounts */
                 $parent1=array ();
@@ -147,7 +147,7 @@ class managestudents extends manageaccounts {
                 /* see above for how to retrieve the template's DN */
                 $parent1['_template']=array($this->csvinfo['template_aux']);
                 $parent1['_status']=array('unchecked');
-                $parent1['_action']=array('none');
+                $parent1['_actions']=array('none');
 
                 $parent2=array ();
                 $parent2['sn']=array (trim($row_sorted['parent2_sn']));
@@ -156,7 +156,7 @@ class managestudents extends manageaccounts {
                 /* see above for how to retrieve the template's DN */
                 $parent2['_template']=array(trim($this->csvinfo['template_aux']));
                 $parent2['_status']=array('unchecked');
-                $parent2['_action']=array('none');
+                $parent2['_actions']=array('none');
 
                 /* groups for this account */
 
@@ -183,7 +183,7 @@ class managestudents extends manageaccounts {
                     $class_group['description']= array("SchoolManager class group ".$class_group['cn'][0]);
                     $class_group['mail']= array($class_group['cn'][0].'@'.$this->csvinfo['domain_groups']);
                     $class_group['_status']= array('unchecked');
-                    $class_group['_action']= array('none');
+                    $class_group['_actions']= array('none');
                 }
 
                 /* course groups */
@@ -201,7 +201,7 @@ class managestudents extends manageaccounts {
                                 'description' => array('SchoolManager course group course_'.$row_sorted[$key]),
                                 'mail' => array('course_'.trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
-                                '_action' => array('none')
+                                '_actions' => array('none')
                             );
                         }
                     }
@@ -217,7 +217,7 @@ class managestudents extends manageaccounts {
                     '{%dn[parent2]}'
                 );
                 $parent_group['_status']=array('none');
-                $parent_group['_action']=array('skip');
+                $parent_group['_actions']=array('skip');
 
                 $groups= array();
                 if (!empty($class_group))    { $groups= array_merge($groups, array($class_group)); }
