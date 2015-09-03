@@ -968,8 +968,6 @@ class manageaccounts extends plugin{
              * Thus, only fetching the first obejct.
              */
             $source= $this->_ldap->fetch("(&(objectClass=posixGroup)(memberUid=".$source['uid'][0]."))", array("cn", "description"));
-            var_dump($source);
-            echo "<br>";
             if(!empty($source))
             {
                 foreach($grouptab->by_object as $pname => $plugin)
@@ -997,9 +995,6 @@ class manageaccounts extends plugin{
         {
             $_group_properties["mail"]= $group_data['mail'][0];
         }
-
-        var_dump($_group_properties);
-        echo "<br>";
 
         /*
          * FIXME: Make mail address creation (from CN) configurable somewhere...
