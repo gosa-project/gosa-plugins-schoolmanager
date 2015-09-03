@@ -1072,7 +1072,7 @@ class manageaccounts extends plugin{
 
                 $usertab->save();
 
-                if(!change_password($usertab->dn,$_user_properties['userPassword'],FALSE,'','', $message)){
+                if(!change_password($usertab->dn,$user_data['userPassword'][0],FALSE,'','', $message)){
                     msg_dialog::displayChecks(array($message));
                 }
             }
