@@ -68,8 +68,8 @@ FIXMEs:
 			<LABEL for="template_students">{t}Select template for student accounts{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="template_students" name="template_students" size="1" title="">
-			{html_options options=$templates selected=""}
+			<select id="template_students" name="template_students"  size="1" title="">
+			{html_options options=$templates selected=$preset_template_students}
 			</select>
 		</td>
 	</tr>
@@ -79,8 +79,8 @@ FIXMEs:
 			<LABEL for="template_students_aux">{t}Select template for parent accounts{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="template_students_aux" name="template_students_aux" size="1" title="">
-			{html_options options=$templates selected=""}
+			<select id="template_students_aux" name="template_students_aux"  size="1" title="">
+			{html_options options=$templates selected=$preset_template_students_aux}
 			</select>
 		</td>
 	</tr>
@@ -99,7 +99,7 @@ FIXMEs:
 		</td>
 		<td style="vertical-align: middle;">
 			<select id="template_teachers" name="template_teachers" size="1" title="">
-			{html_options options=$templates selected=""}
+			{html_options options=$templates selected=$preset_template_teachers}
 			</select>
 		</td>
 	</tr>
@@ -113,11 +113,11 @@ FIXMEs:
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="ou">{t}Select OU for new groups{/t}</LABEL>
+			<LABEL for="ou_groups">{t}Select OU for new groups{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="ou" name="ou" size="1" title="">
-			{html_options options=$ou selected=""}
+			<select id="ou_groups" name="ou_groups" size="1" title="">
+			{html_options options=$ous_available selected=$preset_ou_groups}
 			</select>
 		</td>
 	</tr>
@@ -129,11 +129,11 @@ FIXMEs:
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="domain">{t}Mail domain for new groups{/t}</LABEL>
+			<LABEL for="domain_groups">{t}Mail domain for new groups{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 			@
-			<input type="text" id="domain" name="domain">
+			<input type="text" id="domain_groups" name="domain_groups" value="{$preset_domain_groups}">
 		</td>
 	</tr>
 	<tr>
@@ -147,7 +147,11 @@ FIXMEs:
 			<LABEL for="flush_members">{t}Flush members from course and class groups?{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
+{if $preset_flush_members}
+			<input type="checkbox" id="flush_members" name="flush_members" checked>
+{else}
 			<input type="checkbox" id="flush_members" name="flush_members">
+{/if}
 			{t}(tick this check box, if yes){/t}
 		</td>
 	</tr>

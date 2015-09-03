@@ -96,6 +96,13 @@ class manageaccounts extends plugin{
         /* PHASE 2 done, set $import_configured to TRUE  */
         $smarty->assign ("import_configured",0);
 
+        /* import configuration defaults */
+        $this->csvinfo["template_main"]= 0;
+        $this->csvinfo["template_aux"]= 0;
+        $this->csvinfo['ou_groups']= 0;
+        $this->csvinfo['domain_groups']= "intern";
+        $this->csvinfo['flush_members']= FALSE;
+
         /* PHASE 3 done, set $data_sorted to TRUE  */
         $smarty->assign ("data_sorted",0);
 
@@ -224,21 +231,28 @@ class manageaccounts extends plugin{
                         $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
 
                         /* Search OUs with objectClass gosaDepartment */
-                        $this->csvinfo['ou'] = array();
-                        $this->csvinfo['ou']['ldapsearch'] = $ldap->search("(objectClass=gosaDepartment)",array("ou","description"));
+                        $this->csvinfo['ou_tree'] = array();
+                        $this->csvinfo['ou_tree']['ldapsearch'] = $ldap->search("(objectClass=gosaDepartment)",array("ou","description"));
 
                         /* create arrays for search results */
-                        $this->csvinfo['ou']['formfields'] = array();
-                        $this->csvinfo['ou']['OUs'] = array();
+                        $this->csvinfo['ou_tree']['formfields'] = array();
+                        $this->csvinfo['ou_tree']['OUs'] = array();
 
                         /* add found gosaDepartment objects */
-                        while($result = $ldap->fetch($this->csvinfo['ou']['ldapsearch'])) {
-                            $this->csvinfo['ou']['OUs'][] = $result['ou'][0];
-                            $this->csvinfo['ou']['formfields'][] = $result['ou'][0]." - ".$result['description'][0];
+                        while($result = $ldap->fetch($this->csvinfo['ou_tree']['ldapsearch'])) {
+                            $this->csvinfo['ou_tree']['OUs'][] = $result['ou'][0];
+                            $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0]." - ".$result['description'][0];
+                            $this->csvinfo['ou_tree']['DNs'][] = $result['dn'];
                         }
 
-                        $smarty->assign("ou",$this->csvinfo['ou']['formfields']);
+                        $smarty->assign("ous_available",$this->csvinfo['ou_tree']['formfields']);
 
+                        /* provide pre-set values for account template forms */
+                        $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
+                        $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
+                        $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+                        $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
+                        $smarty->assign("preset_flush_members", $this->csvinfo['flush_members']);
                     }
                     else {
                         $smarty->assign ("LDIFError",TRUE);
@@ -262,23 +276,26 @@ class manageaccounts extends plugin{
             $smarty->assign ("file_uploaded",TRUE);
 
             /* configure options */
-            if (isset ($_POST["template_".$import_account_type]) and isset ($_POST["ou"]) and isset ($_POST["domain"]))
+            if (isset ($_POST["template_".$import_account_type]) and isset ($_POST["ou_groups"]) and isset ($_POST["domain_groups"]))
             {
                 $this->csvinfo['template_main'] = $_POST["template_".$import_account_type];
-                $this->csvinfo['ou_groups'] = $this->csvinfo['ou']['OUs'][$_POST["ou"]];
 
-                if(empty($_POST["domain"]))
+                /* Obtain the OU name like this: $this->csvinfo['ou_tree']['OUs'][$this->csvinfo['ou_groups']] */
+                $this->csvinfo['ou_groups'] = $_POST["ou_groups"];
+
+                if(empty($_POST["domain_groups"]))
                 {
+                    $this->csvinfo['domain_groups']= "";
                     $smarty->assign ("LDIFError",TRUE);
                     msg_dialog::display (_ ("Error"),_ ("Domain for new groups is empty!"),ERROR_DIALOG);
                     $this->failure_in_this_phase= TRUE;
 
-                } elseif(substr($_POST["domain"],0,1) == "@")
+                } elseif(substr($_POST["domain_groups"],0,1) == "@")
                 {
-                    $this->csvinfo['domain_groups'] = substr($_POST["domain"],1,strlen($_POST["domain"]));
+                    $this->csvinfo['domain_groups'] = substr($_POST["domain_groups"],1,strlen($_POST["domain_groups"]));
                 } else
                 {
-                    $this->csvinfo['domain_groups'] = $_POST["domain"];
+                    $this->csvinfo['domain_groups'] = $_POST["domain_groups"];
                 }
 
                 if (isset ($_POST["template_".$import_account_type."_aux"]))
@@ -314,7 +331,12 @@ class manageaccounts extends plugin{
                 else {
                     /* prepare for reloading this phase's web page again */
                     $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
-                    $smarty->assign("ou",$this->csvinfo['ou']['formfields']);
+                    $smarty->assign("ous_available",$this->csvinfo['ou_tree']['formfields']);
+                    $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
+                    $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
+                    $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+                    $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
+                    $smarty->assign("preset_flush_members", $this->csvinfo['flush_members']);
                 }
             }
         }
@@ -895,7 +917,7 @@ class manageaccounts extends plugin{
     {
 
         /* Retrieve group object from LDAP via GOsa²'s API */
-        $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou='.$this->csvinfo['ou_groups'].','.$this->config->current['BASE'], "groups" );
+        $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou='.$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
 
         /*
          * FIXME: Create ou prior to populating it...
