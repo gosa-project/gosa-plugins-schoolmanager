@@ -509,6 +509,7 @@ class manageaccounts extends plugin{
              * Add users to / update users in LDAP
              */
 
+            $posixgroup_members= array();
             foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
             {
 
@@ -516,13 +517,19 @@ class manageaccounts extends plugin{
                 if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
                 {
 
-                    /* only perform on this group if _actions does not contain "skip"... */
-                    if(strpos($user_data['main_account']['_actions'][0],'skip')===FALSE)
+                    $this->importLDAPUserObject($user_data['main_account']);
+
+                    /* Collect group memberships of each user (main) account */
+
+                    $_uid= $user_data['main_account']['uid'][0];
+                    foreach($user_data['groups'] as $group_data)
                     {
-
-                        $this->importLDAPUserObject($user_data['main_account']);
-                        $this->addLDAPUserObjectToGroups($user_data['main_account'], $user_data['groups']);
-
+                        $_group_name= $group_data['cn'][0];
+                        if (!in_array($_group_name, array_keys($posixgroup_members)))
+                        {
+                            $posixgroup_members[$_group_name]= array();
+                        }
+                        $posixgroup_members[$_group_name][]= $_uid;
                     }
                 }
 
@@ -536,6 +543,8 @@ class manageaccounts extends plugin{
                     }
                 }
             }
+
+            $this->addLDAPUserObjectsToGroups($posixgroup_members);
 
             $this->accountStatusCheck();
             if (!$this->failure_in_this_phase)
@@ -1062,6 +1071,11 @@ class manageaccounts extends plugin{
 
     function importLDAPUserObject($user_data)
     {
+        /* only perform on this group if _actions does not contain "skip"... */
+        if(strpos($user_data['main_account']['_actions'][0],'skip')===FALSE)
+        {
+            return;
+        }
 
         if((strpos($user_data['_actions'][0],'update')!==FALSE) || (strpos($user_data['_actions'][0],'create')!==FALSE))
         {
@@ -1171,12 +1185,36 @@ class manageaccounts extends plugin{
         }
     }
 
-    function addLDAPUserObjectToGroups($user_data, $groups_data)
+    function addLDAPUserObjectsToGroups($group_members_data)
     {
-        foreach($groups_data as $idx => $group_data)
+        foreach($group_members_data as $group_name => $new_members)
         {
-        //     /* Retrieve group object from LDAP via GOsa²'s API */
-        //    $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().'ou='.$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
+            $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
+
+            $current_members=$grouptab->by_object['group']->memberUid;
+            foreach($new_members as $new_member)
+            {
+                if(!in_array($new_member, $current_members))
+                {
+                    $grouptab->by_object['group']->addUser($new_member);
+                }
+            }
+            /* Run GOsa²'s groups/group checks */
+            if(count($grouptab->check()))
+            {
+                msg_dialog::displayChecks($grouptab->check());
+
+                /*
+                 * FIXME: collect failure statistics here!!!
+                 */
+
+                $this->failure_in_this_phase= TRUE;
+
+            } else
+            {
+                /* Save group object to LDAP */
+                $grouptab->save();
+            }
         }
     }
 
