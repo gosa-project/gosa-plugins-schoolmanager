@@ -38,30 +38,32 @@
 </table>
 
 
-<!-- PHASE 2: Selecting templates -->
+<!-- PHASE 2: Configuring import options -->
 
-{elseif $templates_selected != TRUE}
+{elseif $import_configured != TRUE}
 <input type="hidden" name="phase2">
 
-<br><h3>{t 1="2/9"}STEP %1: Select user object templates{/t}</h3>
+<br><h3>{t 1="2/9"}STEP %1: Configure import options{/t}</h3>
 
-{if $import_account_type == 'students'}
-	<p>
-	{t}Please choose from the available GOsa2 user object templates what account templates to use for students and for their parents.{/t}
-	<br><br>
-	FIXME: Provide a checkbox to disable parent imports.
-	</p>
-{/if}
-{if $import_account_type == 'teachers'}
-	<p>
-	{t}Please choose from the available GOsa2 user object templates what account template to use for teachers.{/t}
-	</p>
-{/if}
+<p>
+{t}School Manager's import functionality is very flexible and can be adapted to your needs. Please configure options of this import below.{/t}
+</p>
 
+FIXMEs:
+<ul>
+	<li>Provide a checkbox to disable parent imports.
+</ul>
 
 <table summary="{t}Select user object templates{/t}">
 	{if $import_account_type == 'students'}
 	<tr>
+		<td colspan="3">
+			<hr>
+			<p>{t}Please choose from the available GOsa2 user object templates what account templates to use for students and for their parents.{/t}</p>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
 			<LABEL for="template">{t}Select template for student accounts{/t}</LABEL>
 		</td>
@@ -84,6 +86,13 @@
 	{/if}
 	{if $import_account_type == 'teachers'}
 	<tr>
+		<td colspan="3">
+			<hr>
+			{t}Please choose from the available GOsa2 user object templates what account template to use for teachers.{/t}
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
 			<LABEL for="template">{t}Select template for teacher accounts{/t}</LABEL>
 		</td>
@@ -95,6 +104,13 @@
 	</tr>
 	{/if}
 	<tr>
+		<td colspan="3">
+			<hr>
+			<p>{t}During this import we will probably create several non-primary groups (for classes, courses). Where in the LDAP tree shall these new group objects be created?{/t}</p>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
 			<LABEL for="template">{t}Select OU for new groups{/t}</LABEL>
 		</td>
@@ -105,8 +121,14 @@
 		</td>
 	</tr>
 	<tr>
+		<td colspan="3">
+			<p>{t}And what mail domain should these new groups be in?{/t}</p>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="domain">{t}Type mail domain for new groups{/t}</LABEL>
+			<LABEL for="domain">{t}Mail domain for new groups{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 			@
@@ -318,7 +340,7 @@ FIXME: Todo.
 <div class="plugin-actions">
 	{if $file_uploaded != TRUE}
 	{t}Continue here, when ready{/t}: <button type='submit' name='fileup'>{t 1="2/9"}Select User Templates (Step %1){/t}</button>
-	{elseif $templates_selected != TRUE}
+	{elseif $import_configured != TRUE}
 	{t}Continue here, when ready{/t}: <input name="btn_template_selected" value="{t 1="3/9"}Check and Sort CSV Data (Step %1){/t}" type ="submit">
 	{elseif $data_sorted != TRUE}
 	{t}Continue here, when ready{/t}: <input name="btn_data_sorted" value="{t 1="4/9"}Review group objects (Step %1){/t}" type ="submit">

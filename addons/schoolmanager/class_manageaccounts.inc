@@ -93,8 +93,8 @@ class manageaccounts extends plugin{
         /* PHASE 1 done, set $file_uploaded to TRUE */
         $smarty->assign ("file_uploaded",0);
 
-        /* PHASE 2 done, set $templates_selected to TRUE  */
-        $smarty->assign ("templates_selected",0);
+        /* PHASE 2 done, set $import_configured to TRUE  */
+        $smarty->assign ("import_configured",0);
 
         /* PHASE 3 done, set $data_sorted to TRUE  */
         $smarty->assign ("data_sorted",0);
@@ -283,7 +283,7 @@ class manageaccounts extends plugin{
                     $this->csvinfo['template_aux'] = $_POST["template_".$import_account_type."_aux"];
                 }
                 $smarty->assign ("file_uploaded",TRUE);
-                $smarty->assign ("templates_selected",TRUE);
+                $smarty->assign ("import_configured",TRUE);
 
                 /* initialize $this->csvinfo['attrs_selected'], only do this here and once */
                 $this->csvinfo['attrs_selected']=$this->getAttrsPreSelection($this->csvinfo['num_cols']);
@@ -314,7 +314,7 @@ class manageaccounts extends plugin{
             /* sanity checks on LDAP attributes assignments */
 
             $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("import_configured",TRUE);
 
             /* read attributes assignments from $_POST */
             $new_attrs_selected = array();
@@ -399,7 +399,7 @@ class manageaccounts extends plugin{
         elseif (isset ($_POST['phase4'])) {
 
             $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
             $smarty->assign ("groups_reviewed",TRUE);
 
@@ -442,7 +442,7 @@ class manageaccounts extends plugin{
         elseif (isset ($_POST['phase4_status']))
         {
             $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
             $smarty->assign ("groups_reviewed",TRUE);
 
@@ -481,7 +481,7 @@ class manageaccounts extends plugin{
 
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
             $smarty->assign ("groups_reviewed",TRUE);
             $smarty->assign ("groups_imported",TRUE);
@@ -539,7 +539,7 @@ class manageaccounts extends plugin{
 
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
             $smarty->assign ("groups_reviewed",TRUE);
             $smarty->assign ("groups_imported",TRUE);
@@ -582,7 +582,7 @@ class manageaccounts extends plugin{
 
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("templates_selected",TRUE);
+            $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
             $smarty->assign ("groups_reviewed",TRUE);
             $smarty->assign ("groups_imported",TRUE);
@@ -979,7 +979,6 @@ class manageaccounts extends plugin{
     function importLDAPUserObject($user_data)
     {
 
-        var_dump($user_data);
         if((strpos($user_data['_action'][0],'update')!==FALSE) || (strpos($user_data['_action'][0],'create')!==FALSE))
         {
 
