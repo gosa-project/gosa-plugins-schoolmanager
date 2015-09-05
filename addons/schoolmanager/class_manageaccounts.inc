@@ -1071,7 +1071,7 @@ class manageaccounts extends plugin{
 
     function importLDAPUserObject($user_data)
     {
-        /* only perform on this group if _actions does not contain "skip"... */
+        /* only perform on this user dataset if _actions does not contain "skip"... */
         if(strpos($user_data['main_account']['_actions'][0],'skip')===FALSE)
         {
             return;
