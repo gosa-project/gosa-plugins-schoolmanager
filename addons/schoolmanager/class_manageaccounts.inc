@@ -986,10 +986,6 @@ class manageaccounts extends plugin{
             }
         }
 
-        /*
-         * FIXME: Create ou prior to populating it...
-         */
-
         /* Collect group properties from $group_data */
         $_group_properties= array(
             "cn" => $group_data['cn'][0],
