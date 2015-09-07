@@ -108,6 +108,9 @@ class manageaccounts extends plugin{
         /* PHASE 5 done, set $accounts_reviewed to TRUE  */
         $smarty->assign ("accounts_reviewed",0);
 
+        /* PHASE 5 (group memberships), set accounts_groupmembersupdated to TRUE */
+        $smarty->assign ("accounts_groupmembersupdated",TRUE);
+
         /* PHASE 5 (status after import) done, set $accounts_imported to TRUE  */
         $smarty->assign ("accounts_imported",0);
 
@@ -494,7 +497,8 @@ class manageaccounts extends plugin{
         }
 
         /*
-         * PHASE 5: To-be-created / to-be-updated user accounts have been reviewed, prepare for LDAP import.
+         * PHASE 5: To-be-created / to-be-updated user accounts have been reviewed,
+         *          import accounts into LDAP import.
          */
         elseif (isset ($_POST['phase5'])) {
 
@@ -547,20 +551,21 @@ class manageaccounts extends plugin{
             $this->addLDAPUserObjectsToGroups($posixgroup_members);
 
             $this->accountStatusCheck();
+            $smarty->assign("data",$this->csvinfo['data_preldap']);
             if (!$this->failure_in_this_phase)
             {
                 /* prepare for reloading this phase's web page again */
-                $smarty->assign("data",$this->csvinfo['data_preldap']);
             }
             else {
                 $smarty->assign ("accounts_reviewed",TRUE);
-                $smarty->assign("data",$this->csvinfo['data_preldap']);
             }
         }
         /*
-         * PHASE 5 (status): User accounts have been written to LDAP.
+         * PHASE 5 (group memberships): User accounts have been written to LDAP.
+         *                              Group memberships have been reviewed.
+         *                              Update group memberships in LDAP.
          */
-        elseif (isset ($_POST['phase5_status'])) {
+        elseif (isset ($_POST['phase5_groupmemberships'])) {
 
             /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
@@ -569,6 +574,40 @@ class manageaccounts extends plugin{
             $smarty->assign ("groups_reviewed",TRUE);
             $smarty->assign ("groups_imported",TRUE);
             $smarty->assign ("accounts_reviewed",TRUE);
+
+            /*
+             * FIXME: More post-import checks? Maybe make sure that accounts
+             *        really have been imported before proceeding to the
+             *        clean-up phase (PHASE 6).
+             */
+
+            /* FIXME: present a message dialog box that informs on the statistics of
+             *        the LDAP user import. (How many users got created? How many
+             *        users have been updated or skipped? Etc.
+             */
+
+            $smarty->assign ("accounts_groupmembersupdated",TRUE);
+
+            /*
+             * FIXME: Prepare post-import clean-up actions
+             */
+
+        }
+        /*
+         * PHASE 5 (status): User accounts have been written to LDAP.
+         *                   Group memberships have been updated in LDAP.
+         *                   Show summary page.
+         */
+        elseif (isset ($_POST['phase5_groupmemberships'])) {
+
+            /* Template Handling */
+            $smarty->assign ("file_uploaded",TRUE);
+            $smarty->assign ("import_configured",TRUE);
+            $smarty->assign ("data_sorted",TRUE);
+            $smarty->assign ("groups_reviewed",TRUE);
+            $smarty->assign ("groups_imported",TRUE);
+            $smarty->assign ("accounts_reviewed",TRUE);
+            $smarty->assign ("accounts_groupmembersupdated",TRUE);
 
             /*
              * FIXME: More post-import checks? Maybe make sure that accounts
