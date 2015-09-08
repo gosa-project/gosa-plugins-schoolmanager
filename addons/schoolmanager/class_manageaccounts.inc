@@ -828,7 +828,8 @@ class manageaccounts extends plugin{
                     /* detect status */
                     if ($this->compareObjects($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth"))===TRUE)
                     {
-                        $expected_account_dn= "uid=".$row['main_account']['uid'][0].','.get_people_ou().$this->genAccountBase($row['main_account'], $row['groups']);
+                        $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
+                        $expected_account_dn= "uid=".$row['main_account']['uid'][0].','.get_people_ou().$expected_base;
                         $gosa_account_dn= $gosa_account['dn'];
                         if(strtolower($gosa_account_dn)==strtolower($expected_account_dn))
                         {
@@ -850,8 +851,8 @@ class manageaccounts extends plugin{
                              *        Later, we need to make actions more configurable...
                              */
                             $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'skip';
-
                         }
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_base']= array($expected_base);
                     }
                 }
                 if (isset($row['aux_accounts']))
