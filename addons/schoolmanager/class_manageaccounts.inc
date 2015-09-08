@@ -825,17 +825,33 @@ class manageaccounts extends plugin{
             {
                 if (isset($row['main_account']))
                 {
+                    /* detect status */
                     if ($this->compareObjects($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth"))===TRUE)
                     {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'exists';
-                        /*
-                         * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
-                         *        Later, we need to make actions more configurable...
-                         */
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'skip';
+                        $expected_account_dn= "uid=".$row['main_account']['uid'][0].','.get_people_ou().$this->genAccountBase($row['main_account'], $row['groups']);
+                        $gosa_account_dn= $gosa_account['dn'];
+                        if(strtolower($gosa_account_dn)==strtolower($expected_account_dn))
+                        {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'exists';
+                        }
+                        else {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'exists-elsewhere';
+                        }
 
-                        /* break out of the inner loop if the $gosa_account has been found */
-                        break;
+                        /* detect actions */
+                        if($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]==='exists-elsewhere')
+                        {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'move';
+                        }
+                        elseif($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]==='exists')
+                        {
+                            /*
+                             * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
+                             *        Later, we need to make actions more configurable...
+                             */
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'skip';
+
+                        }
                     }
                 }
                 if (isset($row['aux_accounts']))
@@ -852,7 +868,6 @@ class manageaccounts extends plugin{
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['action'][0]= 'skip';
 
                             /* break out of the inner loop if the $gosa_account has been found */
-                            break;
                         }
                     }
                 }
@@ -1309,12 +1324,45 @@ class manageaccounts extends plugin{
         }
     }
 
+    function genAccountBase($user_data, $groups_data)
+    {
+        if($user_data['_template'][0]!=0)
+        {
+            $template_dn=  $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
+            $template_base= preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/i')."/", '', $template_dn);
+        }
+        else {
+            $template_base= $this->config->current['BASE'];
+        }
+
+        /* Put accounts into a sub-OU of the template's base DN if requested */
+        if($this->csvinfo['accounts_in_class_ou']===TRUE)
+        {
+            $_class_group= "";
+            foreach($groups_data as $group_key => $group_data)
+            {
+
+                if(strpos($group_data['cn'][0], 'class_')!==FALSE)
+                {
+                    $_class_group= 'ou='.str_replace('class_', '', $group_data['cn'][0]).',';
+                    /* we take the first class group we find...
+                     * presuming that students only have _one_ class group assigned(!)
+                     */
+                    break;
+                }
+            }
+            $template_base= $_class_group.$template_base;
+        }
+        return $template_base;
+    }
+
     function validGroupName($group_name)
     {
         /* FIXME: This can be better done with regular expressions!!!
          */
        return str_replace('.','', str_replace(':', '-', str_replace(' ', '_',strtolower (trim($group_name)))));
     }
+
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
