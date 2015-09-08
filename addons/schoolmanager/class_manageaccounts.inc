@@ -1153,14 +1153,12 @@ class manageaccounts extends plugin{
     function importLDAPUserObject($user_data)
     {
         /* only perform on this user dataset if _actions does not contain "skip"... */
-        if(strpos($user_data['main_account']['_actions'][0],'skip')===FALSE)
+        if(strpos($user_data['_actions'][0],'skip')!==FALSE)
         {
             return;
         }
-
         if((strpos($user_data['_actions'][0],'update')!==FALSE) || (strpos($user_data['_actions'][0],'create')!==FALSE))
         {
-
             $_user_properties_base= array();
             $_user_properties_extras= array();
             if (strpos($user_data['_actions'][0],'create')!==FALSE)
