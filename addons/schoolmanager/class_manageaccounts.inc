@@ -1065,14 +1065,14 @@ class manageaccounts extends plugin{
 
         if(strpos($group_data['_actions'][0],'move')!==FALSE)
         {
-            /* copy properties from source grouptabs object into our new grouptabs objects */
+            /* do an ldapsearch for the source object and prepare a copy+paste action */
 
             $_ldapsearch= $this->_ldap->search("(&(objectClass=posixGroup)(cn=".$group_name."))", array("*"));
 
             /* There should only be _ONE_ object of this CN in the given LDAP (sub)tree scope.
              * Thus, only fetching the first obejct.
              */
-            $source= $this->_ldap->fetch("(&(objectClass=posixGroup)(memberUid=".$source['uid'][0]."))", array("cn", "description"));
+            $source= $this->_ldap->fetch($_ldapsearch);
             if(!empty($source))
             {
                 foreach($grouptab->by_object as $pname => $plugin)
