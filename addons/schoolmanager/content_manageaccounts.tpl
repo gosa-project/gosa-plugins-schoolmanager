@@ -277,7 +277,7 @@ FIXMEs:
 					<td bgcolor="#EEEEEE">
 						<b>{$property}:</b>
 					</td>
-					<td bgcolor="#FEFEFE">
+					<td bgcolor="#F8F8F8">
 {if $property != "userPassword"}
 						{$data[$key]['main_account'][$property][0]}
 {elseif $data[$key]['main_account']['_status'][0] === "exists"}
@@ -304,7 +304,7 @@ FIXMEs:
 					<td bgcolor="#EEEEEE">
 						<b>{$property}:</b>
 					</td>
-					<td bgcolor="#FEFEFE">
+					<td bgcolor="#F8F8F8">
 						{$aux_account[$property][0]}
 					</td>
 				</tr>
