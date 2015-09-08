@@ -513,7 +513,7 @@ class manageaccounts extends plugin{
              * Add users to / update users in LDAP
              */
 
-            $posixgroup_members= array();
+            $this->posixgroup_members= array();
             foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
             {
 
@@ -523,41 +523,29 @@ class manageaccounts extends plugin{
 
                     $this->importLDAPUserObject($user_data['main_account']);
 
-                    /* Collect group memberships of each user (main) account */
-
-                    $_uid= $user_data['main_account']['uid'][0];
-                    foreach($user_data['groups'] as $group_data)
-                    {
-                        $_group_name= $group_data['cn'][0];
-                        if (!in_array($_group_name, array_keys($posixgroup_members)))
-                        {
-                            $posixgroup_members[$_group_name]= array();
-                        }
-                        $posixgroup_members[$_group_name][]= $_uid;
-                    }
                 }
 
                 /* import the user's aux account (e.g., parent accounts) */
-                if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
-                {
-                    foreach($user_data['aux_accounts'] as $idx_aux => $aux_account_data)
-                    {
-                        /* import aux account $aux_account_data */
-                        $this->importLDAPUserObject($aux_account_data);
-                    }
-                }
-            }
+                //if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
+                //{
+                //    foreach($user_data['aux_accounts'] as $idx_aux => $aux_account_data)
+                //    {
+                //        /* import aux account $aux_account_data */
+                //        $this->importLDAPUserObject($aux_account_data);
+                //    }
+                //}
 
-            $this->addLDAPUserObjectsToGroups($posixgroup_members);
+            }
 
             $this->accountStatusCheck();
+            $this->groupStatusCheck();
             $smarty->assign("data",$this->csvinfo['data_preldap']);
-            if (!$this->failure_in_this_phase)
+            if ($this->failure_in_this_phase===FALSE)
             {
-                /* prepare for reloading this phase's web page again */
+                $smarty->assign ("accounts_reviewed",TRUE);
             }
             else {
-                $smarty->assign ("accounts_reviewed",TRUE);
+                /* prepare for reloading this phase's web page again */
             }
         }
         /*
@@ -586,21 +574,64 @@ class manageaccounts extends plugin{
              *        users have been updated or skipped? Etc.
              */
 
-            $smarty->assign ("accounts_groupmembersupdated",TRUE);
+            $this->posixgroup_members= array();
+            $this->groupofnames_members= array();
+            foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
+            {
 
-            /*
-             * FIXME: Prepare post-import clean-up actions
-             */
+                /* import the user's main account */
+                if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
+                {
 
+                    $_uid= $user_data['main_account']['uid'][0];
+                    foreach($user_data['groups'] as $group_data)
+                    {
+                        $_group_name= $group_data['cn'][0];
+                        if (in_array('posixGroup', $group_data['objectClass']))
+                        {
+                            if (!in_array($_group_name, array_keys($this->posixgroup_members)))
+                            {
+                                $this->posixgroup_members[$_group_name]= array();
+                            }
+                            $this->posixgroup_members[$_group_name][]= $_uid;
+                        }
+                        //if (in_array('groupOfNames', $group_data['objectClass']) or in_array('groupOfUniqueNames', $group_data['objectClass']))
+                        //{
+                        //    /* FIXME: handle group of (unique) names */
+                        //
+                        //    if (isset($user_data['main_account']['dn']))
+                        //    {
+                        //        /* FIXME: store DN in $user_data (in accountStatusCheck()) */
+                        //        $this->groupofnames_members[]= $user_data['main_account']['dn'];
+                        //    }
+                        //}
+                    }
+                }
+            }
+
+            $this->addLDAPUserObjectsToGroups($this->posixgroup_members);
+
+            $this->accountStatusCheck();
+            $this->groupStatusCheck();
+            $smarty->assign("data",$this->csvinfo['data_preldap']);
+
+            if ($this->failure_in_this_phase===FALSE)
+            {
+                $smarty->assign ("accounts_groupmembersupdated",TRUE);
+                $smarty->assign ("posixgroup_members", $this->posixgroup_members);
+                //$smarty->assign ("groupofnames_members", $this->groupofnames_members);
+            }
+            else {
+                /* prepare for reloading this phase's web page again */
+            }
         }
         /*
          * PHASE 5 (status): User accounts have been written to LDAP.
          *                   Group memberships have been updated in LDAP.
          *                   Show summary page.
          */
-        elseif (isset ($_POST['phase5_groupmemberships'])) {
+        elseif (isset ($_POST['phase5_status'])) {
 
-            /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
@@ -914,7 +945,22 @@ class manageaccounts extends plugin{
                             else {
                                 $_actions= array_merge($_actions, $_check_attrs);
                             }
-                            /* no action detected? Set $_actions to ("none") */
+
+                            /* check if the user's main account is in this group */
+                            if(in_array('posixGroup', $group['objectClass']) and isset($row['main_account']['uid'][0]))
+                            {
+                                $_group_name= $group['cn'][0];
+                                $_uid= $row['main_account']['uid'][0];
+                                $_members= $gosa_posix_group['memberUid'];
+                                if(!in_array($_uid, $_members) or (in_array('flush-all-members', $_actions)))
+                                {
+                                    $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][0]= 'update-memberships';
+                                    $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][$_group_name]= 'add';
+                                }
+                                else {
+                                    $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][$_group_name]= 'none';
+                                }
+                            }
 
                             /* no action found till here, set the "none" action */
                             if(empty($_actions))

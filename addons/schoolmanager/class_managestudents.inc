@@ -138,6 +138,7 @@ class managestudents extends manageaccounts {
                 $student['_template']=array($this->csvinfo['template_main']);
                 $student['_status']=array('unchecked');
                 $student['_actions']=array('none');
+                $student['_group_actions']= array('none');
 
                 /* auxiliary accounts */
                 $parent1=array ();
@@ -148,6 +149,7 @@ class managestudents extends manageaccounts {
                 $parent1['_template']=array($this->csvinfo['template_aux']);
                 $parent1['_status']=array('unchecked');
                 $parent1['_actions']=array('none');
+                $parent1['_group_actions']= array('none');
 
                 $parent2=array ();
                 $parent2['sn']=array (trim($row_sorted['parent2_sn']));
@@ -157,11 +159,11 @@ class managestudents extends manageaccounts {
                 $parent2['_template']=array(trim($this->csvinfo['template_aux']));
                 $parent2['_status']=array('unchecked');
                 $parent2['_actions']=array('none');
+                $parent2['_group_actions']= array('none');
 
                 /* groups for this account */
 
                 /* class group */
-
                 $class_group= array ();
                 if (isset($row_sorted['class']) && $row_sorted['class'])
                 {

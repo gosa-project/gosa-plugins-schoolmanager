@@ -129,6 +129,7 @@ class manageteachers extends manageaccounts {
                 $teacher['_template']=array($this->csvinfo['template_main']);
                 $teacher['_status']=array('unchecked');
                 $teacher['_actions']=array('none');
+                $teacher['_group_actions']=array('none');
 
                  /* groups for this account */
 

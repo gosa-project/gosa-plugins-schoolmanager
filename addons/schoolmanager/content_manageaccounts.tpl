@@ -234,21 +234,18 @@ FIXMEs:
 <div class="clear"></div>
 
 
-{elseif $accounts_reviewed != TRUE || $accounts_imported != TRUE}
-{if $accounts_reviewed}
-<input type="hidden" name="phase5_status">
-{else}
-<input type="hidden" name="phase5">
-{/if}
+{elseif $accounts_reviewed != TRUE || $accounts_imported != TRUE || $accounts_groupmembersupdated != TRUE}
 
 {if $accounts_groupmembersupdated}
-<br><h3>{t 1="8/10"}STEP %1: Review account group memberships before updating them in LDAP{/t}</h3>
+<input type="hidden" name="phase5_status">
+<br><h3>{t 1="8/10"}STEP %1  (LDAP import status): User account objects have been imported into LDAP, group memberships have been updated{/t}</h3>
 {elseif $accounts_reviewed}
-<br><h3>{t 1="7/10"}STEP %1  (LDAP import status): User account objects have been imported into LDAP{/t}</h3>
+<input type="hidden" name="phase5_groupmemberships">
+<br><h3>{t 1="7/10"}STEP %1: Review account group memberships before updating them in LDAP{/t}</h3>
 {else}
+<input type="hidden" name="phase5">
 <br><h3>{t 1="6/10"}STEP %1: Review user account objects before LDAP import{/t}</h3>
 {/if}
-<br>
 <br>
 
 {foreach from=$data item=row key=key}
@@ -316,6 +313,39 @@ FIXMEs:
 		</td>
 {/foreach}
 	</tr>
+{/if}
+
+{if $accounts_reviewed || $accounts_groupmembersupdated}
+	<tr>
+{if $data[$key]['aux_accounts']}
+		<td bgcolor="#BBBBBB">
+{else}
+		<td bgcolor="#BBBBBB" colspan="2">
+{/if}
+		<b>{t}Groups{/t}:</b>
+		</td>
+{if $data[$key]['aux_accounts']}
+		<td bgcolor="#EEEEEE" colspan={count($data[$key]['aux_accounts'])}>
+		<b>{t}Group actions{/t}:</b>
+		</td>
+	</tr>
+{/if}
+{foreach $data[$key]['groups'] item=group key=idx_group}
+	<tr>
+{if $data[$key]['aux_accounts']}
+		<td bgcolor="#EEEEEE">
+{else}
+		<td bgcolor="#EEEEEE" colspan="2">
+{/if}
+		{$group['cn'][0]}
+		</td>
+{if $data[$key]['aux_accounts']}
+		<td bgcolor="#F8F8F8" colspan={count($data[$key]['aux_accounts'])}>
+                {$data[$key]['main_account']['_group_actions'][$group['cn'][0]]}
+		</td>
+	</tr>
+{/if}
+{/foreach}
 {/if}
 
 </table>
