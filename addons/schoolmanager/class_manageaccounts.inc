@@ -249,6 +249,7 @@ class manageaccounts extends plugin{
                         $this->csvinfo['ou_groups']= 0;
                         $this->csvinfo['domain_groups']= "intern";
                         $this->csvinfo['flush_members']= FALSE;
+                        $this->csvinfo['accounts_in_class_ou']= FALSE;
 
                         /* provide pre-set values for account template forms */
                         $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
@@ -256,6 +257,7 @@ class manageaccounts extends plugin{
                         $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
                         $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                         $smarty->assign("preset_flush_members", $this->csvinfo['flush_members']);
+                        $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                     }
                     else {
                         $smarty->assign ("LDIFError",TRUE);
@@ -312,6 +314,13 @@ class manageaccounts extends plugin{
                 else {
                     $this->csvinfo['flush_members'] = FALSE;
                 }
+                if (isset ($_POST["accounts_in_class_ou"]))
+                {
+                    $this->csvinfo['accounts_in_class_ou'] = TRUE;
+                }
+                else {
+                    $this->csvinfo['accounts_in_class_ou'] = FALSE;
+                }
                 if($this->failure_in_this_phase===FALSE)
                 {
                     $smarty->assign ("import_configured",TRUE);
@@ -340,6 +349,7 @@ class manageaccounts extends plugin{
                     $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
                     $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                     $smarty->assign("preset_flush_members", $this->csvinfo['flush_members']);
+                    $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                 }
             }
         }
