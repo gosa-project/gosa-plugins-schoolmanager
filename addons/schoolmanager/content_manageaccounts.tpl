@@ -294,7 +294,7 @@ FIXMEs:
 					<td bgcolor="#F8F8F8">
 {if $property != "userPassword"}
 						{$data[$key]['main_account'][$property][0]}
-{elseif $data[$key]['main_account']['_status'][0] === "exists"}
+{elseif strpos($data[$key]['main_account']['_status'][0],"exists")!==FALSE }
 						{t}<keep>{/t}
 {else}
 						************

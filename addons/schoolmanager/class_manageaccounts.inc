@@ -521,8 +521,6 @@ class manageaccounts extends plugin{
             /*
              * Add users to / update users in LDAP
              */
-
-            $this->posixgroup_members= array();
             foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
             {
 
@@ -548,6 +546,7 @@ class manageaccounts extends plugin{
 
             $this->accountStatusCheck();
             $this->groupStatusCheck();
+
             $smarty->assign("data",$this->csvinfo['data_preldap']);
             if ($this->failure_in_this_phase===FALSE)
             {
@@ -811,11 +810,7 @@ class manageaccounts extends plugin{
 
     function accountStatusCheck()
     {
-        /*
-         * This all may get us in deep trouble on huge LDAP databases
-         * when memory limits and/or execution time in PHP are set too low.
-         */
-
+        $this->_ldap->cd($this->config->current['BASE']);
         $ldapsearch = $this->_ldap->search("(objectClass=gosaAccount)",array("sn","givenName","gender","dateOfBirth", "mail"));
 
         /* this will probably scale very very badly... Improvement needed. Suggestions? */
@@ -831,6 +826,7 @@ class manageaccounts extends plugin{
                         $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
                         $expected_account_dn= "uid=".$row['main_account']['uid'][0].','.get_people_ou().$expected_base;
                         $gosa_account_dn= $gosa_account['dn'];
+
                         if(strtolower($gosa_account_dn)==strtolower($expected_account_dn))
                         {
                             $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'exists';
@@ -852,6 +848,8 @@ class manageaccounts extends plugin{
                              */
                             $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'skip';
                         }
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn_ldap']= array($gosa_account_dn);
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array($expected_account_dn);
                         $this->csvinfo['data_preldap'][$key]['main_account']['_base']= array($expected_base);
                     }
                 }
@@ -920,6 +918,7 @@ class manageaccounts extends plugin{
 
     function groupStatusCheck()
     {
+        $this->_ldap->cd($this->config->current['BASE']);
         $ldapsearch = $this->_ldap->search("(objectClass=posixGroup)",array("cn","memberUid","mail", "description"));
 
         /* this will probably scale very very badly... Improvement needed. Suggestions? */
@@ -1089,6 +1088,7 @@ class manageaccounts extends plugin{
              * Thus, only fetching the first obejct.
              */
             $source= $this->_ldap->fetch($_ldapsearch);
+
             if(!empty($source))
             {
                 foreach($grouptab->by_object as $pname => $plugin)
@@ -1185,16 +1185,15 @@ class manageaccounts extends plugin{
         {
             return;
         }
-        if((strpos($user_data['_actions'][0],'update')!==FALSE) || (strpos($user_data['_actions'][0],'create')!==FALSE))
+        if((strpos($user_data['_actions'][0],'update')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE) or (strpos($user_data['_actions'][0],'move')!==FALSE))
         {
             $_user_properties_base= array();
             $_user_properties_extras= array();
+
             if (strpos($user_data['_actions'][0],'create')!==FALSE)
             {
                 /* instantiate a new user object */
                 $usertab= new usertabs($this->config, $this->config->data['TABS']['USERTABS'],'new');
-
-                /* The below attributes must exist and be set with meaningful data once we arrive here!!! */
 
                 /*
                  * FIXME: If $user_data['uid'][0] is set to "%auto%" or is empty, do uid generation magic here!!!
@@ -1204,46 +1203,56 @@ class manageaccounts extends plugin{
                  * FIXME: If $user_data['userPassword'][0] is set to "%auto%" or is empty, do password generation magic here!!!
                  */
 
+                /* The below attributes must exist and be set with meaningful data once we arrive here!!! */
                 $_user_properties_base["uid"]= $user_data['uid'][0];
                 $_user_properties_base["sn"]= $user_data['sn'][0];
                 $_user_properties_base["givenName"]= $user_data['givenName'][0];
                 $_user_properties_extras["gender"]= $user_data['gender'][0];
                 $_user_properties_extras["dateOfBirth"]= $user_data['dateOfBirth'][0];
-
             }
             else {
+
                 /* Retrieve user object from LDAP */
-                $usertab= new usertabs($this->config, $this->config->data['TABS']['USERTABS'],$user_data['dn']);
+                $usertab= new usertabs($this->config, $this->config->data['TABS']['USERTABS'],$user_data['_dn_ldap'][0]);
             }
 
             /* on existing account, we allow the below attributes to be updated */
+
             if(isset($user_data_extras['departmentNumber'])) { $_user_properties["departmentNumber"]= $user_data['departmentNumber'][0]; }
             if(isset($user_data_extras['mail'])) { $_user_properties["mail"]= $user_data['mail'][0]; }
 
-            /* Populate sub-object attributes for $usertab with same values */
-            foreach($_user_properties_base as $attr => $val)
+            /* test if base DN exists, this is only relevant for actions "create" and "move" but does not hurt for updates, either */
+            $this->_ldap->cat($user_data['_base'][0]);
+            if(!$this->_ldap->fetch())
             {
-                $usertab->$attr = $val;
-                foreach($usertab->by_object as $pname => $plugin)
+
+                /* change LDAP "dir" to the place where we want to create sub-OUs... */
+                if($user_data['_template'][0] != 0)
                 {
-                    if(isset($usertab->by_object[$pname]->$attr))
-                    {
-                        $usertab->by_object[$pname]->$attr = $val;
-                    }
+                    $template_dn=  $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
+                    $this->_ldap->cd(dn2base($template_dn));
                 }
+                else {
+                    $this->_ldap->cd($this->config->current['BASE']);
+                }
+                /* create base DN as a GOsa² department, presuming the the base DN's parent DN already exists */
+                $_ou= preg_replace("/^ou=([^,]+),.*/", "$1", $user_data['_base'][0]);
+                $deptab= new deptabs($this->config, $this->config->data['TABS']['DEPTABS'],'new', "deptabs" );
+                $deptab->by_object['department']->ou= $_ou;
+                $deptab->by_object['department']->description= sprintf(_("Class: %s"), $_ou);
+                $deptab->save();
             }
+
             if (
-                (strpos($user_data['_actions'][0],'create')!==FALSE) &&
+                (strpos($user_data['_actions'][0],'create')!==FALSE) and
                 ($user_data['_template'][0] != 0)
                )
             {
                 /* adapt new user object from a GOsa user object template */
-                $template_dn=  $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
-                $template_base= preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/i')."/", '', $template_dn);
                 $usertab->adapt_from_template($template_dn, array("uid","cn","givenName","sn"));
-                $usertab->by_object['user']->base= $template_base;
-            }
 
+                $usertab->by_object['user']->base= $user_data['_base'][0];
+            }
             /* Populate sub-object attributes for $usertab with same values */
             foreach($_user_properties_extras as $attr => $val)
             {
@@ -1270,15 +1279,24 @@ class manageaccounts extends plugin{
 
             } else {
 
+                $usertab->save();
+
+                if (strpos($user_data['_status'][0],'exists')===FALSE)
+                {
+                    if(!change_password($usertab->dn,$user_data['userPassword'][0],FALSE,'','', $message)){
+                        msg_dialog::displayChecks(array($message));
+                    }
+                }
+
+                if(strpos($user_data['_actions'][0],'move')!==FALSE)
+                {
+                    $usertab->by_object['user']->rename($usertab->dn, $user_data['_dn'][0]);
+                }
+
                 /*
                  * FIXME: collect success statistics here!!!
                  */
 
-                $usertab->save();
-
-                if(!change_password($usertab->dn,$user_data['userPassword'][0],FALSE,'','', $message)){
-                    msg_dialog::displayChecks(array($message));
-                }
             }
 
             /* Present a status update in GOsa²''s logging system (/var/log/syslog mostly) */
