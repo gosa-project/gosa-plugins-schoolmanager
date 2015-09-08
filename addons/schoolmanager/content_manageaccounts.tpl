@@ -113,7 +113,7 @@ FIXMEs:
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="ou_groups">{t}Select OU for new groups{/t}</LABEL>
+			<LABEL for="ou_groups">{t}Select OU for new groups:{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 			<select id="ou_groups" name="ou_groups" size="1" title="">
@@ -129,7 +129,7 @@ FIXMEs:
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="domain_groups">{t}Mail domain for new groups{/t}</LABEL>
+			<LABEL for="domain_groups">{t}Mail domain for new groups:{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 			@
