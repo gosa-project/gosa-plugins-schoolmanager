@@ -312,7 +312,7 @@ class manageaccounts extends plugin{
                 else {
                     $this->csvinfo['flush_members'] = FALSE;
                 }
-                if(!$this->failure_in_this_phase)
+                if($this->failure_in_this_phase===FALSE)
                 {
                     $smarty->assign ("import_configured",TRUE);
 
@@ -417,7 +417,7 @@ class manageaccounts extends plugin{
             $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
 
             /* $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport ... */
-            if(!$this->failure_in_this_phase)
+            if($this->failure_in_this_phase===FALSE)
             {
                 /* free some memory... */
                 unset ($this->csvinfo['data_sorted']);
@@ -502,7 +502,6 @@ class manageaccounts extends plugin{
          */
         elseif (isset ($_POST['phase5'])) {
 
-            /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
@@ -555,7 +554,6 @@ class manageaccounts extends plugin{
          */
         elseif (isset ($_POST['phase5_groupmemberships'])) {
 
-            /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
@@ -651,19 +649,22 @@ class manageaccounts extends plugin{
              *        users have been updated or skipped? Etc.
              */
 
-            $smarty->assign ("accounts_imported",TRUE);
-
-            /*
-             * FIXME: Prepare post-import clean-up actions
-             */
-
+            if ($this->failure_in_this_phase===FALSE)
+            {
+                /*
+                 * FIXME: Prepare post-import clean-up actions
+                 */
+                $smarty->assign ("accounts_imported",TRUE);
+            }
+            else {
+                /* prepare for reloading this phase's web page again */
+            }
         }
         /*
          * PHASE 6: Clean-up actions
          */
         elseif (isset ($_POST['phase6'])) {
 
-            /* Template Handling */
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
@@ -672,13 +673,8 @@ class manageaccounts extends plugin{
             $smarty->assign ("accounts_reviewed",TRUE);
             $smarty->assign ("accounts_imported",TRUE);
 
-            if ($this->failure_in_this_phase)
+            if ($this->failure_in_this_phase===FALSE)
             {
-
-                /* FIXME: no clue what to do on failures here... We will see. */
-
-            }
-            else {
 
                 /*
                  * FIXME: If automatic password generation is used, present a download link
@@ -687,6 +683,11 @@ class manageaccounts extends plugin{
 
                 /* Render the final SUCCESS page */
                 $smarty->assign ("cleanup_completed",TRUE);
+
+            }
+            else {
+
+                /* FIXME: no clue what to do on failures here... We will see. */
 
             }
         }
@@ -919,6 +920,7 @@ class manageaccounts extends plugin{
                             else {
                                 $this->csvinfo['data_preldap'][$key]['groups'][$group_key]['_status'][0]= 'exists-elsewhere';
                             }
+
                         }
 
                         /* detect actions */
