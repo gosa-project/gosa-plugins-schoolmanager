@@ -443,15 +443,47 @@ class manageaccounts extends plugin{
             $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
 
-            $this->accountStatusCheck();
-
-            $smarty->assign("data",$this->csvinfo['data_preldap']);
             if($this->failure_in_this_phase===FALSE)
             {
                 $smarty->assign ("accounts_reviewed",TRUE);
+
+                /*
+                 * Add users to / update users in LDAP
+                 */
+                foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
+                {
+                    /* import the user's main account */
+                    if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
+                    {
+
+                        $this->importLDAPUserObject($user_data['main_account']);
+
+                    }
+
+                    /* import the user's aux account (e.g., parent accounts) */
+                    //if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
+                    //{
+                    //    foreach($user_data['aux_accounts'] as $idx_aux => $aux_account_data)
+                    //    {
+                    //        /* import aux account $aux_account_data */
+                    //        $this->importLDAPUserObject($aux_account_data);
+                    //    }
+                    //}
+                }
+
+                /* FIXME: present a message dialog box that informs on the statistics of
+                 *        the LDAP group import. (How many groups got created? How many
+                 *        groups have been updated? How many groups were not empty and
+                 *        required dropping of all members? Etc.
+                 */
+
+                $this->accountStatusCheck();
+                $smarty->assign("data",$this->csvinfo['data_preldap']);
+
             }
             else {
                 /* prepare for reloading this phase's web page again */
+                $smarty->assign("data",$this->csvinfo['data_preldap']);
             }
         }
         /*
@@ -467,13 +499,6 @@ class manageaccounts extends plugin{
 
             if($this->failure_in_this_phase===FALSE)
             {
-
-                /* FIXME: present a message dialog box that informs on the statistics of
-                 *        the LDAP group import. (How many groups got created? How many
-                 *        groups have been updated? How many groups were not empty and
-                 *        required dropping of all members? Etc.
-                 */
-
                 $smarty->assign ("accounts_imported",TRUE);
 
                 $this->groupStatusCheck();
