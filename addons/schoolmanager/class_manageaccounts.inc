@@ -109,7 +109,7 @@ class manageaccounts extends plugin{
         $smarty->assign ("accounts_reviewed",0);
 
         /* PHASE 5 (group memberships), set accounts_groupmembersupdated to TRUE */
-        $smarty->assign ("accounts_groupmembersupdated",TRUE);
+        $smarty->assign ("accounts_groupmembersupdated",0);
 
         /* PHASE 5 (status after import) done, set $accounts_imported to TRUE  */
         $smarty->assign ("accounts_imported",0);
