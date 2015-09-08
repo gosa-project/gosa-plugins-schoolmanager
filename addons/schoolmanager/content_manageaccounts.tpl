@@ -55,7 +55,7 @@ FIXMEs:
 </ul>
 
 <table summary="{t}Select user object templates{/t}">
-	{if $import_account_type == 'students'}
+{if $import_account_type == 'students'}
 	<tr>
 		<td colspan="3">
 			<hr>
@@ -84,8 +84,8 @@ FIXMEs:
 			</select>
 		</td>
 	</tr>
-	{/if}
-	{if $import_account_type == 'teachers'}
+{/if}
+{if $import_account_type == 'teachers'}
 	<tr>
 		<td colspan="3">
 			<hr>
@@ -103,7 +103,7 @@ FIXMEs:
 			</select>
 		</td>
 	</tr>
-	{/if}
+{/if}
 	<tr>
 		<td colspan="3">
 			<hr>
