@@ -231,17 +231,28 @@ class managestudents extends manageaccounts {
                     }
                 }
                 $parent_group= array ();
-                $parent_group['cn']= array('parents_{%uid}');
+                if(isset($student['uid']))
+                {
+                    $parent_group['cn']= array('parents_'.$student['uid'][0]);
+                }
+                else {
+                    $parent_group['cn']= array('parents_{%uid}');
+                }
                 $parent_group['objectClass'] = array(
-                    'groupOfNames'
+                    'gosaGroupOfNames'
                 );
-                /* FIXME: can we generate the DN here already??? */
-                $parent_group['member']= array(
-                    '{%dn[parent1]}',
-                    '{%dn[parent2]}'
-                );
-                $parent_group['_status']=array('none');
-                $parent_group['_actions']=array('skip');
+
+                $parent_group['member']= array();
+                if(isset($parent1['mail']))
+                {
+                    $parent_group['member'][]= 'uid='.$parent1['mail'][0].','.get_people_ou().dn2base($this->csvinfo['templates']['DNs'][$this->csvinfo['template_aux']]);
+                }
+                if(isset($parent2['mail']))
+                {
+                    $parent_group['member'][]= 'uid='.$parent2['mail'][0].','.get_people_ou().dn2base($this->csvinfo['templates']['DNs'][$this->csvinfo['template_aux']]);
+                }
+                $parent_group['_status']=array('unchecked');
+                $parent_group['_actions']=array('none');
 
                 $groups= array();
                 if (!empty($class_group))    { $groups= array_merge($groups, array($class_group)); }
