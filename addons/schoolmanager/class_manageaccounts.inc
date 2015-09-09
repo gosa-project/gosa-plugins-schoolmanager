@@ -248,6 +248,7 @@ class manageaccounts extends plugin{
                         $this->csvinfo['domain_groups']= "intern";
                         $this->csvinfo['flush_members']= FALSE;
                         $this->csvinfo['accounts_in_class_ou']= FALSE;
+                        $this->csvinfo['try_mail_as_uid']= TRUE;
 
                         /* provide pre-set values for account template forms */
                         $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
@@ -256,6 +257,7 @@ class manageaccounts extends plugin{
                         $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                         $smarty->assign("preset_flush_members", $this->csvinfo['flush_members']);
                         $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+                        $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
                     }
                     else {
                         $smarty->assign ("LDIFError",TRUE);
@@ -314,6 +316,13 @@ class manageaccounts extends plugin{
                 else {
                     $this->csvinfo['accounts_in_class_ou'] = FALSE;
                 }
+                if (isset ($_POST["try_mail_as_uid"]))
+                {
+                    $this->csvinfo['try_mail_as_uid'] = TRUE;
+                }
+                else {
+                    $this->csvinfo['try_mail_as_uid'] = FALSE;
+                }
                 if($this->failure_in_this_phase===FALSE)
                 {
                     $smarty->assign ("import_configured",TRUE);
@@ -343,6 +352,7 @@ class manageaccounts extends plugin{
                     $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                     $smarty->assign("preset_flush_members", $this->csvinfo['flush_members']);
                     $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+                    $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
                 }
             }
         }
@@ -1250,18 +1260,35 @@ class manageaccounts extends plugin{
                 }
                 elseif(isset($user_data['sn'][0]) and isset($user_data['givenName'][0]))
                 {
-                    if ($this->config->get_cfg_value("core","idGenerator") != "")
+                    if(isset($user_data['uid'][0]) and ($user_data['uid'][0]==="%auto%" or $user_data['uid'][0]===""))
                     {
-                        $_genStr= $this->config->get_cfg_value("core","idGenerator");
-                        $_attributes= array(
-                            'sn' => $user_data['sn'][0],
-                            'givenName' => $user_data['givenName'][0]
-                        );
-                        $_user_properties_base['uid']= gen_uids($_genStr,$_attributes)[0];
+                        if ($this->config->get_cfg_value("core","idGenerator") != "")
+                        {
+                            $_genStr= $this->config->get_cfg_value("core","idGenerator");
+                            $_attributes= array(
+                                'sn' => $user_data['sn'][0],
+                                'givenName' => $user_data['givenName'][0]
+                            );
+                            $_user_properties_base['uid']= gen_uids($_genStr,$_attributes)[0];
+                        }
+                        else {
+
+                            /* FIXME: We can only auto-generate uid strings if the idGenerator is configured
+                             *        Report this as an error dialog box.
+                             */
+
+                        }
+                    }
+                    elseif(
+                       ($this->csvinfo['try_mail_as_uid']===TRUE) and
+                       (isset($user_data['mail'][0]) and $user_data['mail'][0])
+                      )
+                    {
+                        $_user_properties_base['uid']= $user_data['mail'][0];
                     }
                     else {
-                        /* FIXME: we cannot go on if we do not either have uid values provided
-                         *        or the idGenerator rule in the config.
+                        /* FIXME: Report an error. No exact UIDs given, no UID column in the CSV sheet,
+                         *        no premission to use the MAIL attribute as UID.
                          */
                     }
                 }
@@ -1349,7 +1376,6 @@ class manageaccounts extends plugin{
                 {
                     if(isset($usertab->by_object[$pname]->$attr))
                     {
-                        print $pname.", ".$attr.", ".$val."<br>";
                         $usertab->by_object[$pname]->$attr = $val;
                     }
                 }

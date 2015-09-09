@@ -76,13 +76,24 @@ FIXMEs:
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
+			<LABEL for="template_students_aux">{t}Select template for parent accounts{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			<select id="template_students_aux" name="template_students_aux"  size="1" title="">
+			{html_options options=$templates selected=$preset_template_students_aux}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
 			<LABEL for="accounts_in_class_ou">{t escape=no}Create a sub-OU for each class and place student accounts belonging to the same class into their corresponding class OU?{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 {if $preset_accounts_in_class_ou}
-			<input type="checkbox" id="flush_members" name="accounts_in_class_ou" checked>
+			<input type="checkbox" id="accounts_in_class_ou" name="accounts_in_class_ou" checked>
 {else}
-			<input type="checkbox" id="flush_members" name="accounts_in_class_ou">
+			<input type="checkbox" id="accounts_in_class_ou" name="accounts_in_class_ou">
 {/if}
 			{t}(tick this check box, if yes){/t}
 		</td>
@@ -90,12 +101,15 @@ FIXMEs:
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="template_students_aux">{t}Select template for parent accounts{/t}</LABEL>
+			<LABEL for="try_mail_as_uid">{t escape=no}If CSV data does not contain a user ID ("uid") column, use the mail address as user ID instead?{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="template_students_aux" name="template_students_aux"  size="1" title="">
-			{html_options options=$templates selected=$preset_template_students_aux}
-			</select>
+{if $preset_try_mail_as_uid}
+			<input type="checkbox" id="try_mail_as_uid" name="try_mail_as_uid" checked>
+{else}
+			<input type="checkbox" id="try_mail_as_uid" name="try_mail_as_uid">
+{/if}
+			{t}(tick this check box, if yes){/t}
 		</td>
 	</tr>
 {/if}
