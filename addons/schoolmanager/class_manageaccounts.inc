@@ -461,14 +461,14 @@ class manageaccounts extends plugin{
                     }
 
                     /* import the user's aux account (e.g., parent accounts) */
-                    //if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
-                    //{
-                    //    foreach($user_data['aux_accounts'] as $idx_aux => $aux_account_data)
-                    //    {
-                    //        /* import aux account $aux_account_data */
-                    //        $this->importLDAPUserObject($aux_account_data);
-                    //    }
-                    //}
+                    if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
+                    {
+                        foreach($user_data['aux_accounts'] as $idx_aux => $aux_account_data)
+                        {
+                            /* import aux account $aux_account_data */
+                            $this->importLDAPUserObject($aux_account_data);
+                        }
+                    }
                 }
 
                 /* FIXME: present a message dialog box that informs on the statistics of
@@ -859,14 +859,22 @@ class manageaccounts extends plugin{
                     {
                         if ($this->compareObjects($aux_account, $gosa_account, array("sn", "givenName", "mail"))===TRUE)
                         {
+                            $expected_base= $this->genAccountBase($aux_account);
+                            $gosa_account_dn= $gosa_account['dn'];
+
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'exists';
                             /*
                              * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
                              *        Later, we need to make actions more configurable...
                              */
-                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['action'][0]= 'skip';
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_actions'][0]= 'skip';
 
-                            /* break out of the inner loop if the $gosa_account has been found */
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_dn_ldap']= array($gosa_account_dn);
+
+                            /* FIXME: We need a check that DN generation for aux accounts will actually work, probably when
+                             *        constructing $this->csvinfo['data_preldap'].
+                             */
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_base']= array($expected_base);
                         }
                     }
                 }
@@ -880,6 +888,17 @@ class manageaccounts extends plugin{
                 {
                     $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'not-found';
                     $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'create';
+
+                    /* generate passwords for main accounts (if not provided) */
+                    if($this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0]==='%auto%')
+                    {
+                        $this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0]= $this->randomPassword(12);
+                    }
+
+                    /* set the main account's base for object creation */
+                    $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array("uid=".array($main_account['uid'][0]).",".$expected_base);
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_base']= array($expected_base);
                 }
                 if (isset($row['aux_accounts']))
                 {
@@ -887,8 +906,30 @@ class manageaccounts extends plugin{
                     {
                         if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]== 'unchecked')
                         {
-                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'not-found';
-                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_actions'][0]= 'create';
+                            if(isset($aux_account['sn']) and isset($aux_account['mail']) and isset($aux_account['givenName']))
+                            {
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'not-found';
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_actions'][0]= 'create';
+                                /* set the main account's base for object creation */
+                                $expected_base= $this->genAccountBase($aux_account);
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_base']= array($expected_base);
+                            }
+                            else {
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'data-incomplete';
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_actions'][0]= 'skip';
+                            }
+
+                            /* generate passwords for aux accounts (if not provided) */
+                            if($this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['userPassword'][0]==='%auto%')
+                            {
+                                if(strpos($this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_actions'][0], 'create')!==FALSE)
+                                {
+                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['userPassword'][0]= $this->randomPassword(12);
+                                }
+                                else {
+                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['userPassword'][0]= "";
+                                }
+                            }
                         }
                     }
                 }
@@ -1185,6 +1226,7 @@ class manageaccounts extends plugin{
         {
             return;
         }
+
         if((strpos($user_data['_actions'][0],'update')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE) or (strpos($user_data['_actions'][0],'move')!==FALSE))
         {
             $_user_properties_base= array();
@@ -1195,31 +1237,71 @@ class manageaccounts extends plugin{
                 /* instantiate a new user object */
                 $usertab= new usertabs($this->config, $this->config->data['TABS']['USERTABS'],'new');
 
+                $_user_properties_base["sn"]= $user_data['sn'][0];
+                $_user_properties_base["givenName"]= $user_data['givenName'][0];
+
                 /*
                  * FIXME: If $user_data['uid'][0] is set to "%auto%" or is empty, do uid generation magic here!!!
                  */
 
-                /*
-                 * FIXME: If $user_data['userPassword'][0] is set to "%auto%" or is empty, do password generation magic here!!!
-                 */
-
                 /* The below attributes must exist and be set with meaningful data once we arrive here!!! */
-                $_user_properties_base["uid"]= $user_data['uid'][0];
+                if(isset($user_data['uid'][0]) and $user_data['uid'][0]!=="%auto%") {
+                    $_user_properties_base["uid"]= $user_data['uid'][0];
+                }
+                elseif(isset($user_data['sn'][0]) and isset($user_data['givenName'][0]))
+                {
+                    if ($this->config->get_cfg_value("core","idGenerator") != "")
+                    {
+                        $_genStr= $this->config->get_cfg_value("core","idGenerator");
+                        $_attributes= array(
+                            'sn' => $user_data['sn'][0],
+                            'givenName' => $user_data['givenName'][0]
+                        );
+                        $_user_properties_base['uid']= gen_uids($_genStr,$_attributes)[0];
+                    }
+                    else {
+                        /* FIXME: we cannot go on if we do not either have uid values provided
+                         *        or the idGenerator rule in the config.
+                         */
+                    }
+                }
+                else {
+                    /* FIXME: error message, if uid is not provided and sn+givenName is not provided or incomplete,
+                     *        we cannot go on...
+                     */
+                }
                 $_user_properties_base["sn"]= $user_data['sn'][0];
                 $_user_properties_base["givenName"]= $user_data['givenName'][0];
-                $_user_properties_extras["gender"]= $user_data['gender'][0];
-                $_user_properties_extras["dateOfBirth"]= $user_data['dateOfBirth'][0];
+                if(isset($user_data['gender'][0])) { $_user_properties_extras["gender"]= $user_data['gender'][0]; }
+                if(isset($user_data['dateOfBirth'][0])) { $_user_properties_extras["dateOfBirth"]= $user_data['dateOfBirth'][0]; }
+
+                foreach($_user_properties_base as $attr => $val)
+                {
+                    $usertab->$attr = $val;
+                    foreach($usertab->by_object as $pname => $plugin)
+                    {
+                        if(isset($usertab->by_object[$pname]->$attr))
+                        {
+                            $usertab->by_object[$pname]->$attr = $val;
+                        }
+                    }
+                }
             }
             else {
 
                 /* Retrieve user object from LDAP */
                 $usertab= new usertabs($this->config, $this->config->data['TABS']['USERTABS'],$user_data['_dn_ldap'][0]);
+
             }
 
             /* on existing account, we allow the below attributes to be updated */
+            if(isset($user_data['employeeNumber'][0])) { $_user_properties_extras["employeeNumber"]= $user_data['employeeNumber'][0]; }
+            if(isset($user_data['mail'][0])) { $_user_properties_extras["mail"]= $user_data['mail'][0]; }
 
-            if(isset($user_data_extras['departmentNumber'])) { $_user_properties["departmentNumber"]= $user_data['departmentNumber'][0]; }
-            if(isset($user_data_extras['mail'])) { $_user_properties["mail"]= $user_data['mail'][0]; }
+            if($user_data['_template'][0] != 0)
+            {
+                $template_dn=  $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
+            }
 
             /* test if base DN exists, this is only relevant for actions "create" and "move" but does not hurt for updates, either */
             $this->_ldap->cat($user_data['_base'][0]);
@@ -1229,7 +1311,6 @@ class manageaccounts extends plugin{
                 /* change LDAP "dir" to the place where we want to create sub-OUs... */
                 if($user_data['_template'][0] != 0)
                 {
-                    $template_dn=  $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
                     $this->_ldap->cd(dn2base($template_dn));
                 }
                 else {
@@ -1248,11 +1329,18 @@ class manageaccounts extends plugin{
                 ($user_data['_template'][0] != 0)
                )
             {
+
                 /* adapt new user object from a GOsa user object template */
                 $usertab->adapt_from_template($template_dn, array("uid","cn","givenName","sn"));
-
                 $usertab->by_object['user']->base= $user_data['_base'][0];
+
             }
+
+            if(isset($user_data['mail']) and isset($usertab->by_object['mailAccount'])) {
+                /* FIXME: check if a mailAccount plugin is available at all */
+                $usertab->by_object['mailAccount']->is_account= TRUE;
+            }
+
             /* Populate sub-object attributes for $usertab with same values */
             foreach($_user_properties_extras as $attr => $val)
             {
@@ -1261,6 +1349,7 @@ class manageaccounts extends plugin{
                 {
                     if(isset($usertab->by_object[$pname]->$attr))
                     {
+                        print $pname.", ".$attr.", ".$val."<br>";
                         $usertab->by_object[$pname]->$attr = $val;
                     }
                 }
@@ -1269,13 +1358,13 @@ class manageaccounts extends plugin{
             /* Insert into the LDAP tree */
             if(count($usertab->check())) {
 
-              msg_dialog::displayChecks($usertab->check());
+                msg_dialog::displayChecks($usertab->check());
 
-              /*
-               * FIXME: collect failure statistics here!!!
-               */
+                /*
+                 * FIXME: collect failure statistics here!!!
+                 */
 
-              $this->failure_in_this_phase= TRUE;
+                $this->failure_in_this_phase= TRUE;
 
             } else {
 
@@ -1343,7 +1432,7 @@ class manageaccounts extends plugin{
         }
     }
 
-    function genAccountBase($user_data, $groups_data)
+    function genAccountBase($user_data, $groups_data=array())
     {
         if($user_data['_template'][0]!=0)
         {
@@ -1382,6 +1471,17 @@ class manageaccounts extends plugin{
        return str_replace('.','', str_replace(':', '-', str_replace(' ', '_',strtolower (trim($group_name)))));
     }
 
+    function randomPassword($length)
+    {
+        $alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
+        $pass = array(); //remember to declare $pass as an array
+        $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+        for ($i = 0; $i < $length; $i++) {
+            $n = rand(0, $alphaLength);
+            $pass[] = $alphabet[$n];
+        }
+        return implode($pass); //turn the array into a string
+    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:

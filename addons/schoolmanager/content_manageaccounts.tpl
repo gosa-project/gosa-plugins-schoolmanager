@@ -230,7 +230,7 @@ FIXMEs:
 {/if}
 
 {foreach from=$data item=row key=key}
-<table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}New account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
+<table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}User account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
 
 	<tr>
 {if $data[$key]['aux_accounts']}
@@ -256,7 +256,7 @@ FIXMEs:
 						<b>{$property}:</b>
 					</td>
 					<td bgcolor="#F8F8F8">
-{if $property != "userPassword"}
+{if $property != "userPassword" || $data[$key]['main_account'][$property][0]===""}
 						{$data[$key]['main_account'][$property][0]}
 {elseif strpos($data[$key]['main_account']['_status'][0],"exists")!==FALSE }
 						{t}<keep>{/t}
@@ -271,10 +271,16 @@ FIXMEs:
 		</td>
 {foreach $data[$key]['aux_accounts'] item=aux_account key=idx_aux_account}
 		<td>
-			<table summary="{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}New account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
+			<table summary="{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}User account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
 				<tr>
 					<td bgcolor="#BBBBBB" colspan="2">
+{if $aux_account['_status'][0] === "not-found"}
 						{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}New associated account: %1, %2{/t}
+{elseif $aux_account['_status'][0] === "data-incomplete"}
+						{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}Insufficient account data: %1, %2{/t}
+{else}
+						{t 1=$aux_account['sn'][0] 2=$aux_account['givenName'][0]}Associated account: %1, %2{/t}
+{/if}
 					</td>
 				</tr>
 {foreach from=$aux_account item=value key=property}
@@ -283,7 +289,13 @@ FIXMEs:
 						<b>{$property}:</b>
 					</td>
 					<td bgcolor="#F8F8F8">
+{if $property != "userPassword" || $aux_account[$property][0]===""}
 						{$aux_account[$property][0]}
+{elseif strpos($aux_account['_status'][0],"exists")!==FALSE }
+						{t}<keep>{/t}
+{else}
+						************
+{/if}
 					</td>
 				</tr>
 {/foreach}

@@ -118,6 +118,11 @@ class manageteachers extends manageaccounts {
                 $teacher['givenName']=array (trim($row_sorted['givenName']));
                 $teacher['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
                 $_dateOfBirth= trim($row_sorted['dateOfBirth']);
+                if(isset($row_sorted['mail']) and $row_sorted['mail'])
+                {
+                    /* FIXME: Check for valid e-Mail format here */
+                    $teacher['mail']=array ($row_sorted['mail']);
+                }
 
                 /* FIXME: On a German localized GOsa², this is not required..., but how about other locales??? */
                 if (strpos($_dateOfBirth,'.')) {

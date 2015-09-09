@@ -118,7 +118,6 @@ class managestudents extends manageaccounts {
                 $student['sn']=array (trim($row_sorted['sn']));
                 $student['givenName']=array (trim($row_sorted['givenName']));
 
-
                 $_dateOfBirth= trim($row_sorted['dateOfBirth']);
                 /* FIXME: On a German localized GOsa², this is not required..., but how about other locales??? */
                 if (strpos($_dateOfBirth,'.')) {
@@ -127,6 +126,15 @@ class managestudents extends manageaccounts {
                 }
                 $student['dateOfBirth']=array ($_dateOfBirth);
                 $student['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
+                if(isset($row_sorted['employeeNumber']) and $row_sorted['employeeNumber'])
+                {
+                    $student['employeeNumber']= array($row_sorted['employeeNumber']);
+                }
+                if(isset($row_sorted['mail']) and $row_sorted['mail'])
+                {
+                    /* FIXME: Check for valid e-Mail format here */
+                    $student['mail']= array($row_sorted['mail']);
+                }
                 /* Keeping the memory footprint low:
                  *
                  *     $student['_template']
@@ -144,7 +152,14 @@ class managestudents extends manageaccounts {
                 $parent1=array ();
                 $parent1['sn']=array (trim($row_sorted['parent1_sn']));
                 $parent1['givenName']=array (trim($row_sorted['parent1_givenName']));
-                $parent1['mail']=array (trim($row_sorted['parent1_mail']));
+
+                if(isset($row_sorted['parent1_mail']) and $row_sorted['parent1_mail'])
+                {
+                    /* FIXME: Check for valid e-Mail format here */
+                    $parent1['mail']=array (trim($row_sorted['parent1_mail']));
+                }
+
+                $parent1['userPassword']= array("%auto%");
                 /* see above for how to retrieve the template's DN */
                 $parent1['_template']=array($this->csvinfo['template_aux']);
                 $parent1['_status']=array('unchecked');
@@ -154,7 +169,14 @@ class managestudents extends manageaccounts {
                 $parent2=array ();
                 $parent2['sn']=array (trim($row_sorted['parent2_sn']));
                 $parent2['givenName']=array (trim($row_sorted['parent2_givenName']));
-                $parent2['mail']=array (trim($row_sorted['parent2_mail']));
+
+                if(isset($row_sorted['parent2_mail']) and $row_sorted['parent2_mail'])
+                {
+                    /* FIXME: Check for valid e-Mail format here */
+                    $parent2['mail']=array (trim($row_sorted['parent2_mail']));
+                }
+
+                $parent2['userPassword']= array("%auto%");
                 /* see above for how to retrieve the template's DN */
                 $parent2['_template']=array(trim($this->csvinfo['template_aux']));
                 $parent2['_status']=array('unchecked');
