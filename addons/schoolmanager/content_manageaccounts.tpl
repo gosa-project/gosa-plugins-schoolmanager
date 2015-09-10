@@ -406,7 +406,6 @@ FIXMEs:
 {/foreach}
 <div class="clear"></div>
 
-
 <br>
 <br>
 {/if}
