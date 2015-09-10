@@ -598,11 +598,8 @@ class manageaccounts extends plugin{
                         }
                         if (in_array('gosaGroupOfNames', $group_data['objectClass']))
                         {
-                            /* FIXME: handle group of (unique) names */
-
                             if (isset($user_data['main_account']['_dn_ldap']))
                             {
-                                /* FIXME: store DN in $user_data (in accountStatusCheck()) */
                                 $this->groupofnames_members[]= $user_data['main_account']['_dn_ldap'];
                             }
                         }
