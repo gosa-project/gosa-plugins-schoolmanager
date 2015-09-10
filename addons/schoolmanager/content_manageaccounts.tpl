@@ -416,6 +416,7 @@ FIXMEs:
 <br>
 
 {foreach from=$data_ogroups item=group key=key}
+<div style="float:left; width:24em; height:30ex;">
 <table summary="{t 1=$group['cn'][0]}Group object: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
 		<tr>
 		<td bgcolor="#BBBBBB" colspan="2">
@@ -423,7 +424,8 @@ FIXMEs:
 		</td>
 		<td style="width:1em;">&nbsp;</td>
 		</tr>
-		{foreach from=$group item=value key=property}
+{foreach from=$group item=value key=property}
+{if $property!=="member"}
 		<tr>
 				<td bgcolor="#EEEEEE">
 				<b>{$property}:</b>
@@ -433,11 +435,14 @@ FIXMEs:
 				</td>
 				<td style="width:1em;">&nbsp;</td>
 		</tr>
-		{/foreach}
+{/if}
+{/foreach}
 </table>
 <br>
+</div>
 {/foreach}
 {/if}
+<div class="clear"></div>
 
 
 {elseif $cleanup_completed != TRUE}
