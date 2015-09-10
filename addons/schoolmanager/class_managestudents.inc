@@ -231,13 +231,7 @@ class managestudents extends manageaccounts {
                     }
                 }
                 $parent_group= array ();
-                if(isset($student['uid']))
-                {
-                    $parent_group['cn']= array('parents_'.$student['uid'][0]);
-                }
-                else {
-                    $parent_group['cn']= array('parents_{%uid}');
-                }
+                $parent_group['cn']= array('parents_{%uid}');
                 $parent_group['objectClass'] = array(
                     'gosaGroupOfNames'
                 );

@@ -511,6 +511,24 @@ class manageaccounts extends plugin{
             {
                 $smarty->assign ("accounts_imported",TRUE);
 
+                foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
+                {
+                    if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
+                    {
+                        $_uid= $user_data['main_account']['uid'][0];
+                        foreach($user_data['groups'] as $group_idx => $group_data)
+                        {
+
+                            /* find+replace {%uid} in group CN with the user's uid string */
+                            $_group_name= $group_data['cn'][0];
+                            if(preg_match('/\{%uid\}/', $_group_name))
+                            {
+                                $this->csvinfo['data_preldap'][$idx]['groups'][$group_idx]['cn'][0]= str_replace('{%uid}', $_uid, $_group_name);
+                            }
+                        }
+                    }
+                }
+
                 $this->groupStatusCheck();
                 $this->ogroupStatusCheck();
                 $smarty->assign ("data_groups", $this->csvinfo['data_preldap_posixgroups']);
@@ -581,13 +599,11 @@ class manageaccounts extends plugin{
 
             foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
             {
-
                 if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
                 {
                     $_uid= $user_data['main_account']['uid'][0];
                     foreach($user_data['groups'] as $group_data)
                     {
-                        $_group_name= $group_data['cn'][0];
                         if (in_array('posixGroup', $group_data['objectClass']))
                         {
                             if (!in_array($_group_name, array_keys($this->posixgroup_members)))
