@@ -262,7 +262,7 @@ FIXMEs:
 {if $data[$key]['aux_accounts']}
 	<tr>
 		<td>
-			<table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}Account group for %1, %2{/t}"
+			<table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}Account group for %1, %2{/t}">
 {/if}
 {foreach from=$data[$key]['main_account'] item=value key=property}
 				<tr>
@@ -280,6 +280,38 @@ FIXMEs:
 					</td>
 				</tr>
 {/foreach}
+{if $accounts_reviewed && $accounts_imported}
+				<tr><td colspan="2" style="height: 0.2em;"></td></tr>
+				<tr>
+					<td bgcolor="#BBBBBB">
+					<b>{t}Groups{/t}:</b>
+					</td>
+					<td bgcolor="#EEEEEE">
+					<b>{t}Group membership actions{/t}:</b>
+					</td>
+				</tr>
+{foreach $data[$key]['groups'] item=group key=idx_group}
+{if in_array('posixGroup', $group['objectClass']) and in_array($group['cn'][0], array_keys($data[$key]['main_account']['_group_actions']))}
+				<tr>
+					<td bgcolor="#EEEEEE">
+					{$group['cn'][0]}
+					</td>
+					<td bgcolor="#F8F8F8">
+					{$data[$key]['main_account']['_group_actions'][$group['cn'][0]]}
+					</td>
+				</tr>
+{elseif in_array('gosaGroupOfNames', $group['objectClass']) and in_array($group['cn'][0], array_keys($data[$key]['main_account']['_ogroup_actions']))}
+				<tr>
+					<td bgcolor="#EEEEEE">
+					{$group['cn'][0]}
+					</td>
+					<td bgcolor="#F8F8F8">
+					{$data[$key]['main_account']['_ogroup_actions'][$group['cn'][0]]}
+					</td>
+				</tr>
+{/if}
+{/foreach}
+{/if}
 {if $data[$key]['aux_accounts']}
 			</table>
 		</td>
@@ -313,48 +345,46 @@ FIXMEs:
 					</td>
 				</tr>
 {/foreach}
+{if $accounts_reviewed and $accounts_imported}
+{if strpos($aux_account['_status'][0],"data-incomplete")===FALSE}
+				<tr><td colspan="2" style="height: 0.2em;"></td></tr>
+				<tr>
+					<td bgcolor="#BBBBBB">
+					<b>{t}Groups{/t}:</b>
+					</td>
+					<td bgcolor="#EEEEEE">
+					<b>{t}Group membership actions{/t}:</b>
+					</td>
+				</tr>
+{foreach $data[$key]['aux_accounts_groups'] item=group key=idx_group}
+{if in_array('posixGroup', $group['objectClass']) and in_array($group['cn'][0], array_keys($aux_account['_group_actions']))}
+				<tr>
+					<td bgcolor="#EEEEEE">
+					{$group['cn'][0]}
+					</td>
+					<td bgcolor="#F8F8F8">
+					{$aux_account['_group_actions'][$group['cn'][0]]}
+					</td>
+				</tr>
+{elseif in_array('gosaGroupOfNames', $group['objectClass']) and in_array($group['cn'][0], array_keys($aux_account['_ogroup_actions']))}
+				<tr>
+					<td bgcolor="#EEEEEE">
+					{$group['cn'][0]}
+					</td>
+					<td bgcolor="#F8F8F8">
+					{$aux_account['_ogroup_actions'][$group['cn'][0]]}
+					</td>
+				</tr>
+{/if}
+{/foreach}
+{/if}
+{/if}
 			</table>
 		</td>
 {/foreach}
 	</tr>
 {/if}
 
-{if $accounts_reviewed && $accounts_imported}
-	<tr>
-		<td bgcolor="#BBBBBB">
-		<b>{t}Groups{/t}:</b>
-		</td>
-{if $data[$key]['aux_accounts']}
-		<td bgcolor="#EEEEEE" colspan={count($data[$key]['aux_accounts'])}>
-		<b>{t}Group membership actions{/t}:</b>
-		</td>
-{else}
-		<td bgcolor="#EEEEEE">
-		<b>{t}Group membership actions{/t}:</b>
-		</td>
-{/if}
-	</tr>
-{foreach $data[$key]['groups'] item=group key=idx_group}
-	<tr>
-{if $data[$key]['aux_accounts']}
-		<td bgcolor="#EEEEEE">
-{else}
-		<td bgcolor="#EEEEEE">
-{/if}
-		{$group['cn'][0]}
-		</td>
-{if $data[$key]['aux_accounts']}
-		<td bgcolor="#F8F8F8" colspan={count($data[$key]['aux_accounts'])}>
-		{$data[$key]['main_account']['_group_actions'][$group['cn'][0]]}
-		</td>
-{else}
-		<td bgcolor="#F8F8F8">
-		{$data[$key]['main_account']['_group_actions'][$group['cn'][0]]}
-		</td>
-{/if}
-	</tr>
-{/foreach}
-{/if}
 
 </table>
 <br>

@@ -473,10 +473,10 @@ class manageaccounts extends plugin{
                     /* import the user's aux account (e.g., parent accounts) */
                     if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
                     {
-                        foreach($user_data['aux_accounts'] as $idx_aux => $aux_account_data)
+                        foreach($user_data['aux_accounts'] as $idx_aux => $aux_account)
                         {
                             /* import aux account $aux_account_data */
-                            $this->importLDAPUserObject($aux_account_data);
+                            $this->importLDAPUserObject($aux_account);
                         }
                     }
                 }
@@ -629,15 +629,15 @@ class manageaccounts extends plugin{
                 if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
                 {
                     $_uid= $user_data['main_account']['uid'][0];
-                    foreach($user_data['groups'] as $group_data)
+                    foreach($user_data['groups'] as $group_key => $group_data)
                     {
                         if (in_array('posixGroup', $group_data['objectClass']))
                         {
-                            if (!in_array($_group_name, array_keys($this->posixgroup_members)))
+                            if (!in_array($group_key, array_keys($this->posixgroup_members)))
                             {
-                                $this->posixgroup_members[$_group_name]= array();
+                                $this->posixgroup_members[$group_key]= array();
                             }
-                            $this->posixgroup_members[$_group_name][]= $_uid;
+                            $this->posixgroup_members[$group_key][]= $_uid;
                         }
                         if (in_array('gosaGroupOfNames', $group_data['objectClass']))
                         {
@@ -648,11 +648,44 @@ class manageaccounts extends plugin{
                         }
                     }
                 }
+                if(
+                   (isset($user_data['aux_accounts'])) and (!empty($user_data['aux_accounts'])) and
+                   (isset($user_data['aux_accounts_groups'])) and (!empty($user_data['aux_accounts_groups']))
+                  )
+                {
+                    foreach($user_data['aux_accounts_groups'] as $group_key => $group_data)
+                    {
+                        foreach($user_data['aux_accounts'] as $aux_account)
+                        {
+                            $_uid= $aux_account['uid'][0];
+                            if (in_array('posixGroup', $group_data['objectClass']))
+                            {
+                                if (!in_array($group_key, array_keys($this->posixgroup_members)))
+                                {
+                                    $this->posixgroup_members[$group_key]= array();
+                                }
+                                $this->posixgroup_members[$group_key][]= $_uid;
+                            }
+                            if (in_array('gosaGroupOfNames', $group_data['objectClass']))
+                            {
+                                if (!in_array($group_key, array_keys($this->groupofnames_members)))
+                                {
+                                    $this->groupofnames_members[$group_key]= array();
+                                }
+                                if (isset($aux_account['_dn_ldap']))
+                                {
+                                    $this->groupofnames_members[]= $aux_account['_dn_ldap'][0];
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             if ($this->failure_in_this_phase===FALSE)
             {
                 $this->accountStatusCheck();
+                $this->ogroupStatusCheck();
                 $smarty->assign("data",$this->csvinfo['data_preldap']);
                 $smarty->assign ("groups_imported",TRUE);
             }
@@ -910,26 +943,26 @@ class manageaccounts extends plugin{
                 }
                 if (isset($row['aux_accounts']))
                 {
-                    foreach ($row['aux_accounts'] as $aux_key => $aux_account)
+                    foreach ($row['aux_accounts'] as $idx_aux => $aux_account)
                     {
                         if ($this->compareObjects($aux_account, $gosa_account, array("sn", "givenName", "mail"))===TRUE)
                         {
                             $expected_base= $this->genAccountBase($aux_account);
                             $gosa_account_dn= $gosa_account['dn'];
 
-                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'exists';
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]= 'exists';
                             /*
                              * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
                              *        Later, we need to make actions more configurable...
                              */
-                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_actions'][0]= 'skip';
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0]= 'skip';
 
-                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_dn_ldap']= array($gosa_account_dn);
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_dn_ldap']= array($gosa_account_dn);
 
                             /* FIXME: We need a check that DN generation for aux accounts will actually work, probably when
                              *        constructing $this->csvinfo['data_preldap'].
                              */
-                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_base']= array($expected_base);
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base']= array($expected_base);
                         }
                     }
                 }
@@ -957,32 +990,32 @@ class manageaccounts extends plugin{
                 }
                 if (isset($row['aux_accounts']))
                 {
-                    foreach ($row['aux_accounts'] as $aux_key => $aux_account)
+                    foreach ($row['aux_accounts'] as $idx_aux => $aux_account)
                     {
-                        if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]== 'unchecked')
+                        if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]== 'unchecked')
                         {
                             if(isset($aux_account['sn']) and isset($aux_account['mail']) and isset($aux_account['givenName']))
                             {
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'not-found';
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_actions'][0]= 'create';
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]= 'not-found';
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0]= 'create';
                                 /* set the main account's base for object creation */
                                 $expected_base= $this->genAccountBase($aux_account);
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_base']= array($expected_base);
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base']= array($expected_base);
                             }
                             else {
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_status'][0]= 'data-incomplete';
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_actions'][0]= 'skip';
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]= 'data-incomplete';
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0]= 'skip';
                             }
 
                             /* generate passwords for aux accounts (if not provided) */
-                            if($this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['userPassword'][0]==='%auto%')
+                            if($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0]==='%auto%')
                             {
-                                if(strpos($this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['_actions'][0], 'create')!==FALSE)
+                                if(strpos($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0], 'create')!==FALSE)
                                 {
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['userPassword'][0]= $this->randomPassword(12);
+                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0]= $this->randomPassword(12);
                                 }
                                 else {
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$aux_key]['userPassword'][0]= "";
+                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0]= "";
                                 }
                             }
                         }
@@ -1222,19 +1255,47 @@ class manageaccounts extends plugin{
                                 $_actions= array_merge($_actions, $_check_attrs);
                             }
 
-                            /* check if the user's main account is in this group */
-                            if(in_array('gosaGroupOfNames', $group['objectClass']) and isset($row['main_account']['_dn_ldap'][0]))
+                            if($_group_type_key!=="aux_accounts_groups")
                             {
-                                $_ogroup_name= $group['cn'][0];
-                                $_dn= strtolower($row['main_account']['_dn_ldap'][0]);
-                                $_members= array_walk($gosa_ogroup['members'], 'strtolower');
-                                if(!in_array($_dn, $_members) or (in_array('flush-all-members', $_actions)))
+
+                                /* check if the user's main account is in this group */
+                                if(in_array('gosaGroupOfNames', $group['objectClass']) and isset($row['main_account']['_dn_ldap'][0]))
                                 {
-                                    $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions'][0]= 'update-memberships';
-                                    $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions'][$_ogroup_name]= 'add';
+                                    $_ogroup_name= $group['cn'][0];
+                                    $_dn= strtolower($row['main_account']['_dn_ldap'][0]);
+                                    $_members= array_walk($gosa_ogroup['members'], 'strtolower');
+                                    if(!in_array($_dn, $_members) or (in_array('flush-all-members', $_actions)))
+                                    {
+                                        $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions'][0]= 'update-memberships';
+                                        $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions'][$_ogroup_name]= 'add';
+                                    }
+                                    else {
+                                        $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions'][$_ogroup_name]= 'none';
+                                    }
                                 }
-                                else {
-                                    $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions'][$_ogroup_name]= 'none';
+                            }
+                            else {
+
+                                /* check if the aux accounts are in this group */
+                                if(isset($row['aux_accounts']) and (!empty($row['aux_accounts'])))
+                                {
+                                    foreach($row['aux_accounts'] as $idx_aux => $account_account)
+                                    {
+                                        $_ogroup_name= $group['cn'][0];
+                                        $_dn= strtolower($aux_account['_dn_ldap'][0]);
+                                        $_members= array_walk($gosa_ogroup['members'], 'strtolower');
+                                        if($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]!=="data-incomplete")
+                                        {
+                                            if(!in_array($_dn, $_members) or (in_array('flush-all-members', $_actions)))
+                                            {
+                                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions'][0]= 'update-memberships';
+                                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions'][$_ogroup_name]= 'add';
+                                            }
+                                            else {
+                                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions'][$_ogroup_name]= 'none';
+                                            }
+                                        }
+                                    }
                                 }
                             }
 
