@@ -1448,7 +1448,10 @@ class manageaccounts extends plugin{
 
                 foreach($_user_properties_base as $attr => $val)
                 {
-                    $usertab->$attr = $val;
+                    if(isset($usertab->$attr))
+                    {
+                        $usertab->$attr = $val;
+                    }
                     foreach($usertab->by_object as $pname => $plugin)
                     {
                         if(isset($usertab->by_object[$pname]->$attr))
