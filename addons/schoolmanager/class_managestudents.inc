@@ -217,11 +217,12 @@ class managestudents extends manageaccounts {
                         $row_sorted[$key]=$this->validGroupName($value);
                         if ($row_sorted[$key])
                         {
-                            $course_groups[]= array(
+                            $_cn= 'course_'.trim($row_sorted[$key]);
+                            $course_groups[$_cn]= array(
                                 'objectClass' => array(
                                     'posixGroup',
                                 ),
-                                'cn' => array('course_'.trim($row_sorted[$key])),
+                                'cn' => array($_cn),
                                 'description' => array(sprintf(_('SchoolManager course group %s'), 'course_'.$row_sorted[$key])),
                                 'mail' => array('course_'.trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
@@ -248,12 +249,17 @@ class managestudents extends manageaccounts {
                 }
                 $parent_group['_status']=array('unchecked');
                 $parent_group['_actions']=array('none');
+                $parent_group['_key']= array('aux_accounts_groups');
 
                 $groups= array();
-                if (!empty($class_group))    { $groups= array_merge($groups, array($class_group)); }
-                if (!empty($parent_group))   { $groups= array_merge($groups, array($parent_group)); }
-                if (!empty($course_groups))  { $groups= array_merge($groups, $course_groups); }
+                if (!empty($class_group))    { $groups= array_merge($groups, array($class_group['cn'][0] => $class_group)); }
+                $groups= array_merge($groups, $course_groups);
 
+                $aux_accounts_groups= array();
+                if (!empty($parent_group))
+                {
+                    $aux_accounts_groups[$parent_group['cn'][0]]= $parent_group;
+                }
             }
             $data_preldap[]= array(
                 'main_account' => $student,
@@ -261,7 +267,8 @@ class managestudents extends manageaccounts {
                     0 => $parent1,
                     1 => $parent2
                 ),
-                'groups' => $groups
+                'groups' => $groups,
+                'aux_accounts_groups' => $aux_accounts_groups,
             );
         }
         return $data_preldap;

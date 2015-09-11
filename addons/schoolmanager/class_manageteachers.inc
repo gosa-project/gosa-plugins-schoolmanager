@@ -159,11 +159,12 @@ class manageteachers extends manageaccounts {
                         $_class= $this->validGroupName($class);
                         if ($_class)
                         {
-                            $class_groups[]= array(
+                            $_cn= 'class_'.$_class;
+                            $class_groups[$_cn]= array(
                                 'objectClass' => array(
                                     'posixGroup'
                                 ),
-                                'cn' => array('class_'.$_class),
+                                'cn' => array($_cn),
                                 'description' => array(sprintf(_('SchoolManager class group %s'), 'class_%s'.$_class)),
                                 'mail' => array('class_'.$_class.'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
@@ -182,11 +183,12 @@ class manageteachers extends manageaccounts {
                         $_subject= $this->validGroupName($subject);
                         if ($_subject)
                         {
-                            $subject_groups[]= array(
+                            $_cn= 'subject_'.$_subject;
+                            $subject_groups[$_cn]= array(
                                 'objectClass' => array(
                                     'posixGroup'
                                 ),
-                                'cn' => array('subject_'.$_subject),
+                                'cn' => array($_cn),
                                 'description' => array(sprintf(_('SchoolManager subject group %s'), 'subject_'.$_subject)),
                                 'mail' => array('subject_'.$_subject.'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
@@ -204,11 +206,12 @@ class manageteachers extends manageaccounts {
                         $row_sorted[$key]=$this->validGroupName($value);
                         if ($row_sorted[$key])
                         {
-                            $course_groups[]= array(
+                            $_cn= 'course_'.$row_sorted[$key];
+                            $course_groups[$_cn]= array(
                                 'objectClass' => array(
                                     'posixGroup'
                                 ),
-                                'cn' => array('course_'.$row_sorted[$key]),
+                                'cn' => array($_cn),
                                 'description' => array(sprintf(_('SchoolManager course group %s'), 'course_'.$row_sorted[$key])),
                                 'mail' => array('course_'.trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
