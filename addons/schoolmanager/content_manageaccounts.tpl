@@ -101,7 +101,7 @@ FIXMEs:
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="try_mail_as_uid">{t escape=no}If CSV data does not contain a user ID ("uid") column, use the mail address as user ID instead?{/t}</LABEL>
+			<LABEL for="try_mail_as_uid">{t escape=no}If CSV data does not contain a user ID (uid) column, use the mail address as user ID instead?{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 {if $preset_try_mail_as_uid}

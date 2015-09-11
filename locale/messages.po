@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-11 17:07+0200\n"
+"POT-Creation-Date: 2015-09-11 22:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -261,7 +261,9 @@ msgid "(tick this check box, if yes)"
 msgstr ""
 
 #: addons/schoolmanager/content_manageaccounts.tpl:104
-msgid "If CSV data does not contain a user ID ("
+msgid ""
+"If CSV data does not contain a user ID (uid) column, use the mail address as "
+"user ID instead?"
 msgstr ""
 
 #: addons/schoolmanager/content_manageaccounts.tpl:120
