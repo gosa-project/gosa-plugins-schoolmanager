@@ -616,76 +616,12 @@ class manageaccounts extends plugin{
             $smarty->assign ("accounts_imported",TRUE);
             $smarty->assign ("groups_reviewed",TRUE);
 
-
-            /* collect group memberships from user accounts and store the information
-             * in separate arrays (one for posixGroups, one for gosaGroupOfNames)
-             */
-
-            $this->posixgroup_members= array();
-            $this->groupofnames_members= array();
-
-            foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
-            {
-                if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
-                {
-                    $_uid= $user_data['main_account']['uid'][0];
-                    foreach($user_data['groups'] as $group_key => $group_data)
-                    {
-                        if (in_array('posixGroup', $group_data['objectClass']))
-                        {
-                            if (!in_array($group_key, array_keys($this->posixgroup_members)))
-                            {
-                                $this->posixgroup_members[$group_key]= array();
-                            }
-                            $this->posixgroup_members[$group_key][]= $_uid;
-                        }
-                        if (in_array('gosaGroupOfNames', $group_data['objectClass']))
-                        {
-                            if (isset($user_data['main_account']['_dn_ldap']))
-                            {
-                                $this->groupofnames_members[]= $user_data['main_account']['_dn_ldap'];
-                            }
-                        }
-                    }
-                }
-                if(
-                   (isset($user_data['aux_accounts'])) and (!empty($user_data['aux_accounts'])) and
-                   (isset($user_data['aux_accounts_groups'])) and (!empty($user_data['aux_accounts_groups']))
-                  )
-                {
-                    foreach($user_data['aux_accounts_groups'] as $group_key => $group_data)
-                    {
-                        foreach($user_data['aux_accounts'] as $aux_account)
-                        {
-                            $_uid= $aux_account['uid'][0];
-                            if (in_array('posixGroup', $group_data['objectClass']))
-                            {
-                                if (!in_array($group_key, array_keys($this->posixgroup_members)))
-                                {
-                                    $this->posixgroup_members[$group_key]= array();
-                                }
-                                $this->posixgroup_members[$group_key][]= $_uid;
-                            }
-                            if (in_array('gosaGroupOfNames', $group_data['objectClass']))
-                            {
-                                if (!in_array($group_key, array_keys($this->groupofnames_members)))
-                                {
-                                    $this->groupofnames_members[$group_key]= array();
-                                }
-                                if (isset($aux_account['_dn_ldap']))
-                                {
-                                    $this->groupofnames_members[]= $aux_account['_dn_ldap'][0];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
             if ($this->failure_in_this_phase===FALSE)
             {
                 $this->accountStatusCheck();
+                $this->groupStatusCheck();
                 $this->ogroupStatusCheck();
+                $this->prepareGroupMemberships();
                 $smarty->assign("data",$this->csvinfo['data_preldap']);
                 $smarty->assign ("groups_imported",TRUE);
             }
@@ -711,12 +647,15 @@ class manageaccounts extends plugin{
             $smarty->assign ("groups_imported",TRUE);
 
             $this->addLDAPUserObjectsToGroups($this->posixgroup_members);
+            $this->addLDAPUserObjectsToOGroups($this->groupofnames_members);
 
             /* FIXME: present a message dialog box that informs on the statistics of
              *        the LDAP group membership updates.
              */
 
             $this->accountStatusCheck();
+            $this->groupStatusCheck();
+            $this->ogroupStatusCheck();
             $smarty->assign("data",$this->csvinfo['data_preldap']);
             if ($this->failure_in_this_phase===FALSE)
             {
@@ -1287,11 +1226,12 @@ class manageaccounts extends plugin{
                                 /* check if the aux accounts are in this group */
                                 if(isset($row['aux_accounts']) and (!empty($row['aux_accounts'])))
                                 {
-                                    foreach($row['aux_accounts'] as $idx_aux => $account_account)
+                                    foreach($row['aux_accounts'] as $idx_aux => $aux_account)
                                     {
                                         $_ogroup_name= $group['cn'][0];
-                                        $_dn= strtolower($aux_account['_dn_ldap'][0]);
-                                        $_members= array_walk($gosa_ogroup['members'], 'strtolower');
+                                        $_dn= $aux_account['_dn_ldap'][0];
+                                        $_members= $gosa_ogroup['member'];
+
                                         if($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]!=="data-incomplete")
                                         {
                                             if(!in_array($_dn, $_members) or (in_array('flush-all-members', $_actions)))
@@ -1737,8 +1677,6 @@ class manageaccounts extends plugin{
     function addLDAPUserObjectsToGroups($group_members_data)
     {
 
-        /* FIXME: Make this work with OGROUPTABS objects */
-
         foreach($group_members_data as $group_name => $new_members)
         {
             $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
@@ -1766,6 +1704,50 @@ class manageaccounts extends plugin{
             {
                 /* Save group object to LDAP */
                 $grouptab->save();
+            }
+        }
+    }
+
+    function addLDAPUserObjectsToOGroups($ogroup_members_data)
+    {
+        foreach($ogroup_members_data as $ogroup_name => $new_members)
+        {
+            $ogrouptab= new ogrouptabs($this->config, $this->config->data['TABS']['OGROUPTABS'],'cn='.$ogroup_name.','.get_ou('group', 'ogroupRDN').$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "ogroups" );
+
+            $current_members=$ogrouptab->by_object['ogroup']->member;
+            foreach($new_members as $new_member)
+            {
+                if(!in_array($new_member, $current_members))
+                {
+                    if(!in_array($new_member, $ogrouptab->by_object['ogroup']->member))
+                    {
+                        $obj_types= preg_replace('/[\[\]]/', '', $ogrouptab->by_object['ogroup']->gosaGroupObjects);
+                        if(strpos($obj_types, 'U')===FALSE)
+                        {
+                            $obj_types.= 'U';
+                            $ogrouptab->by_object['ogroup']->gosaGroupObjects= '['.$obj_types.']';
+                        }
+                        $ogrouptab->by_object['ogroup']->member[$new_member]= $new_member;
+                    }
+                }
+            }
+
+            /* Run GOsa²'s ogroups/ogroup checks */
+            if(count($ogrouptab->check()))
+            {
+
+                msg_dialog::displayChecks($ogrouptab->check());
+
+                /*
+                 * FIXME: collect failure statistics here!!!
+                 */
+
+                $this->failure_in_this_phase= TRUE;
+
+            } else
+            {
+                /* Save group object to LDAP */
+                $ogrouptab->save();
             }
         }
     }
@@ -1800,6 +1782,74 @@ class manageaccounts extends plugin{
             $template_base= $_class_group.$template_base;
         }
         return $template_base;
+    }
+
+    function prepareGroupMemberships()
+    {
+        /* collect group memberships from user accounts and store the information
+         * in separate arrays (one for posixGroups, one for gosaGroupOfNames)
+         */
+
+        $this->posixgroup_members= array();
+        $this->groupofnames_members= array();
+
+        foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
+        {
+            if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
+            {
+                $_uid= $user_data['main_account']['uid'][0];
+                foreach($user_data['groups'] as $group_key => $group_data)
+                {
+                    if (in_array('posixGroup', $group_data['objectClass']))
+                    {
+                        if (!in_array($group_key, array_keys($this->posixgroup_members)))
+                        {
+                            $this->posixgroup_members[$group_key]= array();
+                        }
+                        $this->posixgroup_members[$group_key][]= $_uid;
+                    }
+                    if (in_array('gosaGroupOfNames', $group_data['objectClass']))
+                    {
+                        if (isset($user_data['main_account']['_dn_ldap']))
+                        {
+                            $this->groupofnames_members[$group_key][]= $user_data['main_account']['_dn_ldap'];
+                        }
+                    }
+                }
+            }
+            if(
+               (isset($user_data['aux_accounts'])) and (!empty($user_data['aux_accounts'])) and
+               (isset($user_data['aux_accounts_groups'])) and (!empty($user_data['aux_accounts_groups']))
+              )
+            {
+                foreach($user_data['aux_accounts_groups'] as $group_key => $group_data)
+                {
+                    foreach($user_data['aux_accounts'] as $aux_account)
+                    {
+                        $_uid= $aux_account['uid'][0];
+                        if (in_array('posixGroup', $group_data['objectClass']))
+                        {
+                            if (!in_array($group_key, array_keys($this->posixgroup_members)))
+                            {
+                                $this->posixgroup_members[$group_key]= array();
+                            }
+                            $this->posixgroup_members[$group_key][]= $_uid;
+                        }
+                        if (in_array('gosaGroupOfNames', $group_data['objectClass']))
+                        {
+                            if (!in_array($group_key, array_keys($this->groupofnames_members)))
+                            {
+                                $this->groupofnames_members[$group_key]= array();
+                            }
+                            if (isset($aux_account['_dn_ldap']))
+                            {
+                                $this->groupofnames_members[$group_key][]= $aux_account['_dn_ldap'][0];
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     function validGroupName($group_name)
