@@ -204,7 +204,7 @@ class managestudents extends manageaccounts {
                     $class_group['objectClass']= array(
                         'posixGroup',
                     );
-                    $class_group['description']= array("SchoolManager class group ".$class_group['cn'][0]);
+                    $class_group['description']= array(sprintf(_('SchoolManager class group %s'), $class_group['cn'][0]));
                     $class_group['mail']= array($class_group['cn'][0].'@'.$this->csvinfo['domain_groups']);
                     $class_group['_status']= array('unchecked');
                     $class_group['_actions']= array('none');
@@ -222,7 +222,7 @@ class managestudents extends manageaccounts {
                                     'posixGroup',
                                 ),
                                 'cn' => array('course_'.trim($row_sorted[$key])),
-                                'description' => array('SchoolManager course group course_'.$row_sorted[$key]),
+                                'description' => array(sprintf(_('SchoolManager course group %s'), 'course_'.$row_sorted[$key])),
                                 'mail' => array('course_'.trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_actions' => array('none')

@@ -164,7 +164,7 @@ class manageteachers extends manageaccounts {
                                     'posixGroup'
                                 ),
                                 'cn' => array('class_'.$_class),
-                                'description' => array('SchoolManager class group class_'.$_class),
+                                'description' => array(sprintf(_('SchoolManager class group %s'), 'class_%s'.$_class)),
                                 'mail' => array('class_'.$_class.'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_actions' => array('none')
@@ -187,7 +187,7 @@ class manageteachers extends manageaccounts {
                                     'posixGroup'
                                 ),
                                 'cn' => array('subject_'.$_subject),
-                                'description' => array('SchoolManager subject group subject_'.$_subject),
+                                'description' => array(sprintf(_('SchoolManager subject group %s'), 'subject_'.$_subject)),
                                 'mail' => array('subject_'.$_subject.'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_actions' => array('none')
@@ -209,7 +209,7 @@ class manageteachers extends manageaccounts {
                                     'posixGroup'
                                 ),
                                 'cn' => array('course_'.$row_sorted[$key]),
-                                'description' => array('SchoolManager course group course_'.$row_sorted[$key]),
+                                'description' => array(sprintf(_('SchoolManager course group %s'), 'course_'.$row_sorted[$key])),
                                 'mail' => array('course_'.trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_actions' => array('none')
