@@ -1114,6 +1114,12 @@ class manageaccounts extends plugin{
                                 $_actions= array_merge($_actions, $_check_attrs);
                             }
 
+
+
+                            /* FIXME: The below code block needs to be adapted, in case there will be imports with AUX GROUPS being
+                             *        POSIX groups. See ogroupStatusCheck() for inspiration
+                             */
+
                             /* check if the user's main account is in this group */
                             if(in_array('posixGroup', $group['objectClass']) and isset($row['main_account']['uid'][0]))
                             {
@@ -1129,6 +1135,8 @@ class manageaccounts extends plugin{
                                     $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][$_group_name]= 'none';
                                 }
                             }
+
+
 
                             /* no action found till here, set the "none" action */
                             if(empty($_actions))
