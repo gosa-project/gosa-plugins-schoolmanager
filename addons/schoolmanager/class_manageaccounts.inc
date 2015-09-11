@@ -553,7 +553,31 @@ class manageaccounts extends plugin{
             $smarty->assign ("accounts_reviewed",TRUE);
             $smarty->assign ("accounts_imported",TRUE);
 
+            foreach($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data)
+            {
+
+                /* only perform on this group if _actions is not "none" */
+                if(strpos($group_data['_actions'][0],'none')===FALSE)
+                {
+
+                    $this->importLDAPGroupObject($group_name, $group_data);
+
+                }
+            }
+
+            foreach($this->csvinfo['data_preldap_ogroups'] as $group_name => $group_data)
+            {
+
+                /* only perform on this group if _actions is not "none" */
+                if(strpos($group_data['_actions'][0],'none')===FALSE)
+                {
+                    $this->importLDAPGroupObject($group_name, $group_data);
+
+                }
+            }
+
             $this->groupStatusCheck();
+            $this->ogroupStatusCheck();
 
             $smarty->assign ("data_groups", $this->csvinfo['data_preldap_posixgroups']);
             $smarty->assign ("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
@@ -578,17 +602,6 @@ class manageaccounts extends plugin{
             $smarty->assign ("accounts_imported",TRUE);
             $smarty->assign ("groups_reviewed",TRUE);
 
-            foreach($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data)
-            {
-
-                /* only perform on this group if _actions is not "none" */
-                if(strpos($group_data['_actions'][0],'none')===FALSE)
-                {
-
-                    $this->importLDAPGroupObject($group_name, $group_data);
-
-                }
-            }
 
             /* collect group memberships from user accounts and store the information
              * in separate arrays (one for posixGroups, one for gosaGroupOfNames)
@@ -1124,7 +1137,7 @@ class manageaccounts extends plugin{
                         /* detect status */
                         if ($this->compareObjects($group, $gosa_ogroup, array("cn"))===TRUE)
                         {
-                            $expected_ogroup_dn= 'cn='.$group['cn'][0].','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
+                            $expected_ogroup_dn= 'cn='.$group['cn'][0].','.get_ou('group','ogroupRDN').$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
                             $gosa_ogroup_dn= $gosa_ogroup['dn'];
                             if(strtolower($gosa_ogroup_dn)==strtolower($expected_ogroup_dn))
                             {
@@ -1257,19 +1270,36 @@ class manageaccounts extends plugin{
 
     function importLDAPGroupObject($group_name, $group_data)
     {
-        if((strpos($group_data['_actions'][0],'move')!==FALSE) or (strpos($group_data['_actions'][0],'move')!==FALSE))
+
+        if(in_array('posixClass', $group_data['objectClass']))
+        {
+            $_group_type= "groups";
+            $_group_obclass= "posixGroup";
+            $_group_tabs= "GROUPTABS";
+            $_group_tabs_class="grouptabs";
+            $_group_RDN= get_ou("group", "groupRDN");
+        }
+        else {
+            $_group_type = "ogroups";
+            $_group_obclass= "gosaGroupOfNames";
+            $_group_tabs= "OGROUPTABS";
+            $_group_tabs_class="ogrouptabs";
+            $_group_RDN= get_ou("group", "ogroupRDN");
+        }
+
+        if((strpos($group_data['_actions'][0],'create')!==FALSE) or (strpos($group_data['_actions'][0],'move')!==FALSE))
         {
 
             /* Instantiate a new group object via GOsa²'s API */
 
-            $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'new', "groups" );
+            $grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],'new', $_group_type );
             $grouptab->by_object['group']->base= $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
 
         }
         else{
 
             /* Retrieve group object from LDAP via GOsa²'s API */
-            $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
+            $grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],'cn='.$group_name.','.$_group_RDN.$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], $_group_type );
 
         }
 
@@ -1277,7 +1307,7 @@ class manageaccounts extends plugin{
         {
             /* do an ldapsearch for the source object and prepare a copy+paste action */
 
-            $_ldapsearch= $this->_ldap->search("(&(objectClass=posixGroup)(cn=".$group_name."))", array("*"));
+            $_ldapsearch= $this->_ldap->search("(&(objectClass=".$_group_obclass.")(cn=".$group_name."))", array("*"));
 
             /* There should only be _ONE_ object of this CN in the given LDAP (sub)tree scope.
              * Thus, only fetching the first obejct.
@@ -1290,7 +1320,7 @@ class manageaccounts extends plugin{
                 {
                     $grouptab->by_object[$pname]->prepareForCopyPaste($source);
                 }
-                $remove_later_grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],$source['dn'], "groups" );
+                $remove_later_grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],$source['dn'], $_group_type );
             }
         }
 
@@ -1298,11 +1328,11 @@ class manageaccounts extends plugin{
         $_group_properties= array(
             "cn" => $group_data['cn'][0],
         );
-        if((strpos($group_data['_actions'][0],'update-description')!==FALSE) || (strpos($group_data['_actions'][0],'create')!==FALSE))
+        if(((strpos($group_data['_actions'][0],'update-description')!==FALSE) or (strpos($group_data['_actions'][0],'create')!==FALSE)) and isset($group_data['description'][0]))
         {
             $_group_properties["description"]= $group_data['description'][0];
         }
-        if((strpos($group_data['_actions'][0],'update-mail')!==FALSE) || (strpos($group_data['_actions'][0],'create')!==FALSE))
+        if(((strpos($group_data['_actions'][0],'update-mail')!==FALSE) or (strpos($group_data['_actions'][0],'create')!==FALSE)) and isset($group_data['mail'][0]))
         {
             $_group_properties["mail"]= $group_data['mail'][0];
         }
@@ -1311,15 +1341,13 @@ class manageaccounts extends plugin{
          * FIXME: Make mail address creation (from CN) configurable somewhere...
          */
 
-        /* if we do import mail properties, make sure the mailgroup object is activated */
-        if ((isset($_group_properties['mail']) && isset($grouptab->by_object['mailgroup'])))
-        {
-            $grouptab->by_object['mailgroup']->is_account= TRUE;
-        }
         /* Populate sub-object attributes for $grouptab with same values */
         foreach($_group_properties as $attr => $val)
         {
-            $grouptab->$attr = $val;
+            if(isset($grouptab->$attr))
+            {
+                $grouptab->$attr = $val;
+            }
             foreach($grouptab->by_object as $pname => $plugin)
             {
                 if(isset($grouptab->by_object[$pname]->$attr))
@@ -1328,9 +1356,14 @@ class manageaccounts extends plugin{
                 }
             }
         }
+        /* if we do import mail properties, make sure the mailgroup object is activated */
+        if (isset($_group_properties['mail']) && isset($grouptab->by_object['mailgroup']))
+        {
+            $grouptab->by_object['mailgroup']->is_account= TRUE;
+        }
 
         /* Drop all group members, if requested */
-        if(strpos($group_data['_actions'][0],'flush-all-members')!==FALSE)
+        if((strpos($group_data['_actions'][0],'flush-all-members')!==FALSE) and ($_group_tabs==="GROUPS"))
         {
             $group_members=$grouptab->by_object['group']->memberUid;
             foreach($group_members as $group_member)
@@ -1338,8 +1371,12 @@ class manageaccounts extends plugin{
                 $grouptab->by_object['group']->removeUser($group_member);
             }
         }
+        elseif((strpos($group_data['_actions'][0],'flush-all-members')!==FALSE) and ($_group_tabs==="OGROUPS"))
+        {
+            $grouptab->by_object['ogroup']->member= array();
+        }
 
-        /* Run GOsa²'s groups/group checks */
+        /* Run GOsa²'s groups/group | ogroups/ogroup checks */
         if(count($grouptab->check()))
         {
             msg_dialog::displayChecks($grouptab->check());
@@ -1574,6 +1611,9 @@ class manageaccounts extends plugin{
 
     function addLDAPUserObjectsToGroups($group_members_data)
     {
+
+        /* FIXME: Make this work with OGROUPTABS objects */
+
         foreach($group_members_data as $group_name => $new_members)
         {
             $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );

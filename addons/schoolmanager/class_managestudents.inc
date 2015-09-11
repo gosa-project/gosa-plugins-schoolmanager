@@ -232,6 +232,7 @@ class managestudents extends manageaccounts {
                 }
                 $parent_group= array ();
                 $parent_group['cn']= array('parents_{%uid}');
+                $parent_group['description']= array(sprintf(_('parent group of user %s %s'), $student['givenName'][0], $student['sn'][0]));
                 $parent_group['objectClass'] = array(
                     'gosaGroupOfNames'
                 );
