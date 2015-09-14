@@ -315,7 +315,7 @@ msgstr "OU für neue Gruppen auswählen:"
 
 #: addons/schoolmanager/content_manageaccounts.tpl:154
 msgid "And what mail domain should these new groups be in?"
-msgstr "Und in welcher Maildomäne sollen diese neue Gruppen sein?"
+msgstr "Und in welcher Maildomäne sollen diese neuen Gruppen sein?"
 
 #: addons/schoolmanager/content_manageaccounts.tpl:160
 msgid "Mail domain for new groups:"
