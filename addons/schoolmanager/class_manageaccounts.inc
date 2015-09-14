@@ -1336,13 +1336,13 @@ class manageaccounts extends plugin{
     function importLDAPGroupObject($group_name, $group_data)
     {
 
-        if(in_array('posixClass', $group_data['objectClass']))
+        if(in_array('posixGroup', $group_data['objectClass']))
         {
             $_group_type= "groups";
             $_group_obclass= "posixGroup";
             $_group_tabs= "GROUPTABS";
             $_group_tabs_class="grouptabs";
-            $_group_RDN= get_ou("group", "groupRDN");
+            $_group_RDN= get_groups_ou();
         }
         else {
             $_group_type = "ogroups";
@@ -1385,7 +1385,7 @@ class manageaccounts extends plugin{
                 {
                     $grouptab->by_object[$pname]->prepareForCopyPaste($source);
                 }
-                $remove_later_grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],$source['dn'], $_group_type );
+                $remove_later_grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],$source['dn'],$_group_type );
             }
         }
 
