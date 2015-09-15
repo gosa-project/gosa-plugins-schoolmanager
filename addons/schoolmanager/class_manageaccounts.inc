@@ -1572,7 +1572,7 @@ class manageaccounts extends plugin{
                        (isset($user_data['mail'][0]) and $user_data['mail'][0])
                       )
                     {
-                        $_user_properties_base['uid']= $user_data['mail'][0];
+                        $_user_properties_base['uid']= strtolower($user_data['mail'][0]);
                     }
                     else {
                         /* FIXME: Report an error. No exact UIDs given, no UID column in the CSV sheet,

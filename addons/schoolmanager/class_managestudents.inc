@@ -241,11 +241,11 @@ class managestudents extends manageaccounts {
                 $parent_group['member']= array();
                 if(isset($parent1['mail']))
                 {
-                    $parent_group['member'][]= 'uid='.$parent1['mail'][0].','.get_people_ou().dn2base($this->csvinfo['templates']['DNs'][$this->csvinfo['template_aux']]);
+                    $parent_group['member'][]= 'uid='.strtolower($parent1['mail'][0]).','.get_people_ou().dn2base($this->csvinfo['templates']['DNs'][$this->csvinfo['template_aux']]);
                 }
                 if(isset($parent2['mail']))
                 {
-                    $parent_group['member'][]= 'uid='.$parent2['mail'][0].','.get_people_ou().dn2base($this->csvinfo['templates']['DNs'][$this->csvinfo['template_aux']]);
+                    $parent_group['member'][]= 'uid='.strtolower($parent2['mail'][0]).','.get_people_ou().dn2base($this->csvinfo['templates']['DNs'][$this->csvinfo['template_aux']]);
                 }
                 $parent_group['_status']=array('unchecked');
                 $parent_group['_actions']=array('none');
