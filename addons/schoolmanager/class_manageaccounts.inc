@@ -922,10 +922,16 @@ class manageaccounts extends plugin{
                     $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'create';
 
                     /* generate passwords for main accounts (if not provided) */
-                    if($this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0]==='%auto%')
+                    if((!isset($row['main_account']['userPassword'][0])) or ($row['main_account']['userPassword'][0]==="") or ($row['main_account']['userPassword'][0]==='%auto%'))
                     {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0]= $this->randomPassword(12);
-                    }
+                        if(strpos($row['main_account']['_actions'][0], 'create')!==FALSE)
+                        {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0].= ",generate-password";
+                            $this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0]= $this->randomPassword(12);
+                        }
+                        else {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['userPassword']= array("<keep>");
+                        }
 
                     /* set the main account's base for object creation */
                     $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
@@ -952,14 +958,15 @@ class manageaccounts extends plugin{
                             }
 
                             /* generate passwords for aux accounts (if not provided) */
-                            if($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0]==='%auto%')
+                            if((!isset($aux_account['userPassword'][0])) or ($aux_account['userPassword'][0]==="") or ($aux_account['userPassword'][0]==='%auto%'))
                             {
                                 if(strpos($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0], 'create')!==FALSE)
                                 {
+                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0].= ",generate-password";
                                     $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0]= $this->randomPassword(12);
                                 }
                                 else {
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0]= "";
+                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword']= array("<keep>");
                                 }
                             }
                         }
