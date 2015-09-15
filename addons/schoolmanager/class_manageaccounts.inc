@@ -1827,9 +1827,9 @@ class manageaccounts extends plugin{
         {
             if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
             {
-                $_uid= $user_data['main_account']['uid'][0];
                 foreach($user_data['groups'] as $group_key => $group_data)
                 {
+                    $_uid= $user_data['main_account']['uid'][0];
                     if (in_array('posixGroup', $group_data['objectClass']))
                     {
                         if (!in_array($group_key, array_keys($this->posixgroup_members)))
@@ -1856,9 +1856,9 @@ class manageaccounts extends plugin{
                 {
                     foreach($user_data['aux_accounts'] as $aux_account)
                     {
-                        $_uid= $aux_account['uid'][0];
                         if (in_array('posixGroup', $group_data['objectClass']))
                         {
+                            $_uid= $aux_account['uid'][0];
                             if (!in_array($group_key, array_keys($this->posixgroup_members)))
                             {
                                 $this->posixgroup_members[$group_key]= array();
