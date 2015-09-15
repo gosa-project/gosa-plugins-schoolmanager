@@ -924,7 +924,7 @@ class manageaccounts extends plugin{
 
                     /* set the main account's base for object creation */
                     $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
-                    $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array("uid=".$main_account['uid'][0].",".$expected_base);
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array("uid=".$row['main_account']['uid'][0].",".$expected_base);
                     $this->csvinfo['data_preldap'][$key]['main_account']['_base']= array($expected_base);
                 }
                 if (isset($row['aux_accounts']))
