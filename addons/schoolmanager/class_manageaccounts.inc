@@ -889,7 +889,12 @@ class manageaccounts extends plugin{
                             $expected_base= $this->genAccountBase($aux_account);
                             $gosa_account_dn= $gosa_account['dn'];
 
+                            /*
+                             * FIXME: Support automatic moving of AUX accounts!!!
+                             */
+
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]= 'exists';
+
                             /*
                              * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
                              *        Later, we need to make actions more configurable...
@@ -1622,7 +1627,10 @@ class manageaccounts extends plugin{
                 else {
                     $this->_ldap->cd($this->config->current['BASE']);
                 }
-                /* create base DN as a GOsa² department, presuming the the base DN's parent DN already exists */
+
+                /* create base DN as a GOsa² department, presuming the base DN's parent DN already exists */
+                /* FIXME: Create parent departments if they don't exist */
+
                 $_ou= preg_replace("/^ou=([^,]+),.*/", "$1", $user_data['_base'][0]);
                 $deptab= new deptabs($this->config, $this->config->data['TABS']['DEPTABS'],'new', "deptabs" );
                 $deptab->by_object['department']->ou= $_ou;
