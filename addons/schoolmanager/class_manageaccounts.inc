@@ -1368,18 +1368,18 @@ class manageaccounts extends plugin{
 
         if(in_array('posixGroup', $group_data['objectClass']))
         {
-            $_group_type= "groups";
             $_group_obclass= "posixGroup";
             $_group_tabs= "GROUPTABS";
-            $_group_tabs_class="grouptabs";
+            $_group_tabs_class= "grouptabs";
             $_group_RDN= get_groups_ou();
+            $_group_obj= "group";
         }
         else {
-            $_group_type = "ogroups";
             $_group_obclass= "gosaGroupOfNames";
             $_group_tabs= "OGROUPTABS";
             $_group_tabs_class="ogrouptabs";
             $_group_RDN= get_ou("group", "ogroupRDN");
+            $_group_obj= "ogroup";
         }
 
         if((strpos($group_data['_actions'][0],'create')!==FALSE) or (strpos($group_data['_actions'][0],'move')!==FALSE))
@@ -1387,14 +1387,14 @@ class manageaccounts extends plugin{
 
             /* Instantiate a new group object via GOsa²'s API */
 
-            $grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],'new', $_group_type );
-            $grouptab->by_object['group']->base= $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
+            $grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],'new');
+            $grouptab->by_object[$_group_obj]->base= $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
 
         }
         else{
 
             /* Retrieve group object from LDAP via GOsa²'s API */
-            $grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],'cn='.$group_name.','.$_group_RDN.$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], $_group_type );
+            $grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],'cn='.$group_name.','.$_group_RDN.$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']]);
 
         }
 
@@ -1415,7 +1415,7 @@ class manageaccounts extends plugin{
                 {
                     $grouptab->by_object[$pname]->prepareForCopyPaste($source);
                 }
-                $remove_later_grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],$source['dn'],$_group_type );
+                $remove_later_grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],$source['dn']);
             }
         }
 
