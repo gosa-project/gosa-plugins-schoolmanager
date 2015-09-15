@@ -986,6 +986,17 @@ class manageaccounts extends plugin{
 
     function groupStatusCheck()
     {
+
+        /* initialize group actions for each main account and each aux account */
+        foreach ($this->csvinfo['data_preldap'] as $key => $row)
+        {
+            $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions']= array('none');
+            foreach($row['aux_accounts'] as $idx_aux => $aux_account)
+            {
+                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_group_actions']= array('none');
+            }
+        }
+
         $this->_ldap->cd($this->config->current['BASE']);
         $ldapsearch = $this->_ldap->search("(objectClass=posixGroup)",array("cn","memberUid","mail", "description"));
 
@@ -1001,6 +1012,7 @@ class manageaccounts extends plugin{
 
                 if(!empty($_all_groups))
                 {
+
                     foreach ($_all_groups as $group_key => $group)
                     {
 
@@ -1064,7 +1076,7 @@ class manageaccounts extends plugin{
                             {
                                 $_group_name= $group['cn'][0];
                                 $_uid= $row['main_account']['uid'][0];
-                                $_members= $gosa_posix_group['memberUid'];
+                                $_members= isset($gosa_posix_group['memberUid']) ? $gosa_posix_group['memberUid'] : array();
                                 if(!in_array($_uid, $_members) or (in_array('flush-all-members', $_actions)))
                                 {
                                     $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][0]= 'update-memberships';
@@ -1074,8 +1086,6 @@ class manageaccounts extends plugin{
                                     $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][$_group_name]= 'none';
                                 }
                             }
-
-
 
                             /* no action found till here, set the "none" action */
                             if(empty($_actions))
@@ -1136,6 +1146,17 @@ class manageaccounts extends plugin{
 
     function ogroupStatusCheck()
     {
+
+        /* initialize ogroup actions for each main account and each aux account */
+        foreach ($this->csvinfo['data_preldap'] as $key => $row)
+        {
+            $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions']= array('none');
+            foreach($row['aux_accounts'] as $idx_aux => $aux_account)
+            {
+                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions']= array('none');
+            }
+        }
+
         $this->_ldap->cd($this->config->current['BASE']);
         $ldapsearch = $this->_ldap->search("(objectClass=gosaGroupOfNames)",array("cn","member","description"));
 
@@ -1150,6 +1171,7 @@ class manageaccounts extends plugin{
 
                 if(!empty($_all_groups))
                 {
+
                     foreach ($_all_groups as $group_key => $group)
                     {
 
@@ -1208,9 +1230,13 @@ class manageaccounts extends plugin{
                                 /* check if the user's main account is in this group */
                                 if(in_array('gosaGroupOfNames', $group['objectClass']) and isset($row['main_account']['_dn_ldap'][0]))
                                 {
+
+                                    /* if the object's DN is not know by now, let's skip this object */
+                                    if(!isset($row['main_account']['_dn_ldap'])) { continue; }
+
                                     $_ogroup_name= $group['cn'][0];
-                                    $_dn= strtolower($row['main_account']['_dn_ldap'][0]);
-                                    $_members= array_walk($gosa_ogroup['members'], 'strtolower');
+                                    $_dn= $row['main_account']['_dn_ldap'][0];
+                                    $_members= isset($gosa_ogroup['member']) ? $gosa_ogroup['member'] : array();
                                     if(!in_array($_dn, $_members) or (in_array('flush-all-members', $_actions)))
                                     {
                                         $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions'][0]= 'update-memberships';
@@ -1228,9 +1254,13 @@ class manageaccounts extends plugin{
                                 {
                                     foreach($row['aux_accounts'] as $idx_aux => $aux_account)
                                     {
+
+                                        /* if the object's DN is not know by now, let's skip this object */
+                                        if(!isset($aux_account['_dn_ldap'])) { continue; }
+
                                         $_ogroup_name= $group['cn'][0];
                                         $_dn= $aux_account['_dn_ldap'][0];
-                                        $_members= $gosa_ogroup['member'];
+                                        $_members= isset($gosa_ogroup['member']) ? $gosa_ogroup['member'] : array();
 
                                         if($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]!=="data-incomplete")
                                         {
