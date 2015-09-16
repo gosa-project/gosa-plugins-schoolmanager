@@ -274,6 +274,7 @@ FIXMEs:
 						{$data[$key]['main_account'][$property][0]}
 {elseif strpos($data[$key]['main_account']['_status'][0],"exists")!==FALSE }
 						{t}<keep>{/t}
+{elseif strpos($data[$key]['main_account']['_status'][0],"data-incomplete")!==FALSE }
 {else}
 						************
 {/if}
@@ -339,6 +340,7 @@ FIXMEs:
 						{$aux_account[$property][0]}
 {elseif strpos($aux_account['_status'][0],"exists")!==FALSE }
 						{t}<keep>{/t}
+{elseif strpos($aux_account['_status'][0],"data-incomplete")!==FALSE }
 {else}
 						************
 {/if}

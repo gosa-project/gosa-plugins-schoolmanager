@@ -150,8 +150,14 @@ class managestudents extends manageaccounts {
 
                 /* auxiliary accounts */
                 $parent1=array ();
-                $parent1['sn']=array (trim($row_sorted['parent1_sn']));
-                $parent1['givenName']=array (trim($row_sorted['parent1_givenName']));
+                if(isset($row_sorted['parent1_sn']) and ($row_sorted['parent1_sn']!==""))
+                {
+                    $parent1['sn']=array (trim($row_sorted['parent1_sn']));
+                }
+                if(isset($row_sorted['parent1_givenName']) and ($row_sorted['parent1_givenName']!==""))
+                {
+                    $parent1['givenName']=array (trim($row_sorted['parent1_givenName']));
+                }
 
                 if(isset($row_sorted['parent1_mail']) and $row_sorted['parent1_mail'])
                 {
@@ -167,8 +173,14 @@ class managestudents extends manageaccounts {
                 $parent1['_group_actions']= array('none');
 
                 $parent2=array ();
-                $parent2['sn']=array (trim($row_sorted['parent2_sn']));
-                $parent2['givenName']=array (trim($row_sorted['parent2_givenName']));
+                if(isset($row_sorted['parent2_sn']) and ($row_sorted['parent2_sn']!==""))
+                {
+                    $parent2['sn']=array (trim($row_sorted['parent2_sn']));
+                }
+                if(isset($row_sorted['parent2_givenName']) and ($row_sorted['parent2_givenName']!==""))
+                {
+                    $parent2['givenName']=array (trim($row_sorted['parent2_givenName']));
+                }
 
                 if(isset($row_sorted['parent2_mail']) and $row_sorted['parent2_mail'])
                 {
@@ -261,15 +273,24 @@ class managestudents extends manageaccounts {
                     $aux_accounts_groups[$parent_group['cn'][0]]= $parent_group;
                 }
             }
+
+            $_aux_accounts= array();
+            if(isset($parent1['sn'][0]) and isset($parent1['givenName'][0]))
+            {
+                $_aux_accounts[]= $parent1;
+            }
+            if(isset($parent2['sn'][0]) and isset($parent2['givenName'][0]))
+            {
+                $_aux_accounts[]= $parent2;
+            }
+
             $data_preldap[]= array(
                 'main_account' => $student,
-                'aux_accounts' => array(
-                    0 => $parent1,
-                    1 => $parent2
-                ),
+                'aux_accounts' => $_aux_accounts,
                 'groups' => $groups,
                 'aux_accounts_groups' => $aux_accounts_groups,
             );
+
         }
         return $data_preldap;
     }

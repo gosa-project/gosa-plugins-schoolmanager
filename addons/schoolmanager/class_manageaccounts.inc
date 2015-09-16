@@ -453,46 +453,54 @@ class manageaccounts extends plugin{
             $smarty->assign ("import_configured",TRUE);
             $smarty->assign ("data_sorted",TRUE);
 
-            if($this->failure_in_this_phase===FALSE)
+            /*
+             * Add users to / update users in LDAP
+             */
+            foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
             {
-                $smarty->assign ("accounts_reviewed",TRUE);
-
-                /*
-                 * Add users to / update users in LDAP
-                 */
-                foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
+                /* import the user's main account */
+                if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
                 {
-                    /* import the user's main account */
-                    if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
-                    {
 
-                        $this->importLDAPUserObject($user_data['main_account']);
+                    $this->importLDAPUserObject($user_data['main_account']);
 
-                    }
-
-                    /* import the user's aux account (e.g., parent accounts) */
-                    if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
-                    {
-                        foreach($user_data['aux_accounts'] as $idx_aux => $aux_account)
-                        {
-                            /* import aux account $aux_account_data */
-                            $this->importLDAPUserObject($aux_account);
-                        }
-                    }
                 }
 
+                /* import the user's aux account (e.g., parent accounts) */
+                if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
+                {
+                    foreach($user_data['aux_accounts'] as $idx_aux => $aux_account)
+                    {
+                        /* import aux account $aux_account_data */
+                        $this->importLDAPUserObject($aux_account);
+                    }
+                }
+            }
+
+            if($this->failure_in_this_phase===FALSE)
+            {
                 /* FIXME: present a message dialog box that informs on the statistics of
                  *        the LDAP group import. (How many groups got created? How many
                  *        groups have been updated? How many groups were not empty and
                  *        required dropping of all members? Etc.
                  */
 
+                $smarty->assign ("accounts_reviewed",TRUE);
+
                 $this->accountStatusCheck();
                 $smarty->assign("data",$this->csvinfo['data_preldap']);
 
             }
             else {
+
+                /* show failure messages */
+                foreach($this->failure_messages as $msg)
+                {
+                    msg_dialog::displayChecks($msg);
+                }
+
                 /* prepare for reloading this phase's web page again */
+                $this->accountStatusCheck();
                 $smarty->assign("data",$this->csvinfo['data_preldap']);
             }
         }
@@ -926,12 +934,14 @@ class manageaccounts extends plugin{
                     {
                         if(strpos($row['main_account']['_actions'][0], 'create')!==FALSE)
                         {
-                            $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0].= ",generate-password";
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0].= ",password-generated";
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0].= ",set-password";
                             $this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0]= $this->randomPassword(12);
                         }
                         else {
                             $this->csvinfo['data_preldap'][$key]['main_account']['userPassword']= array("<keep>");
                         }
+                    }
 
                     /* set the main account's base for object creation */
                     $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
@@ -954,7 +964,7 @@ class manageaccounts extends plugin{
                             }
                             else {
                                 $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]= 'data-incomplete';
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0]= 'skip';
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0]= 'ignore';
                             }
 
                             /* generate passwords for aux accounts (if not provided) */
@@ -962,7 +972,8 @@ class manageaccounts extends plugin{
                             {
                                 if(strpos($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0], 'create')!==FALSE)
                                 {
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0].= ",generate-password";
+                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0].= ",password-generated";
+                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0].= ",set-password";
                                     $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0]= $this->randomPassword(12);
                                 }
                                 else {
@@ -1520,7 +1531,7 @@ class manageaccounts extends plugin{
     function importLDAPUserObject($user_data)
     {
         /* only perform on this user dataset if _actions does not contain "skip"... */
-        if(strpos($user_data['_actions'][0],'skip')!==FALSE)
+        if((strpos($user_data['_actions'][0],'skip')!==FALSE) or (strpos($user_data['_actions'][0],'ignore')!==FALSE))
         {
             return;
         }
@@ -1676,9 +1687,10 @@ class manageaccounts extends plugin{
             }
 
             /* Insert into the LDAP tree */
+            $this->failure_messages= array();
             if(count($usertab->check())) {
 
-                msg_dialog::displayChecks($usertab->check());
+                $this->failure_messages[]= $usertab->check();
 
                 /*
                  * FIXME: collect failure statistics here!!!
@@ -1690,7 +1702,7 @@ class manageaccounts extends plugin{
 
                 $usertab->save();
 
-                if (strpos($user_data['_status'][0],'exists')===FALSE)
+                if (strpos($user_data['_status'][0],'set-password')===FALSE)
                 {
                     if(!change_password($usertab->dn,$user_data['userPassword'][0],FALSE,'','', $message)){
                         msg_dialog::displayChecks(array($message));
