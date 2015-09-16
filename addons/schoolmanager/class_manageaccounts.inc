@@ -1652,9 +1652,18 @@ class manageaccounts extends plugin{
             }
 
             /* on existing account, we allow the below attributes to be updated */
-            if(isset($user_data['employeeNumber'][0])) { $_user_properties_extras["employeeNumber"]= $user_data['employeeNumber'][0]; }
-            if(isset($user_data['departmentNumber'][0])) { $_user_properties_extras["departmentNumber"]= $user_data['departmentNumber'][0]; }
-            if(isset($user_data['mail'][0])) { $_user_properties_extras["mail"]= $user_data['mail'][0]; }
+            if(isset($user_data['employeeNumber'][0]) and (strpos($user_data['_actions'][0],'update-employeeNumber')!==FALSE))
+            {
+                $_user_properties_extras["employeeNumber"]= $user_data['employeeNumber'][0];
+            }
+            if(isset($user_data['departmentNumber'][0]) and (strpos($user_data['_actions'][0],'update-departmentNumber')!==FALSE))
+            {
+                $_user_properties_extras["departmentNumber"]= $user_data['departmentNumber'][0];
+            }
+            if(isset($user_data['mail'][0]) and (strpos($user_data['_actions'][0],'update-mail')!==FALSE))
+            {
+                $_user_properties_extras["mail"]= $user_data['mail'][0];
+            }
 
             if($user_data['_template'][0] != 0)
             {
@@ -1697,7 +1706,7 @@ class manageaccounts extends plugin{
 
             }
 
-            if(isset($user_data['mail']) and isset($usertab->by_object['mailAccount'])) {
+            if(isset($_user_properties_extras["mail"]) and isset($usertab->by_object['mailAccount'])) {
                 /* FIXME: check if a mailAccount plugin is available at all */
                 $usertab->by_object['mailAccount']->is_account= TRUE;
             }
