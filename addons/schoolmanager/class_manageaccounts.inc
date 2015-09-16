@@ -802,7 +802,7 @@ class manageaccounts extends plugin{
         return array();
     }
 
-    function compareObjects($object_a, $object_b, $attrs=array("sn", "givenName"), $prefix="")
+    function compareObjects($object_a, $object_b, $attrs=array("sn", "givenName"), $prefix="", $ci=FALSE)
     {
 
         $unequal = array();
@@ -812,11 +812,11 @@ class manageaccounts extends plugin{
             $val_a = $val_b = NULL;
             if (isset($object_a[$attr][0]))
             {
-                $val_a = $object_a[$attr][0];
+                $val_a = ($ci===TRUE) ? strtolower($object_a[$attr][0]) : $object_a[$attr][0];
             }
             if (isset($object_b[$attr][0]))
             {
-                $val_b = $object_b[$attr][0];
+                $val_b = ($ci===TRUE) ? strtolower($object_b[$attr][0]) : $object_b[$attr][0];
             }
 
             if ($val_a!==$val_b)
@@ -846,7 +846,7 @@ class manageaccounts extends plugin{
         }
 
         $this->_ldap->cd($this->config->current['BASE']);
-        $ldapsearch = $this->_ldap->search("(objectClass=gosaAccount)",array("sn","givenName","gender","dateOfBirth", "mail"));
+        $ldapsearch = $this->_ldap->search("(objectClass=gosaAccount)",array("sn","givenName","gender","dateOfBirth", "mail", "departmentNumber", "employeeNumber"));
 
         /* this will probably scale very very badly... Improvement needed. Suggestions? */
         while ($gosa_account = $this->_ldap->fetch($ldapsearch))
@@ -856,7 +856,7 @@ class manageaccounts extends plugin{
                 if (isset($row['main_account']))
                 {
                     /* detect status */
-                    if ($this->compareObjects($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth"))===TRUE)
+                    if ($this->compareObjects($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth"), "", TRUE)===TRUE)
                     {
                         $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
                         $expected_account_dn= "uid=".$row['main_account']['uid'][0].','.get_people_ou().$expected_base;
@@ -871,18 +871,27 @@ class manageaccounts extends plugin{
                         }
 
                         /* detect actions */
+                        $_actions= array();
                         if($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]==='exists-elsewhere')
                         {
-                            $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'move';
+                            $_actions[]= "move";
                         }
-                        elseif($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]==='exists')
+
+                        $_check_attrs= $this->compareObjects($row['main_account'], $gosa_account, array("mail","employeeNumber","departmentNumber",), "update-");
+                        if ($_check_attrs===TRUE)
                         {
-                            /*
-                             * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
-                             *        Later, we need to make actions more configurable...
-                             */
-                            $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'skip';
                         }
+                        else {
+                            $_actions= array_merge($_actions, $_check_attrs);
+                        }
+
+                        if(empty($_actions))
+                        {
+                            $_actions[]= 'skip';
+                        }
+
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= implode(",", $_actions);
+
                         $this->csvinfo['data_preldap'][$key]['main_account']['_dn_ldap']= array($gosa_account_dn);
                         $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array($expected_account_dn);
                         $this->csvinfo['data_preldap'][$key]['main_account']['_base']= array($expected_base);
@@ -892,10 +901,12 @@ class manageaccounts extends plugin{
                 {
                     foreach ($row['aux_accounts'] as $idx_aux => $aux_account)
                     {
-                        if ($this->compareObjects($aux_account, $gosa_account, array("sn", "givenName", "mail"))===TRUE)
+                        if ($this->compareObjects($aux_account, $gosa_account, array("sn", "givenName", "mail"), "", TRUE)===TRUE)
                         {
                             $expected_base= $this->genAccountBase($aux_account);
                             $gosa_account_dn= $gosa_account['dn'];
+
+                            /* detect status */
 
                             /*
                              * FIXME: Support automatic moving of AUX accounts!!!
@@ -903,11 +914,27 @@ class manageaccounts extends plugin{
 
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]= 'exists';
 
+                            $_actions= array();
+
                             /*
                              * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
                              *        Later, we need to make actions more configurable...
                              */
-                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0]= 'skip';
+
+                            $_check_attrs= $this->compareObjects($aux_account, $gosa_account, array("mail"), "update-");
+                            if ($_check_attrs===TRUE)
+                            {
+                            }
+                            else {
+                                $_actions= array_merge($_actions, $_check_attrs);
+                            }
+
+                            if(empty($_actions))
+                            {
+                                $_actions[]= 'skip';
+                            }
+
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0]= implode(",", $_actions);
 
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_dn_ldap']= array($gosa_account_dn);
 
@@ -1598,6 +1625,7 @@ class manageaccounts extends plugin{
                 }
                 $_user_properties_base["sn"]= $user_data['sn'][0];
                 $_user_properties_base["givenName"]= $user_data['givenName'][0];
+
                 if(isset($user_data['gender'][0])) { $_user_properties_extras["gender"]= $user_data['gender'][0]; }
                 if(isset($user_data['dateOfBirth'][0])) { $_user_properties_extras["dateOfBirth"]= $user_data['dateOfBirth'][0]; }
 
@@ -1625,6 +1653,7 @@ class manageaccounts extends plugin{
 
             /* on existing account, we allow the below attributes to be updated */
             if(isset($user_data['employeeNumber'][0])) { $_user_properties_extras["employeeNumber"]= $user_data['employeeNumber'][0]; }
+            if(isset($user_data['departmentNumber'][0])) { $_user_properties_extras["departmentNumber"]= $user_data['departmentNumber'][0]; }
             if(isset($user_data['mail'][0])) { $_user_properties_extras["mail"]= $user_data['mail'][0]; }
 
             if($user_data['_template'][0] != 0)
