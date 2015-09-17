@@ -887,7 +887,7 @@ class manageaccounts extends plugin{
 
                         if(empty($_actions))
                         {
-                            $_actions[]= 'skip';
+                            $_actions[]= 'none';
                         }
 
                         $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= implode(",", $_actions);
@@ -917,7 +917,7 @@ class manageaccounts extends plugin{
                             $_actions= array();
 
                             /*
-                             * FIXME: Hard-code a "skip" action here in case we found a matching account in LDAP.
+                             * FIXME: Hard-code a "none" action here in case we found a matching account in LDAP.
                              *        Later, we need to make actions more configurable...
                              */
 
@@ -931,7 +931,7 @@ class manageaccounts extends plugin{
 
                             if(empty($_actions))
                             {
-                                $_actions[]= 'skip';
+                                $_actions[]= 'none';
                             }
 
                             $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0]= implode(",", $_actions);
@@ -1557,8 +1557,8 @@ class manageaccounts extends plugin{
 
     function importLDAPUserObject($user_data)
     {
-        /* only perform on this user dataset if _actions does not contain "skip"... */
-        if((strpos($user_data['_actions'][0],'skip')!==FALSE) or (strpos($user_data['_actions'][0],'ignore')!==FALSE))
+        /* only perform on this user dataset if _actions does not contain "none"... */
+        if((strpos($user_data['_actions'][0],'none')!==FALSE) or (strpos($user_data['_actions'][0],'ignore')!==FALSE))
         {
             return;
         }
