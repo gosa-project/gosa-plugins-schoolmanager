@@ -877,7 +877,17 @@ class manageaccounts extends plugin{
                             $_actions[]= "move";
                         }
 
-                        $_check_attrs= $this->compareObjects($row['main_account'], $gosa_account, array("mail","employeeNumber","departmentNumber",), "update-");
+                        /* only update attributes that are already set in the main account dataset */
+                        $_updatable_attrs= array();
+                        foreach(array("mail","employeeNumber","departmentNumber") as $_attr)
+                        {
+                            if(isset($row['main_account'][$_attr]))
+                            {
+                                $_updatable_attrs[]= $_attr;
+                            }
+                        }
+
+                        $_check_attrs= $this->compareObjects($row['main_account'], $gosa_account, $_updatable_attrs, "update-");
                         if ($_check_attrs===TRUE)
                         {
                         }
@@ -921,7 +931,17 @@ class manageaccounts extends plugin{
                              *        Later, we need to make actions more configurable...
                              */
 
-                            $_check_attrs= $this->compareObjects($aux_account, $gosa_account, array("mail"), "update-");
+                            /* only update attributes that are already set in the main account dataset */
+                            $_updatable_attrs= array();
+                            foreach(array("mail") as $_attr)
+                            {
+                                if(isset($row['main_account'][$_attr]))
+                                {
+                                    $_updatable_attrs[]= $_attr;
+                                }
+                            }
+
+                            $_check_attrs= $this->compareObjects($aux_account, $gosa_account, $_updatable_attrs, "update-");
                             if ($_check_attrs===TRUE)
                             {
                             }
