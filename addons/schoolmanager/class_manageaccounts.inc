@@ -1652,15 +1652,15 @@ class manageaccounts extends plugin{
             }
 
             /* on existing account, we allow the below attributes to be updated */
-            if(isset($user_data['employeeNumber'][0]) and (strpos($user_data['_actions'][0],'update-employeeNumber')!==FALSE))
+            if(isset($user_data['employeeNumber'][0]) and ((strpos($user_data['_actions'][0],'update-employeeNumber')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
             {
                 $_user_properties_extras["employeeNumber"]= $user_data['employeeNumber'][0];
             }
-            if(isset($user_data['departmentNumber'][0]) and (strpos($user_data['_actions'][0],'update-departmentNumber')!==FALSE))
+            if(isset($user_data['departmentNumber'][0]) and ((strpos($user_data['_actions'][0],'update-departmentNumber')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
             {
                 $_user_properties_extras["departmentNumber"]= $user_data['departmentNumber'][0];
             }
-            if(isset($user_data['mail'][0]) and (strpos($user_data['_actions'][0],'update-mail')!==FALSE))
+            if(isset($user_data['mail'][0]) and ((strpos($user_data['_actions'][0],'update-mail')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
             {
                 $_user_properties_extras["mail"]= $user_data['mail'][0];
             }
