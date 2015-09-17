@@ -1774,31 +1774,39 @@ class manageaccounts extends plugin{
 
         foreach($group_members_data as $group_name => $new_members)
         {
-            $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
-
-            $current_members=$grouptab->by_object['group']->memberUid;
-            foreach($new_members as $new_member)
+            if(empty($new_members))
             {
-                if(!in_array($new_member, $current_members))
-                {
-                    $grouptab->by_object['group']->addUser($new_member);
-                }
+                continue;
             }
-            /* Run GOsa²'s groups/group checks */
-            if(count($grouptab->check()))
-            {
-                msg_dialog::displayChecks($grouptab->check());
+            else {
 
-                /*
-                 * FIXME: collect failure statistics here!!!
-                 */
+                $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],'cn='.$group_name.','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups" );
 
-                $this->failure_in_this_phase= TRUE;
+                $current_members=$grouptab->by_object['group']->memberUid;
+                foreach($new_members as $new_member)
+                {
+                    if(!in_array($new_member, $current_members))
+                    {
+                        $grouptab->by_object['group']->addUser($new_member);
+                    }
+                }
 
-            } else
-            {
-                /* Save group object to LDAP */
-                $grouptab->save();
+                /* Run GOsa²'s groups/group checks */
+                if(count($grouptab->check()))
+                {
+                    msg_dialog::displayChecks($grouptab->check());
+
+                    /*
+                     * FIXME: collect failure statistics here!!!
+                     */
+
+                    $this->failure_in_this_phase= TRUE;
+
+                } else
+                {
+                    /* Save group object to LDAP */
+                    $grouptab->save();
+                }
             }
         }
     }
@@ -1807,42 +1815,50 @@ class manageaccounts extends plugin{
     {
         foreach($ogroup_members_data as $ogroup_name => $new_members)
         {
-            $ogrouptab= new ogrouptabs($this->config, $this->config->data['TABS']['OGROUPTABS'],'cn='.$ogroup_name.','.get_ou('group', 'ogroupRDN').$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "ogroups" );
 
-            $current_members=$ogrouptab->by_object['ogroup']->member;
-            foreach($new_members as $new_member)
+            if(empty($new_members))
             {
-                if(!in_array($new_member, $current_members))
+                continue;
+            }
+            else {
+
+                $ogrouptab= new ogrouptabs($this->config, $this->config->data['TABS']['OGROUPTABS'],'cn='.$ogroup_name.','.get_ou('group', 'ogroupRDN').$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "ogroups" );
+
+                $current_members=$ogrouptab->by_object['ogroup']->member;
+                foreach($new_members as $new_member)
                 {
-                    if(!in_array($new_member, $ogrouptab->by_object['ogroup']->member))
+                    if(!in_array($new_member, $current_members))
                     {
-                        $obj_types= preg_replace('/[\[\]]/', '', $ogrouptab->by_object['ogroup']->gosaGroupObjects);
-                        if(strpos($obj_types, 'U')===FALSE)
-                        {
-                            $obj_types.= 'U';
-                            $ogrouptab->by_object['ogroup']->gosaGroupObjects= '['.$obj_types.']';
-                        }
+
                         $ogrouptab->by_object['ogroup']->member[$new_member]= $new_member;
                     }
                 }
-            }
 
-            /* Run GOsa²'s ogroups/ogroup checks */
-            if(count($ogrouptab->check()))
-            {
+                /* Update the object type in gosaGroupObjects at the end of adding new members */
+                $obj_types= preg_replace('/[\[\]]/', '', $ogrouptab->by_object['ogroup']->gosaGroupObjects);
+                if(strpos($obj_types, 'U')===FALSE)
+                {
+                    $obj_types.= 'U';
+                    $ogrouptab->by_object['ogroup']->gosaGroupObjects= '['.$obj_types.']';
+                }
 
-                msg_dialog::displayChecks($ogrouptab->check());
+                /* Run GOsa²'s ogroups/ogroup checks */
+                if(count($ogrouptab->check()))
+                {
 
-                /*
-                 * FIXME: collect failure statistics here!!!
-                 */
+                    msg_dialog::displayChecks($ogrouptab->check());
 
-                $this->failure_in_this_phase= TRUE;
+                    /*
+                     * FIXME: collect failure statistics here!!!
+                     */
 
-            } else
-            {
-                /* Save group object to LDAP */
-                $ogrouptab->save();
+                    $this->failure_in_this_phase= TRUE;
+
+                } else
+                {
+                    /* Save group object to LDAP */
+                    $ogrouptab->save();
+                }
             }
         }
     }
@@ -1894,16 +1910,22 @@ class manageaccounts extends plugin{
             {
                 foreach($user_data['groups'] as $group_key => $group_data)
                 {
-                    $_uid= $user_data['main_account']['uid'][0];
-                    if (in_array('posixGroup', $group_data['objectClass']))
+                    if (in_array('posixGroup', $group_data['objectClass']) and
+                        ($user_data['main_account']['_ogroup_actions'][0]==="update-memberships") and 
+                        ($user_data['main_account']['_group_actions'][$group_key]==="add")
+                       )
                     {
+                        $_uid= $user_data['main_account']['uid'][0];
                         if (!in_array($group_key, array_keys($this->posixgroup_members)))
                         {
                             $this->posixgroup_members[$group_key]= array();
                         }
                         $this->posixgroup_members[$group_key][]= $_uid;
                     }
-                    if (in_array('gosaGroupOfNames', $group_data['objectClass']))
+                    if (in_array('gosaGroupOfNames', $group_data['objectClass']) and
+                        ($user_data['main_account']['_ogroup_actions'][0]==="update-memberships") and
+                        ($user_data['main_account']['_ogroup_actions'][$group_key]==="add")
+                       )
                     {
                         if (isset($user_data['main_account']['_dn_ldap']))
                         {
@@ -1921,8 +1943,11 @@ class manageaccounts extends plugin{
                 {
                     foreach($user_data['aux_accounts'] as $aux_account)
                     {
-                        if (in_array('posixGroup', $group_data['objectClass']))
-                        {
+                        if (in_array('posixGroup', $group_data['objectClass']) and
+                            ($aux_account['_group_actions'][0]==="update-memberships") and
+                            ($aux_account['_group_actions'][$group_key]==="add")
+                           )
+                            {
                             $_uid= $aux_account['uid'][0];
                             if (!in_array($group_key, array_keys($this->posixgroup_members)))
                             {
@@ -1930,7 +1955,10 @@ class manageaccounts extends plugin{
                             }
                             $this->posixgroup_members[$group_key][]= $_uid;
                         }
-                        if (in_array('gosaGroupOfNames', $group_data['objectClass']))
+                        if (in_array('gosaGroupOfNames', $group_data['objectClass']) and
+                            ($aux_account['_ogroup_actions'][0]==="update-memberships") and
+                            ($aux_account['_ogroup_actions'][$group_key]==="add")
+                           )
                         {
                             if (!in_array($group_key, array_keys($this->groupofnames_members)))
                             {
@@ -1938,6 +1966,14 @@ class manageaccounts extends plugin{
                             }
                             if (isset($aux_account['_dn_ldap']))
                             {
+
+                                /* FIXME: DN memberships are case insensitive, we need to convert
+                                 *        $groupofnames_members[$group_key] items into lower case and then
+                                 *        compare with strtolower($aux_account['_dn_ldap'][0]).
+                                 *        Only if there is no case-insensitive match, we may add 
+                                 *        another member DN to this group.
+                                 */
+
                                 $this->groupofnames_members[$group_key][]= $aux_account['_dn_ldap'][0];
                             }
                         }
