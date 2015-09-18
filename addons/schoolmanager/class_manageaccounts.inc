@@ -1061,9 +1061,12 @@ class manageaccounts extends plugin{
         foreach ($this->csvinfo['data_preldap'] as $key => $row)
         {
             $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions']= array('none');
-            foreach($row['aux_accounts'] as $idx_aux => $aux_account)
+            if(isset($row['aux_accounts']))
             {
-                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_group_actions']= array('none');
+                foreach($row['aux_accounts'] as $idx_aux => $aux_account)
+                {
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_group_actions']= array('none');
+                }
             }
         }
 
@@ -1221,9 +1224,12 @@ class manageaccounts extends plugin{
         foreach ($this->csvinfo['data_preldap'] as $key => $row)
         {
             $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions']= array('none');
-            foreach($row['aux_accounts'] as $idx_aux => $aux_account)
+            if(isset($row['aux_accounts']))
             {
-                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions']= array('none');
+                foreach($row['aux_accounts'] as $idx_aux => $aux_account)
+                {
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions']= array('none');
+                }
             }
         }
 

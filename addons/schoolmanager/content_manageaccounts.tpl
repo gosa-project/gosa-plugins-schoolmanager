@@ -247,7 +247,7 @@ FIXMEs:
 <table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}User account: %1, %2{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
 
 	<tr>
-{if $data[$key]['aux_accounts']}
+{if isset($data[$key]['aux_accounts'])}
 		<td bgcolor="#BBBBBB" colspan={2 + count($data[$key]['aux_accounts'])}>
 {else}
 		<td bgcolor="#BBBBBB" colspan="2">
@@ -259,7 +259,7 @@ FIXMEs:
 {/if}
 		</td>
 	</tr>
-{if $data[$key]['aux_accounts']}
+{if isset($data[$key]['aux_accounts'])}
 	<tr>
 		<td>
 			<table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}Account group for %1, %2{/t}">
@@ -391,7 +391,7 @@ FIXMEs:
 </table>
 <br>
 {/foreach}
-{if (!$data[$key]['aux_accounts'])}
+{if (!isset($data[$key]['aux_accounts']))}
 {/if}
 
 {elseif $groups_reviewed != TRUE || $groups_imported != TRUE}
