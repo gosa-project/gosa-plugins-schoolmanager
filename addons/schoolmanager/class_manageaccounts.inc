@@ -2014,7 +2014,7 @@ class manageaccounts extends plugin{
                 foreach($_groups as $group_key => $group_data)
                 {
                     if (in_array('posixGroup', $group_data['objectClass']) and
-                        ($user_data['main_account']['_ogroup_actions'][0]==="update-memberships") and
+                        ($user_data['main_account']['_group_actions'][0]==="update-memberships") and
                         ($user_data['main_account']['_group_actions'][$group_key]==="add")
                        )
                     {
