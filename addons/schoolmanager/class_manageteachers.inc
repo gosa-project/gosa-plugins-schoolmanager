@@ -165,7 +165,7 @@ class manageteachers extends manageaccounts {
                                     'posixGroup'
                                 ),
                                 'cn' => array($_cn),
-                                'description' => array(sprintf(_('SchoolManager class group %s'), 'class_%s'.$_class)),
+                                'description' => array(sprintf(_('SchoolManager class group %s'), 'class_'.$_class)),
                                 'mail' => array('class_'.$_class.'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_actions' => array('none')
