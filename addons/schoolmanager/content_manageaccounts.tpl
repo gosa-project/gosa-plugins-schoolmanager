@@ -131,6 +131,21 @@ FIXMEs:
 			</select>
 		</td>
 	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="add_course_members_to_class_group">{t escape=no}Make all teachers teaching courses in a class members of that class group?{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+{if $preset_add_course_members_to_class_group}
+			<input type="checkbox" id="add_course_members_to_class_group" name="add_course_members_to_class_group" checked>
+{else}
+			<input type="checkbox" id="add_course_members_to_class_group" name="add_course_members_to_class_group">
+{/if}
+			{t}(tick this check box, if yes){/t}
+		</td>
+	</tr>
+
 {/if}
 	<tr>
 		<td colspan="3">
@@ -312,8 +327,31 @@ FIXMEs:
 				</tr>
 {/if}
 {/foreach}
+{if isset($data[$key]['optional_groups'])}
+{foreach $data[$key]['optional_groups'] item=group key=idx_group}
+{if in_array('posixGroup', $group['objectClass']) and in_array($group['cn'][0], array_keys($data[$key]['main_account']['_group_actions']))}
+				<tr>
+					<td bgcolor="#EEEEEE">
+					{$group['cn'][0]}
+					</td>
+					<td bgcolor="#F8F8F8">
+					{$data[$key]['main_account']['_group_actions'][$group['cn'][0]]}
+					</td>
+				</tr>
+{elseif in_array('gosaGroupOfNames', $group['objectClass']) and in_array($group['cn'][0], array_keys($data[$key]['main_account']['_ogroup_actions']))}
+				<tr>
+					<td bgcolor="#EEEEEE">
+					{$group['cn'][0]}
+					</td>
+					<td bgcolor="#F8F8F8">
+					{$data[$key]['main_account']['_ogroup_actions'][$group['cn'][0]]}
+					</td>
+				</tr>
 {/if}
-{if $data[$key]['aux_accounts']}
+{/foreach}
+{/if}
+{/if}
+{if isset($data[$key]['aux_accounts'])}
 			</table>
 		</td>
 {foreach $data[$key]['aux_accounts'] item=aux_account key=idx_aux_account}

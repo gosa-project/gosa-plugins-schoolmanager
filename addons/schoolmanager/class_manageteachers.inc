@@ -203,6 +203,7 @@ class manageteachers extends manageaccounts {
 
                 /* course groups */
                 $course_groups= array ();
+                $_extra_classes= array();
                 foreach ($row_sorted as $key=>$value) {
                     if ((substr ($key,0,6)==="course") && trim($value))
                     {
@@ -220,6 +221,34 @@ class manageteachers extends manageaccounts {
                                 '_status' => array('unchecked'),
                                 '_actions' => array('none')
                             );
+
+                            /* make teachers class members for courses they teach in a class */
+                            if($this->csvinfo['add_course_members_to_class_group'])
+                            {
+                                $_class_arr= explode('-',$row_sorted[$key]);
+                                array_pop($_class_arr);
+                                $_class= implode('-', $_class_arr);
+
+                                if(strpos($_class, "-")===FALSE)
+                                {
+                                    $_class= 'class_'.$_class;
+                                    $_extra_classes[$_class]= array(
+                                        'objectClass' => array('posixGroup'),
+                                        'cn' => array($_class),
+                                        '_status' => array('unchecked'),
+                                        '_actions' => array('none'),
+                                        '_key' => array('optional_groups'),
+                                    );
+                                }
+                                else {
+
+                                    /* FIXME: Handle courses that have students from more than one class */
+
+                                    // $_several_classes = preg_replace('/.*([a-z]\-[a-z])$/', '$1', $_class);
+                                    // print $_several_classes."<br>";
+
+                                }
+                            }
                         }
                     }
                 }
@@ -233,7 +262,8 @@ class manageteachers extends manageaccounts {
 
                 $data_preldap[]= array(
                     'main_account' => $teacher,
-                    'groups' => $groups
+                    'groups' => $groups,
+                    'optional_groups' => $_extra_classes,
                 );
             }
         }
