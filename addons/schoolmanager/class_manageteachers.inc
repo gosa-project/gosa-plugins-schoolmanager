@@ -144,10 +144,13 @@ class manageteachers extends manageaccounts {
                     /* parse value for attribute "class", requires later work to make it more generic */
                     $tmpclassparts=explode (".", strtolower ($row_sorted['class']));
                     $tmpclassparts[0]=trim ($tmpclassparts[0]);
-                    $tmpclassparts[1]=trim ($tmpclassparts[1]);
-                    $tmpclassparts[1]=substr ($tmpclassparts[1],1);
+                    if(isset($tmpclassparts[1]))
+                    {
+                        $tmpclassparts[1]=trim ($tmpclassparts[1]);
+                        $tmpclassparts[1]=substr ($tmpclassparts[1],1);
+                    }
                     $row_sorted['class']=$tmpclassparts[0];
-                    if ($tmpclassparts[1])
+                    if (isset($tmpclassparts[1]))
                     {
                         $row_sorted['class']+= $row_sorted['class'].$tmpclassparts[1];
                     }
