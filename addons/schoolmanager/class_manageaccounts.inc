@@ -1145,7 +1145,7 @@ class manageaccounts extends plugin{
                              */
 
                             /* check if the user's main account is in this group */
-                            if(in_array('posixGroup', $group['objectClass']) and isset($row['main_account']['uid'][0]))
+                            if(isset($row['main_account']['uid'][0]))
                             {
                                 $_group_name= $group['cn'][0];
                                 $_uid= $row['main_account']['uid'][0];
@@ -1304,7 +1304,7 @@ class manageaccounts extends plugin{
                             {
 
                                 /* check if the user's main account is in this group */
-                                if(in_array('gosaGroupOfNames', $group['objectClass']) and isset($row['main_account']['_dn_ldap'][0]))
+                                if(isset($row['main_account']['_dn_ldap'][0]))
                                 {
 
                                     /* if the object's DN is not know by now, let's skip this object */
