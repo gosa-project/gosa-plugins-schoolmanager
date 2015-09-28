@@ -1761,23 +1761,34 @@ class manageaccounts extends plugin{
             if(!$this->_ldap->fetch())
             {
 
-                /* change LDAP "dir" to the place where we want to create sub-OUs... */
+                /* change UI "dir" in LDAP to the place where we want to create sub-OUs... */
+                $_ui= get_userinfo();
+                $old_ui_dn= $_ui->dn;
+                $old_current_main_base= session::global_is_set("CurrentMainBase")?session::global_get("CurrentMainBase"):$_ui->dn;
                 if($user_data['_template'][0] != 0)
                 {
-                    $this->_ldap->cd(dn2base($template_dn));
+                    change_ui_dn($old_ui_dn, dn2base($template_dn));
+                    session::global_set("CurrentMainBase", dn2base($template_dn));
                 }
                 else {
-                    $this->_ldap->cd($this->config->current['BASE']);
+                    change_ui_dn($old_ui_dn, $this->config->current['BASE']);
+                    session::global_set("CurrentMainBase", $this->config->current['BASE']);
                 }
 
-                /* create base DN as a GOsa² department, presuming the base DN's parent DN already exists */
-                /* FIXME: Create parent departments if they don't exist */
-
+                /* create _base DN as a GOsa² department */
                 $_ou= preg_replace("/^ou=([^,]+),.*/", "$1", $user_data['_base'][0]);
                 $deptab= new deptabs($this->config, $this->config->data['TABS']['DEPTABS'],'new', "deptabs" );
                 $deptab->by_object['department']->ou= $_ou;
                 $deptab->by_object['department']->description= sprintf(_("Class: %s"), $_ou);
                 $deptab->save();
+
+                /* Reload departments */
+                $this->config->get_departments();
+                $this->config->make_idepartments();
+
+                /* change UI dir back to where we came from */
+                change_ui_dn(dn2base($template_dn), $old_ui_dn);
+                session::global_set("CurrentMainBase", $old_current_main_base);
             }
 
             if (
