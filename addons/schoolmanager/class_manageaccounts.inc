@@ -1826,7 +1826,7 @@ class manageaccounts extends plugin{
 
                 $usertab->save();
 
-                if (strpos($user_data['_status'][0],'set-password')!==FALSE)
+                if (strpos($user_data['_actions'][0],'set-password')!==FALSE)
                 {
                     if(!change_password($usertab->dn,$user_data['userPassword'][0],FALSE,'','', $message)){
                         msg_dialog::displayChecks(array($message));
