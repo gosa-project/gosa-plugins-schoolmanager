@@ -329,7 +329,7 @@ FIXMEs:
 {/foreach}
 {if isset($data[$key]['optional_groups'])}
 {foreach $data[$key]['optional_groups'] item=group key=idx_group}
-{if in_array('posixGroup', $group['objectClass']) and in_array($group['cn'][0], array_keys($data[$key]['main_account']['_group_actions']))}
+{if (strpos($group['_status'][0], 'not-found')===FALSE) and in_array('posixGroup', $group['objectClass']) and in_array($group['cn'][0], array_keys($data[$key]['main_account']['_group_actions']))}
 				<tr>
 					<td bgcolor="#EEEEEE">
 					{$group['cn'][0]}
@@ -338,7 +338,7 @@ FIXMEs:
 					{$data[$key]['main_account']['_group_actions'][$group['cn'][0]]}
 					</td>
 				</tr>
-{elseif in_array('gosaGroupOfNames', $group['objectClass']) and in_array($group['cn'][0], array_keys($data[$key]['main_account']['_ogroup_actions']))}
+{elseif (strpos($group['_status'][0], 'not-found')===FALSE) and in_array('gosaGroupOfNames', $group['objectClass']) and in_array($group['cn'][0], array_keys($data[$key]['main_account']['_ogroup_actions'][$group['cn'][0]]))}
 				<tr>
 					<td bgcolor="#EEEEEE">
 					{$group['cn'][0]}
@@ -397,7 +397,7 @@ FIXMEs:
 					</td>
 				</tr>
 {foreach $data[$key]['aux_accounts_groups'] item=group key=idx_group}
-{if in_array('posixGroup', $group['objectClass']) and in_array($group['cn'][0], array_keys($aux_account['_group_actions']))}
+{if (strpos($group['_status'][0], 'not-found')===FALSE) and in_array('posixGroup', $group['objectClass']) and in_array($group['cn'][0], array_keys($aux_account['_group_actions'][$group['cn'][0]]))}
 				<tr>
 					<td bgcolor="#EEEEEE">
 					{$group['cn'][0]}
@@ -406,7 +406,7 @@ FIXMEs:
 					{$aux_account['_group_actions'][$group['cn'][0]]}
 					</td>
 				</tr>
-{elseif in_array('gosaGroupOfNames', $group['objectClass']) and in_array($group['cn'][0], array_keys($aux_account['_ogroup_actions']))}
+{elseif (strpos($group['_status'][0], 'not-found')===FALSE) and in_array('gosaGroupOfNames', $group['objectClass']) and in_array($group['cn'][0], array_keys($aux_account['_ogroup_actions'][$group['cn'][0]]))}
 				<tr>
 					<td bgcolor="#EEEEEE">
 					{$group['cn'][0]}

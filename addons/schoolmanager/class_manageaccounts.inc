@@ -1231,9 +1231,9 @@ class manageaccounts extends plugin{
                     if ($this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]== 'unchecked')
                     {
                         $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]= 'not-found';
-                        if($_group_key_type==="optional_groups")
+                        if($_group_type_key==="optional_groups")
                         {
-                            $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_actions'][0]= 'create';
+                            $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_actions'][0]= 'ignore';
                         }
                         else {
                             $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_actions'][0]= 'create';
@@ -1496,6 +1496,12 @@ class manageaccounts extends plugin{
 
     function importLDAPGroupObject($group_name, $group_data)
     {
+
+        /* only perform on this user dataset if _actions does not contain "none"... */
+        if((strpos($group_data['_actions'][0],'none')!==FALSE) or (strpos($group_data['_actions'][0],'ignore')!==FALSE))
+        {
+            return;
+        }
 
         if(in_array('posixGroup', $group_data['objectClass']))
         {
