@@ -1084,14 +1084,17 @@ class manageaccounts extends plugin{
                 $_all_groups= array();
                 if(isset($row['groups'])) { $_all_groups= array_merge($_all_groups, $row['groups']); }
                 if(isset($row['aux_accounts_groups'])) { $_all_groups= array_merge($_all_groups, $row['aux_accounts_groups']); }
-                foreach($row['optional_groups'] as $opt_group)
+                if(isset($row['optional_groups']))
                 {
-                    if(
-                       isset($opt_group['cn'][0]) and
-                       (!in_array($opt_group['cn'][0],array_keys($_all_groups)))
-                      )
+                    foreach($row['optional_groups'] as $opt_group)
                     {
-                        $_all_groups[$opt_group['cn'][0]]= $opt_group;
+                        if(
+                           isset($opt_group['cn'][0]) and
+                           (!in_array($opt_group['cn'][0],array_keys($_all_groups)))
+                          )
+                        {
+                            $_all_groups[$opt_group['cn'][0]]= $opt_group;
+                        }
                     }
                 }
 
