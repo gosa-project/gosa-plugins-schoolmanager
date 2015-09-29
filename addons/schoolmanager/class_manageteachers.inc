@@ -242,11 +242,46 @@ class manageteachers extends manageaccounts {
                                 }
                                 else {
 
-                                    /* FIXME: Handle courses that have students from more than one class */
+                                    /* this code now becomes really German (Schleswig-Holstein)... */
+                                    $grades= array('1','2','3','4','5','6','7','8','9','10','12','13','e','q1','q2');
+                                    $subs= array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
 
-                                    // $_several_classes = preg_replace('/.*([a-z]\-[a-z])$/', '$1', $_class);
-                                    // print $_several_classes."<br>";
 
+                                    /* we should be able to split the $_class string into two classes (sort of...) */
+                                    $from_sub= explode('-', $_class)[0];
+                                    $from_grade= substr($from_sub, 0, strlen($from_sub)-1);
+                                    $from_sub= str_replace($from_grade, '', $from_sub);
+                                    $to_sub= explode('-', $_class)[1];
+                                    if(strlen($to_sub)===1)
+                                    {
+                                        $to_grade= $from_grade;
+                                    }
+                                    else {
+                                        $to_grade= substr($to_sub, 0, strlen($to_sub)-1);
+                                    }
+                                    $to_sub= str_replace($to_grade, '', $to_sub);
+
+                                    $from_grade_pos= array_search($from_grade, $grades);
+                                    $from_sub_pos= array_search($from_sub, $subs);
+                                    $to_grade_pos= array_search($to_grade, $grades);
+                                    $to_sub_pos= array_search($to_sub, $subs);
+
+                                    foreach(array_slice($grades, $from_grade_pos, ($to_grade_pos - $from_grade_pos+1)) as $grade)
+                                    {
+                                        foreach(array_slice($subs, $from_sub_pos, ($to_sub_pos - $from_sub_pos+1)) as $sub)
+                                        {
+
+                                            $_class= 'class_'.$grade.$sub;
+                                            $_extra_classes[$_class]= array(
+                                                'objectClass' => array('posixGroup'),
+                                                'cn' => array($_class),
+                                                '_status' => array('unchecked'),
+                                                '_actions' => array('none'),
+                                                '_key' => array('optional_groups'),
+                                            );
+
+                                        }
+                                    }
                                 }
                             }
                         }
