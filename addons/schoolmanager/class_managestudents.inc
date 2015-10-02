@@ -106,15 +106,20 @@ class managestudents extends manageaccounts {
 
                 /* main account */
                 $student=array ();
-                if(isset($row_sorted['uid']) && $row_sorted['uid'] && ($row_sorted['uid'] != "%auto%"))
+                if(isset($row_sorted['uid']) && $row_sorted['uid'] && (($row_sorted['uid'] != "%auto%") && ($row_sorted['uid'] != "%uid%")) )
                 {
                     $student['uid']=array(strtolower(iconv('UTF-8', 'US-ASCII//TRANSLIT', trim($row_sorted['uid']))));
                 }
-                if(isset($row_sorted['userPassword']) && $row_sorted['userPassword'] && ($row_sorted['userPassword'] != "%auto%"))
+                else {
+                    $student['uid']=array('{%uid}');
+                }
+                if(isset($row_sorted['userPassword']) && $row_sorted['userPassword'] && (($row_sorted['userPassword'] != "%auto%") && ($row_sorted['userPassword'] != "%password%")) )
                 {
                     $student['userPassword']=array($row_sorted['userPassword']);
                 }
-
+                else {
+                    $student['userPassword']=array('{%userPassword}');
+                }
                 $student['sn']=array (trim($row_sorted['sn']));
                 $student['givenName']=array (trim($row_sorted['givenName']));
 
@@ -165,7 +170,7 @@ class managestudents extends manageaccounts {
                     $parent1['mail']=array (trim($row_sorted['parent1_mail']));
                 }
 
-                $parent1['userPassword']= array("%auto%");
+                $parent1['userPassword']= array("{%userPassword}");
                 /* see above for how to retrieve the template's DN */
                 $parent1['_template']=array($this->csvinfo['template_aux']);
                 $parent1['_status']=array('unchecked');
@@ -188,7 +193,7 @@ class managestudents extends manageaccounts {
                     $parent2['mail']=array (trim($row_sorted['parent2_mail']));
                 }
 
-                $parent2['userPassword']= array("%auto%");
+                $parent2['userPassword']= array("{%userPassword}");
                 /* see above for how to retrieve the template's DN */
                 $parent2['_template']=array(trim($this->csvinfo['template_aux']));
                 $parent2['_status']=array('unchecked');

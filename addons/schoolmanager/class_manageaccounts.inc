@@ -857,7 +857,7 @@ class manageaccounts extends plugin{
         }
 
         $this->_ldap->cd($this->config->current['BASE']);
-        $ldapsearch = $this->_ldap->search("(objectClass=gosaAccount)",array("sn","givenName","gender","dateOfBirth", "mail", "departmentNumber", "employeeNumber"));
+        $ldapsearch = $this->_ldap->search("(objectClass=gosaAccount)",array("uid", "sn","givenName","gender","dateOfBirth", "mail", "departmentNumber", "employeeNumber"));
 
         /* this will probably scale very very badly... Improvement needed. Suggestions? */
         while ($gosa_account = $this->_ldap->fetch($ldapsearch))
@@ -869,6 +869,11 @@ class manageaccounts extends plugin{
                     /* detect status */
                     if ($this->compareObjects($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth"), "", TRUE)===TRUE)
                     {
+                        if((!isset($row['main_account']['uid'][0])) || ($row['main_account']['uid'][0]==="{%uid}"))
+                        {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['uid']= array($gosa_account['uid'][0]);
+                            $row['main_account']['uid']= $this->csvinfo['data_preldap'][$key]['main_account']['uid'];
+                        }
                         $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
                         $expected_account_dn= "uid=".$row['main_account']['uid'][0].','.get_people_ou().$expected_base;
                         $gosa_account_dn= $gosa_account['dn'];
@@ -988,7 +993,7 @@ class manageaccounts extends plugin{
                     $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'create,set-password';
 
                     /* generate passwords for main accounts (if not provided) */
-                    if((!isset($row['main_account']['userPassword'][0])) or ($row['main_account']['userPassword'][0]==="") or ($row['main_account']['userPassword'][0]==='%auto%'))
+                    if((!isset($row['main_account']['userPassword'][0])) or ($row['main_account']['userPassword'][0]==="") or ($row['main_account']['userPassword'][0]==='{%userPassword}'))
                     {
                         $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0].= ",password-generated";
                         $this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0]= $this->randomPassword(12);
@@ -996,7 +1001,13 @@ class manageaccounts extends plugin{
 
                     /* set the main account's base for object creation */
                     $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
-                    $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array("uid=".$row['main_account']['uid'][0].",".$expected_base);
+                    if(isset($row['main_account']['uid'][0]))
+                    {
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array("uid=".$row['main_account']['uid'][0].",".$expected_base);
+                    }
+                    else {
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array("new");
+                    }
                     $this->csvinfo['data_preldap'][$key]['main_account']['_base']= array($expected_base);
                 }
                 if (isset($row['aux_accounts']))
@@ -1019,7 +1030,7 @@ class manageaccounts extends plugin{
                             }
 
                             /* generate passwords for aux accounts (if not provided) */
-                            if((!isset($aux_account['userPassword'][0])) or ($aux_account['userPassword'][0]==="") or ($aux_account['userPassword'][0]==='%auto%'))
+                            if((!isset($aux_account['userPassword'][0])) or ($aux_account['userPassword'][0]==="") or ($aux_account['userPassword'][0]==='{%userPassword}'))
                             {
                                 if(strpos($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0], 'create')!==FALSE)
                                 {
@@ -1745,26 +1756,24 @@ class manageaccounts extends plugin{
                 $_user_properties_base["sn"]= $user_data['sn'][0];
                 $_user_properties_base["givenName"]= $user_data['givenName'][0];
 
-                /*
-                 * FIXME: If $user_data['uid'][0] is set to "%auto%" or is empty, do uid generation magic here!!!
-                 */
-
                 /* The below attributes must exist and be set with meaningful data once we arrive here!!! */
-                if(isset($user_data['uid'][0]) and $user_data['uid'][0]!=="%auto%") {
+                if(isset($user_data['uid'][0]) and $user_data['uid'][0]!=="{%uid}") {
                     $_user_properties_base["uid"]= $user_data['uid'][0];
                 }
                 elseif(isset($user_data['sn'][0]) and isset($user_data['givenName'][0]))
                 {
-                    if(isset($user_data['uid'][0]) and ($user_data['uid'][0]==="%auto%" or $user_data['uid'][0]===""))
+                    if(isset($user_data['uid'][0]) and ($user_data['uid'][0]==="{%uid}" or $user_data['uid'][0]===""))
                     {
                         if ($this->config->get_cfg_value("core","idGenerator") != "")
                         {
+                            print "HALLO<br>";
                             $_genStr= $this->config->get_cfg_value("core","idGenerator");
                             $_attributes= array(
                                 'sn' => $user_data['sn'][0],
                                 'givenName' => $user_data['givenName'][0]
                             );
                             $_user_properties_base['uid']= gen_uids($_genStr,$_attributes)[0];
+                            print $_user_properties_base['uid']."<br>";
                         }
                         else {
 
@@ -1920,6 +1929,15 @@ class manageaccounts extends plugin{
 
                 $usertab->save();
 
+                /* Present a status update in GOsa²''s logging system (/var/log/syslog mostly) */
+                if(strpos($user_data['_actions'][0],'create')!==FALSE)
+                {
+                    new log("create","users/user",$usertab->dn, array(), "New user (".$usertab->sn.", ".$usertab->givenName.") created via SchoolManager add-on.");
+                }
+                elseif(strpos($user_data['_actions'][0],'none')!==FALSE) {
+                    new log("modify","users/user",$usertab->dn, array(), "Existing user  (".$usertab->sn.", ".$usertab->givenName.") modified via SchoolManager add-on.");
+                }
+
                 if (strpos($user_data['_actions'][0],'set-password')!==FALSE)
                 {
                     if(!change_password($usertab->dn,$user_data['userPassword'][0],FALSE,'','', $message)){
@@ -1938,14 +1956,6 @@ class manageaccounts extends plugin{
 
             }
 
-            /* Present a status update in GOsa²''s logging system (/var/log/syslog mostly) */
-            if(strpos($user_data['_actions'][0],'create')!==FALSE)
-            {
-                new log("create","users/user",$usertab->dn, array(), "New user created via SchoolManager add-on.");
-            }
-            elseif(strpos($user_data['_actions'][0],'none')!==FALSE) {
-                new log("modify","users/user",$usertab->dn, array(), "Existing user modified via SchoolManager add-on.");
-            }
         }
     }
 
