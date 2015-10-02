@@ -666,6 +666,7 @@ class manageaccounts extends plugin{
 
             $this->addLDAPUserObjectsToGroups($this->posixgroup_members);
             $this->addLDAPUserObjectsToOGroups($this->groupofnames_members);
+            $this->moveLDAPPrimGroupObjects();
 
             /* FIXME: present a message dialog box that informs on the statistics of
              *        the LDAP group membership updates.
@@ -1062,7 +1063,26 @@ class manageaccounts extends plugin{
         /* initialize group actions for each main account and each aux account */
         foreach ($this->csvinfo['data_preldap'] as $key => $row)
         {
-            $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions']= array('none');
+            /* check DN (i.e., location in the LDAP DIT) of primary group object */
+            $expected_primgroup_dn= "cn=".$row['main_account']['uid'][0].",".get_groups_ou().dn2base($row['main_account']['_dn'][0]);
+
+            $this->_ldap->cat($expected_primgroup_dn, array('dn'));
+            if(!$this->_ldap->fetch())
+            {
+                $this->_ldap->search("(&(objectClass=posixGroup)(cn=".$row['main_account']['uid'][0]."))",array("dn"));
+                if($this->_ldap->fetch())
+                {
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions']= array('move-primgroup');
+                }
+                else {
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions']= array('create-primgroup');
+                }
+            }
+            else {
+                $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions']= array('none');
+            }
+
+            /* no primgroups for aux accounts */
             if(isset($row['aux_accounts']))
             {
                 foreach($row['aux_accounts'] as $idx_aux => $aux_account)
@@ -1163,6 +1183,11 @@ class manageaccounts extends plugin{
                              *        POSIX groups. See ogroupStatusCheck() for inspiration
                              */
 
+
+                            /* the _group_actions field should contain a one-element array being either array("none"), array("move-primgroup") or array("create-primgroup") */
+                            $_group_actions= array($this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][0]);
+                            if($_group_actions[0]==="none") { $_group_actions=array(); }
+
                             /* check if the user's main account is in this group */
                             if(isset($row['main_account']['uid'][0]))
                             {
@@ -1171,13 +1196,22 @@ class manageaccounts extends plugin{
                                 $_members= isset($gosa_posix_group['memberUid']) ? $gosa_posix_group['memberUid'] : array();
                                 if(!in_array($_uid, $_members) or (in_array('flush-all-members', $_actions)))
                                 {
-                                    $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][0]= 'update-memberships';
+                                    if(!in_array('update-memberships', $_group_actions))
+                                    {
+                                        $_group_actions[]= 'update-memberships';
+                                    }
                                     $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][$_group_name]= 'add';
                                 }
                                 else {
                                     $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][$_group_name]= 'none';
                                 }
                             }
+                            /* re-add the none action if no group action got detected above */
+                            if(empty($_group_actions))
+                            {
+                                $_group_actions[]= 'none';
+                            }
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][0]= implode(",", $_group_actions);
 
                             /* no action found till here, set the "none" action */
                             if(empty($_actions))
@@ -1494,6 +1528,48 @@ class manageaccounts extends plugin{
         return $ok;
     }
 
+    function moveLDAPPrimGroupObjects()
+    {
+        foreach($this->csvinfo['data_preldap'] as $idx => $row)
+        {
+            $user_data= $row['main_account'];
+            if(strpos($user_data['_group_actions'][0], '-primgroup')===FALSE)
+            {
+                /* neither create-primgroup nor move-primgroup given, nothing to do for this user account */
+                continue;
+            }
+
+            /* create a group_data object that we can pass on to importLDAPGroupObject */
+            $group_name= $user_data['uid'][0];
+            $group_data= array(
+                'objectClass' => array('posixGroup'),
+                'cn' => array($group_name),
+                '_dn' => array("cn=".$row['main_account']['uid'][0].",".get_groups_ou().dn2base($row['main_account']['_dn'][0])),
+            );
+
+            /* set the action for group_data, derived from the acount's _group_actions */
+            if(strpos($user_data['_group_actions'][0], 'create-primgroup')!==FALSE)
+            {
+                $group_data['_actions']= array('create');
+
+                /* FIXME: note supported, yet */
+                continue;
+            }
+            elseif (strpos($user_data['_group_actions'][0], 'move-primgroup')!==FALSE)
+            {
+                $group_data['_actions']= array('move');
+            }
+            else {
+                /* we should never come here, leaving this continue statement here anyway, just in case */
+                continue;
+            }
+
+            /* create or move account's primary group */
+            $this->importLDAPGroupObject($group_name, $group_data);
+        }
+    }
+
+
     function importLDAPGroupObject($group_name, $group_data)
     {
 
@@ -1525,7 +1601,13 @@ class manageaccounts extends plugin{
             /* Instantiate a new group object via GOsa²'s API */
 
             $grouptab= new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs],'new');
-            $grouptab->by_object[$_group_obj]->base= $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
+            if(isset($group_data['_dn'][0]))
+            {
+                $grouptab->by_object[$_group_obj]->base= dn2base($group_data['_dn'][0]);
+            }
+            else {
+                $grouptab->by_object[$_group_obj]->base= $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
+            }
 
         }
         else{
