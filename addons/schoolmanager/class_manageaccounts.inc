@@ -561,7 +561,6 @@ class manageaccounts extends plugin{
                 }
 
                 $this->groupStatusCheck();
-                $this->ogroupStatusCheck();
 
                 $smarty->assign ("data_groups", $this->csvinfo['data_preldap_posixgroups']);
                 $smarty->assign ("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
@@ -609,7 +608,6 @@ class manageaccounts extends plugin{
             }
 
             $this->groupStatusCheck();
-            $this->ogroupStatusCheck();
 
             $smarty->assign ("data_groups", $this->csvinfo['data_preldap_posixgroups']);
             $smarty->assign ("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
@@ -638,7 +636,6 @@ class manageaccounts extends plugin{
             {
                 $this->accountStatusCheck();
                 $this->groupStatusCheck();
-                $this->ogroupStatusCheck();
                 $this->prepareGroupMemberships();
                 $smarty->assign("data",$this->csvinfo['data_preldap']);
                 $smarty->assign ("groups_imported",TRUE);
@@ -674,7 +671,6 @@ class manageaccounts extends plugin{
 
             $this->accountStatusCheck();
             $this->groupStatusCheck();
-            $this->ogroupStatusCheck();
             $smarty->assign("data",$this->csvinfo['data_preldap']);
             if ($this->failure_in_this_phase===FALSE)
             {
@@ -1086,12 +1082,14 @@ class manageaccounts extends plugin{
                     $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions']= array('move-primgroup');
                 }
                 else {
+                    /* FIXME: test if LDAP account's primary group exists (it may be a non-per-user primary group) */
                     $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions']= array('create-primgroup');
                 }
             }
             else {
                 $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions']= array('none');
             }
+            $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions']= array('none');
 
             /* no primgroups for aux accounts */
             if(isset($row['aux_accounts']))
@@ -1099,147 +1097,17 @@ class manageaccounts extends plugin{
                 foreach($row['aux_accounts'] as $idx_aux => $aux_account)
                 {
                     $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_group_actions']= array('none');
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions']= array('none');
                 }
             }
         }
 
         $this->_ldap->cd($this->config->current['BASE']);
-        $ldapsearch = $this->_ldap->search("(objectClass=posixGroup)",array("cn","memberUid","mail", "description"));
-
-        /* this will probably scale very very badly... Improvement needed. Suggestions? */
-        while ($gosa_posix_group = $this->_ldap->fetch($ldapsearch))
-        {
-            foreach ($this->csvinfo['data_preldap'] as $key => $row)
-            {
-
-                $_all_groups= array();
-                if(isset($row['groups'])) { $_all_groups= array_merge($_all_groups, $row['groups']); }
-                if(isset($row['aux_accounts_groups'])) { $_all_groups= array_merge($_all_groups, $row['aux_accounts_groups']); }
-                if(isset($row['optional_groups']))
-                {
-                    foreach($row['optional_groups'] as $opt_group)
-                    {
-                        if(
-                           isset($opt_group['cn'][0]) and
-                           (!in_array($opt_group['cn'][0],array_keys($_all_groups)))
-                          )
-                        {
-                            $_all_groups[$opt_group['cn'][0]]= $opt_group;
-                        }
-                    }
-                }
-
-                if(!empty($_all_groups))
-                {
-
-                    foreach ($_all_groups as $group_key => $group)
-                    {
-
-                        /* only process posixGroup accounts here... */
-                        if(!in_array('posixGroup', $group['objectClass']))
-                        {
-                            continue;
-                        }
-
-                        if(isset($group['_key'][0])) { $_group_type_key= $group['_key'][0]; }
-                        else { $_group_type_key= 'groups'; }
-
-                        /* detect status */
-                        if ($this->compareObjects($group, $gosa_posix_group, array("cn"))===TRUE)
-                        {
-                            $expected_group_dn= 'cn='.$group['cn'][0].','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
-                            $gosa_group_dn= $gosa_posix_group['dn'];
-                            if(strtolower($gosa_group_dn)==strtolower($expected_group_dn) or ($_group_type_key==="optional_groups"))
-                            {
-                                $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]= 'exists';
-                            }
-                            else {
-                                $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]= 'exists-elsewhere';
-                            }
-
-                        }
-
-                        /* detect actions */
-                        $_actions= array();
-                        if($this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]==='exists-elsewhere')
-                        {
-                            $_actions[]= "move";
-                        }
-                        if ($this->compareObjects($group, $gosa_posix_group, array("cn"))===TRUE)
-                        {
-
-                            /* if group exists, check for to-be-dropped members */
-                            if(
-                               ($this->csvinfo['flush_members']) and
-                               ($_group_type_key!=='optional_groups') and
-                               (isset($gosa_posix_group['memberUid']['count']) && ($gosa_posix_group['memberUid']['count'] > 0))
-                              )
-                            {
-                                $_actions[]= "flush-all-members";
-                            }
-
-                            if($_group_type_key!=='optional_groups')
-                            {
-                                $_check_attrs= $this->compareObjects($group, $gosa_posix_group, array("mail","description"), "update-");
-                                if ($_check_attrs===TRUE)
-                                {
-                                }
-                                else {
-                                    $_actions= array_merge($_actions, $_check_attrs);
-                                }
-                            }
-
-
-                            /* FIXME: The below code block needs to be adapted, in case there will be imports with AUX GROUPS being
-                             *        POSIX groups. See ogroupStatusCheck() for inspiration
-                             */
-
-
-                            /* the _group_actions field should contain a one-element array being either array("none"), array("move-primgroup") or array("create-primgroup") */
-                            $_group_actions= array($this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][0]);
-                            if($_group_actions[0]==="none") { $_group_actions=array(); }
-
-                            /* check if the user's main account is in this group */
-                            if(isset($row['main_account']['uid'][0]))
-                            {
-                                $_group_name= $group['cn'][0];
-                                $_uid= $row['main_account']['uid'][0];
-                                $_members= isset($gosa_posix_group['memberUid']) ? $gosa_posix_group['memberUid'] : array();
-                                if(!in_array($_uid, $_members) or (in_array('flush-all-members', $_actions)))
-                                {
-                                    if(!in_array('update-memberships', $_group_actions))
-                                    {
-                                        $_group_actions[]= 'update-memberships';
-                                    }
-                                    $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][$_group_name]= 'add';
-                                }
-                                else {
-                                    $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][$_group_name]= 'none';
-                                }
-                            }
-                            /* re-add the none action if no group action got detected above */
-                            if(empty($_group_actions))
-                            {
-                                $_group_actions[]= 'none';
-                            }
-                            $this->csvinfo['data_preldap'][$key]['main_account']['_group_actions'][0]= implode(",", $_group_actions);
-
-                            /* no action found till here, set the "none" action */
-                            if(empty($_actions))
-                            {
-                                $_actions[]= "none";
-                            }
-                            $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_actions'][0]= implode(",", $_actions);
-
-                            /* break out of the inner loop if the $gosa_account has been found */
-                            break;
-                        }
-                    }
-                }
-            }
-        }
 
         $this->csvinfo['data_preldap_posixgroups'] = array();
+        $this->csvinfo['data_preldap_ogroups'] = array();
+
+        /* this will probably scale very very badly... Improvement needed. Suggestions? */
         foreach ($this->csvinfo['data_preldap'] as $key => $row)
         {
             $_all_groups= array();
@@ -1259,20 +1127,63 @@ class manageaccounts extends plugin{
                 }
             }
 
-            if(!empty($_all_groups))
+            foreach ($_all_groups as $group_key => $group)
             {
-                foreach ($_all_groups as $group_key => $group)
+
+                $_cn= "";
+                if(isset($group['cn'][0]))
                 {
+                    $_cn=$group['cn'][0];
+                }
+                else {
+                    /* no CN available, ignore this group */
+                    continue;
+                }
 
-                    /* only process posixGroup accounts here... */
-                    if(!in_array('posixGroup', $group['objectClass']))
+                if(in_array('posixGroup', $group['objectClass']))
+                {
+                    $memberAttr= "memberUid";
+                    $group_type= "group";
+                    $ldapsearch = $this->_ldap->search("(&(objectClass=posixGroup)(cn=".$_cn."))",array("cn",$memberAttr,"mail", "description"));
+                }
+                elseif(in_array('gosaGroupOfNames', $group['objectClass']))
+                {
+                    $memberAttr= "member";
+                    $group_type= "ogroup";
+                    $ldapsearch = $this->_ldap->search("(&(objectClass=gosaGroupOfNames)(cn=".$_cn."))",array("cn",$memberAttr,"mail", "description"));
+                }
+                else {
+                    /* neither gosaGroupOfNames nor posixGroup import, no clue what to do... */
+                    continue;
+                }
+
+                if(isset($group['_key'][0])) { $_group_type_key= $group['_key'][0]; }
+                else { $_group_type_key= 'groups'; }
+
+                if($gosa_group = $this->_ldap->fetch($ldapsearch))
+                {
+                    /* detect status */
+                    if ($this->compareObjects($group, $gosa_group, array("cn"))===TRUE)
                     {
-                        continue;
+                        if(in_array('posixGroup', $group['objectClass']))
+                        {
+                            $expected_group_dn= 'cn='.$group['cn'][0].','.get_groups_ou().$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
+                        }
+                        elseif(in_array('gosaGroupOfNames', $group['objectClass']))
+                        {
+                             $expected_group_dn= 'cn='.$group['cn'][0].','.get_ou('group','ogroupRDN').$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
+                        }
+                        $gosa_group_dn= $gosa_group['dn'];
+                        if(strtolower($gosa_group_dn)==strtolower($expected_group_dn) or ($_group_type_key==="optional_groups"))
+                        {
+                            $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]= 'exists';
+                        }
+                        else {
+                            $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]= 'exists-elsewhere';
+                        }
                     }
-
-                    if(isset($group['_key'][0])) { $_group_type_key= $group['_key'][0]; }
-                    else { $_group_type_key= 'groups'; }
-
+                }
+                else {
                     if ($this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]== 'unchecked')
                     {
                         $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]= 'not-found';
@@ -1284,17 +1195,128 @@ class manageaccounts extends plugin{
                             $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_actions'][0]= 'create';
                         }
                     }
+                }
 
-                    /* grab posix groups (classes, courses) into their own array */
-                    $group_name = $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['cn'][0];
-                    if (!in_array($group_name, array_keys($this->csvinfo['data_preldap_posixgroups'])) and ($_group_type_key!=="optional_groups"))
+                /* detect actions */
+                $_actions= array();
+                if($this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]==='exists-elsewhere')
+                {
+                    $_actions[]= "move";
+                }
+                if ($this->compareObjects($group, $gosa_group, array("cn"))===TRUE)
+                {
+                    /* if group exists, check for to-be-dropped members */
+                    if(
+                       ($this->csvinfo['flush_members']) and
+                       ($_group_type_key!=='optional_groups') and
+                       (isset($gosa_group[$memberAttr]['count']) && ($gosa_group[$memberAttr]['count'] > 0))
+                      )
+                    {
+                        $_actions[]= "flush-all-members";
+                    }
+                    if($_group_type_key!=='optional_groups')
+                    {
+                        $_check_attrs= $this->compareObjects($group, $gosa_group, array("mail","description"), "update-");
+                        if ($_check_attrs===TRUE)
+                        {
+                        }
+                        else {
+                            $_actions= array_merge($_actions, $_check_attrs);
+                        }
+                    }
+
+                    if($_group_type_key!=="aux_accounts_groups")
+                    {
+
+                        /* the _group_actions field should contain a one-element array being either
+                         * array("none"), array("move-primgroup") or array("create-primgroup")
+                         */
+                        $_g_actions= array($this->csvinfo['data_preldap'][$key]['main_account']['_'.$group_type.'_actions'][0]);
+                        if($_g_actions[0]==="none") { $_g_actions=array(); }
+
+                        /* check if the user's main account is in this group */
+                        if(isset($row['main_account']['uid'][0]))
+                        {
+                            $_group_name= $group['cn'][0];
+                            $_uid= $row['main_account']['uid'][0];
+                            $_members= isset($gosa_group['memberUid']) ? $gosa_group['memberUid'] : array();
+                            if(!in_array($_uid, $_members) or (in_array('flush-all-members', $_actions)))
+                            {
+                                if(!in_array('update-memberships', $_g_actions))
+                                {
+                                    $_g_actions[]= 'update-memberships';
+                                }
+                                $this->csvinfo['data_preldap'][$key]['main_account']['_'.$group_type.'_actions'][$_group_name]= 'add';
+                            }
+                            else {
+                                $this->csvinfo['data_preldap'][$key]['main_account']['_'.$group_type.'_actions'][$_group_name]= 'none';
+                            }
+                        }
+                        /* re-add the none action if no group action got detected above */
+                        if(empty($_g_actions))
+                        {
+                            $_g_actions[]= 'none';
+                        }
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_'.$group_type.'_actions'][0]= implode(",", $_g_actions);
+                    }
+                    else {
+
+                        /* FIXME: The below code block needs to be adapted, in case there will be imports with AUX GROUPS being
+                         *        POSIX groups.
+                         */
+
+                        /* check if the aux accounts are in this group */
+                        if(isset($row['aux_accounts']) and (!empty($row['aux_accounts'])))
+                        {
+                            foreach($row['aux_accounts'] as $idx_aux => $aux_account)
+                            {
+
+                                /* if the object's DN is not known by now, let's skip this object */
+                                if(!isset($aux_account['_dn_ldap'])) { continue; }
+
+                                $_group_name= $group['cn'][0];
+                                $_dn= $aux_account['_dn_ldap'][0];
+                                $_members= isset($gosa_group[$memberAttr]) ? $gosa_group[$memberAttr] : array();
+
+                                if($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]!=="data-incomplete")
+                                {
+                                    if(!in_array($_dn, $_members) or (in_array('flush-all-members', $_actions)))
+                                    {
+                                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_'.$group_type.'_actions'][0]= 'update-memberships';
+                                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_'.$group_type.'_actions'][$_group_name]= 'add';
+                                    }
+                                    else {
+                                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_'.$group_type.'_actions'][$_group_name]= 'none';
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    /* no action found till here, set the "none" action */
+                    if(empty($_actions))
+                    {
+                        $_actions[]= "none";
+                    }
+                    $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_actions'][0]= implode(",", $_actions);
+
+                }
+
+                /* grab groups (classes, courses) into their own array */
+                $group_name = $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['cn'][0];
+                if (!in_array($group_name, array_keys($this->csvinfo['data_preldap_posixgroups'])) and ($_group_type_key!=="optional_groups"))
+                {
+                    if(in_array('posixGroup', $group['objectClass']))
                     {
                         $this->csvinfo['data_preldap_posixgroups'][$group_name] = $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key];
+                    }
+                    elseif(in_array('gosaGroupOfNames', $group['objectClass']))
+                    {
+                        $this->csvinfo['data_preldap_ogroups'][$group_name] = $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key];
                     }
                 }
             }
         }
-        ksort($this->csvinfo['data_preldap_posixgroups']);
 
         /* finally add optional groups, if not already explicitly listed above */
         foreach ($this->csvinfo['data_preldap'] as $key => $row)
@@ -1305,210 +1327,37 @@ class manageaccounts extends plugin{
                 ksort($_opt_groups);
                 foreach($_opt_groups as $opt_group)
                 {
-                    if(
-                       isset($opt_group['cn'][0]) and
-                       (!in_array($opt_group['cn'][0],array_keys($this->csvinfo['data_preldap_posixgroups'])))
-                      )
+                    if(in_array('posixGroup', $opt_group['objectClass']))
                     {
-                        $this->csvinfo['data_preldap_posixgroups'][$opt_group['cn'][0]]= $opt_group;
-                    }
-                }
-            }
-        }
-    }
-
-    function ogroupStatusCheck()
-    {
-
-        /* initialize ogroup actions for each main account and each aux account */
-        foreach ($this->csvinfo['data_preldap'] as $key => $row)
-        {
-            $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions']= array('none');
-            if(isset($row['aux_accounts']))
-            {
-                foreach($row['aux_accounts'] as $idx_aux => $aux_account)
-                {
-                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions']= array('none');
-                }
-            }
-        }
-
-        $this->_ldap->cd($this->config->current['BASE']);
-        $ldapsearch = $this->_ldap->search("(objectClass=gosaGroupOfNames)",array("cn","member","description"));
-
-        /* this will probably scale very very badly... Improvement needed. Suggestions? */
-        while ($gosa_ogroup = $this->_ldap->fetch($ldapsearch))
-        {
-            foreach ($this->csvinfo['data_preldap'] as $key => $row)
-            {
-                $_all_groups= array();
-                if(isset($row['groups'])) { $_all_groups= array_merge($_all_groups, $row['groups']); }
-                if(isset($row['aux_accounts_groups'])) { $_all_groups= array_merge($_all_groups, $row['aux_accounts_groups']); }
-
-                if(!empty($_all_groups))
-                {
-
-                    foreach ($_all_groups as $group_key => $group)
-                    {
-
-                        /* only process gosaGroupOfNames accounts here... */
-                        if(!in_array('gosaGroupOfNames', $group['objectClass']))
+                        if(
+                           isset($opt_group['cn'][0]) and
+                           (!in_array($opt_group['cn'][0],array_keys($this->csvinfo['data_preldap_posixgroups'])))
+                          )
                         {
-                            continue;
-                        }
-
-                        if(isset($group['_key'][0])) { $_group_type_key= $group['_key'][0]; }
-                        else { $_group_type_key= 'groups'; }
-
-                        /* detect status */
-                        if ($this->compareObjects($group, $gosa_ogroup, array("cn"))===TRUE)
-                        {
-                            $expected_ogroup_dn= 'cn='.$group['cn'][0].','.get_ou('group','ogroupRDN').$this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
-                            $gosa_ogroup_dn= $gosa_ogroup['dn'];
-                            if(strtolower($gosa_ogroup_dn)==strtolower($expected_ogroup_dn))
-                            {
-                                $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]= 'exists';
-                            }
-                            else {
-                                $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]= 'exists-elsewhere';
-                            }
-
-                        }
-
-                        /* detect actions */
-                        $_actions= array();
-                        if($this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]==='exists-elsewhere')
-                        {
-                            $_actions[]= "move";
-                        }
-                        if ($this->compareObjects($group, $gosa_ogroup, array("cn"))===TRUE)
-                        {
-
-                            /* if group exists, check for to-be-dropped members */
-                            if(
-                               ($this->csvinfo['flush_members']) and
-                               (isset($gosa_ogroup['members']['count']) && ($gosa_ogroup['members']['count'] > 0))
-                              )
-                            {
-                                $_actions[]= "flush-all-members";
-                            }
-                            $_check_attrs= $this->compareObjects($group, $gosa_ogroup, array("description"), "update-");
-                            if ($_check_attrs===TRUE)
-                            {
-                            }
-                            else {
-                                $_actions= array_merge($_actions, $_check_attrs);
-                            }
-
-                            if($_group_type_key!=="aux_accounts_groups")
-                            {
-
-                                /* check if the user's main account is in this group */
-                                if(isset($row['main_account']['_dn_ldap'][0]))
-                                {
-
-                                    /* if the object's DN is not know by now, let's skip this object */
-                                    if(!isset($row['main_account']['_dn_ldap'])) { continue; }
-
-                                    $_ogroup_name= $group['cn'][0];
-                                    $_dn= $row['main_account']['_dn_ldap'][0];
-                                    $_members= isset($gosa_ogroup['member']) ? $gosa_ogroup['member'] : array();
-                                    if(!in_array($_dn, $_members) or (in_array('flush-all-members', $_actions)))
-                                    {
-                                        $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions'][0]= 'update-memberships';
-                                        $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions'][$_ogroup_name]= 'add';
-                                    }
-                                    else {
-                                        $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions'][$_ogroup_name]= 'none';
-                                    }
-                                }
-                            }
-                            else {
-
-                                /* check if the aux accounts are in this group */
-                                if(isset($row['aux_accounts']) and (!empty($row['aux_accounts'])))
-                                {
-                                    foreach($row['aux_accounts'] as $idx_aux => $aux_account)
-                                    {
-
-                                        /* if the object's DN is not know by now, let's skip this object */
-                                        if(!isset($aux_account['_dn_ldap'])) { continue; }
-
-                                        $_ogroup_name= $group['cn'][0];
-                                        $_dn= $aux_account['_dn_ldap'][0];
-                                        $_members= isset($gosa_ogroup['member']) ? $gosa_ogroup['member'] : array();
-
-                                        if($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]!=="data-incomplete")
-                                        {
-                                            if(!in_array($_dn, $_members) or (in_array('flush-all-members', $_actions)))
-                                            {
-                                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions'][0]= 'update-memberships';
-                                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions'][$_ogroup_name]= 'add';
-                                            }
-                                            else {
-                                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_ogroup_actions'][$_ogroup_name]= 'none';
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            /* no action found till here, set the "none" action */
-                            if(empty($_actions))
-                            {
-                                $_actions[]= "none";
-                            }
-                            $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_actions'][0]= implode(",", $_actions);
-
-                            /* break out of the inner loop if the $gosa_account has been found */
-                            break;
+                            $this->csvinfo['data_preldap_posixgroups'][$opt_group['cn'][0]]= $opt_group;
                         }
                     }
-                }
-            }
-        }
-
-        $this->csvinfo['data_preldap_ogroups'] = array();
-        foreach ($this->csvinfo['data_preldap'] as $key => $row)
-        {
-            $_all_groups= array();
-            if(isset($row['groups'])) { $_all_groups= array_merge($_all_groups, $row['groups']); }
-            if(isset($row['aux_accounts_groups'])) { $_all_groups= array_merge($_all_groups, $row['aux_accounts_groups']); }
-
-            if(!empty($_all_groups))
-            {
-                foreach ($_all_groups as $group_key => $group)
-                {
-
-                    /* only process gosaGroupOfNames accounts here... */
-                    if(!in_array('gosaGroupOfNames', $group['objectClass']))
+                    elseif(in_array('gosaGroupOfNames', $opt_group['objectClass']))
                     {
+                        if(
+                           isset($opt_group['cn'][0]) and
+                           (!in_array($opt_group['cn'][0],array_keys($this->csvinfo['data_preldap_ogroups'])))
+                          )
+                        {
+                            $this->csvinfo['data_preldap_ogroups'][$opt_group['cn'][0]]= $opt_group;
+                        }
+                    }
+                    else {
+                        /* neither gosaGroupOfNames nor posixGroup import, no clue what to do... */
                         continue;
                     }
-
-                    if(isset($group['_key'][0])) { $_group_type_key= $group['_key'][0]; }
-                    else { $_group_type_key= 'groups'; }
-
-
-                    if ($this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]== 'unchecked')
-                    {
-                        $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0]= 'not-found';
-                        $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_actions'][0]= 'create';
-                    }
-
-                    /* grab posix groups (classes, courses) into their own array */
-                    $group_name = $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['cn'][0];
-                    if (!in_array($group_name, array_keys($this->csvinfo['data_preldap_ogroups'])))
-                    {
-                        if (in_array("gosaGroupOfNames", $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['objectClass']))
-                        {
-                            $this->csvinfo['data_preldap_ogroups'][$group_name] = $this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key];
-                        }
-                    }
                 }
             }
         }
+
+        ksort($this->csvinfo['data_preldap_posixgroups']);
         ksort($this->csvinfo['data_preldap_ogroups']);
+
     }
 
     function CSVRowSanityChecksOk($csv_row)
