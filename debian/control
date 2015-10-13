@@ -16,7 +16,7 @@ Package: gosa-plugin-schoolmanager
 Architecture: all
 Depends: 
  ${misc:Depends},
- gosa (>= 2.7),
+ gosa (>= 2.7.4+reloaded2-4~),
 Description: School Management Add-On for GOsa²
  Ease managing users and groups at schools (and how they interact) with
  GOsa².
