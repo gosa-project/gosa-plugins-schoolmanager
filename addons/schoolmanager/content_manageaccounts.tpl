@@ -54,7 +54,7 @@ FIXMEs:
 	<li>Provide a checkbox to disable parent imports.
 </ul>
 
-<table summary="{t}Select user object templates{/t}">
+<table summary="{t}Configure import options{/t}">
 {if $import_account_type == 'students'}
 	<tr>
 		<td colspan="3">
