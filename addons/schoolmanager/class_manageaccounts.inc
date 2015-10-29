@@ -130,13 +130,22 @@ class manageaccounts extends plugin{
             $this->csvinfo=array ();
         }
 
-        $this->csvinfo['attrs']=$this->getAttributes();
+        $this->csvinfo['attrs']=$this->etAttributes();
         $this->csvinfo['attrs'][] = "---";
         /* Check permissions for import */
         $acl=$this->ui->get_permissions ($this->config->current['BASE'],"all/all");
         if (!preg_match ("/w/",$acl)) {
-            if (isset ($_POST['userfile'])||isset ($_POST['sorted'])||isset ($_POST['fileup'])) {
-                msg_dialog::display (_ ("Permission error"),_ ("You've no permission to import CSV files!"),ERROR_DIALOG);
+            if (isset ($_POST['file_uploaded']) ||
+                isset ($_POST['import_configured']) ||
+                isset ($_POST['data_sorted']) ||
+                isset ($_POST['accounts_reviewed']) ||
+                isset ($_POST['accounts_imported']) ||
+                isset ($_POST['groups_reviewed']) ||
+                isset ($_POST['groups_imported']) ||
+                isset ($_POST['accounts_groupmembers_reviewed']) ||
+                isset ($_POST['accounts_groupmembers_updated']) ||
+                isset ($_POST['cleanup_completed'])) {
+                msg_dialog::display (_ ("Permission error"),_ ("You've no permission to import user data!"),ERROR_DIALOG);
             }
             return ($smarty->fetch (get_template_path ('content_manageaccounts.tpl',TRUE)));
         }
