@@ -1624,7 +1624,6 @@ class manageaccounts extends plugin{
                     {
                         if ($this->config->get_cfg_value("core","idGenerator") != "")
                         {
-                            print "HALLO<br>";
                             $_genStr= $this->config->get_cfg_value("core","idGenerator");
                             $_attributes= array(
                                 'sn' => $user_data['sn'][0],
