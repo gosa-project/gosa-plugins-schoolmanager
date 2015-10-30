@@ -1,0 +1,4 @@
+School Manager Add-On for GOsa² is developed by
+
+  Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+  Marius Rasch
