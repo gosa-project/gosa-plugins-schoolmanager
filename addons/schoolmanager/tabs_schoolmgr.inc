@@ -23,7 +23,7 @@
 class schoolmanagertab extends tabs
 {
 
-  function schoolmanagertab($config, $data, $dn)
+  function __construct($config, $data, $dn)
   {
     tabs::tabs($config, $data, $dn);
   }

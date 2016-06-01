@@ -32,7 +32,7 @@ class schoolmgr extends plugin
     var $objectclasses= array();
     var $schoolmgr;
 
-    function schoolmgr (&$config)
+    function __construct(&$config)
     {
         $this->initTime = microtime(TRUE);
 

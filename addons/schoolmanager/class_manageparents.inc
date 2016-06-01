@@ -35,7 +35,7 @@ class manageparents extends plugin
     var $objectclasses= array();
     var $view_logged = FALSE;
 
-    function manageparents (&$config, $dn= NULL)
+    function __construct(&$config, $dn= NULL)
     {
         $this->initTime = microtime(TRUE);
 

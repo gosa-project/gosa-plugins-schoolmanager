@@ -26,7 +26,7 @@ class manageteachers extends manageaccounts {
     var $access="";
 
     /* constructor */
-    function manageteachers (&$config,$dn=NULL) {
+    function __construct(&$config,$dn=NULL) {
 
         $this->initTime=microtime (TRUE);
 

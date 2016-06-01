@@ -38,7 +38,7 @@ class manageaccounts extends plugin{
     var $import_account_type="";
 
     /* constructor */
-    function manageaccounts (&$config,$dn=NULL) {
+    function __construct(&$config,$dn=NULL) {
 
         $this->initTime=microtime (TRUE);
 
