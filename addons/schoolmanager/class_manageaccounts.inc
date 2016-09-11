@@ -130,7 +130,7 @@ class manageaccounts extends plugin{
             $this->csvinfo=array ();
         }
 
-        $this->csvinfo['attrs']=$this->etAttributes();
+        $this->csvinfo['attrs']=$this->getAttributes();
         $this->csvinfo['attrs'][] = "---";
         /* Check permissions for import */
         $acl=$this->ui->get_permissions ($this->config->current['BASE'],"all/all");
