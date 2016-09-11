@@ -54,8 +54,7 @@ class schoolmgr extends plugin
         return ($this->schoolmgr->execute());
     }
 
-    /* Return plugin informations for acl handling
-#FIXME You can only read attributes within this report plugin */
+    /* Return plugin informations for acl handling */
     static function plInfo()
     {
         return (array(
