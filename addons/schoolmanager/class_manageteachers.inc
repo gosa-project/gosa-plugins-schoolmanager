@@ -35,7 +35,7 @@ class manageteachers extends manageaccounts {
         $this->ui=get_userinfo ();
         stats::log ('plugin',$class=get_class ($this),$category=array ($this->acl_category),$action='open',$amount=1,$duration= (microtime (TRUE)-$this->initTime));
 
-        parent::manageaccounts($config,$dn=NULL);
+        parent::__construct($config,$dn=NULL);
     }
 
     function getAttributes()
