@@ -34,7 +34,7 @@ if ( $cleanup ){
   session::un_set('schoolmgr');
 }else{
 
-	/* Create phonelist object on demand */
+	/* Create schoolmgr object on demand */
 	if (!session::is_set('schoolmgr')){
 		$schoolmgr= new schoolmgr ($config);
 		$schoolmgr->set_acl_category("schoolmgr");
