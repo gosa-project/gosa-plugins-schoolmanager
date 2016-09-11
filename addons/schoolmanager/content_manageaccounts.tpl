@@ -49,11 +49,6 @@
 {t}School Manager's import functionality is very flexible and can be adapted to your needs. Please configure options of this import below.{/t}
 </p>
 
-FIXMEs:
-<ul>
-	<li>Provide a checkbox to disable parent imports.
-</ul>
-
 <table summary="{t}Configure import options{/t}">
 {if $import_account_type == 'students'}
 	<tr>
@@ -82,6 +77,20 @@ FIXMEs:
 			<select id="template_students_aux" name="template_students_aux"  size="1" title="">
 			{html_options options=$templates selected=$preset_template_students_aux}
 			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="create_aux_accounts">{t escape=no}Create parent accounts when importing student accounts.{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+{if $preset_create_aux_accounts}
+			<input type="checkbox" id="create_aux_accounts" name="create_aux_accounts" checked>
+{else}
+			<input type="checkbox" id="create_aux_accounts" name="create_aux_accounts">
+{/if}
+			{t}(tick this check box, if yes){/t}
 		</td>
 	</tr>
 	<tr>
