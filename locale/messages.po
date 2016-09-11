@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-11 22:40+0200\n"
+"POT-Creation-Date: 2016-09-11 21:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,19 +25,19 @@ msgstr ""
 msgid "GOsa2 School Manager Module: Manage Teachers"
 msgstr ""
 
-#: addons/schoolmanager/class_manageteachers.inc:168
-#: addons/schoolmanager/class_managestudents.inc:207
+#: addons/schoolmanager/class_manageteachers.inc:174
+#: addons/schoolmanager/class_managestudents.inc:227
 #, php-format
 msgid "SchoolManager class group %s"
 msgstr ""
 
-#: addons/schoolmanager/class_manageteachers.inc:192
+#: addons/schoolmanager/class_manageteachers.inc:198
 #, php-format
 msgid "SchoolManager subject group %s"
 msgstr ""
 
-#: addons/schoolmanager/class_manageteachers.inc:215
-#: addons/schoolmanager/class_managestudents.inc:226
+#: addons/schoolmanager/class_manageteachers.inc:222
+#: addons/schoolmanager/class_managestudents.inc:246
 #, php-format
 msgid "SchoolManager course group %s"
 msgstr ""
@@ -64,78 +64,78 @@ msgstr ""
 msgid "GOsa2 School Manager super-class for managing accounts"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:139
+#: addons/schoolmanager/class_manageaccounts.inc:148
 msgid "Permission error"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:139
-msgid "You've no permission to import CSV files!"
+#: addons/schoolmanager/class_manageaccounts.inc:148
+msgid "You've no permission to import user data!"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:161
-#: addons/schoolmanager/class_manageaccounts.inc:165
-#: addons/schoolmanager/class_manageaccounts.inc:171
-#: addons/schoolmanager/class_manageaccounts.inc:175
-#: addons/schoolmanager/class_manageaccounts.inc:198
-#: addons/schoolmanager/class_manageaccounts.inc:265
-#: addons/schoolmanager/class_manageaccounts.inc:290
-#: addons/schoolmanager/class_manageaccounts.inc:418
-#: addons/schoolmanager/class_manageaccounts.inc:1314
+#: addons/schoolmanager/class_manageaccounts.inc:170
+#: addons/schoolmanager/class_manageaccounts.inc:174
+#: addons/schoolmanager/class_manageaccounts.inc:180
+#: addons/schoolmanager/class_manageaccounts.inc:184
+#: addons/schoolmanager/class_manageaccounts.inc:207
+#: addons/schoolmanager/class_manageaccounts.inc:278
+#: addons/schoolmanager/class_manageaccounts.inc:303
+#: addons/schoolmanager/class_manageaccounts.inc:447
+#: addons/schoolmanager/class_manageaccounts.inc:1391
 msgid "Error"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:161
-#: addons/schoolmanager/class_manageaccounts.inc:165
-#: addons/schoolmanager/class_manageaccounts.inc:171
-#: addons/schoolmanager/class_manageaccounts.inc:175
+#: addons/schoolmanager/class_manageaccounts.inc:170
+#: addons/schoolmanager/class_manageaccounts.inc:174
+#: addons/schoolmanager/class_manageaccounts.inc:180
+#: addons/schoolmanager/class_manageaccounts.inc:184
 #, php-format
 msgid "Cannot read uploaded file: %s"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:161
-#: addons/schoolmanager/class_manageaccounts.inc:171
+#: addons/schoolmanager/class_manageaccounts.inc:170
+#: addons/schoolmanager/class_manageaccounts.inc:180
 msgid "file not found"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:165
+#: addons/schoolmanager/class_manageaccounts.inc:174
 msgid "file is empty"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:175
+#: addons/schoolmanager/class_manageaccounts.inc:184
 msgid "file not readable"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:198
+#: addons/schoolmanager/class_manageaccounts.inc:207
 msgid "File has an unsupported encoding!"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:265
+#: addons/schoolmanager/class_manageaccounts.inc:278
 msgid "Cannot find CSV data in the selected file!"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:290
+#: addons/schoolmanager/class_manageaccounts.inc:303
 msgid "Domain for new groups is empty!"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:418
+#: addons/schoolmanager/class_manageaccounts.inc:447
 #, php-format
 msgid "The attribute %s is only allowed to select once!"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:974
+#: addons/schoolmanager/class_manageaccounts.inc:1074
 msgid "male"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:980
+#: addons/schoolmanager/class_manageaccounts.inc:1080
 msgid "female"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:1314
+#: addons/schoolmanager/class_manageaccounts.inc:1391
 #, php-format
 msgid "Need at least %s and %s to create users (Check line %d in CSV file)!"
 msgstr ""
 
-#: addons/schoolmanager/class_manageaccounts.inc:1599
+#: addons/schoolmanager/class_manageaccounts.inc:1744
 #, php-format
 msgid "Class: %s"
 msgstr ""
@@ -146,6 +146,12 @@ msgid ""
 "implemented, yet."
 msgstr ""
 
+#: addons/schoolmanager/content_archiveaccounts.tpl:2
+msgid ""
+"GOsa2 School Manager's <b>Archive Old Accounts</b> has not been implemented, "
+"yet."
+msgstr ""
+
 #: addons/schoolmanager/class_managestudents.inc:24
 msgid "Manage Students"
 msgstr ""
@@ -154,14 +160,14 @@ msgstr ""
 msgid "GOsa2 School Manager Module: Manage Students"
 msgstr ""
 
-#: addons/schoolmanager/class_managestudents.inc:236
+#: addons/schoolmanager/class_managestudents.inc:256
 #, php-format
 msgid "parent group of user %s %s"
 msgstr ""
 
 #: addons/schoolmanager/class_schoolmgr.inc:26
-#: addons/schoolmanager/class_schoolmgr.inc:62
-#: addons/schoolmanager/class_schoolmgr.inc:68
+#: addons/schoolmanager/class_schoolmgr.inc:61
+#: addons/schoolmanager/class_schoolmgr.inc:67
 msgid "School Manager"
 msgstr ""
 
@@ -169,7 +175,7 @@ msgstr ""
 msgid "Management utility for schools"
 msgstr ""
 
-#: addons/schoolmanager/class_schoolmgr.inc:63
+#: addons/schoolmanager/class_schoolmgr.inc:62
 msgid "Administration Utility for Schools"
 msgstr ""
 
@@ -230,72 +236,83 @@ msgid ""
 "your needs. Please configure options of this import below."
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:57
-msgid "Select user object templates"
+#: addons/schoolmanager/content_manageaccounts.tpl:52
+msgid "Configure import options"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:62
+#: addons/schoolmanager/content_manageaccounts.tpl:57
 msgid ""
 "Please choose from the available GOsa2 user object templates what account "
 "templates to use for students and for their parents."
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:68
+#: addons/schoolmanager/content_manageaccounts.tpl:63
 msgid "Select template for student accounts"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:79
+#: addons/schoolmanager/content_manageaccounts.tpl:74
 msgid "Select template for parent accounts"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:90
+#: addons/schoolmanager/content_manageaccounts.tpl:85
+msgid "Create parent accounts when importing student accounts."
+msgstr ""
+
+#: addons/schoolmanager/content_manageaccounts.tpl:93
+#: addons/schoolmanager/content_manageaccounts.tpl:107
+#: addons/schoolmanager/content_manageaccounts.tpl:121
+#: addons/schoolmanager/content_manageaccounts.tpl:154
+#: addons/schoolmanager/content_manageaccounts.tpl:207
+msgid "(tick this check box, if yes)"
+msgstr ""
+
+#: addons/schoolmanager/content_manageaccounts.tpl:99
 msgid ""
 "Create a sub-OU for each class and place student accounts belonging to the "
 "same class into their corresponding class OU?"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:98
-#: addons/schoolmanager/content_manageaccounts.tpl:112
-#: addons/schoolmanager/content_manageaccounts.tpl:183
-msgid "(tick this check box, if yes)"
-msgstr ""
-
-#: addons/schoolmanager/content_manageaccounts.tpl:104
+#: addons/schoolmanager/content_manageaccounts.tpl:113
 msgid ""
 "If CSV data does not contain a user ID (uid) column, use the mail address as "
 "user ID instead?"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:120
+#: addons/schoolmanager/content_manageaccounts.tpl:129
 msgid ""
 "Please choose from the available GOsa2 user object templates what account "
 "template to use for teachers."
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:126
+#: addons/schoolmanager/content_manageaccounts.tpl:135
 msgid "Select template for teacher accounts"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:138
+#: addons/schoolmanager/content_manageaccounts.tpl:146
+msgid ""
+"Make all teachers teaching courses in a class members of that class group?"
+msgstr ""
+
+#: addons/schoolmanager/content_manageaccounts.tpl:162
 msgid ""
 "During this import we will probably create several non-primary groups (for "
 "classes, courses). Where in the LDAP tree shall these new group objects be "
 "created?"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:144
+#: addons/schoolmanager/content_manageaccounts.tpl:168
 msgid "Select OU for new groups:"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:154
+#: addons/schoolmanager/content_manageaccounts.tpl:178
 msgid "And what mail domain should these new groups be in?"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:160
+#: addons/schoolmanager/content_manageaccounts.tpl:184
 msgid "Mail domain for new groups:"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:169
+#: addons/schoolmanager/content_manageaccounts.tpl:193
 msgid ""
 "With the start of a new school year, it is advisable to flush group members "
 "from all class and course groups? At the beginning of a new school year, we "
@@ -303,180 +320,180 @@ msgid ""
 "members during this import."
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:175
+#: addons/schoolmanager/content_manageaccounts.tpl:199
 msgid "Flush members from course and class groups?"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:194
-#: addons/schoolmanager/content_manageaccounts.tpl:481
+#: addons/schoolmanager/content_manageaccounts.tpl:218
+#: addons/schoolmanager/content_manageaccounts.tpl:530
 msgid "STEP %1: Check CSV data and assign to LDAP attributes"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:197
+#: addons/schoolmanager/content_manageaccounts.tpl:221
 msgid ""
 "Please assign the offered (LDAP) attributes to the CSV data columns. Note "
 "that the CSV file has been rotated 90DEGREES counter-clockwise for better "
 "readability."
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:201
+#: addons/schoolmanager/content_manageaccounts.tpl:225
 msgid "Check CSV data"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:228
+#: addons/schoolmanager/content_manageaccounts.tpl:252
 msgid "STEP %1: Review user account objects before LDAP import"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:232
+#: addons/schoolmanager/content_manageaccounts.tpl:256
 msgid ""
 "STEP %1  (LDAP import status): User account objects have been imported into "
 "LDAP"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:238
+#: addons/schoolmanager/content_manageaccounts.tpl:262
 msgid "STEP %1  Review group memberships before LDAP update"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:242
+#: addons/schoolmanager/content_manageaccounts.tpl:266
 msgid ""
 "STEP %1 (LDAP import status): Accounts' group memberships have been updated "
 "in LDAP"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:247
-#: addons/schoolmanager/content_manageaccounts.tpl:258
-#: addons/schoolmanager/content_manageaccounts.tpl:320
+#: addons/schoolmanager/content_manageaccounts.tpl:271
+#: addons/schoolmanager/content_manageaccounts.tpl:282
+#: addons/schoolmanager/content_manageaccounts.tpl:368
 msgid "User account: %1, %2"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:256
+#: addons/schoolmanager/content_manageaccounts.tpl:280
 msgid "New user account: %1, %2"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:265
+#: addons/schoolmanager/content_manageaccounts.tpl:289
 msgid "Account group for %1, %2"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:276
-#: addons/schoolmanager/content_manageaccounts.tpl:341
+#: addons/schoolmanager/content_manageaccounts.tpl:300
+#: addons/schoolmanager/content_manageaccounts.tpl:389
 msgid "<keep>"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:287
-#: addons/schoolmanager/content_manageaccounts.tpl:353
+#: addons/schoolmanager/content_manageaccounts.tpl:312
+#: addons/schoolmanager/content_manageaccounts.tpl:402
 msgid "Groups"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:290
-#: addons/schoolmanager/content_manageaccounts.tpl:356
+#: addons/schoolmanager/content_manageaccounts.tpl:315
+#: addons/schoolmanager/content_manageaccounts.tpl:405
 msgid "Group membership actions"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:324
+#: addons/schoolmanager/content_manageaccounts.tpl:372
 msgid "New associated account: %1, %2"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:326
+#: addons/schoolmanager/content_manageaccounts.tpl:374
 msgid "Insufficient account data: %1, %2"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:328
+#: addons/schoolmanager/content_manageaccounts.tpl:376
 msgid "Associated account: %1, %2"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:399
+#: addons/schoolmanager/content_manageaccounts.tpl:448
 msgid "STEP %1: Review group objects before LDAP import"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:403
+#: addons/schoolmanager/content_manageaccounts.tpl:452
 msgid ""
 "STEP %1 (LDAP import status): Group objects have been imported into LDAP"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:409
+#: addons/schoolmanager/content_manageaccounts.tpl:458
 msgid "Standard (POSIX) groups"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:415
-#: addons/schoolmanager/content_manageaccounts.tpl:418
-#: addons/schoolmanager/content_manageaccounts.tpl:450
-#: addons/schoolmanager/content_manageaccounts.tpl:453
+#: addons/schoolmanager/content_manageaccounts.tpl:464
+#: addons/schoolmanager/content_manageaccounts.tpl:467
+#: addons/schoolmanager/content_manageaccounts.tpl:499
+#: addons/schoolmanager/content_manageaccounts.tpl:502
 msgid "Group object: %1"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:444
+#: addons/schoolmanager/content_manageaccounts.tpl:493
 msgid "Object groups"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:489
+#: addons/schoolmanager/content_manageaccounts.tpl:538
 msgid ""
 "STEP %1: LDAP import completed. Statistical overview of all import actions."
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:493
+#: addons/schoolmanager/content_manageaccounts.tpl:542
 msgid "All entries have been written to the LDAP database successfully."
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:495
+#: addons/schoolmanager/content_manageaccounts.tpl:544
 msgid "There has been at least one error during the import of your data."
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:499
+#: addons/schoolmanager/content_manageaccounts.tpl:548
 msgid "Here is the status report for the import:"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:512
-#: addons/schoolmanager/content_manageaccounts.tpl:515
-#: addons/schoolmanager/content_manageaccounts.tpl:518
-#: addons/schoolmanager/content_manageaccounts.tpl:524
-#: addons/schoolmanager/content_manageaccounts.tpl:536
-#: addons/schoolmanager/content_manageaccounts.tpl:539
+#: addons/schoolmanager/content_manageaccounts.tpl:561
+#: addons/schoolmanager/content_manageaccounts.tpl:564
+#: addons/schoolmanager/content_manageaccounts.tpl:567
+#: addons/schoolmanager/content_manageaccounts.tpl:573
+#: addons/schoolmanager/content_manageaccounts.tpl:585
+#: addons/schoolmanager/content_manageaccounts.tpl:588
 msgid "Continue here, when ready"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:512
+#: addons/schoolmanager/content_manageaccounts.tpl:561
 msgid "Set import configuration option (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:515
+#: addons/schoolmanager/content_manageaccounts.tpl:564
 msgid "Check and Sort CSV Data (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:518
+#: addons/schoolmanager/content_manageaccounts.tpl:567
 msgid "Review user account objects before LDAP import (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:521
-#: addons/schoolmanager/content_manageaccounts.tpl:527
-#: addons/schoolmanager/content_manageaccounts.tpl:530
-#: addons/schoolmanager/content_manageaccounts.tpl:533
+#: addons/schoolmanager/content_manageaccounts.tpl:570
+#: addons/schoolmanager/content_manageaccounts.tpl:576
+#: addons/schoolmanager/content_manageaccounts.tpl:579
+#: addons/schoolmanager/content_manageaccounts.tpl:582
 msgid "Continue here, when ready (this can take a while...)"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:521
+#: addons/schoolmanager/content_manageaccounts.tpl:570
 msgid "Import user account objects into LDAP (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:524
+#: addons/schoolmanager/content_manageaccounts.tpl:573
 msgid "Review group objects (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:527
+#: addons/schoolmanager/content_manageaccounts.tpl:576
 msgid "Import group objects into LDAP (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:530
+#: addons/schoolmanager/content_manageaccounts.tpl:579
 msgid "Review accounts' group memberships before LDAP import (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:533
+#: addons/schoolmanager/content_manageaccounts.tpl:582
 msgid "Update accounts' group memberships in LDAP (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:536
+#: addons/schoolmanager/content_manageaccounts.tpl:585
 msgid "Some post-import clean-ups (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_manageaccounts.tpl:539
+#: addons/schoolmanager/content_manageaccounts.tpl:588
 msgid "Finish LDAP import (Step %1)"
 msgstr ""
