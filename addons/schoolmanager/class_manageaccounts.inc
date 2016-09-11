@@ -1369,7 +1369,7 @@ class manageaccounts extends plugin{
 
     }
 
-    function CSVRowSanityChecksOk($csv_row)
+    function CSVRowSanityChecksOk($csv_row, $idx)
     {
         $ok = FALSE;
         if ( (empty ($csv_row['sn'])) || (empty ($csv_row['givenName']))|| (!isset ($csv_row['sn']))|| (!isset ($csv_row['givenName']))) {

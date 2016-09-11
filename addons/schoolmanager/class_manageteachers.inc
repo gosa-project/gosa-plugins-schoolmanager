@@ -93,7 +93,7 @@ class manageteachers extends manageaccounts {
 
         foreach ($csv_data_sorted as $idx => $row_sorted)
         {
-            if ( $this->CSVRowSanityChecksOk ($row_sorted) )
+            if ( $this->CSVRowSanityChecksOk ($row_sorted, $idx) )
             {
 
                 /* main account */
