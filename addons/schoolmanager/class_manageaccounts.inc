@@ -62,7 +62,7 @@ class manageaccounts extends plugin{
 
         return $attrs;
     }
-    
+
     function getMultiAttributes()
     {
         /* adapt this in sub-classes!!! */
