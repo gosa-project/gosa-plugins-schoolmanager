@@ -242,10 +242,16 @@ class manageaccounts extends plugin{
                         $this->csvinfo['ou_tree']['OUs'] = array();
 
                         /* add found gosaDepartment objects */
+                        $i = 0;
+                        $default_ou_groups = 0;
                         while($result = $this->_ldap->fetch($this->csvinfo['ou_tree']['ldapsearch'])) {
                             $this->csvinfo['ou_tree']['OUs'][] = $result['ou'][0];
                             $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0]." - ".$result['description'][0];
                             $this->csvinfo['ou_tree']['DNs'][] = $result['dn'];
+                            if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
+                                $default_ou_groups = $i;
+                            }
+                            $i = $i + 1;
                         }
 
                         $smarty->assign("ous_available",$this->csvinfo['ou_tree']['formfields']);
@@ -253,7 +259,7 @@ class manageaccounts extends plugin{
                         /* import configuration defaults, only set them if PHASE 1 has been successful */
                         $this->csvinfo["template_main"]= 0;
                         $this->csvinfo["template_aux"]= 0;
-                        $this->csvinfo['ou_groups']= 0;
+                        $this->csvinfo['ou_groups']= $default_ou_groups;
                         $this->csvinfo['domain_groups']= "intern";
                         $this->csvinfo['flush_members']= FALSE;
                         $this->csvinfo['create_aux_accounts']= FALSE;
