@@ -644,6 +644,7 @@ class manageaccounts extends plugin{
                 /* only perform on this group if _actions is not "none" */
                 if(strpos($group_data['_actions'][0],'none')===FALSE)
                 {
+
                     $this->importLDAPGroupObject($group_name, $group_data);
 
                 }
