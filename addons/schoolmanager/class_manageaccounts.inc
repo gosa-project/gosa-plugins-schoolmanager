@@ -960,6 +960,24 @@ class manageaccounts extends plugin{
                         $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array($expected_account_dn);
                         $this->csvinfo['data_preldap'][$key]['main_account']['_base']= array($expected_base);
                     }
+                    elseif ($this->compareObjects($row['main_account'], $gosa_account, array("uid"), "", TRUE)===TRUE)
+                    {
+                        # The LDAP tree already has an account with this uid, this requires manual introspection
+
+                        $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
+                        $expected_account_dn= "uid=".$row['main_account']['uid'][0].','.get_people_ou().$expected_base;
+                        $gosa_account_dn= $gosa_account['dn'];
+
+                        if(strtolower($gosa_account_dn)==strtolower($expected_account_dn))
+                        {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'uid-used-in-same-ou';
+                        }
+                        else
+                        {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'uid-used-in-other-ou';
+                        }
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'ignore,check-manually';
+                    }
                 }
                 if (($this->csvinfo['create_aux_accounts']===TRUE) && isset($row['aux_accounts']))
                 {
@@ -1112,6 +1130,12 @@ class manageaccounts extends plugin{
         /* initialize group actions for each main account and each aux account */
         foreach ($this->csvinfo['data_preldap'] as $key => $row)
         {
+
+            if(strpos($row['main_account']['_actions'][0],'ignore')!==FALSE)
+            {
+                continue;
+            }
+
             /* check DN (i.e., location in the LDAP DIT) of primary group object */
             $expected_primgroup_dn= "cn=".$row['main_account']['uid'][0].",".get_groups_ou().dn2base($row['main_account']['_dn'][0]);
 
@@ -1152,6 +1176,12 @@ class manageaccounts extends plugin{
         /* this will probably scale very very badly... Improvement needed. Suggestions? */
         foreach ($this->csvinfo['data_preldap'] as $key => $row)
         {
+
+            if(strpos($row['main_account']['_actions'][0],'ignore')!==FALSE)
+            {
+                continue;
+            }
+
             $_all_groups= array();
             if(isset($row['groups'])) { $_all_groups= array_merge($_all_groups, $row['groups']); }
             if($this->csvinfo['create_aux_accounts']===TRUE) {
@@ -1365,6 +1395,12 @@ class manageaccounts extends plugin{
         /* finally add optional groups, if not already explicitly listed above */
         foreach ($this->csvinfo['data_preldap'] as $key => $row)
         {
+
+            if(strpos($row['main_account']['_actions'][0],'ignore')!==FALSE)
+            {
+                continue;
+            }
+
             if(isset($row['optional_groups']))
             {
                 $_opt_groups= $row['optional_groups'];
@@ -1436,7 +1472,15 @@ class manageaccounts extends plugin{
     {
         foreach($this->csvinfo['data_preldap'] as $idx => $row)
         {
+
+            /* we should get here, but just in case... */
+            if(strpos($row['main_account']['_actions'][0],'ignore')!==FALSE)
+            {
+                continue;
+            }
+
             $user_data= $row['main_account'];
+
             if(strpos($user_data['_group_actions'][0], '-primgroup')===FALSE)
             {
                 /* neither create-primgroup nor move-primgroup given, nothing to do for this user account */
