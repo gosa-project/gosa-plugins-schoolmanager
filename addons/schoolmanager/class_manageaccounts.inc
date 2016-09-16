@@ -658,6 +658,10 @@ class manageaccounts extends plugin{
             if($this->failure_in_this_phase===FALSE)
             {
                 $smarty->assign ("groups_reviewed",TRUE);
+
+                /* Set csvinfo['flush_members'] to FALSE now, as we have flushed all groups with the last step... */
+                $this->csvinfo['flush_members'] = FALSE;
+
             }
             else {
                 /* prepare for reloading this phase's web page again */
