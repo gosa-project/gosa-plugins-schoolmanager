@@ -1625,7 +1625,7 @@ class manageaccounts extends plugin{
         }
 
         /* Drop all group members, if requested */
-        if((strpos($group_data['_actions'][0],'flush-all-members')!==FALSE) and ($_group_tabs==="GROUPS"))
+        if((strpos($group_data['_actions'][0],'flush-all-members')!==FALSE) and ($_group_tabs==="GROUPTABS"))
         {
             $group_members=$grouptab->by_object['group']->memberUid;
             foreach($group_members as $group_member)
@@ -1633,7 +1633,7 @@ class manageaccounts extends plugin{
                 $grouptab->by_object['group']->removeUser($group_member);
             }
         }
-        elseif((strpos($group_data['_actions'][0],'flush-all-members')!==FALSE) and ($_group_tabs==="OGROUPS"))
+        elseif((strpos($group_data['_actions'][0],'flush-all-members')!==FALSE) and ($_group_tabs==="OGROUPTABS"))
         {
             $grouptab->by_object['ogroup']->member= array();
         }
