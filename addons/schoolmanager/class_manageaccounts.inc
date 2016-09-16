@@ -249,8 +249,6 @@ class manageaccounts extends plugin{
 
                         }
 
-                        print $this->csvinfo["template_main"]."<br>";
-
                         $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
 
                         /* Search OUs with objectClass gosaDepartment */
