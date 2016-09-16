@@ -37,6 +37,9 @@ class manageaccounts extends plugin{
 
     var $import_account_type="";
 
+    var $default_template_main = "";
+    var $default_template_aux = "";
+
     /* constructor */
     function __construct(&$config,$dn=NULL) {
 
@@ -213,6 +216,9 @@ class manageaccounts extends plugin{
                     if ($parser_ok!==FALSE)
                     {
 
+                        $this->csvinfo["template_main"]= 0;
+                        $this->csvinfo["template_aux"]= 0;
+
                         /* Populate the Template Selectors for PHASE 2 */
 
                         /* Search all Templates    */
@@ -226,10 +232,24 @@ class manageaccounts extends plugin{
                         $this->csvinfo['templates']['DNs'][]   = "";
 
                         /* add found gosaUserTemplate objects */
+                        $i = 0;
                         while($result = $this->_ldap->fetch($this->csvinfo['templates']['ldapsearch'])){
+
                             $this->csvinfo['templates']['formfields'][] = $result['sn'][0]." - ".$this->config->idepartments[preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/')."/i", "", $result['dn'])];
                             $this->csvinfo['templates']['DNs'][] = $result['dn'];
+
+                            $i = $i + 1;
+
+                            if ( ($this->default_template_main != "") && (preg_match ( "/".$this->default_template_main."/i", $result['sn'][0] ) ) ) {
+                                $this->csvinfo["template_main"]= $i;
+                            }
+                            if ( ($this->default_template_aux != "") && (preg_match ( "/".$this->default_template_aux."/i", $result['sn'][0] ) ) ) {
+                                $this->csvinfo["template_aux"]= $i;
+                            }
+
                         }
+
+                        print $this->csvinfo["template_main"]."<br>";
 
                         $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
 
@@ -257,8 +277,6 @@ class manageaccounts extends plugin{
                         $smarty->assign("ous_available",$this->csvinfo['ou_tree']['formfields']);
 
                         /* import configuration defaults, only set them if PHASE 1 has been successful */
-                        $this->csvinfo["template_main"]= 0;
-                        $this->csvinfo["template_aux"]= 0;
                         $this->csvinfo['ou_groups']= $default_ou_groups;
                         $this->csvinfo['domain_groups']= "intern";
                         $this->csvinfo['flush_members']= FALSE;

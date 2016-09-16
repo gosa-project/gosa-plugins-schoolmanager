@@ -25,6 +25,8 @@ class manageteachers extends manageaccounts {
     var $plDescription="GOsa2 School Manager Module: Manage Teachers";
     var $access="";
 
+    var $default_template_main = "teacher";
+
     /* constructor */
     function __construct(&$config,$dn=NULL) {
 
@@ -36,6 +38,7 @@ class manageteachers extends manageaccounts {
         stats::log ('plugin',$class=get_class ($this),$category=array ($this->acl_category),$action='open',$amount=1,$duration= (microtime (TRUE)-$this->initTime));
 
         parent::__construct($config,$dn=NULL);
+
     }
 
     function getAttributes()
