@@ -2085,9 +2085,26 @@ class manageaccounts extends plugin{
 
     function validGroupName($group_name)
     {
-        /* FIXME: This can be better done with regular expressions!!!
+
+        /* FIXME 1: This can be better done with regular expressions!!!
+         * FIXME 2: The transliteration part is locale-dependent. We tried iconv and it did not work...
          */
-       return str_replace('.','', str_replace(':', '-', str_replace(' ', '_',strtolower (trim($group_name)))));
+
+        $_grp = str_replace('ä', 'ae',
+                 str_replace('ö', 'oe',
+                  str_replace('ü', 'ue',
+                   str_replace('ß', 'ss',
+                    str_replace('.','',
+                     str_replace(':', '-',
+                      str_replace('(', '_',
+                       str_replace(')', '',
+                        str_replace(' ', '_',
+                         strtolower (trim($group_name)))))))))));
+         if (preg_match ('/^[a-z][-a-z0-9_]*[a-z0-9]$/', $_grp)) {
+             return $_grp;
+         } else {
+             return "";
+         }
     }
 
     function randomPassword($length)
