@@ -679,12 +679,13 @@ class manageaccounts extends plugin{
             $smarty->assign ("accounts_imported",TRUE);
             $smarty->assign ("groups_reviewed",TRUE);
 
+            $this->accountStatusCheck();
+            $this->groupStatusCheck();
+            $this->prepareGroupMemberships();
+            $smarty->assign("data",$this->csvinfo['data_preldap']);
+
             if ($this->failure_in_this_phase===FALSE)
             {
-                $this->accountStatusCheck();
-                $this->groupStatusCheck();
-                $this->prepareGroupMemberships();
-                $smarty->assign("data",$this->csvinfo['data_preldap']);
                 $smarty->assign ("groups_imported",TRUE);
             }
             else {
