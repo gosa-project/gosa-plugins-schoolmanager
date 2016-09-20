@@ -75,7 +75,7 @@
 		</td>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: bottom;">
-		<input name="btn_flush_all_members" value="Empty all SchoolManager groups now!" type ="submit">
+		<button name="empty_schoolmanager_groups_now" type="submit">Empty all SchoolManager groups now!</button>
 		</td>
 	</tr>
 </table>

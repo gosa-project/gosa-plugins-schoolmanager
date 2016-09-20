@@ -19,6 +19,25 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+function reduce_group($group_obj) {
+
+    $_reduced_group = $group_obj;
+
+    foreach($group_obj as $key => $attr) {
+        if(!is_array($attr)) {
+            unset($_reduced_group[$key]);
+        }
+        else {
+            foreach($attr as $idx => $values) {
+                if($idx === "count") {
+                    unset($_reduced_group[$key][$idx]);
+                }
+            }
+        }
+    }
+    return $_reduced_group;
+}
+
 class schoolmanagerintro extends plugin
 {
     /* Definitions */
@@ -59,15 +78,13 @@ class schoolmanagerintro extends plugin
 
         /* initialize LDAP */
         $this->_ldap = $this->config->get_ldap_link ();
-        $this->_ldap->cd($this->config->current['BASE']);
         $this->ldapinfo = array();
         $this->ldapinfo['ou_tree'] = array();
 
-        /* [...] */
-
+        $this->_ldap->cd($this->config->current['BASE']);
 
         /* read OU tree from LDAP */
-        $this->ldapinfo['ou_tree']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaDepartment)",array("ou","description"));
+        $ldapsearch = $this->_ldap->search("(objectClass=gosaDepartment)",array("ou","description"));
 
         /* create arrays for search results */
         $this->ldapinfo['ou_tree']['formfields'] = array();
@@ -76,7 +93,7 @@ class schoolmanagerintro extends plugin
         /* add found gosaDepartment objects */
         $i = 0;
         $default_ou_groups = 0;
-        while($result = $this->_ldap->fetch($this->ldapinfo['ou_tree']['ldapsearch'])) {
+        while($result = $this->_ldap->fetch($ldapsearch)) {
             $this->ldapinfo['ou_tree']['OUs'][] = $result['ou'][0];
             $this->ldapinfo['ou_tree']['formfields'][] = $result['ou'][0]." - ".$result['description'][0];
             $this->ldapinfo['ou_tree']['DNs'][] = $result['dn'];
@@ -86,15 +103,54 @@ class schoolmanagerintro extends plugin
             $i = $i + 1;
         }
 
-        /* import configuration defaults, only set them if PHASE 1 has been successful */
-        $this->ldapinfo['ou_groups']= $default_ou_groups;
+        if (isset($_POST["ou_groups"])) {
+            $this->ldapinfo['ou_groups'] = $_POST["ou_groups"];
+        } else {
+            /* import configuration defaults, only set them if PHASE 1 has been successful */
+            $this->ldapinfo['ou_groups']= $default_ou_groups;
+        }
 
-        /* provide pre-set values for account template forms */
-        $smarty->assign("ous_available",$this->ldapinfo['ou_tree']['formfields']);
-        $smarty->assign("preset_ou_groups", $this->ldapinfo['ou_groups']);
+        if (isset($_POST["empty_schoolmanager_groups_now"])) {
 
-        /* Show main page */
-        return ($smarty->fetch (get_template_path('content_schoolmanagerintro.tpl', TRUE)));
+            $this->ldapinfo['groups'] = array();
+            $this->ldapinfo['ogroups'] = array();
+
+            $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
+            /* read groups from SchoolManager OU */
+            $ldapsearch = $this->_ldap->search("(|(objectClass=posixGroup)(objectClass=gosaGroupOfNames))",array("objectClass","cn","description","memberUid","member"));
+            while($result = $this->_ldap->fetch($ldapsearch)) {
+                if(in_array('posixGroup', $result['objectClass'])) {
+                    $this->ldapinfo['groups'][] = $result;
+                }
+                else if(in_array('gosaGroupOfNames', $result['objectClass'])) {
+                    $this->ldapinfo['ogroups'][] = $result;
+                }
+            }
+
+            foreach($this->ldapinfo['groups'] as $cn => $group) {
+                $_reduced_groups[$cn] = reduce_group($group);
+            }
+            foreach($this->ldapinfo['ogroups'] as $cn => $ogroup) {
+                $_reduced_ogroups[$cn] = reduce_group($ogroup);
+            }
+
+            $smarty->assign("data_groups", $_reduced_groups );
+            $smarty->assign("data_ogroups", $_reduced_ogroups );
+
+            /* Show main page */
+            return ($smarty->fetch (get_template_path('content_smflushgroupmembers.tpl', TRUE)));
+
+        }
+        else {
+
+            /* provide pre-set values for account template forms */
+            $smarty->assign("ous_available",$this->ldapinfo['ou_tree']['formfields']);
+            $smarty->assign("preset_ou_groups", $this->ldapinfo['ou_groups']);
+
+            /* Show introduction page */
+            return ($smarty->fetch (get_template_path('content_schoolmanagerintro.tpl', TRUE)));
+
+        }
     }
 }
 
