@@ -218,25 +218,6 @@
 			<input type="text" id="domain_groups" name="domain_groups" value="{$preset_domain_groups}">
 		</td>
 	</tr>
-	<tr>
-		<td colspan="3">
-			<p>{t}With the start of a new school year, it is advisable to flush group members from all class and course groups? At the beginning of a new school year, we recommend starting with an import of all teachers first and flush all group members during this import.{/t}</p>
-		</td>
-	</tr>
-	<tr>
-		<td style="width: 1em;">&nbsp;</td>
-		<td style="vertical-align: middle;">
-			<LABEL for="flush_members">{t}Flush members from course and class groups?{/t}</LABEL>
-		</td>
-		<td style="vertical-align: middle;">
-{if $preset_flush_members}
-			<input type="checkbox" id="flush_members" name="flush_members" checked>
-{else}
-			<input type="checkbox" id="flush_members" name="flush_members">
-{/if}
-			{t}(tick this check box, if yes){/t}
-		</td>
-	</tr>
 </table>
 
 
