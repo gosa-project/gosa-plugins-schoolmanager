@@ -6,6 +6,7 @@ ldiftab entry):
 
 ```
   <schoolmanagertab>
+    <tab class="schoolmanagerintro" name="Introduction" />
     <tab class="managestudents" name="Manage Students" />
     <tab class="manageteachers" name="Manage Teachers" />
     <tab class="manageparents" name="Manage Parents" />
