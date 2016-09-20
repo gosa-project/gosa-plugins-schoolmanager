@@ -54,10 +54,44 @@ class schoolmanagerintro extends plugin
             new log("view","all/".get_class($this),$this->dn);
         }
 
-        /* initiate smarty */
+        /* initialize smarty */
         $smarty= get_smarty();
 
+        /* initialize LDAP */
+        $this->_ldap = $this->config->get_ldap_link ();
+        $this->_ldap->cd($this->config->current['BASE']);
+        $this->ldapinfo = array();
+        $this->ldapinfo['ou_tree'] = array();
+
         /* [...] */
+
+
+        /* read OU tree from LDAP */
+        $this->ldapinfo['ou_tree']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaDepartment)",array("ou","description"));
+
+        /* create arrays for search results */
+        $this->ldapinfo['ou_tree']['formfields'] = array();
+        $this->ldapinfo['ou_tree']['OUs'] = array();
+
+        /* add found gosaDepartment objects */
+        $i = 0;
+        $default_ou_groups = 0;
+        while($result = $this->_ldap->fetch($this->ldapinfo['ou_tree']['ldapsearch'])) {
+            $this->ldapinfo['ou_tree']['OUs'][] = $result['ou'][0];
+            $this->ldapinfo['ou_tree']['formfields'][] = $result['ou'][0]." - ".$result['description'][0];
+            $this->ldapinfo['ou_tree']['DNs'][] = $result['dn'];
+            if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
+                $default_ou_groups = $i;
+            }
+            $i = $i + 1;
+        }
+
+        /* import configuration defaults, only set them if PHASE 1 has been successful */
+        $this->ldapinfo['ou_groups']= $default_ou_groups;
+
+        /* provide pre-set values for account template forms */
+        $smarty->assign("ous_available",$this->ldapinfo['ou_tree']['formfields']);
+        $smarty->assign("preset_ou_groups", $this->ldapinfo['ou_groups']);
 
         /* Show main page */
         return ($smarty->fetch (get_template_path('content_schoolmanagerintro.tpl', TRUE)));
