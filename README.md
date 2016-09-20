@@ -19,8 +19,8 @@ From the CSV file, various information gets extracted:
   * Teachers: class teacher, taught subjects, taught courses
   * Students: each student normally comes with one or two parents that
     also may need accounts in LDAP
-  * Stundents and teachers are grouped by classes and courses
-  * Stundents and their parents are bound together via parent groups
+  * Students and teachers are grouped by classes and courses
+  * Students and their parents are bound together via parent groups
   * Mail addresses of teachers, students and parents.
 
 From the set of information stored, various LDAP client applications can be
