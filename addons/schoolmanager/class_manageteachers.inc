@@ -165,17 +165,17 @@ class manageteachers extends manageaccounts {
                     $_classes= str_replace(";","_", trim($row_sorted['class']));
                     foreach(explode("_", $_classes) as $class)
                     {
-                        $_class= $this->validGroupName($class);
+                        $_class= $this->validGroupName('class_'.$class);
                         if ($_class)
                         {
-                            $_cn= 'class_'.$_class;
+                            $_cn= $_class;
                             $class_groups[$_cn]= array(
                                 'objectClass' => array(
                                     'posixGroup'
                                 ),
                                 'cn' => array($_cn),
-                                'description' => array(sprintf(_('SchoolManager class group %s'), 'class_'.$_class)),
-                                'mail' => array('class_'.$_class.'@'.$this->csvinfo['domain_groups']),
+                                'description' => array(sprintf(_('SchoolManager class group %s'), $_class)),
+                                'mail' => array($_class.'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_actions' => array('none')
                             );
@@ -189,17 +189,17 @@ class manageteachers extends manageaccounts {
                     /* the $_subjects variable has already been declared further above */
                     foreach(explode("_", $_subjects) as $subject)
                     {
-                        $_subject= $this->validGroupName($subject);
+                        $_subject= $this->validGroupName('subject_'.$subject);
                         if ($_subject)
                         {
-                            $_cn= 'subject_'.$_subject;
+                            $_cn= $_subject;
                             $subject_groups[$_cn]= array(
                                 'objectClass' => array(
                                     'posixGroup'
                                 ),
                                 'cn' => array($_cn),
-                                'description' => array(sprintf(_('SchoolManager subject group %s'), 'subject_'.$_subject)),
-                                'mail' => array('subject_'.$_subject.'@'.$this->csvinfo['domain_groups']),
+                                'description' => array(sprintf(_('SchoolManager subject group %s'), $_subject)),
+                                'mail' => array($_subject.'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_actions' => array('none')
                             );
@@ -213,17 +213,17 @@ class manageteachers extends manageaccounts {
                 foreach ($row_sorted as $key=>$value) {
                     if ((substr ($key,0,6)==="course") && trim($value))
                     {
-                        $row_sorted[$key]=$this->validGroupName($value);
+                        $row_sorted[$key]=$this->validGroupName('course_'.$value);
                         if ($row_sorted[$key])
                         {
-                            $_cn= 'course_'.$row_sorted[$key];
+                            $_cn= $row_sorted[$key];
                             $course_groups[$_cn]= array(
                                 'objectClass' => array(
                                     'posixGroup'
                                 ),
                                 'cn' => array($_cn),
-                                'description' => array(sprintf(_('SchoolManager course group %s'), 'course_'.$row_sorted[$key])),
-                                'mail' => array('course_'.trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
+                                'description' => array(sprintf(_('SchoolManager course group %s'), $row_sorted[$key])),
+                                'mail' => array(trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_actions' => array('none')
                             );
@@ -251,7 +251,6 @@ class manageteachers extends manageaccounts {
                                     /* this code now becomes really German (Schleswig-Holstein)... */
                                     $grades= array('1','2','3','4','5','6','7','8','9','10','12','13','e','q1','q2');
                                     $subs= array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
-
 
                                     /* we should be able to split the $_class string into two classes (sort of...) */
                                     $from_sub= explode('-', $_class)[0];
