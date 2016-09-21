@@ -33,6 +33,24 @@
 	{t}The import algorithm in SchoolManager is idempotent. This means you can import the same CSV file several times without endangering already existing accounts. If some of the information in the CSV file has changed, the correlating LDAP objects (users/groups) will be adapted.{/t}
 </p>
 
+<h3>Nothing Gets Deleted...</h3>
+
+<p>
+	{t}In SchoolManager, there is this concept of not deleting any LDAP information, ever.{/t}
+</p>
+
+<p>
+	{t}POSIX (UniX) user accounts and POSIX groups always have their representation on the servers' file system level. Files and folders in home and group directories are owned by a specific user and a specific group. Technically, the mapping between users/groups and file system permissions happens through numbers: UID number, GID number.{/t}
+</p>
+
+<p>
+	{t}If accounts / groups get removed from LDAP, it may occur that UID numbers and GID numbers of removed users and groups get re-used for new LDAP user accounts or LDAP groups. This might lead to unwanted access to data on the file system level. The new user can potentially access files created by the removed user who formerly owned the new user's UID number. Same, in theory, applies for groups and GID numbers. {/t}
+</p>
+
+<p>
+	{t escape=no}SchoolManager's solution to this is: keep all user and group objects in LDAP forever. User objects (i.e. their user ID) can be renamed with the &quot;Archive Accounts&quot; module, so that nice and short user IDs stay available on your school site.{/t}
+</p>
+
 <h3>{t}First time usage{/t}</h3>
 
 <p>
