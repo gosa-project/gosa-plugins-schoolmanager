@@ -112,30 +112,63 @@ class schoolmanagerintro extends plugin
 
         if (isset($_POST["empty_schoolmanager_groups_now"])) {
 
+
+            $this->ldapinfo['cleanup_stats'] = array();
+
             $this->ldapinfo['groups'] = array();
-            $this->ldapinfo['ogroups'] = array();
 
             $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
             /* read groups from SchoolManager OU */
-            $ldapsearch = $this->_ldap->search("(|(objectClass=posixGroup)(objectClass=gosaGroupOfNames))",array("objectClass","cn","description","memberUid","member"));
+            $ldapsearch = $this->_ldap->search("(&(objectClass=posixGroup)(|(cn=class_*)(cn=course_*)(cn=subject_*)))",array("objectClass","cn","description","memberUid"));
             while($result = $this->_ldap->fetch($ldapsearch)) {
                 if(in_array('posixGroup', $result['objectClass'])) {
                     $this->ldapinfo['groups'][] = $result;
                 }
-                else if(in_array('gosaGroupOfNames', $result['objectClass'])) {
+            }
+
+            $_reduced_groups = array();
+            foreach($this->ldapinfo['groups'] as $cn => $group) {
+                $_reduced_groups[$cn] = reduce_group($group);
+            }
+
+            $smarty->assign("data_groups", $_reduced_groups );
+            $smarty->assign("data_ogroups", array() );
+
+            /* Show main page */
+            return ($smarty->fetch (get_template_path('content_smflushgroupmembers.tpl', TRUE)));
+
+        }
+        else if (isset($_POST["really_empty_schoolmanager_groups_now"])) {
+
+            $this->ldapinfo['ogroups'] = array();
+
+            $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
+
+            /* read groups from SchoolManager OU */
+            $ldapsearch = $this->_ldap->search("(&(objectClass=gosaGroupOfNames)(cn=parents_*))",array("objectClass","cn","description","member"));
+            while($result = $this->_ldap->fetch($ldapsearch)) {
+                if(in_array('gosaGroupOfNames', $result['objectClass'])) {
                     $this->ldapinfo['ogroups'][] = $result;
                 }
             }
 
-            foreach($this->ldapinfo['groups'] as $cn => $group) {
-                $_reduced_groups[$cn] = reduce_group($group);
-            }
+            $_reduced_ogroups = array();
             foreach($this->ldapinfo['ogroups'] as $cn => $ogroup) {
                 $_reduced_ogroups[$cn] = reduce_group($ogroup);
             }
 
-            $smarty->assign("data_groups", $_reduced_groups );
+            $smarty->assign("data_groups", array() );
             $smarty->assign("data_ogroups", $_reduced_ogroups );
+
+            /* Show main page */
+            return ($smarty->fetch (get_template_path('content_smflushgroupmembers.tpl', TRUE)));
+
+        }
+        else if (isset($_POST["really_empty_schoolmanager_ogroups_now"])) {
+
+            $smarty->assign("cleanup_stats", $this->ldapinfo['cleanup_stats']);
+            $smarty->assign("data_groups", array() );
+            $smarty->assign("data_ogroups", array() );
 
             /* Show main page */
             return ($smarty->fetch (get_template_path('content_smflushgroupmembers.tpl', TRUE)));
