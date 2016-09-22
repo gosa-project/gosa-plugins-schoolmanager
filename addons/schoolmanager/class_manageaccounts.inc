@@ -277,7 +277,6 @@ class manageaccounts extends plugin{
                         /* import configuration defaults, only set them if PHASE 1 has been successful */
                         $this->csvinfo['ou_groups']= $default_ou_groups;
                         $this->csvinfo['domain_groups']= "intern";
-                        $this->csvinfo['flush_members']= FALSE;
                         $this->csvinfo['create_aux_accounts']= FALSE;
                         $this->csvinfo['accounts_in_class_ou']= FALSE;
                         $this->csvinfo['try_mail_as_uid']= TRUE;
@@ -288,7 +287,6 @@ class manageaccounts extends plugin{
                         $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
                         $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
                         $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-                        $smarty->assign("preset_flush_members", $this->csvinfo['flush_members']);
                         $smarty->assign("preset_create_aux_accounts", $this->csvinfo['create_aux_accounts']);
                         $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                         $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
@@ -336,13 +334,6 @@ class manageaccounts extends plugin{
                 if (isset ($_POST["template_".$import_account_type."_aux"]))
                 {
                     $this->csvinfo['template_aux'] = $_POST["template_".$import_account_type."_aux"];
-                }
-                if (isset ($_POST["flush_members"]))
-                {
-                    $this->csvinfo['flush_members'] = TRUE;
-                }
-                else {
-                    $this->csvinfo['flush_members'] = FALSE;
                 }
                 if (isset ($_POST["create_aux_accounts"]))
                 {
@@ -399,7 +390,6 @@ class manageaccounts extends plugin{
                     $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
                     $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
                     $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-                    $smarty->assign("preset_flush_members", $this->csvinfo['flush_members']);
                     $smarty->assign("preset_create_aux_accounts", $this->csvinfo['create_aux_accounts']);
                     $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                     $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
@@ -658,9 +648,6 @@ class manageaccounts extends plugin{
             if($this->failure_in_this_phase===FALSE)
             {
                 $smarty->assign ("groups_reviewed",TRUE);
-
-                /* Set csvinfo['flush_members'] to FALSE now, as we have flushed all groups with the last step... */
-                $this->csvinfo['flush_members'] = FALSE;
 
             }
             else {
@@ -1285,15 +1272,6 @@ class manageaccounts extends plugin{
                 }
                 if ($this->compareObjects($group, $gosa_group, array("cn"))===TRUE)
                 {
-                    /* if group exists, check for to-be-dropped members */
-                    if(
-                       ($this->csvinfo['flush_members']) and
-                       ($_group_type_key!=='optional_groups') and
-                       (isset($gosa_group[$memberAttr]['count']) && ($gosa_group[$memberAttr]['count'] > 0))
-                      )
-                    {
-                        $_actions[]= "flush-all-members";
-                    }
                     if($_group_type_key!=='optional_groups')
                     {
                         $_check_attrs= $this->compareObjects($group, $gosa_group, array("mail","description"), "update-");
@@ -1320,7 +1298,7 @@ class manageaccounts extends plugin{
                             $_group_name= $group['cn'][0];
                             $_uid= $row['main_account']['uid'][0];
                             $_members= isset($gosa_group['memberUid']) ? $gosa_group['memberUid'] : array();
-                            if(!in_array($_uid, $_members) or (in_array('flush-all-members', $_actions)))
+                            if(!in_array($_uid, $_members))
                             {
                                 if(!in_array('update-memberships', $_g_actions))
                                 {
@@ -1360,7 +1338,7 @@ class manageaccounts extends plugin{
 
                                 if($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]!=="data-incomplete")
                                 {
-                                    if(!in_array($_dn, $_members) or (in_array('flush-all-members', $_actions)))
+                                    if(!in_array($_dn, $_members))
                                     {
                                         $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_'.$group_type.'_actions'][0]= 'update-memberships';
                                         $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_'.$group_type.'_actions'][$_group_name]= 'add';
@@ -1628,20 +1606,6 @@ class manageaccounts extends plugin{
         if (isset($_group_properties['mail']) && isset($grouptab->by_object['mailgroup']))
         {
             $grouptab->by_object['mailgroup']->is_account= TRUE;
-        }
-
-        /* Drop all group members, if requested */
-        if((strpos($group_data['_actions'][0],'flush-all-members')!==FALSE) and ($_group_tabs==="GROUPTABS"))
-        {
-            $group_members=$grouptab->by_object['group']->memberUid;
-            foreach($group_members as $group_member)
-            {
-                $grouptab->by_object['group']->removeUser($group_member);
-            }
-        }
-        elseif((strpos($group_data['_actions'][0],'flush-all-members')!==FALSE) and ($_group_tabs==="OGROUPTABS"))
-        {
-            $grouptab->by_object['ogroup']->member= array();
         }
 
         /* Run GOsa²'s groups/group | ogroups/ogroup checks */
