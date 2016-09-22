@@ -1,8 +1,8 @@
 <p>
-	{if $import_account_type == "students"}
-	{t escape=no}With GOsa2 School Manager's <b>Manage Students Module</b> you can import student user accounts, parent accounts and course groups from a CSV file containing.{/t}
+	{if $import_account_type == "studentsandparents"}
+	{t escape=no}With GOsa2 School Manager's <b>Import Students and Parents Module</b> you can import student user accounts, parent accounts, class groups and course groups from a single CSV file containing one user's account information per line.{/t}
 	{elseif $import_account_type == "teachers"}
-	{t escape=no}With GOsa2 School Manager's <b>Manage Teachers Module</b> you can import teacher user accounts and course groups from a CSV file containing.{/t}
+	{t escape=no}With GOsa2 School Manager's <b>Import Teachers Module</b> you can import teacher user accounts, class groups, course groups and subject groups from a single CSV file containing one user's account information per line.{/t}
 	{/if}
 </p>
 <hr>
@@ -19,7 +19,7 @@
 </p>
 <p>
 	<table>
-	{if $import_account_type == "students"}
+	{if $import_account_type == "studentsandparents"}
 	<tr><td>{t}Column{/t} 01</td><td><b>{t}Number{/t}</b></td><td>{t}This is useful for manual discussing issues with CSV import files, but the number column is normally not used.{/t}</td></tr>
 	<tr><td>{t}Column{/t} 02</td><td><b>{t}Login{/t}</b></td><td>{t}The user account's login ID. If left empty, it will be attempted to auto-generated a login ID.{/t}</td></tr>
 	<tr><td>{t}Column{/t} 03</td><td><b>{t}Password{/t}</b></td><td>{t}The user's password. If left empty, a password will be generated during the import.{/t}</td></tr>
@@ -54,8 +54,8 @@
 <table summary="{t}Upload CSV File{/t}">
 	<tr>
 		<td style="vertical-align: middle;">
-			{if $import_account_type=="students"}
-				<LABEL for="userfile">{t}Select CSV file with students' data to import:{/t}</LABEL>
+			{if $import_account_type=="studentsandparents"}
+				<LABEL for="userfile">{t}Select CSV file with students' and their parents' data to import:{/t}</LABEL>
 				{elseif $import_account_type=="teachers"}
 				<LABEL for="userfile">{t}Select CSV file with teachers' data to import:{/t}</LABEL>
 			{/if}
@@ -80,7 +80,7 @@
 </p>
 
 <table summary="{t}Configure import options{/t}">
-{if $import_account_type == 'students'}
+{if $import_account_type == 'studentsandparents'}
 	<tr>
 		<td colspan="3">
 			<hr>
@@ -90,22 +90,22 @@
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="template_students">{t}Select template for student accounts{/t}</LABEL>
+			<LABEL for="template_studentsandparents">{t}Select template for student accounts{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="template_students" name="template_students"  size="1" title="">
-			{html_options options=$templates selected=$preset_template_students}
+			<select id="template_studentsandparents" name="template_studentsandparents"  size="1" title="">
+			{html_options options=$templates selected=$preset_template_studentsandparents}
 			</select>
 		</td>
 	</tr>
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="template_students_aux">{t}Select template for parent accounts{/t}</LABEL>
+			<LABEL for="template_studentsandparents_aux">{t}Select template for parent accounts{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="template_students_aux" name="template_students_aux"  size="1" title="">
-			{html_options options=$templates selected=$preset_template_students_aux}
+			<select id="template_studentsandparents_aux" name="template_studentsandparents_aux"  size="1" title="">
+			{html_options options=$templates selected=$preset_template_studentsandparents_aux}
 			</select>
 		</td>
 	</tr>

@@ -18,7 +18,7 @@
   with this program; if not, write to the Free Software Foundation, Inc.,
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-class manageaccounts extends plugin{
+class importaccounts extends plugin{
 
     /* Definitions */
     var $plHeadline= "Manage Accounts";
@@ -150,7 +150,7 @@ class manageaccounts extends plugin{
                 isset ($_POST['cleanup_completed'])) {
                 msg_dialog::display (_ ("Permission error"),_ ("You've no permission to import user data!"),ERROR_DIALOG);
             }
-            return ($smarty->fetch (get_template_path ('content_manageaccounts.tpl',TRUE)));
+            return ($smarty->fetch (get_template_path ('content_importaccounts.tpl',TRUE)));
         }
 
         /*
@@ -211,7 +211,7 @@ class manageaccounts extends plugin{
                         }
                     }
 
-                    $parser_ok = manageaccounts::parseCSV($raw_csv_data);
+                    $parser_ok = importaccounts::parseCSV($raw_csv_data);
 
                     if ($parser_ok!==FALSE)
                     {
@@ -772,7 +772,7 @@ class manageaccounts extends plugin{
         }
 
         /* Show main page */
-        return ($smarty->fetch (get_template_path ('content_manageaccounts.tpl',TRUE)));
+        return ($smarty->fetch (get_template_path ('content_importaccounts.tpl',TRUE)));
     }
 
     function parseCSV($raw_csv_data)

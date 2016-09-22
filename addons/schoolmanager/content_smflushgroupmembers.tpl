@@ -25,7 +25,7 @@
 {/if}
 
 <p>
-	{t escape=no}You can continue with importing teachers accounts now. You can use the &quot;Manage Teachers&quot; SchoolManager module for this.{/t}
+	{t escape=no}You can continue with importing teachers accounts now. You can use the &quot;Import Teachers&quot; SchoolManager module for this.{/t}
 </p>
 {/if}
 

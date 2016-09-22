@@ -18,11 +18,11 @@
   with this program; if not, write to the Free Software Foundation, Inc.,
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-class managestudents extends manageaccounts {
+class importstudentsandparents extends importaccounts {
 
     /* Definitions */
-    var $plHeadline= "Manage Students";
-    var $plDescription= "GOsa2 School Manager Module: Manage Students";
+    var $plHeadline= "Import Students and Parents";
+    var $plDescription= "GOsa2 School Manager Module: Import Students and Parents";
     var $access="";
 
     var $default_template_main = "student";
@@ -81,7 +81,7 @@ class managestudents extends manageaccounts {
     {
 
         /* FIXME: Make this more generic by analyzing the return value of $this->getAttributes()
-         *        When done -> move method to parent class (manageaccounts).
+         *        When done -> move method to parent class (importaccounts).
          */
 
         $selection = array();
