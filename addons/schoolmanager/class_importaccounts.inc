@@ -277,7 +277,6 @@ class importaccounts extends plugin{
                         /* import configuration defaults, only set them if PHASE 1 has been successful */
                         $this->csvinfo['ou_groups']= $default_ou_groups;
                         $this->csvinfo['domain_groups']= "intern";
-                        $this->csvinfo['create_aux_accounts']= FALSE;
                         $this->csvinfo['accounts_in_class_ou']= FALSE;
                         $this->csvinfo['try_mail_as_uid']= TRUE;
                         $this->csvinfo['add_course_members_to_class_group']= FALSE;
@@ -287,7 +286,6 @@ class importaccounts extends plugin{
                         $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
                         $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
                         $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-                        $smarty->assign("preset_create_aux_accounts", $this->csvinfo['create_aux_accounts']);
                         $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                         $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
                         $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
@@ -334,13 +332,6 @@ class importaccounts extends plugin{
                 if (isset ($_POST["template_".$import_account_type."_aux"]))
                 {
                     $this->csvinfo['template_aux'] = $_POST["template_".$import_account_type."_aux"];
-                }
-                if (isset ($_POST["create_aux_accounts"]))
-                {
-                    $this->csvinfo['create_aux_accounts'] = TRUE;
-                }
-                else {
-                    $this->csvinfo['create_aux_accounts'] = FALSE;
                 }
                 if (isset ($_POST["accounts_in_class_ou"]))
                 {
@@ -390,7 +381,6 @@ class importaccounts extends plugin{
                     $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
                     $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
                     $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-                    $smarty->assign("preset_create_aux_accounts", $this->csvinfo['create_aux_accounts']);
                     $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                     $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
                     $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
@@ -508,7 +498,7 @@ class importaccounts extends plugin{
                 }
 
                 /* import the user's aux account (e.g., parent accounts) */
-                if(($this->csvinfo['create_aux_accounts']===TRUE) && (isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
+                if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
                 {
                     foreach($user_data['aux_accounts'] as $idx_aux => $aux_account)
                     {
@@ -568,9 +558,8 @@ class importaccounts extends plugin{
 
                         $_all_groups= array();
                         if(isset($user_data['groups'])) { $_all_groups= array_merge($_all_groups, $user_data['groups']); }
-                        if($this->csvinfo['create_aux_accounts']===TRUE) {
-                            if(isset($user_data['aux_accounts_groups'])) { $_all_groups= array_merge($_all_groups, $user_data['aux_accounts_groups']); }
-                        }
+                        if(isset($user_data['aux_accounts_groups'])) { $_all_groups= array_merge($_all_groups, $user_data['aux_accounts_groups']); }
+
                         foreach($_all_groups as $group_key => $group_data)
                         {
 
@@ -972,7 +961,7 @@ class importaccounts extends plugin{
                         $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0]= 'ignore,check-manually';
                     }
                 }
-                if (($this->csvinfo['create_aux_accounts']===TRUE) && isset($row['aux_accounts']))
+                if (isset($row['aux_accounts']))
                 {
                     foreach ($row['aux_accounts'] as $idx_aux => $aux_account)
                     {
@@ -1059,7 +1048,7 @@ class importaccounts extends plugin{
                     }
                     $this->csvinfo['data_preldap'][$key]['main_account']['_base']= array($expected_base);
                 }
-                if (($this->csvinfo['create_aux_accounts']===TRUE) && isset($row['aux_accounts']))
+                if (isset($row['aux_accounts']))
                 {
                     foreach ($row['aux_accounts'] as $idx_aux => $aux_account)
                     {
@@ -1151,7 +1140,7 @@ class importaccounts extends plugin{
             $this->csvinfo['data_preldap'][$key]['main_account']['_ogroup_actions']= array('none');
 
             /* no primgroups for aux accounts */
-            if(($this->csvinfo['create_aux_accounts']===TRUE) && isset($row['aux_accounts']))
+            if(isset($row['aux_accounts']))
             {
                 foreach($row['aux_accounts'] as $idx_aux => $aux_account)
                 {
@@ -1177,9 +1166,7 @@ class importaccounts extends plugin{
 
             $_all_groups= array();
             if(isset($row['groups'])) { $_all_groups= array_merge($_all_groups, $row['groups']); }
-            if($this->csvinfo['create_aux_accounts']===TRUE) {
-                if(isset($row['aux_accounts_groups'])) { $_all_groups= array_merge($_all_groups, $row['aux_accounts_groups']); }
-            }
+            if(isset($row['aux_accounts_groups'])) { $_all_groups= array_merge($_all_groups, $row['aux_accounts_groups']); }
             if(isset($row['optional_groups']))
             {
                 foreach($row['optional_groups'] as $opt_group)
@@ -2048,7 +2035,6 @@ class importaccounts extends plugin{
                 }
             }
             if(
-               ($this->csvinfo['create_aux_accounts']===TRUE) and
                (isset($user_data['aux_accounts'])) and (!empty($user_data['aux_accounts'])) and
                (isset($user_data['aux_accounts_groups'])) and (!empty($user_data['aux_accounts_groups']))
               )
