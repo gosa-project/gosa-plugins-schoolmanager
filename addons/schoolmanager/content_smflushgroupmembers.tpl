@@ -3,28 +3,30 @@
 <b>{t}Step 3:{/t} {t}Statistics{/t}:</b>
 
 <p>
-	{t}The clean-up process of SchoolManager managed groups has been finished now. SchoolManager is ready for importing a new school year, now.{/t}
+	{t}The clean-up process of SchoolManager-managed groups has been finished now. SchoolManager is ready for importing a new school year, now.{/t}
 </p>
 
 <ul>
-	<li>{t 1=$cleanup_stats['classes']}Emptied class groups: %1{/t}
-	<li>{t 1=$cleanup_stats['courses']}Emptied course groups: %1{/t}
-	<li>{t 1=$cleanup_stats['subjects']}Emptied subject groups: %1{/t}
-	<li>{t 1=$cleanup_stats['parents']}Emptied parent groups: %1{/t}
+	<li>{t 1=$cleanup_stats['classes'] 2=$cleanup_stats['classes_empty']}Emptied class groups: %1, already empty: %2{/t}
+	<li>{t 1=$cleanup_stats['courses'] 2=$cleanup_stats['courses_empty']}Emptied course groups: %1, already empty: %2{/t}
+	<li>{t 1=$cleanup_stats['subjects'] 2=$cleanup_stats['subjects_empty']}Emptied subject groups: %1, already empty: %2{/t}
+	<li>{t 1=$cleanup_stats['parents'] 2=$cleanup_stats['parents_empty']}Emptied parent groups: %1, already empty: %2{/t}
 </ul>
 
-<table>
-	<tr>
-		<td style="width: 1em;">&nbsp;</td>
-		<td style="vertical-align: top;">
-			{t}Import teachers now...{/t}
-		</td>
-		<td style="width: 1em;">&nbsp;</td>
-		<td style="vertical-align: bottom;">
-			<button name="really_empty_schoolmanager_groups_now" type="submit">Proceed to the &quot;Manage Teachers&quot; SchoolManager module.</button>
-		</td>
-	</tr>
-</table>
+{if ($cleanup_stats['unmanaged_groups'] + $cleanup_stats['unmanaged_groups_empty'] + $cleanup_stats['unmanaged_ogroups'] + $cleanup_stats['unmanaged_ogroups_empty'] > 0)}
+<p>
+	{t}Some groups were found in the SchoolManager area (OU) that should be moved out of there, please introspect manually. Let this be done by someone with LDAP expertise.{/t}
+</p>
+
+<ul>
+	<li>{t 1=$cleanup_stats['unmanaged_groups'] 2=$cleanup_stats['unmanaged_groups_empty']}Ignored POSIX groups: %1, already empty: %2{/t}
+	<li>{t 1=$cleanup_stats['unmanaged_ogroups'] 2=$cleanup_stats['unmanaged_ogroups_empty']}Ignored object groups: %1, already empty: %2{/t}
+</ul>
+{/if}
+
+<p>
+	{t escape=no}You can continue with importing teachers accounts now. You can use the &quot;Manage Teachers&quot; SchoolManager module for this.{/t}
+</p>
 {/if}
 
 {if count($data_groups) > 0}
@@ -42,7 +44,7 @@
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: top;">
-			{t}Flush all members from the listed course, class and subject (POSIX) groups now? After you have clicked this button, the process cannot be reverted!.{/t}
+			{t}Flush all members from the listed course, class and subject (POSIX) groups now? After you have clicked this button, the process cannot be reverted!. Emptying all groups may take some time, so please be patient while waiting...{/t}
 		</td>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: bottom;">
@@ -95,7 +97,7 @@
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: top;">
-			{t}Flush all members from the listed parent (object) groups now? After you have clicked this button, the process cannot be reverted!.{/t}
+			{t}Flush all members from the listed parent (object) groups now? After you have clicked this button, the process cannot be reverted! Emptying all groups may take some time, so please be patient while waiting...{/t}
 		</td>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: bottom;">
