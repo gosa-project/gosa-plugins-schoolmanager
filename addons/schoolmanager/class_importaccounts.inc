@@ -277,7 +277,7 @@ class importaccounts extends plugin{
                         /* import configuration defaults, only set them if PHASE 1 has been successful */
                         $this->csvinfo['ou_groups']= $default_ou_groups;
                         $this->csvinfo['domain_groups']= "intern";
-                        $this->csvinfo['accounts_in_class_ou']= FALSE;
+                        $this->csvinfo['accounts_in_class_ou']= TRUE;
                         $this->csvinfo['try_mail_as_uid']= TRUE;
                         $this->csvinfo['add_course_members_to_class_group']= FALSE;
 
