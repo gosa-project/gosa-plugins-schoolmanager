@@ -73,9 +73,13 @@
 		<td>{$group['cn'][0]}</td>
 		<td>{$group['description'][0]}</td>
 		<td>
+		{if isset($group['memberUid']) && (count($group['memberUid']) > 0)}
 		{foreach from=$group['memberUid'] item=value key=key}
 			{$value}<br>
 		{/foreach}
+		{else}
+		{t}(none){/t}
+		{/if}
 		</td>
 	</tr>
 {/foreach}
@@ -126,9 +130,13 @@
 		<td>{$group['cn'][0]}</td>
 		<td>{$group['description'][0]}</td>
 		<td>
+		{if isset($group['member']) && (count($group['member']) > 0)}
 		{foreach from=$group['member'] item=value key=key}
 			{$value}<br>
 		{/foreach}
+		{else}
+		{t}(none){/t}
+		{/if}
 		</td>
 	</tr>
 {/foreach}
