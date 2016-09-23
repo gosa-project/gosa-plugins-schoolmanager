@@ -299,7 +299,6 @@ class schoolmanagerintro extends plugin
                     }
                 } else {
 
-                    echo $ogroup_name;
                     if(startswith($ogroup_name, 'parents_'))
                     {
                         $this->ldapinfo['cleanup_stats']['parents_empty']++;
