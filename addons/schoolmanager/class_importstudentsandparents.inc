@@ -224,7 +224,7 @@ class importstudentsandparents extends importaccounts {
                         $row_sorted['class'] = $row_sorted['class'].$tmpclassparts[1];
                     }
 
-                    $class_group['cn']= array('class_'.$this->validGroupName($row_sorted['class']));
+                    $class_group['cn']= array($this->validGroupName('class_'.$row_sorted['class']));
                     $class_group['objectClass']= array(
                         'posixGroup',
                     );
