@@ -79,11 +79,6 @@
 {t}School Manager's import functionality is very flexible and can be adapted to your needs. Please configure options of this import below.{/t}
 </p>
 
-FIXMEs:
-<ul>
-	<li>Provide a checkbox to disable parent imports.
-</ul>
-
 <table summary="{t}Configure import options{/t}">
 {if $import_account_type == 'studentsandparents'}
 	<tr>
