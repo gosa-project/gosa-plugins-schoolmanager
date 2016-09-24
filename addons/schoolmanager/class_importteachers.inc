@@ -231,7 +231,7 @@ class importteachers extends importaccounts {
                             /* make teachers class members for courses they teach in a class */
                             if($this->csvinfo['add_course_members_to_class_group'])
                             {
-                                $_class_arr= explode('-',substr($row_sorted[$key],6) );
+                                $_class_arr= explode('-',substr($row_sorted[$key],7) );
                                 array_pop($_class_arr);
                                 $_class= implode('-', $_class_arr);
 
