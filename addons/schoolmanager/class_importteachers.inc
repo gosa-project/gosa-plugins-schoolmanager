@@ -249,7 +249,7 @@ class importteachers extends importaccounts {
                                 else {
 
                                     /* this code now becomes really German (Schleswig-Holstein)... */
-                                    $grades= array('1','2','3','4','5','6','7','8','9','10','12','13','e','q1','q2');
+                                    $grades= array('1','2','3','4','5','6','7','8','9','10','11','12','13','e','q1','q2');
                                     $subs= array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
 
                                     /* we should be able to split the $_class string into two classes (sort of...) */
