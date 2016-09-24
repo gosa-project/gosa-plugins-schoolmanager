@@ -163,7 +163,7 @@ class importaccounts extends plugin{
         /*
          * PHASE 01
          */
-        if (isset ($_POST['phase_01']) && isset($_POST['file_uploaded'])) {
+        if (isset ($_POST['phase_01']) && isset($_POST['file_uploaded']) && (!isset($_POST['cancel_import']))) {
 
             /* Check if theres a file uploaded */
             if (!empty ($_FILES['userfile']['name'])) {
@@ -302,7 +302,7 @@ class importaccounts extends plugin{
         /*
          * PHASE 2
          */
-        elseif (isset ($_POST['phase_02']) && isset($_POST['import_configured'])) {
+        elseif (isset ($_POST['phase_02']) && isset($_POST['import_configured']) && (!isset($_POST['cancel_import']))) {
 
             $smarty->assign ("file_uploaded",TRUE);
 
@@ -391,7 +391,7 @@ class importaccounts extends plugin{
         /*
          * PHASE 03
          */
-        elseif (isset ($_POST['phase_03']) && isset($_POST['data_sorted'])) {
+        elseif (isset ($_POST['phase_03']) && isset($_POST['data_sorted']) && (!isset($_POST['cancel_import']))) {
 
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("import_configured",TRUE);
@@ -478,7 +478,7 @@ class importaccounts extends plugin{
         /*
          * PHASE 04
          */
-        elseif (isset ($_POST['phase_04']) && isset($_POST['accounts_reviewed'])) {
+        elseif (isset ($_POST['phase_04']) && isset($_POST['accounts_reviewed']) && (!isset($_POST['cancel_import']))) {
 
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("import_configured",TRUE);
@@ -538,7 +538,7 @@ class importaccounts extends plugin{
         /*
          * PHASE 05
          */
-        elseif (isset ($_POST['phase_05']) && isset($_POST['accounts_imported']))
+        elseif (isset ($_POST['phase_05']) && isset($_POST['accounts_imported']) && (!isset($_POST['cancel_import'])))
         {
 
             $smarty->assign ("file_uploaded",TRUE);
@@ -596,7 +596,7 @@ class importaccounts extends plugin{
         /*
          * PHASE 06
          */
-        elseif (isset ($_POST['phase_06']) && isset($_POST['groups_reviewed']))
+        elseif (isset ($_POST['phase_06']) && isset($_POST['groups_reviewed']) && (!isset($_POST['cancel_import'])))
         {
 
             $smarty->assign ("file_uploaded",TRUE);
@@ -646,7 +646,7 @@ class importaccounts extends plugin{
         /*
          * PHASE 07
          */
-        elseif (isset ($_POST['phase_07']) && isset($_POST['groups_imported'])) {
+        elseif (isset ($_POST['phase_07']) && isset($_POST['groups_imported']) && (!isset($_POST['cancel_import']))) {
 
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("import_configured",TRUE);
@@ -675,7 +675,7 @@ class importaccounts extends plugin{
         /*
          * PHASE 08
          */
-        elseif (isset ($_POST['phase_08'])) {
+        elseif (isset ($_POST['phase_08']) && isset($_POST['accounts_groupmembers_reviewed']) && (!isset($_POST['cancel_import']))) {
 
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("import_configured",TRUE);
@@ -707,7 +707,7 @@ class importaccounts extends plugin{
         /*
          * PHASE 09
          */
-        elseif (isset ($_POST['phase_09']) && isset($_POST['accounts_groupmembers_reviewed'])) {
+        elseif (isset ($_POST['phase_09']) && isset($_POST['accounts_groupmembers_updated']) && (!isset($_POST['cancel_import']))) {
 
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("import_configured",TRUE);
@@ -729,7 +729,7 @@ class importaccounts extends plugin{
         /*
          * PHASE 10
          */
-        elseif (isset ($_POST['phase_10']) && isset($_POST['accounts_groupmembers_updated'])) {
+        elseif (isset ($_POST['phase_10']) && isset($_POST['cleanup_completed']) && (!isset($_POST['cancel_import']))) {
 
             $smarty->assign ("file_uploaded",TRUE);
             $smarty->assign ("import_configured",TRUE);

@@ -585,4 +585,8 @@ FIXME: Todo.
 	{t}Continue here, when ready{/t}: <button type="submit" name="cleanup_completed">{t 1="11/11"}Finish LDAP import (Step %1){/t}</button>
 
 	{/if}
+
+	{if $file_uploaded == TRUE && $cleanup_completed != TRUE}
+	<button type="submit" name="cancel_import">{t}Cancel Import{/t}</button>
+	{/if}
 </div>
