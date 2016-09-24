@@ -1273,10 +1273,7 @@ class importaccounts extends plugin{
                     if($_group_type_key!=="aux_accounts_groups")
                     {
 
-                        /* the _group_actions field should contain a one-element array being either
-                         * array("none"), array("move-primgroup") or array("create-primgroup")
-                         */
-                        $_g_actions= array($this->csvinfo['data_preldap'][$key]['main_account']['_'.$group_type.'_actions'][0]);
+                        $_g_actions= explode(",", $this->csvinfo['data_preldap'][$key]['main_account']['_'.$group_type.'_actions'][0]);
                         if($_g_actions[0]==="none") { $_g_actions=array(); }
 
                         /* check if the user's main account is in this group */
