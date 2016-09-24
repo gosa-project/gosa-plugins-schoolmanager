@@ -302,7 +302,7 @@
 					</td>
 				</tr>
 {/foreach}
-{if $accounts_reviewed && $accounts_imported}
+{if $accounts_reviewed && $accounts_imported && !preg_match('/ignore/', $data[$key]['main_account']['_actions'][0])}
 				<tr><td colspan="2" style="height: 0.2em;"></td></tr>
 				<tr>
 					<td bgcolor="#BBBBBB">
