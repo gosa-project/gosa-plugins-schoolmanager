@@ -1468,8 +1468,8 @@ class importaccounts extends plugin{
             {
                 $group_data['_actions']= array('create');
 
-                /* FIXME: note supported, yet */
-                continue;
+                # FIXME: we need to update the user accounts gidNumber attribute description here
+
             }
             elseif (strpos($user_data['_group_actions'][0], 'move-primgroup')!==FALSE)
             {
