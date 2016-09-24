@@ -101,7 +101,7 @@ class importteachers extends importaccounts {
 
                 /* main account */
                 $teacher=array ();
-                if(isset($row_sorted['uid']) && $row_sorted['uid'] && (($row_sorted['uid'] != "%auto%") && ($row_sorted['uid'] != "%uid%")) )
+                if(isset($row_sorted['uid']) && $row_sorted['uid'] && (($row_sorted['uid'] != "%auto%") && ($row_sorted['uid'] != "%uid%")  && ($row_sorted['uid'] != "%{uid}") ) )
                 {
                     $teacher['uid']=array(strtolower(iconv('UTF-8', 'US-ASCII//TRANSLIT', trim($row_sorted['uid']))));
                 }

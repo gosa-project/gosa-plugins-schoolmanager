@@ -110,7 +110,7 @@ class importstudentsandparents extends importaccounts {
 
                 /* main account */
                 $student=array ();
-                if(isset($row_sorted['uid']) && $row_sorted['uid'] && (($row_sorted['uid'] != "%auto%") && ($row_sorted['uid'] != "%uid%")) )
+                if(isset($row_sorted['uid']) && $row_sorted['uid'] && (($row_sorted['uid'] != "%auto%") && ($row_sorted['uid'] != "%uid%") && ($row_sorted['uid'] != "%{uid}")) )
                 {
                     $student['uid']=array(strtolower(iconv('UTF-8', 'US-ASCII//TRANSLIT', trim($row_sorted['uid']))));
                 }
