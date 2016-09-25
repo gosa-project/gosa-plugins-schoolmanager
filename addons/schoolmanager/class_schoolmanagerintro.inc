@@ -174,7 +174,7 @@ class schoolmanagerintro extends plugin
             foreach ($this->ldapinfo['groups'] as $group) {
 
                 $group_name = $group['cn'][0];
-                if(count($group['memberUid']) > 0)
+                if(isset($group['memberUid']) && count($group['memberUid']) > 0)
                 {
                     $group_dn = $group['dn'];
                     $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],$group_dn, "groups" );
@@ -269,7 +269,7 @@ class schoolmanagerintro extends plugin
             foreach ($this->ldapinfo['ogroups'] as $ogroup) {
 
                 $ogroup_name = $ogroup['cn'][0];
-                if(count($ogroup['member']) > 0)
+                if(isset($ogroup['member']) && count($ogroup['member']) > 0)
                 {
                     $ogroup_dn = $ogroup['dn'];
                     $ogrouptab= new ogrouptabs($this->config, $this->config->data['TABS']['OGROUPTABS'], $ogroup_dn, "ogroups" );
