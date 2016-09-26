@@ -232,10 +232,7 @@
 				{$data[$key2][$key]}&nbsp;
 			</td>
 		{/foreach}
-		{if $key == 0}
-
-		<!-- FIXME: with very small data sets (up to 6 objects) the below dots should not be printed on screen!!! -->
-
+		{if $key == 0 && $data_size > 5}
 		<td  style="vertical-align: middle;" bgcolor="#EEEEEE" rowspan={$num_rows}>&nbsp;&nbsp;&nbsp;<b>...</b>&nbsp;&nbsp;&nbsp;</td>
 		{/if}
 	</tr>
