@@ -59,7 +59,7 @@
 <ul>
 <li>{t}First, finish up reading all information provided by this introduction.{/t}
 <li>{t}Then, change to the Directory Structure Management view of GOsa2{/t}
-<li>{t escape=no}Create a GOsa² Department with the name &quot;SchoolManager&quot; at a location of your choice within the LDAP tree.{/t}
+<li>{t escape=no}Create a GOsa2 Department with the name &quot;SchoolManager&quot; at a location of your choice within the LDAP tree.{/t}
 <li>{t escape=no}Return to the SchoolManager Add-On again and start importing students and/or teachers. When switching to the &quot;Student Management&quot; or the &quot;Teacher Management&quot; tabs, you will find more information on the requirements regarding the CSV import files.{/t}
 </ul>
 
@@ -111,7 +111,7 @@
 	{t}The SchoolManager add-on for GOsa2 has been developed with the German school system in mind, more specifically the school system as found in the Nothern German county Schleswig-Holstein.{/t}
 </p>
 <p>
-	{t}If you intend using SchoolManager on your GOsa² site but find that it does not at all fill you needs, this may be due to regional differences in how schools get administered all over the world. Don't give up, SchoolManager can be adapted/extended to your needs.{/t}
+	{t}If you intend using SchoolManager on your GOsa2 site but find that it does not at all fill you needs, this may be due to regional differences in how schools get administered all over the world. Don't give up, SchoolManager can be adapted/extended to your needs.{/t}
 </p>
 <p>
 	{t}Please get in touch with the GOsa2 developers on Github and we will see, what we can do for you:{/t}
