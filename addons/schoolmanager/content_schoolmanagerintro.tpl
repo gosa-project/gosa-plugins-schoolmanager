@@ -98,6 +98,13 @@
 	</tr>
 </table>
 
+<h3>Updating User Information During the Term</h3>
+
+{t}In the middle of a school year, you can easily update student, teacher and partent accounts, by importing a subset of the complete CSV file. Simply import the date of students and/or teachers that require being updated or added.{/t}
+
+{t}You can, of course, also upload the complete data set, but this will take far too long, if only some account information have changed (e.g. new parent email address).{/t}
+
+
 <h3>{t}Localization and Regional Adaptations{/t}</h3>
 
 <p>
