@@ -1663,7 +1663,6 @@ class importaccounts extends plugin{
                                 'givenName' => $user_data['givenName'][0]
                             );
                             $_user_properties_base['uid']= gen_uids($_genStr,$_attributes)[0];
-                            print $_user_properties_base['uid']."<br>";
                         }
                         else {
 
