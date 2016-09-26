@@ -238,17 +238,17 @@ class importstudentsandparents extends importaccounts {
                 $course_groups= array ();
                 foreach ($row_sorted as $key=>$value) {
                     if (substr ($key,0,6)==="course") {
-                        $row_sorted[$key]=$this->validGroupName($value);
+                        $row_sorted[$key]=$this->validGroupName('course_'.$value);
                         if ($row_sorted[$key])
                         {
-                            $_cn= 'course_'.trim($row_sorted[$key]);
+                            $_cn= $row_sorted[$key];
                             $course_groups[$_cn]= array(
                                 'objectClass' => array(
                                     'posixGroup',
                                 ),
                                 'cn' => array($_cn),
-                                'description' => array(sprintf(_('SchoolManager course group %s'), 'course_'.$row_sorted[$key])),
-                                'mail' => array('course_'.trim($row_sorted[$key]).'@'.$this->csvinfo['domain_groups']),
+                                'description' => array(sprintf(_('SchoolManager course group %s'), $row_sorted[$key])),
+                                'mail' => array($row_sorted[$key].'@'.$this->csvinfo['domain_groups']),
                                 '_status' => array('unchecked'),
                                 '_actions' => array('none')
                             );
