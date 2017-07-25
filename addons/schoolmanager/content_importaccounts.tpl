@@ -65,6 +65,37 @@
 			<input id="userfile" name="userfile" type="file" value="{t}Browse{/t}">
 		</td>
 	</tr>
+
+	<tr>
+		<td>
+		<h4>{t}CSV format options:{/t}</h4>
+		</td>
+	</tr>
+	<tr>
+		<td style=vertical-align: middle;">
+			<LABEL for="csv_with_column_headers">{t}First line in CSV file contains column headers (so ignore that first line):{/t}</LABEL>
+			<input type="checkbox" id="csv_with_column_headers" name="csv_with_column_headers" checked>
+		</td>
+	</tr>
+	<tr>
+		<td style=vertical-align: middle;">
+			<br />
+			<LABEL for="delimiter_id">{t}Delimiter for column fields in CSV file:{/t}</LABEL>
+			<br />
+			{html_radios name="delimiter_id" options=$available_delimiters selected=$preset_delimiter_id separator='<br />'}
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<br />
+		<b>{t}Note:{/t}</b> {t}The following filters are automatically applied on CSV file import...{/t}
+		<ul>
+		<li>{t}Auto-detection of charset encoding (everything gets converted internally to UTF-8){/t}</li>
+		<li>{t}Single and double quotes next to the field delimiters get removed{/t}</li>
+		<li>{t}MS-Dos / Unix line ending style gets recognized automatically and processed accordingly{/t}</li>
+		</ul>
+		</td>
+	</tr>
 </table>
 
 

@@ -133,6 +133,13 @@ class importaccounts extends plugin{
             $this->csvinfo=array ();
         }
 
+        $smarty->assign('available_delimiters', array(
+                               0 => '"," - '._("komma separated values"),
+                               1 => '";" - '._("semicolon separated values"),
+                               2 => '<-> - '._("tabstop separated values"),
+                               3 => '" " - '._("blank separated values")));
+        $smarty->assign('preset_delimiter_id', 0);
+
         $this->csvinfo['attrs']=$this->getAttributes();
         $this->csvinfo['attrs'][] = "---";
         /* Check permissions for import */
@@ -767,58 +774,116 @@ class importaccounts extends plugin{
 
     function parseCSV($raw_csv_data)
     {
+
+        $this->csvinfo['delimiter_id'] = $_POST['delimiter_id'];
+        $this->csvinfo['skip_first_line'] = $_POST['csv_with_column_headers'];
+
         $lines=preg_split ("/\n/",$raw_csv_data);
         $num_columns=0;
         $rest=0;
         $data=array ();
 
+        if ($this->csvinfo['skip_first_line']) {
+                array_shift ($lines);
+        }
+
         /* check colum count, if it stays zero, we probably don't have a comma separated CSV file */
-        if (is_array ($lines))
+        if (is_array ($lines)) {
             foreach ($lines as $line) {
+
+                $cells = array();
 
                 /* continue if theres a comment */
                 if (substr (trim ($line),0,1)=="#") {
                     continue;
                 }
-                $line=str_replace ("\t","",$line);
-                $cells=explode (",",$line);
+
+                switch ($this->csvinfo['delimiter_id'])
+                {
+                    case 0:
+                        /* komma separated values */
+                        $delimiter_char = ",";
+                        break;
+                    case 1:
+                        /* semikolon separated values */
+                        $delimiter_char = ";";
+                        break;
+                    case 2:
+                        /* tabstop separated values */
+                        $delimiter_char = "\t";
+                        break;
+                    case 3:
+                        /* blank separated values */
+                        $delimiter_char = " ";
+                        break;
+                }
+
+                $raw_cells=explode ($delimiter_char,$line);
+
+                $concatenating = FALSE;
+                $concat_cell = "";
+                $concat_quote = "";
+
+                foreach ($raw_cells as $cell) {
+
+                    if ((!$concatenating) && (substr($cell, 0, 1) == '"')) {
+                        $concat_cell = substr($cell, 1);
+                        $concatenating = TRUE;
+                        $concat_quote = '"';
+                    }
+                    elseif ((!$concatenating) && (substr($cell, 0, 1) == "'")) {
+                        $concat_cell = substr($cell, 1);
+                        $concatenating = TRUE;
+                        $concat_quote = '"';
+                    }
+                    elseif (($concatenating) && (substr($cell, -1) == $concat_quote)) {
+                        $concat_cell = $concat_cell.$delimiter_char.substr($cell, 0, -1);
+                        $cells[] = $concat_cell;
+                        $concatenating = FALSE;
+                        $concat_cell = "";
+                        $concat_quote = "";
+                    }
+                    elseif ($concatenating)
+                    {
+                        $concat_cell = $concat_cell.$delimiter_char.$cell;
+                    }
+                    else {
+                        $cells[] = $cell;
+                    }
+                }
+
                 if (count ($cells)>$num_columns) {
                     $num_columns=count ($cells);
                 }
+
+                $data[] = $cells;
+
             }
 
+        }
+
         /* parse rows and import into $this->csvinfo */
-        if ($num_columns > 1) {
+        if ($num_columns >= 1) {
 
             /* Generate array with output info  */
-            if (is_array ($lines))
-                foreach ($lines as $line) {
-                    $rest=0;
-                    $cnt=0;
 
-                    /* do not use comments or empty lines */
-                    if ( (substr (trim ($line),0,1)=="#")|| (empty ($line))) {
-                        continue;
+            foreach ($data as $row) {
+
+                /* fill up rows if less cells then num_columns */
+                if (is_array ($row)) {
+
+                    /* cell count less than num_columns, attach some empty fields */
+                    if ( count($rows) <= $num_columns ) {
+                        $rest=$num_columns - count($row);
+                        for ($i=0;$i<$rest;$i++) {
+                            $row[]="";
+                        }
                     }
 
-                    /* replace \t to , */
-                    $line=str_replace ("\t",",",$line);
-
-                    /* get all elements  */
-                    $cells=explode (",",$line);
-
-                    /* attach all elements to data array */
-                    if (is_array ($cells))
-
-                        /* cell count less than num_columns, attach some empty fields */
-                        if ( count($cells) <= $num_columns ) {
-                            $rest=$num_columns - count($cells);
-                            for ($i=0;$i<$rest;$i++) {
-                                $cells[]="";
-                            }
-                        }
-                    $data[]=$cells;
                 }
+
+            }
+
             unset ($this->csvinfo['data_sorted']);
             $this->csvinfo['num_cols']=$num_columns;
             $this->csvinfo['data']=$data;
