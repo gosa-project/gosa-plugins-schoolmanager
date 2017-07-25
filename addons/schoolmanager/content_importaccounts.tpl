@@ -233,7 +233,7 @@
 			</td>
 		{/foreach}
 		{if $key == 0 && $data_size > 5}
-		<td  style="vertical-align: middle;" bgcolor="#EEEEEE" rowspan={$num_rows}>&nbsp;&nbsp;&nbsp;<b>...</b>&nbsp;&nbsp;&nbsp;</td>
+		<td  style="vertical-align: middle;" bgcolor="#EEEEEE" rowspan={$num_rows}>&nbsp;&nbsp;&nbsp;<b>... {$data_size}</b>&nbsp;&nbsp;&nbsp;</td>
 		{/if}
 	</tr>
 {/foreach}
