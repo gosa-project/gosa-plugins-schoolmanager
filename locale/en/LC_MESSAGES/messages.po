@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-schoolmanager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-26 11:37+0200\n"
+"POT-Creation-Date: 2017-07-26 12:11+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>\n"
 "Language-Team: \n"
@@ -287,6 +287,11 @@ msgstr "Students and their parents are bound together via parent groups"
 msgid "Mail addresses of teachers, students and parents."
 msgstr "Mail addresses of teachers, students and parents."
 
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:30
+#, fuzzy
+msgid "SchoolManager is idempotent"
+msgstr "School Manager"
+
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:33
 msgid ""
 "The import algorithm in SchoolManager is idempotent. This means you can "
@@ -298,6 +303,10 @@ msgstr ""
 "import the same CSV file several times without endangering already existing "
 "accounts. If some of the information in the CSV file has changed, the "
 "correlating LDAP objects (users/groups) will be adapted."
+
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:36
+msgid "Nothing Gets Deleted..."
+msgstr ""
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:39
 msgid ""
@@ -419,11 +428,11 @@ msgstr ""
 "groups managed by this plugin with an import of all teachers first and flush "
 "all group members during this import."
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:79
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:80
 msgid "OU container for groups managed by SchoolManager:"
 msgstr "OU container for groups managed by SchoolManager:"
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:92
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:93
 msgid ""
 "Flush all members from course, class, subject and parent groups now? If you "
 "click this button, SchoolManager presents to you a list of to be emptied "
@@ -435,7 +444,16 @@ msgstr ""
 "groups and asks for confirmation before actually performing this clean-up "
 "task."
 
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:97
+#, fuzzy
+msgid "Empty all SchoolManager groups now!"
+msgstr "Empty SchoolManager administered object groups"
+
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:103
+msgid "Updating User Information During the Term"
+msgstr ""
+
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:106
 #, fuzzy
 msgid ""
 "In the middle of a school year, you can easily update student, teacher and "
@@ -448,7 +466,7 @@ msgstr ""
 "import the date of students and/or teachers that require being updated or "
 "added."
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:105
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:110
 msgid ""
 "You can, of course, also upload the complete data set, but this will take "
 "far too long, if only some account information have changed (e.g. new parent "
@@ -458,11 +476,11 @@ msgstr ""
 "far too long, if only some account information have changed (e.g. new parent "
 "email address)."
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:108
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:113
 msgid "Localization and Regional Adaptations"
 msgstr "Localization and Regional Adaptations"
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:111
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:116
 msgid ""
 "The SchoolManager add-on for GOsa2 has been developed with the German school "
 "system in mind, more specifically the school system as found in the Nothern "
@@ -472,7 +490,7 @@ msgstr ""
 "system in mind, more specifically the school system as found in the Nothern "
 "German county Schleswig-Holstein."
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:114
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:119
 msgid ""
 "If you intend using SchoolManager on your GOsa2 site but find that it does "
 "not at all fill you needs, this may be due to regional differences in how "
@@ -484,7 +502,7 @@ msgstr ""
 "schools get administered all over the world. Don't give up, SchoolManager "
 "can be adapted/extended to your needs."
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:117
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:122
 msgid ""
 "Please get in touch with the GOsa2 developers on Github and we will see, "
 "what we can do for you:"

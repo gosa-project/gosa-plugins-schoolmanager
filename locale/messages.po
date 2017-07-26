@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-26 11:37+0200\n"
+"POT-Creation-Date: 2017-07-26 12:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -249,12 +249,20 @@ msgstr ""
 msgid "Mail addresses of teachers, students and parents."
 msgstr ""
 
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:30
+msgid "SchoolManager is idempotent"
+msgstr ""
+
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:33
 msgid ""
 "The import algorithm in SchoolManager is idempotent. This means you can "
 "import the same CSV file several times without endangering already existing "
 "accounts. If some of the information in the CSV file has changed, the "
 "correlating LDAP objects (users/groups) will be adapted."
+msgstr ""
+
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:36
+msgid "Nothing Gets Deleted..."
 msgstr ""
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:39
@@ -341,11 +349,11 @@ msgid ""
 "student imports."
 msgstr ""
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:79
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:80
 msgid "OU container for groups managed by SchoolManager:"
 msgstr ""
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:92
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:93
 msgid ""
 "Flush all members from course, class, subject and parent groups now? If you "
 "click this button, SchoolManager presents to you a list of to be emptied "
@@ -353,7 +361,15 @@ msgid ""
 "task."
 msgstr ""
 
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:97
+msgid "Empty all SchoolManager groups now!"
+msgstr ""
+
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:103
+msgid "Updating User Information During the Term"
+msgstr ""
+
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:106
 msgid ""
 "In the middle of a school year, you can easily update student, teacher and "
 "partent accounts, by importing a subset of the complete CSV file. Simply "
@@ -361,25 +377,25 @@ msgid ""
 "added."
 msgstr ""
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:105
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:110
 msgid ""
 "You can, of course, also upload the complete data set, but this will take "
 "far too long, if only some account information have changed (e.g. new parent "
 "email address)."
 msgstr ""
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:108
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:113
 msgid "Localization and Regional Adaptations"
 msgstr ""
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:111
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:116
 msgid ""
 "The SchoolManager add-on for GOsa2 has been developed with the German school "
 "system in mind, more specifically the school system as found in the Nothern "
 "German county Schleswig-Holstein."
 msgstr ""
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:114
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:119
 msgid ""
 "If you intend using SchoolManager on your GOsa2 site but find that it does "
 "not at all fill you needs, this may be due to regional differences in how "
@@ -387,7 +403,7 @@ msgid ""
 "can be adapted/extended to your needs."
 msgstr ""
 
-#: addons/schoolmanager/content_schoolmanagerintro.tpl:117
+#: addons/schoolmanager/content_schoolmanagerintro.tpl:122
 msgid ""
 "Please get in touch with the GOsa2 developers on Github and we will see, "
 "what we can do for you:"

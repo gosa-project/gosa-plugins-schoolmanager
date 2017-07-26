@@ -27,13 +27,13 @@
 	<li>{t}Mail addresses of teachers, students and parents.{/t}
 </ul>
 
-<h3>SchoolManager is idempotent</h3>
+<h3>{t}SchoolManager is idempotent{/t}</h3>
 
 <p>
 	{t}The import algorithm in SchoolManager is idempotent. This means you can import the same CSV file several times without endangering already existing accounts. If some of the information in the CSV file has changed, the correlating LDAP objects (users/groups) will be adapted.{/t}
 </p>
 
-<h3>Nothing Gets Deleted...</h3>
+<h3>{t}Nothing Gets Deleted...{/t}</h3>
 
 <p>
 	{t}In SchoolManager, there is this concept of not deleting any LDAP information, ever.{/t}
@@ -72,6 +72,7 @@
 	{t}With the start of a new school year, we recommend flushing all members from these groups, i.e. class, course, subject and parent groups. After that, continue with importing all teachers first, and then proceed with the student imports.{/t}</p>
 </p>
 
+<p>
 <table>
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
@@ -93,17 +94,21 @@
 		</td>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: bottom;">
-		<button name="empty_schoolmanager_groups_now" type="submit">Empty all SchoolManager groups now!</button>
+		<button name="empty_schoolmanager_groups_now" type="submit">{t}Empty all SchoolManager groups now!{/t}</button>
 		</td>
 	</tr>
 </table>
+</p>
 
-<h3>Updating User Information During the Term</h3>
+<h3>{t}Updating User Information During the Term{/t}</h3>
 
-{t}In the middle of a school year, you can easily update student, teacher and partent accounts, by importing a subset of the complete CSV file. Simply import the data of students and/or teachers that require being updated or added.{/t}
+<p>
+	{t}In the middle of a school year, you can easily update student, teacher and partent accounts, by importing a subset of the complete CSV file. Simply import the data of students and/or teachers that require being updated or added.{/t}
+</p>
 
-{t}You can, of course, also upload the complete data set, but this will take far too long, if only some account information have changed (e.g. new parent email address).{/t}
-
+<p>
+	{t}You can, of course, also upload the complete data set, but this will take far too long, if only some account information have changed (e.g. new parent email address).{/t}
+</p>
 
 <h3>{t}Localization and Regional Adaptations{/t}</h3>
 
@@ -115,8 +120,8 @@
 </p>
 <p>
 	{t}Please get in touch with the GOsa2 developers on Github and we will see, what we can do for you:{/t}
-	<a target="_new" href="https://github.com/gosa-project/gosa-plugin-schoolmanager">
-	https://github.com/gosa-project/gosa-plugin-schoolmanager</a>
+	<b><a target="_new" href="https://github.com/gosa-project/gosa-plugin-schoolmanager">
+	https://github.com/gosa-project/gosa-plugin-schoolmanager</a></b>
 </p>
 
 <input type="hidden" name="ignore">
