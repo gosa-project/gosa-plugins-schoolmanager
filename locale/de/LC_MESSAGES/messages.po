@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-schoolmanager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-26 12:11+0200\n"
+"POT-Creation-Date: 2017-07-26 12:24+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>\n"
 "Language-Team: \n"
@@ -127,6 +127,11 @@ msgstr ""
 "mehr rückgängig gemacht werden! Das Leeren aller Gruppen kann einige Zeit "
 "dauern, bitte haben Sie dafür etwas Geduld..."
 
+#: addons/schoolmanager/content_smflushgroupmembers.tpl:51
+msgid "Really empty all POSIX groups listed below, now!"
+msgstr ""
+"Jetzt wirklich alle Benutzer aus den unten gelisteten POSIX-Gruppen austragen!"
+
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:59
 msgid "POSIX Group: %1"
 msgstr "POSIX-Gruppe: %1"
@@ -189,6 +194,11 @@ msgstr ""
 "entfernen? Nachdem Sie diesen Knopf gedrückt haben, kann der Vorgang nicht "
 "mehr rückgängig! Das Leeren aller Gruppen kann einige Zeit dauern, bitte "
 "haben Sie dafür etwas Geduld..."
+
+#: addons/schoolmanager/content_smflushgroupmembers.tpl:108
+msgid "Really empty all parent (object) groups listed below, now!"
+msgstr ""
+"Jetzt wirklich alle Eltern aus den unten gelisteten Objektgruppen austragen!"
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:116
 #: addons/schoolmanager/content_importaccounts.tpl:489

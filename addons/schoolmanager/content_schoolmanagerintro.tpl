@@ -119,7 +119,7 @@
 	{t}If you intend using SchoolManager on your GOsa2 site but find that it does not at all fill you needs, this may be due to regional differences in how schools get administered all over the world. Don't give up, SchoolManager can be adapted/extended to your needs.{/t}
 </p>
 <p>
-	{t}Please get in touch with the GOsa2 developers on Github and we will see, what we can do for you:{/t}
+	{t}Please get in touch with the GOsa2 developers on Github and we will see, what we can do for you:{/t}<br />
 	<b><a target="_new" href="https://github.com/gosa-project/gosa-plugin-schoolmanager">
 	https://github.com/gosa-project/gosa-plugin-schoolmanager</a></b>
 </p>

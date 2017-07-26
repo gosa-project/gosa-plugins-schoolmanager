@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-schoolmanager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-26 12:11+0200\n"
+"POT-Creation-Date: 2017-07-26 12:24+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>\n"
 "Language-Team: \n"
@@ -119,6 +119,10 @@ msgstr ""
 "now? After you have clicked this button, the process cannot be reverted!. "
 "Emptying all groups may take some time, so please be patient while waiting..."
 
+#: addons/schoolmanager/content_smflushgroupmembers.tpl:51
+msgid "Really empty all POSIX groups listed below, now!"
+msgstr ""
+
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:59
 msgid "POSIX Group: %1"
 msgstr "POSIX Group: %1"
@@ -179,6 +183,10 @@ msgstr ""
 "Flush all members from the listed parent (object) groups now? After you have "
 "clicked this button, the process cannot be reverted! Emptying all groups may "
 "take some time, so please be patient while waiting..."
+
+#: addons/schoolmanager/content_smflushgroupmembers.tpl:108
+msgid "Really empty all parent (object) groups listed below, now!"
+msgstr ""
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:116
 #: addons/schoolmanager/content_importaccounts.tpl:489
