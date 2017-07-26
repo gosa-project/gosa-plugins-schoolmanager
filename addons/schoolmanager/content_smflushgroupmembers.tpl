@@ -94,7 +94,7 @@
 </p>
 
 <p>
-	{t}With the next import of students (and their parents), many of these parent group will get automatically re-populated with members. At the beginning of a new school year, you want to do this!{/t}
+	{t}With the next import of students (and their parents), many of these parent groups will get automatically re-populated with members. At the beginning of a new school year, you want to do this!{/t}
 </p>
 
 <table>

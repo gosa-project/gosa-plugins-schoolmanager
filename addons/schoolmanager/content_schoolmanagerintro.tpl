@@ -19,7 +19,7 @@
 </p>
 
 <ul>
-	<li>{t}Personal data (name, date of birth, unique ID as stored in the school administration software){/t}
+	<li>{t}Personal data (name, date of birth, unique ID) as stored in the school administration software{/t}
 	<li>{t}Teachers: class teacher, taught subjects, taught courses{/t}
 	<li>{t}Students: each student normally comes with one or two parents that also may need accounts in LDAP{/t}
 	<li>{t}Students and teachers are grouped by classes and courses{/t}
@@ -58,7 +58,7 @@
 
 <ul>
 <li>{t}First, finish up reading all information provided by this introduction.{/t}
-<li>{t}Then, change to the Directory Structure Management view of GOsa2{/t}
+<li>{t}Then, change to the Directory Structure Management view of GOsa2.{/t}
 <li>{t escape=no}Create a GOsa2 Department with the name &quot;SchoolManager&quot; at a location of your choice within the LDAP tree.{/t}
 <li>{t escape=no}Return to the SchoolManager Add-On again and start importing students and/or teachers. When switching to the &quot;Student Management&quot; or the &quot;Teacher Management&quot; tabs, you will find more information on the requirements regarding the CSV import files.{/t}
 </ul>
@@ -100,7 +100,7 @@
 
 <h3>Updating User Information During the Term</h3>
 
-{t}In the middle of a school year, you can easily update student, teacher and partent accounts, by importing a subset of the complete CSV file. Simply import the date of students and/or teachers that require being updated or added.{/t}
+{t}In the middle of a school year, you can easily update student, teacher and partent accounts, by importing a subset of the complete CSV file. Simply import the data of students and/or teachers that require being updated or added.{/t}
 
 {t}You can, of course, also upload the complete data set, but this will take far too long, if only some account information have changed (e.g. new parent email address).{/t}
 
