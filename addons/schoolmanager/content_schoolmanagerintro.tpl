@@ -76,7 +76,7 @@
 <table>
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
-		<td style="vertical-align: middle;">
+		<td style="vertical-align: middle; width: 40%;">
 			<LABEL for="ou_groups">{t}OU container for groups managed by SchoolManager:{/t}</LABEL>
 		</td>
 		<td style="width: 1em;">&nbsp;</td>
