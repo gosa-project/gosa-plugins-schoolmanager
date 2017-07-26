@@ -717,6 +717,7 @@ class importaccounts extends plugin{
             }
             else {
                 /* prepare for reloading this phase's web page again */
+                $this->prepareGroupMemberships();
             }
         }
         /*
