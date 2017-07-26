@@ -20,7 +20,7 @@
 <p>
 	<table>
 	{if $import_account_type == "studentsandparents"}
-	<tr><td>{t}Column{/t} 01</td><td><b>{t}Number{/t}</b></td><td>{t}This is useful for manual discussing issues with CSV import files, but the number column is normally not used.{/t}</td></tr>
+	<tr><td>{t}Column{/t} 01</td><td><b>{t}Number{/t}</b></td><td>{t}This is useful for discussing issues with CSV import files, but the number column is normally not used.{/t}</td></tr>
 	<tr><td>{t}Column{/t} 02</td><td><b>{t}Login{/t}</b></td><td>{t}The user account's login ID. If left empty, it will be attempted to auto-generated a login ID.{/t}</td></tr>
 	<tr><td>{t}Column{/t} 03</td><td><b>{t}Password{/t}</b></td><td>{t}The user's password. If left empty, a password will be generated during the import.{/t}</td></tr>
 	<tr><td>{t}Column{/t} 04</td><td><b>{t}Student ID{/t}</b></td><td>{t}An unequivocal number that a student is associated with in the school's administration software.{/t}</td></tr>
@@ -92,7 +92,7 @@
 		<ul>
 		<li>{t}Auto-detection of charset encoding (everything gets converted internally to UTF-8){/t}</li>
 		<li>{t}Single and double quotes next to the field delimiters get removed{/t}</li>
-		<li>{t}MS-Dos / Unix line ending style gets recognized automatically and processed accordingly{/t}</li>
+		<li>{t}MS-DOS / Unix line ending style gets recognized automatically and processed accordingly{/t}</li>
 		</ul>
 		</td>
 	</tr>

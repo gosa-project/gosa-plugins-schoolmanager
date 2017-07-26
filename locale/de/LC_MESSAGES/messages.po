@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-schoolmanager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-26 10:33+0200\n"
+"POT-Creation-Date: 2017-07-26 11:37+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>\n"
 "Language-Team: \n"
@@ -11,12 +11,12 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.2\n"
+"X-Generator: Poedit 1.8.11\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: addons/schoolmanager/class_archiveaccounts.inc:26
 msgid "Archive Accounts"
-msgstr "Benutzerkonten archivieren"
+msgstr "Benutzerkonten Archivieren"
 
 #: addons/schoolmanager/class_archiveaccounts.inc:27
 msgid "GOsa2 School Manager Module: Archive Accounts"
@@ -32,11 +32,13 @@ msgstr "Statistiken"
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:6
 msgid ""
-"The clean-up process of SchoolManager-managed groups has been finished now. "
-"SchoolManager is ready for importing a new school year, now."
+"The clean-up process of SchoolManager-managed groups has been complete "
+"successfully, now. SchoolManager is ready for importing a new school year, "
+"now."
 msgstr ""
-"Die Bereinigung der von SchoolManager verwalteten Gruppen wurde nun fertig "
-"gestellt. SchoolManager ist jetzt bereit ein neues Schuljahr zu importieren."
+"Die Bereinigung der vom Schulverwaltungs-Add-On verwalteten Gruppen wurde nun "
+"erfolgreich abgeschlossen. Das Schulverwaltungs-Add-On ist jetzt bereit ein "
+"neues Schuljahr zu importieren."
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:10
 msgid "Emptied class groups: %1, already empty: %2"
@@ -60,10 +62,10 @@ msgid ""
 "out of there, please introspect manually. Let this be done by someone with "
 "LDAP expertise."
 msgstr ""
-"Es wurden einige Gruppen im SchoolManager Bereich (OU) gefunden, welche aus "
-"diesem in den passenden Bereich verschoben werden sollten, bitte prüfen Sie "
-"dies manuell. Dies sollte durch jemanden mit LDAP Erfahrung ausgeführt "
-"werden."
+"Es wurden einige Gruppen im vom Schulverwaltungs-Add-On verwalteten Bereich (i.d.R. ou=SchoolManager) gefunden, welche aus "
+"diesem Bereich entfernt und in einen anderen, passenderen Bereich verschoben "
+"werden sollten, bitte prüfen Sie dies manuell. Dies sollte von jemanden "
+"mit guten LDAP-Kenntnissen gemacht werden."
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:22
 msgid "Ignored POSIX groups: %1, already empty: %2"
@@ -75,12 +77,12 @@ msgstr "Objektgruppen ignoriert: %1, bereits leer: %2"
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:28
 msgid ""
-"You can continue with importing teachers accounts now. You can use the &quot;"
+"You can continue with importing teacher accounts now. You can use the &quot;"
 "Import Teachers&quot; SchoolManager module for this."
 msgstr ""
-"Sie können nun damit fortfahren, die Nutzerkonten für Lehrer/innen zu "
-"importieren. Dafür können Sie das  &quot;Lehrer Importieren&quot; "
-"SchoolManager Modul verwenden."
+"Sie können nun damit fortfahren, die Nutzerkonten für Lehrer zu importieren. "
+"Dafür können Sie das Schulverwaltungs-Add-On Module &quot;Lehrer "
+"Importieren&quot; verwenden."
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:34
 msgid "Step 1:"
@@ -88,7 +90,7 @@ msgstr "Schritt 1:"
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:34
 msgid "Empty SchoolManager administered standard (POSIX) groups"
-msgstr "Leere durch SchoolManager verwaltete Standardgruppen (POSIX)"
+msgstr "Leere Standardgruppen (POSIX), die vom Schulverwaltungs-Add-On verwaltet werden"
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:37
 msgid ""
@@ -97,9 +99,9 @@ msgid ""
 "groups, i.e.: drop all members from those groups."
 msgstr ""
 "Die folgende Liste zeigt alle POSIX Gruppen (Klassen, Kurse und die Fächer "
-"von Lehrern) welche durch SchoolManager verwaltet werden. Sie sind im "
-"Begriff alle aufgeführten Gruppen zu leeren (d.h. alle Mitglieder der "
-"Gruppen zu löschen)."
+"von Lehrern) welche durch das Schulverwaltungs-Add-On verwaltet werden. Sie sind im "
+"Begriff alle aufgeführten Gruppen zu leeren (d.h. alle Mitglieder aus den "
+"Gruppen zu entfernen)."
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:41
 msgid ""
@@ -108,7 +110,8 @@ msgid ""
 "new school year, you want to do this!"
 msgstr ""
 "Beim nächsten Import von Lehrern oder Schülern werden viele dieser Gruppen "
-"autmatisch wieder mit Mitgliedern gefüllt werden. cccc"
+"automatisch wieder mit Mitgliedern gefüllt werden. Zu Beginn eines neuen "
+"Schuljahres, ist dies genau das, was Sie tun wollen."
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:47
 msgid ""
@@ -116,10 +119,10 @@ msgid ""
 "now? After you have clicked this button, the process cannot be reverted!. "
 "Emptying all groups may take some time, so please be patient while waiting..."
 msgstr ""
-"Alle Mitglieder der aufgeführten Kurs-, Klassen- und Fachgruppen (POSIX) "
-"löschen? Nachdem Sie diesen Knopf gedrückt haben, kann der Vorgang nicht "
-"abgebrochen werden! Das Leeren aller Gruppen kann einige Zeit dauern, bitte "
-"haben Sie Geduld während Sie warten..."
+"Alle Mitglieder aus den aufgeführten Kurs-, Klassen- und Fachgruppen (POSIX) "
+"entfernen? Nachdem Sie diesen Knopf gedrückt haben, kann der Vorgang nicht "
+"mehr rückgängig gemacht werden! Das Leeren aller Gruppen kann einige Zeit "
+"dauern, bitte haben Sie dafür etwas Geduld..."
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:59
 msgid "POSIX Group: %1"
@@ -151,27 +154,26 @@ msgstr "Schritt 2:"
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:90
 msgid "Empty SchoolManager administered object groups"
-msgstr "Leere durch SchoolManager verwaltete Objektgruppen"
+msgstr "Leere Objektgruppen, die durch das Schulverwaltungs-Add-On verwaltet werden"
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:93
 msgid ""
 "The following list shows all parent groups managed by SchoolManager. You are "
 "about to empty all listed groups, i.e.: drop all members from those groups."
 msgstr ""
-"Die folgende Liste zeigt alle Elterngruppen, welche durch SchoolManager "
+"Die folgende Liste zeigt alle Elterngruppen, welche durch das Schulverwaltungs-Add-On "
 "verwaltet werden. Sie sind im Begriff, alle Mitglieder aus den aufgeführten "
 "Gruppen zu entfernen."
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:97
-#, fuzzy
 msgid ""
 "With the next import of students (and their parents), many of these parent "
 "groups will get automatically re-populated with members. At the beginning of "
 "a new school year, you want to do this!"
 msgstr ""
 "Beim nächsten Import von Schülern (und deren Eltern) werden viele dieser "
-"Elterngruppen automatisch wieder mit Mitgliedern gefüllt werden. Wenn ein "
-"neues Schuljahr beginnt, ist dies genau, was Sie tun wollen."
+"Elterngruppen automatisch wieder mit Mitgliedern befüllt werden. Zu Beginn "
+"eines neuen Schuljahres, ist dies genau das, was Sie tun wollen."
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:104
 msgid ""
@@ -179,10 +181,10 @@ msgid ""
 "clicked this button, the process cannot be reverted! Emptying all groups may "
 "take some time, so please be patient while waiting..."
 msgstr ""
-"Alle Mitglieder der aufgeführten Elterngruppen (Objektgruppen) löschen? "
-"Nachdem Sie diesen Knopf gedrückt haben, kann der Vorgang nicht abgebrochen "
-"werden! Das Leeren aller Gruppen kann einige Zeit dauern, bitte haben Sie "
-"Geduld während Sie warten..."
+"Alle Mitglieder aus den aufgeführten Elterngruppen (Objektgruppen) "
+"entfernen? Nachdem Sie diesen Knopf gedrückt haben, kann der Vorgang nicht "
+"mehr rückgängig! Das Leeren aller Gruppen kann einige Zeit dauern, bitte "
+"haben Sie dafür etwas Geduld..."
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:116
 #: addons/schoolmanager/content_importaccounts.tpl:489
@@ -210,7 +212,7 @@ msgstr ""
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:1
 msgid "Introduction to GOsa2's School Manager Add-On"
-msgstr "Einführung in das GOsa² Add-On SchoolManager"
+msgstr "Einführung in das GOsa² Schulverwaltungs-Add-On"
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:3
 msgid "General Information"
@@ -222,10 +224,10 @@ msgid ""
 "import tool for user and group management at schools. In our experience, "
 "schools have several special needs uncommon to other IT setups, e.g.:"
 msgstr ""
-"Das SchoolManager Add-On für GOsa² wurde als fortgeschrittenes LDAP "
-"Importierungswerkzeug für Benutzer- und Gruppenverwaltung an Schulen "
-"entwickelt. Unserer Erfahrung nach haben Schulen mehrere sehr spezielle "
-"Anforderungen, die ungewöhnlich für andere IT-Umgebungen sind, z.Bsp.:"
+"Das Schulverwaltungs-Add-On für GOsa² wurde als fortgeschrittenes LDAP-"
+"Importwerkzeug für Benutzer- und Gruppenverwaltung an Schulen entwickelt. "
+"Unserer Erfahrung nach haben Schulen einige sehr spezielle Anforderungen, "
+"die anders als in anderen IT-Umgebungen sind, z.Bsp.:"
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:9
 msgid "Many users come and go every year."
@@ -233,15 +235,15 @@ msgstr "Jedes Jahr kommen und gehen viele Benutzer."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:10
 msgid "Group memberships may change every half year."
-msgstr "Gruppen-Mitgliedschaften können jedes halbe Jahr ändern."
+msgstr "Gruppen-Mitgliedschaften können sich jedes halbe Jahr ändern."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:11
 msgid ""
 "Each student comes with parents that are also involved in school IT (e.g., "
 "home page login)."
 msgstr ""
-"Zu jedem Schüler gehören Eltern, die gegebenenfalls auch in Kontakt mit der "
-"Schul-IT kommen (z.Bsp. Login auf der Schulhomepage)."
+"Zu jedem Schüler gehören Eltern, die gegebenenfalls auch Teile der Schul-IT "
+"mitnutzen sollen (z.Bsp. Login auf der Schulhomepage)."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:14
 msgid ""
@@ -250,23 +252,22 @@ msgid ""
 "school offices run school administration tools, that can provide such CSV "
 "files as required by GOsa2's SchoolManager Add-On."
 msgstr ""
-"Mit diesem SchoolManager Add-On können Sie in großem Umfang Benutzerkonten "
+"Mit diesem Schulverwaltungs-Add-On können Sie in großem Umfang Benutzerkonten "
 "für Lehrer, Eltern und Schüler erstellen, indem Sie zwei (große) CSV-Dateien "
 "importieren. Die meisten Schulen nutzen Verwaltungssoftware, welche solche "
-"CSV-Dateien zur Verfügung stellen können, wie sie durch das SchoolManager "
-"Add-On für GOsa² benötigt werden."
+"CSV-Dateien zur Verfügung stellen können, wie sie durch das Schulverwaltungs-Add-On "
+"für GOsa² benötigt werden."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:18
 msgid "From the CSV file, various information gets extracted:"
 msgstr "Verschiedene Informationen werden aus der CSV-Datei extrahiert:"
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:22
-#, fuzzy
 msgid ""
 "Personal data (name, date of birth, unique ID) as stored in the school "
 "administration software"
 msgstr ""
-"Persönliche Daten (Name, Geburtsdatum, Hauptbuchnummer), welche in der "
+"Persönliche Daten (Name, Geburtsdatum, Hauptbuchnummer), so wie sie in der "
 "Schulverwaltungssoftware gespeichert sind"
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:23
@@ -283,7 +284,7 @@ msgstr ""
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:25
 msgid "Students and teachers are grouped by classes and courses"
-msgstr "Schüler und Lehrer sind nach  Klassen und Kurse gruppiert."
+msgstr "Schüler und Lehrer sind nach  Klassen und Kursen gruppiert."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:26
 msgid "Students and their parents are bound together via parent groups"
@@ -300,18 +301,18 @@ msgid ""
 "accounts. If some of the information in the CSV file has changed, the "
 "correlating LDAP objects (users/groups) will be adapted."
 msgstr ""
-"Der Import-Algorithmus, den SchoolManager verwendet ist idempotent. Das "
+"Der Import-Algorithmus, den das Schulverwaltungs-Add-On verwendet, ist idempotent. Das "
 "heißt, Sie können die gleiche CSV-Datei mehrere Male importieren, ohne "
-"Gefahr zu laufen, vorhandene Benutzerkonten zu überschreiben oder zu "
-"ungewollt zu ändern. Wenn Informationen in der CSV-Datei geändert wurden, "
-"werden die entsprechenden LDAP Obejete (Benutzer/Gruppen) angepasst."
+"Gefahr zu laufen, vorhandene Benutzerkonten zu überschreiben oder ungewollt "
+"zu ändern. Wenn Informationen in der CSV-Datei geändert wurden, werden die "
+"entsprechenden LDAP Objekte (Benutzer/Gruppen/Fächer) angepasst."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:39
 msgid ""
 "In SchoolManager, there is this concept of not deleting any LDAP "
 "information, ever."
 msgstr ""
-"In SchoolManager gilt das Konzept, dass niemals LDAP-Informationen gelöscht "
+"Ein Konzept des Schulverwaltungs-Add-Ons ist, dass niemals LDAP-Informationen gelöscht "
 "werden."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:43
@@ -342,9 +343,9 @@ msgstr ""
 "dass UID Nummern und GID Nummern der entfernten Benutzer und Gruppen für "
 "neue LDAP Benutzerkonten oder LDAP Gruppen wieder verwendet werden. Dies "
 "kann zu ungewolltem Zugriff auf Daten im Dateisystem führen. Der neue "
-"Benutzer kann eventuell auf Daten zugreifen, welche durch den Benutzer "
-"erstellt wurden, dem die UID Nummer zuvor zugeordnet war. Dies gilt "
-"theoretisch auch für Gruppen und GID Nummern."
+"Benutzer kann eventuell auf Daten zugreifen, welche durch den gelöschten "
+"Benutzer erstellt wurden, dem die UID Nummer des neuen Benutzers zuvor "
+"zugeordnet war. Dies gilt theoretisch auch für Gruppen und GID Nummern."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:51
 msgid ""
@@ -353,42 +354,40 @@ msgid ""
 "Archive Accounts&quot; module, so that nice and short user IDs stay "
 "available on your school site."
 msgstr ""
-"Die Lösung dieses Problemes in SchoolManager: Alle Benutzer- und "
+"Die Lösung für dieses Problemes im Schulverwaltungs-Add-On: Alle Benutzer- und "
 "Gruppenobjekte bleiben dauerhaft in LDAP gespeichert. Benutzerobjekte (d.h. "
-"deren UID) können mit dem &quot;Benutzerkonten archivieren&quot; Modul "
-"umbenannt werden, damit kurze und einfach zu nutzende UIDs für Ihre "
-"Schulumgebung vorhanden sind."
+"deren Anmeldenamen) können mit dem &quot;Benutzerkonten Archivieren&quot; "
+"Modul umbenannt werden, damit kurze und einfach zu nutzende Anmeldenamen für "
+"Ihre Schulumgebung vorhanden sind."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:54
 msgid "First time usage"
-msgstr "Erste Anwendung"
+msgstr "Erste Verwendung"
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:57
 msgid ""
 "If you are using the SchoolManager Add-On for GOsa2 for the first time, "
 "please follow these steps:"
 msgstr ""
-"Wenn Sie das SchoolManger Add-On für GOsa2 das erste Mal einsetzen, folgen "
+"Wenn Sie das Schulverwaltungs-Add-On für GOsa² das erste Mal einsetzen, folgen "
 "Sie bitte diesen Schritten:"
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:60
 msgid "First, finish up reading all information provided by this introduction."
 msgstr ""
-"Zuerst lesen Sie alle in dieser Einführung zu Verfügung gestellten "
-"Informationen."
+"Als erstes lesen Sie bitte alle Informationen, die in dieser Einführung "
+"bereitgestellt werden. "
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:61
-#, fuzzy
 msgid "Then, change to the Directory Structure Management view of GOsa2."
-msgstr ""
-"Dann wechseln Sie in die Verzeichnisstruktur-Verwaltungsansicht von GOsa2."
+msgstr "Danach wechseln Sie in die Verzeichnisstruktur-Ansicht von GOsa²."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:62
 msgid ""
 "Create a GOsa2 Department with the name &quot;SchoolManager&quot; at a "
 "location of your choice within the LDAP tree."
 msgstr ""
-"Erstellen Sie eine GOsa2 Abteilung mit dem Namen &quot;SchoolManager&quot; "
+"Erstellen Sie eine GOsa²-Abteilung mit dem Namen &quot;SchoolManager&quot; "
 "an einer Stelle Ihrer Wahl innerhalb des LDAP-Baumes."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:63
@@ -396,13 +395,15 @@ msgid ""
 "Return to the SchoolManager Add-On again and start importing students and/or "
 "teachers. When switching to the &quot;Student Management&quot; or the &quot;"
 "Teacher Management&quot; tabs, you will find more information on the "
-"requirements regarding the CSV import files."
+"requirements regarding the CSV import files. Our recommendation is: start "
+"with importing the teacher accounts."
 msgstr ""
-"Wechseln Sie zurück zum SchoolManager Add-On und beginnen Sie damit Schüler "
-"und/oder Lehrer zu importieren. Wenn Sie zum &quot;Schüler und Eltern "
-"Importieren&quot; oder &quot;Lehrer Importieren&quot; Tab wechseln, werden "
-"Sie mehr Informationen zu den Anforderungen für die zu importierenden CSV-"
-"Dateien finden."
+"Wechseln Sie zurück zum Schulverwaltungs-Add-On und beginnen Sie damit "
+"Schüler und/oder Lehrer zu importieren. Wenn Sie zum &quot;Schüler und "
+"Eltern Importieren&quot; oder &quot;Lehrer Importieren&quot; Tab wechseln, "
+"werden Sie mehr Informationen zu den Anforderungen für die zu importierenden "
+"CSV-Dateien finden. Unsere Empfehlung ist: beginnen Sie mit dem Import der "
+"Nutzerkonten für Lehrer."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:66
 msgid "Preparing a new School Year"
@@ -413,26 +414,25 @@ msgid ""
 "SchoolManager creates various groups (POSIX groups, LDAP DN groups) on user "
 "import. These groups get stored at a special location of the LDAP tree."
 msgstr ""
-"SchoolManager erstellt mehrere Gruppen (POSIX Gruppen, LDAP DN Gruppen) beim "
-"Benutzerimport. Diese Gruppen werden an einer gesonderten Stelle im LDAP-"
+"Das Schulverwaltungs-Add-On erstellt beim Benutzerimport mehrere Gruppen (POSIX Gruppen, "
+"LDAP DN Gruppen). Diese Gruppen werden an einer gesonderten Stelle im LDAP-"
 "Baum gespeichert."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:72
 msgid ""
-"With the start of a new school year, it is recommended to flush group "
-"members from all these groups, i.e. class, course, subject and parent "
-"groups. At the beginning of a new school year, we recommend emptying all "
-"groups managed by this plugin with an import of all teachers first and flush "
-"all group members during this import."
+"With the start of a new school year, we recommend flushing all members from "
+"these groups, i.e. class, course, subject and parent groups. After that, "
+"continue with importing all teachers first, and then proceed with the "
+"student imports."
 msgstr ""
-"Zum Beginn eines neuen Schuljahrs ist es ratsam, alle Mitglieder aus "
-"existierenden Klassen- und Kursgruppen auszutragen. Wir empfehlen, am Beginn "
-"eines neuen Schuljahres mit dem Import der Lehrer zu beginnen und bei diesem "
-"Import alle Gruppenmitglieder aus Klassen- und Kursgruppen auszutragen."
+"Zu Beginn eines neuen Schuljahrs empfehlen wir, alle Mitglieder aus "
+"existierenden Klassen- und Kursgruppen auszutragen. Danach sollte dann "
+"zunächst der Import der Lehrer erfolgen, und anschließend importieren Sie "
+"die Konten der Schüler."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:79
 msgid "OU container for groups managed by SchoolManager:"
-msgstr "OU-Container für durch SchoolManager verwaltete Gruppen:"
+msgstr "OU-Container für Gruppen, die vom Schulverwaltungs-Add-On verwaltet werden:"
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:92
 msgid ""
@@ -441,24 +441,23 @@ msgid ""
 "groups and asks for confirmation before actually performing this clean-up "
 "task."
 msgstr ""
-"Alle Mitglieder der Kurs-, Fach- und Elterngruppen löschen? Nachdem Sie "
-"diesen Knopf gedrückt haben, wird SchoolManager Ihnen eine Liste der zu "
-"leerenden Gruppen anzeigen und nach Bestätigung fragen, bevor diese "
-"Aufraumarbeiten druchgeführt werden."
+"Alle Mitglieder aus Kurs-, Fach- und Elterngruppen austragen? Wenn Sie "
+"diesen Knopf drücken, wird, bevor mit den "
+"Aufraumarbeiten begonnen wird, eine Liste der zu leerenden Gruppen angezeigt "
+"und noch einmal eine Bestätigung abgefragt."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:103
-#, fuzzy
 msgid ""
 "In the middle of a school year, you can easily update student, teacher and "
 "partent accounts, by importing a subset of the complete CSV file. Simply "
 "import the data of students and/or teachers that require being updated or "
 "added."
 msgstr ""
-"Auch mitten im Schuljahr können einfach Anpassungen an den Benutzerkonten "
-"von Eltern, Schülern und Lehrern vorgenommen werden, indem Sie nur einen "
-"Teil einer kompletten CSV-Datei importieren. Importieren Sie einfach die "
-"Daten der Schüler/Eltern/Lehrer, welche angepasst oder hinzugefügt werden "
-"sollen."
+"Auch mitten im Schuljahr können einfache Anpassungen an den Benutzerkonten "
+"von Eltern, Schülern und Lehrern vorgenommen werden. Dies geschieht, indem "
+"Sie nur einen Teil einer kompletten CSV-Datei importieren. Importieren Sie "
+"einfach die Daten der Schüler/Eltern/Lehrer, welche aktualisiert oder neu "
+"hinzugefügt werden sollen."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:105
 msgid ""
@@ -468,7 +467,7 @@ msgid ""
 msgstr ""
 "Sie können natürlich auch einen kompletten Datensatz hochladen, aber dies "
 "dauert viel zu lange, wenn nur einige Benutzerkonteninformationen zu ändern "
-"sind (z. Bsp. eine neue E-Mailadresse der Eltern)."
+"sind (z. Bsp. eine neue E-Mailadresse bei einem Elternteil)."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:108
 msgid "Localization and Regional Adaptations"
@@ -480,7 +479,7 @@ msgid ""
 "system in mind, more specifically the school system as found in the Nothern "
 "German county Schleswig-Holstein."
 msgstr ""
-"Das SchoolManager Add-On für GOsa² wurde hauptsächlich für das Deutsche "
+"Das Schulverwaltungs-Add-On für GOsa² wurde hauptsächlich für das Deutsche "
 "Schulsystem entwicklt, wie es in den Schulen des Norddeutschen Bundeslandes "
 "Schleswig-Holstein vorzufinden ist."
 
@@ -491,11 +490,11 @@ msgid ""
 "schools get administered all over the world. Don't give up, SchoolManager "
 "can be adapted/extended to your needs."
 msgstr ""
-"Wenn Sie vorhaben, zur Verwaltung Ihrer GOsa²-Installation SchoolManager zu "
-"nutzen, aber feststellen, dass nicht alle Ihre Bedürfnisse abgedeckt werden, "
-"dann kann dies an den regionalen Unterschieden in der Verwaltung von Schulen "
-"weltweit liegen. Nicht aufgeben, SchoolManager kann an Ihre Bedürfnisse "
-"angepasst werden."
+"Wenn Sie vorhaben, das Schulverwaltungs-Add-On zur Verwaltung Ihrer GOsa²-"
+"Installation zu verwenden, aber feststellen, dass nicht alle Ihre "
+"Bedürfnisse abgedeckt werden, dann kann dies an den regionalen Unterschieden "
+"in der Verwaltung von Schulen weltweit liegen. Nicht aufgeben, das Schulverwaltungs-Add-On "
+"kann an Ihre Bedürfnisse angepasst werden."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:117
 msgid ""
@@ -513,7 +512,7 @@ msgid ""
 "line."
 msgstr ""
 "Mit dem <b>Eltern und Schüler Importieren</b> Modul des GOsa² "
-"Schulverwaltungs-Addons können Schüler/Studenten-Konten, Elternkonten und "
+"Schulverwaltungs-Add-Ons können Schüler/Studenten-Konten, Elternkonten und "
 "Klassen- bzw. Kursgruppen aus einer CSV-Datei, in der pro Zeile die Daten "
 "eines Benutzerkontos stehen importiert werden."
 
@@ -523,9 +522,9 @@ msgid ""
 "teacher user accounts, class groups, course groups and subject groups from a "
 "single CSV file containing one user's account information per line."
 msgstr ""
-"Mit dem <b>Lehrer Importieren</b> Modul des GOsa² Schulverwaltungs-Addons "
+"Mit dem <b>Lehrer Importieren</b> Modul des GOsa² Schulverwaltungs-Add-Ons "
 "können Lehrer-Konten und Klassen- bzw. Kursgruppen aus einer CSV-Datei, in "
-"der pro Zeile die Daten eines Benutzerkontos stehen importiert werden."
+"der pro Zeile die Daten eines Benutzerkontos stehen, importiert werden."
 
 #: addons/schoolmanager/content_importaccounts.tpl:15
 msgid "STEP %1: Upload CSV File"
@@ -574,13 +573,12 @@ msgid "Number"
 msgstr "Nummer"
 
 #: addons/schoolmanager/content_importaccounts.tpl:23
-#: addons/schoolmanager/content_importaccounts.tpl:40
 msgid ""
-"This is useful for manual discussing issues with CSV import files, but the "
-"number column is normally not used."
+"This is useful for discussing issues with CSV import files, but the number "
+"column is normally not used."
 msgstr ""
-"Dies ist nützlich, wenn Probleme mit einer CSV-Datei diskutiert werden "
-"müssen. Normalerweise wird die \"Nummer\" Spalte aber nicht verwendet."
+"Dies ist nützlich, wenn Probleme mit einer CSV-Datei besprochen werden "
+"müssen. Normalerweise wird die \"Nummer\"-Spalte aber nicht verwendet."
 
 #: addons/schoolmanager/content_importaccounts.tpl:24
 #: addons/schoolmanager/content_importaccounts.tpl:41
@@ -594,7 +592,7 @@ msgid ""
 "generated a login ID."
 msgstr ""
 "Der Anmeldename des Benutzerkontos. Wird dies frei gelassen, wird ein "
-"Anmeldename automatisch erstellt."
+"Anmeldename automatisch generiert."
 
 #: addons/schoolmanager/content_importaccounts.tpl:25
 #: addons/schoolmanager/content_importaccounts.tpl:42
@@ -612,14 +610,14 @@ msgstr ""
 
 #: addons/schoolmanager/content_importaccounts.tpl:26
 msgid "Student ID"
-msgstr "Schüler/Stundenten-Nummer"
+msgstr "Hauptbuchnummer"
 
 #: addons/schoolmanager/content_importaccounts.tpl:26
 msgid ""
 "An unequivocal number that a student is associated with in the school's "
 "administration software."
 msgstr ""
-"Eine eindeutige Nummer, anhand der der Schüler in der Verwaltungssoftware "
+"Eine eindeutige Nummer, anhand der ein Schüler in der Verwaltungssoftware "
 "der Schule gefunden werden kann."
 
 #: addons/schoolmanager/content_importaccounts.tpl:27
@@ -649,7 +647,7 @@ msgid ""
 "to distinguish accounts with identical first and last names."
 msgstr ""
 "Das Geburtsdatum des/r Schüler/in. Dies ist ein Pflichtfeld, weil es dazu "
-"verwendet wird, Benutzer mit identischen Vor- und Zunamen zu  unterscheiden."
+"verwendet wird, Benutzer mit identischen Vor- und Zunamen zu unterscheiden."
 
 #: addons/schoolmanager/content_importaccounts.tpl:30
 #: addons/schoolmanager/content_importaccounts.tpl:46
@@ -659,7 +657,9 @@ msgstr "Geschlecht"
 #: addons/schoolmanager/content_importaccounts.tpl:30
 #: addons/schoolmanager/content_importaccounts.tpl:46
 msgid "The student's gender (male / female / ...)."
-msgstr "Das Geschlecht des/r Schülers/in (männlich / weiblich / ... )."
+msgstr ""
+"Das Geschlecht des/r Schülers/in (männlich / weiblich / ... ). Auch ein "
+"Pflichtfeld."
 
 #: addons/schoolmanager/content_importaccounts.tpl:31
 #: addons/schoolmanager/content_importaccounts.tpl:48
@@ -668,7 +668,7 @@ msgstr "Klasse"
 
 #: addons/schoolmanager/content_importaccounts.tpl:31
 msgid "The class name / identifier."
-msgstr "Der Klassenname / die Klassenidentifikation."
+msgstr "Der Klassenname."
 
 #: addons/schoolmanager/content_importaccounts.tpl:32
 msgid "Last Name (Parent 1)"
@@ -729,7 +729,15 @@ msgid ""
 "needed)."
 msgstr ""
 "Unterrichtskurse, an denen ein/e Schüler/in teilnimmt (ein Kurs pro Spalte, "
-"soviel Spalte verwenden wie nötig)."
+"es können so viele Spalten verwendet werden, wie notwendig ist)."
+
+#: addons/schoolmanager/content_importaccounts.tpl:40
+msgid ""
+"This is useful for manual discussing issues with CSV import files, but the "
+"number column is normally not used."
+msgstr ""
+"Dies ist nützlich, wenn Probleme mit einer CSV-Datei besprochen werden "
+"müssen. Normalerweise wird die \"Nummer\"-Spalte aber nicht verwendet."
 
 #: addons/schoolmanager/content_importaccounts.tpl:43
 msgid "Last Name"
@@ -775,8 +783,8 @@ msgstr ""
 msgid ""
 "Courses a teacher teaches (one per column, use as many columns as needed)."
 msgstr ""
-"Kurse, die ein leerer unterrichtet (ein Kurs je Spalte, soviele Spalten wie "
-"notwendig verwenden)."
+"Kurse, die ein Lehrer unterrichtet (ein Kurs je Spalte, es können so viele "
+"Spalten verwendet werden, wie notwendig ist)."
 
 #: addons/schoolmanager/content_importaccounts.tpl:54
 msgid "Upload CSV File"
@@ -796,42 +804,50 @@ msgid "Browse"
 msgstr "Durchsuchen"
 
 #: addons/schoolmanager/content_importaccounts.tpl:71
-#, fuzzy
 msgid "CSV format options:"
-msgstr "Importoptionen konfigurieren"
+msgstr "CSV Formateinstellungen:"
 
 #: addons/schoolmanager/content_importaccounts.tpl:76
 msgid ""
 "First line in CSV file contains column headers (so ignore that first line):"
 msgstr ""
+"Die erste Zeile der CSV-Datei enhält sog. Spaltenköpfe (insofern bitte die "
+"erste Zeile ignorieren):"
 
 #: addons/schoolmanager/content_importaccounts.tpl:83
 msgid "Delimiter for column fields in CSV file:"
-msgstr ""
+msgstr "Spalten-Trennzeichen zwischen Datenzellen in der CSV-Datei:"
 
 #: addons/schoolmanager/content_importaccounts.tpl:91
 msgid "Note:"
-msgstr ""
+msgstr "Hinweis:"
 
 #: addons/schoolmanager/content_importaccounts.tpl:91
 msgid "The following filters are automatically applied on CSV file import..."
 msgstr ""
+"Die folgenden Filter werden automatisch auf die CSV-Datei angewendet..."
 
 #: addons/schoolmanager/content_importaccounts.tpl:93
 msgid ""
 "Auto-detection of charset encoding (everything gets converted internally to "
 "UTF-8)"
 msgstr ""
+"Automatisch Erkennung der Zeichen-Enkodierung (alles wird intern nach UTF-8 "
+"konvertiert)"
 
 #: addons/schoolmanager/content_importaccounts.tpl:94
 msgid "Single and double quotes next to the field delimiters get removed"
 msgstr ""
+"Einzelne und doppelte Anführungszeichen neben den Spalten-Trennzeichen "
+"werden entfernt"
 
 #: addons/schoolmanager/content_importaccounts.tpl:95
 msgid ""
-"MS-Dos / Unix line ending style gets recognized automatically and processed "
+"MS-DOS / Unix line ending style gets recognized automatically and processed "
 "accordingly"
 msgstr ""
+"MS-DOS / Unix Zeilenendestil wird automatisch erkannt und entsprechend "
+"verarbeitet"
 
 #: addons/schoolmanager/content_importaccounts.tpl:107
 msgid "STEP %1: Configure import options"
@@ -940,7 +956,7 @@ msgid ""
 "that the CSV file has been rotated 90DEGREES counter-clockwise for better "
 "readability."
 msgstr ""
-"Bitte die angebotenen (LDAP) Attribute den Spalten des CSV-Datensatzes "
+"Bitte die angebotenen (LDAP-)Attribute den Spalten des CSV-Datensatzes "
 "zuweisen. Die CSV-Datei wurde zur besseren Lesbarkeit um 90° gegen den "
 "Uhrzeigersinn gedreht."
 
@@ -1141,9 +1157,6 @@ msgid "School Manager"
 msgstr "Schulverwaltung"
 
 #: addons/schoolmanager/class_schoolmgr.inc:27
-msgid "Management utility for schools"
-msgstr "Verwaltungswerkzeug für Schulen"
-
 #: addons/schoolmanager/class_schoolmgr.inc:62
 msgid "Administration Utility for Schools"
 msgstr "Administrationswerkzeug für Schulen"
@@ -1154,7 +1167,7 @@ msgstr "Eltern und Schüler Importieren"
 
 #: addons/schoolmanager/class_importstudentsandparents.inc:25
 msgid "GOsa2 School Manager Module: Import Students and Parents"
-msgstr "GOsa2 Schulverwaltungsmodul: Eltern und Schüler Importieren"
+msgstr "GOsa²-Schulverwaltungsmodul: Eltern und Schüler Importieren"
 
 #: addons/schoolmanager/class_importstudentsandparents.inc:260
 #, php-format
@@ -1171,19 +1184,19 @@ msgstr "GOsa² Schulverwaltung Super-Klasse für Accountverwaltung"
 
 #: addons/schoolmanager/class_importaccounts.inc:137
 msgid "komma separated values"
-msgstr ""
+msgstr "Komma-getrennte Werte"
 
 #: addons/schoolmanager/class_importaccounts.inc:138
 msgid "semicolon separated values"
-msgstr ""
+msgstr "Semikolon-getrennte Werte"
 
 #: addons/schoolmanager/class_importaccounts.inc:139
 msgid "tabstop separated values"
-msgstr ""
+msgstr "Tabulator-getrennte Werte"
 
 #: addons/schoolmanager/class_importaccounts.inc:140
 msgid "blank separated values"
-msgstr ""
+msgstr "Leerzeichen-getrennte Werte"
 
 #: addons/schoolmanager/class_importaccounts.inc:158
 msgid "Permission error"
@@ -1191,7 +1204,7 @@ msgstr "Berechtigungsfehler"
 
 #: addons/schoolmanager/class_importaccounts.inc:158
 msgid "You've no permission to import user data!"
-msgstr "Sie haben nicht die Berechtigung Benutzerdaten zu importieren!"
+msgstr "Sie haben nicht die Berechtigung, Benutzerdaten zu importieren!"
 
 #: addons/schoolmanager/class_importaccounts.inc:180
 #: addons/schoolmanager/class_importaccounts.inc:184
@@ -1261,7 +1274,10 @@ msgstr ""
 #: addons/schoolmanager/class_importaccounts.inc:1829
 #, php-format
 msgid "Class: %s"
-msgstr "Klasse %s"
+msgstr "Klasse: %s"
+
+#~ msgid "Management utility for schools"
+#~ msgstr "Verwaltungswerkzeug für Schulen"
 
 #~ msgid "Manage Parents"
 #~ msgstr "Eltern verwalten"

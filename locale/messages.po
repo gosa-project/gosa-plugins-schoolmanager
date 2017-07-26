@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-26 10:33+0200\n"
+"POT-Creation-Date: 2017-07-26 11:37+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,8 +35,9 @@ msgstr ""
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:6
 msgid ""
-"The clean-up process of SchoolManager-managed groups has been finished now. "
-"SchoolManager is ready for importing a new school year, now."
+"The clean-up process of SchoolManager-managed groups has been complete "
+"successfully, now. SchoolManager is ready for importing a new school year, "
+"now."
 msgstr ""
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:10
@@ -72,7 +73,7 @@ msgstr ""
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:28
 msgid ""
-"You can continue with importing teachers accounts now. You can use the &quot;"
+"You can continue with importing teacher accounts now. You can use the &quot;"
 "Import Teachers&quot; SchoolManager module for this."
 msgstr ""
 
@@ -318,7 +319,8 @@ msgid ""
 "Return to the SchoolManager Add-On again and start importing students and/or "
 "teachers. When switching to the &quot;Student Management&quot; or the &quot;"
 "Teacher Management&quot; tabs, you will find more information on the "
-"requirements regarding the CSV import files."
+"requirements regarding the CSV import files. Our recommendation is: start "
+"with importing the teacher accounts."
 msgstr ""
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:66
@@ -333,11 +335,10 @@ msgstr ""
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:72
 msgid ""
-"With the start of a new school year, it is recommended to flush group "
-"members from all these groups, i.e. class, course, subject and parent "
-"groups. At the beginning of a new school year, we recommend emptying all "
-"groups managed by this plugin with an import of all teachers first and flush "
-"all group members during this import."
+"With the start of a new school year, we recommend flushing all members from "
+"these groups, i.e. class, course, subject and parent groups. After that, "
+"continue with importing all teachers first, and then proceed with the "
+"student imports."
 msgstr ""
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:79
@@ -452,10 +453,9 @@ msgid "Number"
 msgstr ""
 
 #: addons/schoolmanager/content_importaccounts.tpl:23
-#: addons/schoolmanager/content_importaccounts.tpl:40
 msgid ""
-"This is useful for manual discussing issues with CSV import files, but the "
-"number column is normally not used."
+"This is useful for discussing issues with CSV import files, but the number "
+"column is normally not used."
 msgstr ""
 
 #: addons/schoolmanager/content_importaccounts.tpl:24
@@ -597,6 +597,12 @@ msgid ""
 "needed)."
 msgstr ""
 
+#: addons/schoolmanager/content_importaccounts.tpl:40
+msgid ""
+"This is useful for manual discussing issues with CSV import files, but the "
+"number column is normally not used."
+msgstr ""
+
 #: addons/schoolmanager/content_importaccounts.tpl:43
 msgid "Last Name"
 msgstr ""
@@ -687,7 +693,7 @@ msgstr ""
 
 #: addons/schoolmanager/content_importaccounts.tpl:95
 msgid ""
-"MS-Dos / Unix line ending style gets recognized automatically and processed "
+"MS-DOS / Unix line ending style gets recognized automatically and processed "
 "accordingly"
 msgstr ""
 
@@ -974,9 +980,6 @@ msgid "School Manager"
 msgstr ""
 
 #: addons/schoolmanager/class_schoolmgr.inc:27
-msgid "Management utility for schools"
-msgstr ""
-
 #: addons/schoolmanager/class_schoolmgr.inc:62
 msgid "Administration Utility for Schools"
 msgstr ""

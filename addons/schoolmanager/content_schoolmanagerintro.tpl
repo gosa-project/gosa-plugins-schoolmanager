@@ -60,7 +60,7 @@
 <li>{t}First, finish up reading all information provided by this introduction.{/t}
 <li>{t}Then, change to the Directory Structure Management view of GOsa2.{/t}
 <li>{t escape=no}Create a GOsa2 Department with the name &quot;SchoolManager&quot; at a location of your choice within the LDAP tree.{/t}
-<li>{t escape=no}Return to the SchoolManager Add-On again and start importing students and/or teachers. When switching to the &quot;Student Management&quot; or the &quot;Teacher Management&quot; tabs, you will find more information on the requirements regarding the CSV import files.{/t}
+<li>{t escape=no}Return to the SchoolManager Add-On again and start importing students and/or teachers. When switching to the &quot;Student Management&quot; or the &quot;Teacher Management&quot; tabs, you will find more information on the requirements regarding the CSV import files. Our recommendation is: start with importing the teacher accounts.{/t}
 </ul>
 
 <h3>{t}Preparing a new School Year{/t}</h3>
@@ -69,7 +69,7 @@
 	{t}SchoolManager creates various groups (POSIX groups, LDAP DN groups) on user import. These groups get stored at a special location of the LDAP tree.{/t}
 </p>
 <p>
-	{t}With the start of a new school year, it is recommended to flush group members from all these groups, i.e. class, course, subject and parent groups. At the beginning of a new school year, we recommend emptying all groups managed by this plugin with an import of all teachers first and flush all group members during this import.{/t}</p>
+	{t}With the start of a new school year, we recommend flushing all members from these groups, i.e. class, course, subject and parent groups. After that, continue with importing all teachers first, and then proceed with the student imports.{/t}</p>
 </p>
 
 <table>

@@ -3,7 +3,7 @@
 <b>{t}Step 3:{/t} {t}Statistics{/t}:</b>
 
 <p>
-	{t}The clean-up process of SchoolManager-managed groups has been finished now. SchoolManager is ready for importing a new school year, now.{/t}
+	{t}The clean-up process of SchoolManager-managed groups has been complete successfully, now. SchoolManager is ready for importing a new school year, now.{/t}
 </p>
 
 <ul>
@@ -25,7 +25,7 @@
 {/if}
 
 <p>
-	{t escape=no}You can continue with importing teachers accounts now. You can use the &quot;Import Teachers&quot; SchoolManager module for this.{/t}
+	{t escape=no}You can continue with importing teacher accounts now. You can use the &quot;Import Teachers&quot; SchoolManager module for this.{/t}
 </p>
 {/if}
 
