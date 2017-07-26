@@ -238,6 +238,9 @@ class importaccounts extends plugin{
                         $this->csvinfo['templates']['DNs'] = array();
                         $this->csvinfo['templates']['DNs'][]   = "";
 
+                        # Set the default mail domain for group accounts here...
+                        $this->csvinfo['domain_groups']= "intern";
+
                         /* add found gosaUserTemplate objects */
                         $i = 0;
                         while($result = $this->_ldap->fetch($this->csvinfo['templates']['ldapsearch'])){
@@ -249,6 +252,11 @@ class importaccounts extends plugin{
 
                             if ( ($this->default_template_main != "") && (preg_match ( "/".$this->default_template_main."/i", $result['sn'][0] ) ) ) {
                                 $this->csvinfo["template_main"]= $i;
+
+                                # obtain mail domain from pre-selected main user template, if that is available
+                                if (strpos($result['mail'][0], '@')) {
+                                    $this->csvinfo["domain_groups"] = split('@', $result['mail'][0],2)[1];
+                                }
                             }
                             if ( ($this->default_template_aux != "") && (preg_match ( "/".$this->default_template_aux."/i", $result['sn'][0] ) ) ) {
                                 $this->csvinfo["template_aux"]= $i;
@@ -283,7 +291,6 @@ class importaccounts extends plugin{
 
                         /* import configuration defaults, only set them if PHASE 1 has been successful */
                         $this->csvinfo['ou_groups']= $default_ou_groups;
-                        $this->csvinfo['domain_groups']= "intern";
                         $this->csvinfo['accounts_in_class_ou']= TRUE;
                         $this->csvinfo['try_mail_as_uid']= TRUE;
                         $this->csvinfo['add_course_members_to_class_group']= FALSE;
