@@ -293,7 +293,7 @@ class importaccounts extends plugin{
                         $this->csvinfo['ou_groups']= $default_ou_groups;
                         $this->csvinfo['accounts_in_class_ou']= TRUE;
                         $this->csvinfo['try_mail_as_uid']= TRUE;
-                        $this->csvinfo['add_course_members_to_class_group']= FALSE;
+                        $this->csvinfo['add_course_members_to_class_group']= TRUE;
 
                         /* provide pre-set values for account template forms */
                         $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
