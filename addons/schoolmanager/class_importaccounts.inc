@@ -889,7 +889,7 @@ class importaccounts extends plugin{
                 if (is_array ($row)) {
 
                     /* cell count less than num_columns, attach some empty fields */
-                    if ( count($rows) <= $num_columns ) {
+                    if ( count($row) <= $num_columns ) {
                         $rest=$num_columns - count($row);
                         for ($i=0;$i<$rest;$i++) {
                             $row[]="";
