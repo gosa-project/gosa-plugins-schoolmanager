@@ -2090,7 +2090,7 @@ class importaccounts extends plugin{
                 foreach($_groups as $group_key => $group_data)
                 {
                     if (in_array('posixGroup', $group_data['objectClass']) and
-                        ($user_data['main_account']['_group_actions'][0]==="update-memberships") and
+                        (strpos($user_data['main_account']['_group_actions'][0], 'update-memberships')!==FALSE) and
                         ($user_data['main_account']['_group_actions'][$group_key]==="add")
                        )
                     {
@@ -2101,8 +2101,9 @@ class importaccounts extends plugin{
                         }
                         $this->posixgroup_members[$group_key][]= $_uid;
                     }
+
                     if (in_array('gosaGroupOfNames', $group_data['objectClass']) and
-                        ($user_data['main_account']['_ogroup_actions'][0]==="update-memberships") and
+                        (strpos($user_data['main_account']['_ogroup_actions'][0], 'update-memberships')!==FALSE) and
                         ($user_data['main_account']['_ogroup_actions'][$group_key]==="add")
                        )
                     {
@@ -2123,7 +2124,7 @@ class importaccounts extends plugin{
                     foreach($user_data['aux_accounts'] as $aux_account)
                     {
                         if (in_array('posixGroup', $group_data['objectClass']) and
-                            ($aux_account['_group_actions'][0]==="update-memberships") and
+                            (strpos($aux_account['_group_actions'][0], 'update-memberships')!==FALSE) and
                             ($aux_account['_group_actions'][$group_key]==="add")
                            )
                             {
@@ -2135,7 +2136,7 @@ class importaccounts extends plugin{
                             $this->posixgroup_members[$group_key][]= $_uid;
                         }
                         if (in_array('gosaGroupOfNames', $group_data['objectClass']) and
-                            ($aux_account['_ogroup_actions'][0]==="update-memberships") and
+                            (strpos($aux_account['_ogroup_actions'][0], 'update-memberships')!==FALSE) and
                             ($aux_account['_ogroup_actions'][$group_key]==="add")
                            )
                         {
