@@ -801,16 +801,10 @@ class importaccounts extends plugin{
         if (is_array ($lines)) {
             foreach ($lines as $line) {
 
-                $line = trim ($line);
-
-                if (!$line) {
-                    continue;
-                }
-
                 $cells = array();
 
                 /* continue if theres a comment */
-                if (substr ($line, 0, 1)=="#") {
+                if (substr (trim ($line),0,1)=="#") {
                     continue;
                 }
 
@@ -1744,8 +1738,7 @@ class importaccounts extends plugin{
                                 'sn' => $user_data['sn'][0],
                                 'givenName' => $user_data['givenName'][0]
                             );
-                            $_user_properties_base['uid']= preg_replace('/\s/', '', gen_uids($_genStr,$_attributes)[0]);
-
+                            $_user_properties_base['uid']= gen_uids($_genStr,$_attributes)[0];
                         }
                         else {
 
