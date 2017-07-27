@@ -854,7 +854,7 @@ class importaccounts extends plugin{
                     }
                     elseif (($concatenating) && (substr($cell, -1) == $concat_quote)) {
                         $concat_cell = $concat_cell.$delimiter_char.substr($cell, 0, -1);
-                        $cells[] = $concat_cell;
+                        $cells[] = trim($concat_cell);
                         $concatenating = FALSE;
                         $concat_cell = "";
                         $concat_quote = "";
@@ -864,7 +864,7 @@ class importaccounts extends plugin{
                         $concat_cell = $concat_cell.$delimiter_char.$cell;
                     }
                     else {
-                        $cells[] = $cell;
+                        $cells[] = trim($cell);
                     }
                 }
 
