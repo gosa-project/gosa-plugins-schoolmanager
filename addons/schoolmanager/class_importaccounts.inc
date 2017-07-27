@@ -801,10 +801,16 @@ class importaccounts extends plugin{
         if (is_array ($lines)) {
             foreach ($lines as $line) {
 
+                $line = trim ($line);
+
+                if (!$line) {
+                    continue;
+                }
+
                 $cells = array();
 
                 /* continue if theres a comment */
-                if (substr (trim ($line),0,1)=="#") {
+                if (substr ($line, 0, 1)=="#") {
                     continue;
                 }
 
