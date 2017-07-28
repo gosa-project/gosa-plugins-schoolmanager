@@ -480,7 +480,7 @@
 
 {if count($data_groups) > 0}
 <br>
-<b>{t}Standard (POSIX) groups{/t}:</p>
+<b>{t}Standard (POSIX) groups{/t}:</b></p>
 <hr>
 <br>
 
