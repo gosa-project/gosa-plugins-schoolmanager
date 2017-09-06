@@ -117,7 +117,9 @@ class importteachers extends importaccounts {
                 }
                 if (isset($row_sorted['subjects']))
                 {
-                    $_subjects= str_replace(";","_", trim($row_sorted['subjects']));
+                    $_subjects= trim($row_sorted['subjects']);
+                    $_subjects= str_replace(",","_", $_subjects);
+                    $_subjects= str_replace(";","_", $_subjects);
                     $teacher['departmentNumber']=array($_subjects);
                 }
                 $teacher['sn']=array (trim($row_sorted['sn']));
