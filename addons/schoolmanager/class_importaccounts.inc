@@ -786,7 +786,7 @@ class importaccounts extends plugin{
         $this->csvinfo['delimiter_id'] = $_POST['delimiter_id'];
         $this->csvinfo['skip_first_line'] = $_POST['csv_with_column_headers'];
 
-	$raw_csv_data = str_replace('\r', '', $raw_csv_data);
+        $raw_csv_data = str_replace('\r', '', $raw_csv_data);
 
         $lines=preg_split ("/\n/",$raw_csv_data);
         $num_columns=0;
