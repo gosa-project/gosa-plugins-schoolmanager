@@ -251,7 +251,7 @@
 <br>
 <br>
 <table summary="{t}Check CSV data{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
-{foreach from=$data[0] item=val key=key}
+{for $key=0 to $num_rows-1}
 	<tr>
 		<td bgcolor="#BBBBBB">
 			<select name="column_head_{$key}" size="1" title="">
@@ -267,7 +267,7 @@
 		<td  style="vertical-align: middle;" bgcolor="#EEEEEE" rowspan={$num_rows}>&nbsp;&nbsp;&nbsp;<b>... {$data_size}</b>&nbsp;&nbsp;&nbsp;</td>
 		{/if}
 	</tr>
-{/foreach}
+{/for}
 </table>
 
 {elseif $accounts_reviewed != TRUE || $accounts_imported != TRUE || ( $groups_reviewed == TRUE && $groups_imported == TRUE && ( $accounts_groupmembers_reviewed != TRUE || $accounts_groupmembers_updated != TRUE ) )  }
