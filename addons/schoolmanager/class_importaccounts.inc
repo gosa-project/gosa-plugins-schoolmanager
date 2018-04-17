@@ -385,7 +385,7 @@ class importaccounts extends plugin{
                     $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
 
                     /* CSV data */
-                    $smarty->assign ("data_size",count($this->csvinfo['data']));
+                    $smarty->assign ("data_size",$this->csvinfo['num_rows']);
                     $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
                 }
                 else {
