@@ -797,22 +797,23 @@ class importaccounts extends plugin{
                 array_shift ($lines);
         }
 
-        /* check colum count, if it stays zero, we probably don't have a comma separated CSV file */
+        /* check column count, if it stays zero, we probably don't have a comma separated CSV file */
         if (is_array ($lines)) {
             foreach ($lines as $line) {
 
                 $line = trim ($line);
 
+                /* ignore empty lines */
                 if (!$line) {
                     continue;
                 }
-
-                $cells = array();
 
                 /* continue if theres a comment */
                 if (substr ($line, 0, 1)=="#") {
                     continue;
                 }
+
+                $cells = array();
 
                 switch ($this->csvinfo['delimiter_id'])
                 {
