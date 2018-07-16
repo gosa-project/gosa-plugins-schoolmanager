@@ -3,6 +3,8 @@
 	{t escape=no}With GOsa2 School Manager's <b>Import Students and Parents Module</b> you can import student user accounts, parent accounts, class groups and course groups from a single CSV file containing one user's account information per line.{/t}
 	{elseif $import_account_type == "teachers"}
 	{t escape=no}With GOsa2 School Manager's <b>Import Teachers Module</b> you can import teacher user accounts, class groups, course groups and subject groups from a single CSV file containing one user's account information per line.{/t}
+	{elseif $import_account_type == "studentsonly"}
+	{t escape=no}With GOsa2 School Manager's <b>Import Students (Only) Module</b> you can import student user accounts, class groups and course groups from a single CSV file containing one user's account information per line.{/t}
 	{/if}
 </p>
 <hr>
@@ -47,6 +49,23 @@
 	<tr><td>{t}Column{/t} 08</td><td><b>{t}Subjects{/t}</b></td><td>{t}The subjects a teacher can teach / is trained for.{/t}</td></tr>
 	<tr><td>{t}Column{/t} 09</td><td><b>{t}Class{/t}</b></td><td>{t}The primary class a teacher is assigned to. If the teacher is not a class teacher, then leave empty.{/t}</td></tr>
 	<tr><td>{t}Column{/t} 10&ndash;XX</td><td><b>{t}Courses{/t}</b></td><td>{t}Courses a teacher teaches (one per column, use as many columns as needed).{/t}</td></tr>
+	{elseif $import_account_type == "studentsonly"}
+	<tr><td>{t}Column{/t} 01</td><td><b>{t}Number{/t}</b></td><td>{t}This is useful for discussing issues with CSV import files, but the number column is normally not used.{/t}</td></tr>
+        <tr><td>{t}Column{/t} 02</td><td><b>{t}Login{/t}</b></td><td>{t}The user account's login ID. If left empty, it will be attempted to auto-generated a login ID.{/t}</td></tr>
+        <tr><td>{t}Column{/t} 03</td><td><b>{t}Password{/t}</b></td><td>{t}The user's password. If left empty, a password will be generated during the import.{/t}</td></tr>
+        <tr><td>{t}Column{/t} 04</td><td><b>{t}Student ID{/t}</b></td><td>{t}An unequivocal number that a student is associated with in the school's administration software.{/t}</td></tr>
+        <tr><td>{t}Column{/t} 05</td><td><b>{t}Last Name(s){/t}</b></td><td>{t}The student's last name(s).{/t}</td></tr>
+        <tr><td>{t}Column{/t} 06</td><td><b>{t}First Name(s){/t}</b></td><td>{t}The student's first and middle name(s).{/t}</td></tr>
+        <tr><td>{t}Column{/t} 07</td><td><b>{t}Date of Birth{/t}</b></td><td>{t}The student's date of birth. This field is an obligatory field as it is used to distinguish accounts with identical first and last names.{/t}</td></tr>
+        <tr><td>{t}Column{/t} 08</td><td><b>{t}Gender{/t}</b></td><td>{t}The student's gender (male / female / ...).{/t}</td></tr>
+        <tr><td>{t}Column{/t} 09</td><td><b>{t}Class{/t}</b></td><td>{t}The class name / identifier.{/t}</td></tr>
+        <tr><td>{t}Column{/t} 10</td><td><b>{t}Last Name (Parent 1){/t}</b></td><td>{t}Last name of parent 1 (e.g. mother).{/t}</td></tr>
+        <tr><td>{t}Column{/t} 11</td><td><b>{t}First Name (Parent 1){/t}</b></td><td>{t}First (and middle) name(s) of parent 1.{/t}</td></tr>
+        <tr><td>{t}Column{/t} 12</td><td><b>{t}Mail Address (Parent 1){/t}</b></td><td>{t}Mail address of parent 1.{/t}</td></tr>
+        <tr><td>{t}Column{/t} 13</td><td><b>{t}Last Name (Parent 2){/t}</b></td><td>{t}Last name of parent 2 (e.g. father).{/t}</td></tr>
+        <tr><td>{t}Column{/t} 14</td><td><b>{t}First Name (Parent 2){/t}</b></td><td>{t}First (and middle) name(s) of parent 2.{/t}</td></tr>
+        <tr><td>{t}Column{/t} 15</td><td><b>{t}Mail Address (Parent 2){/t}</b></td><td>{t}Mail address of parent 2.{/t}</td></tr>
+        <tr><td>{t}Column{/t} 16&ndash;XX</td><td><b>{t}Courses{/t}</b></td><td>{t}Courses a student is signed up for (one per column, use as many columns as needed).{/t}</td></tr>
 	{/if}
 	</table>
 </p>
@@ -58,6 +77,8 @@
 				<LABEL for="userfile">{t}Select CSV file with students' and their parents' data to import:{/t}</LABEL>
 				{elseif $import_account_type=="teachers"}
 				<LABEL for="userfile">{t}Select CSV file with teachers' data to import:{/t}</LABEL>
+				{elseif $import_account_type=="studentsonly"}
+				<LABEL for="userfile">{t}Select CSV file with students' data to import:{/t}</LABEL>
 			{/if}
 		</td>
 		<td style="vertical-align: middle;">
@@ -203,6 +224,65 @@
 	</tr>
 
 {/if}
+{if $import_account_type == 'studentsonly'}
+	<tr>
+		<td colspan="3">
+			<hr>
+			<p>{t}Please choose from the available GOsa2 user object templates what account templates to use for students.{/t}</p>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="template_studentsandparents">{t}Select template for student accounts{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			<select id="template_studentsandparents" name="template_studentsandparents"  size="1" title="">
+			{html_options options=$templates selected=$preset_template_studentsandparents}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="template_studentsandparents_aux">{t}(REMOVE) (REMOVE) Select template for parent accounts{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			<select id="template_studentsandparents_aux" name="template_studentsandparents_aux"  size="1" title="">
+			{html_options options=$templates selected=$preset_template_studentsandparents_aux}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="accounts_in_class_ou">{t escape=no}Create a sub-OU for each class and place student accounts belonging to the same class into their corresponding class OU?{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+{if $preset_accounts_in_class_ou}
+			<input type="checkbox" id="accounts_in_class_ou" name="accounts_in_class_ou" checked>
+{else}
+			<input type="checkbox" id="accounts_in_class_ou" name="accounts_in_class_ou">
+{/if}
+			{t}(tick this check box, if yes){/t}
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="try_mail_as_uid">{t escape=no}If CSV data does not contain a user ID (uid) column, use the mail address as user ID instead?{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+{if $preset_try_mail_as_uid}
+			<input type="checkbox" id="try_mail_as_uid" name="try_mail_as_uid" checked>
+{else}
+			<input type="checkbox" id="try_mail_as_uid" name="try_mail_as_uid">
+{/if}
+			{t}(tick this check box, if yes){/t}
+		</td>
+	</tr>
+{/if}
+
 	<tr>
 		<td colspan="3">
 			<hr>
