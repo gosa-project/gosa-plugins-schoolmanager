@@ -1763,15 +1763,16 @@ class importaccounts extends plugin{
                         $_user_properties_base['uid']= strtolower($user_data['mail'][0]);
                     }
                     else {
-                        /* FIXME: Report an error. No exact UIDs given, no UID column in the CSV sheet,
-                         *        no premission to use the MAIL attribute as UID.
-                         */
+                        log ("ERROR","No exact UIDs given, no UID column in the CSV sheet, permission to use the MAIL attribute as UID", $this->dn);
+                        msg_dialog::display("ERROR", "No exact UIDs given, no UID column in the CSV sheet, permission to use the MAIL attribute as UID",ERROR_DIALOG);
                     }
                 }
                 else {
                     /* FIXME: error message, if uid is not provided and sn+givenName is not provided or incomplete,
                      *        we cannot go on...
                      */
+                    log ("ERROR","if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...", $this->dn);
+                    msg_dialog::display("ERROR", "if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...",ERROR_DIALOG);
                 }
                 $_user_properties_base["sn"]= $user_data['sn'][0];
                 $_user_properties_base["givenName"]= $user_data['givenName'][0];
@@ -1896,7 +1897,6 @@ class importaccounts extends plugin{
                  */
 
                 $this->failure_in_this_phase= TRUE;
-
             } else {
 
                 $usertab->save();
