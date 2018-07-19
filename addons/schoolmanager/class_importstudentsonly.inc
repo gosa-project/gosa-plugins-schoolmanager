@@ -18,16 +18,14 @@
   with this program; if not, write to the Free Software Foundation, Inc.,
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-class importstudentsandparents extends importaccounts {
+class importstudentsonly extends importaccounts {
 
     /* Definitions */
-    var $plHeadline= "Import Students and Parents";
-    var $plDescription= "GOsa2 School Manager Module: Import Students and Parents";
+    var $plHeadline= "Import Students (Only)";
+    var $plDescription= "GOsa2 School Manager Module: Import Students (Only)";
     var $access="";
 
     var $default_template_main = "student";
-    var $default_template_aux = "parent";
-
     /* constructor */
     function __construct(&$config,$dn=NULL) {
 
@@ -55,13 +53,7 @@ class importstudentsandparents extends importaccounts {
         $attrs[]= "dateOfBirth";
         $attrs[]= "gender";
         $attrs[]= "class";
-        $attrs[]= "parent1_sn";
-        $attrs[]= "parent1_givenName";
-        $attrs[]= "parent1_mail";
-        $attrs[]= "parent2_sn";
-        $attrs[]= "parent2_givenName";
-        $attrs[]= "parent2_mail";
-        $attrs[]= "course";
+	    $attrs[]= "course";
         /* FIXME: allow "mail" as possible attribute...
          *        If "mail" is given, it should override the default value from the GOsa user
          *        template (if provided there).
@@ -85,13 +77,13 @@ class importstudentsandparents extends importaccounts {
          */
 
         $selection = array();
-        for($i=0; $i<15; $i++)
+        for($i=0; $i<9; $i++)
         {
              $selection[] = $i;
         }
-        for($i=15; $i<$size; $i++)
+        for($i=9; $i<$size; $i++)
         {
-             $selection[] = 15;
+             $selection[] = 9;
         }
         return $selection;
     }
@@ -99,7 +91,7 @@ class importstudentsandparents extends importaccounts {
 
     function prepareLdapImport($csv_data_sorted)
     {
-        /* Get elemenet */
+        /* Get element */
         $data_preldap= array();
 
         foreach ($csv_data_sorted as $idx => $row_sorted)
@@ -160,53 +152,6 @@ class importstudentsandparents extends importaccounts {
                 $student['_actions']=array('none');
                 $student['_group_actions']= array('none');
 
-                /* auxiliary accounts */
-                $parent1=array ();
-                if(isset($row_sorted['parent1_sn']) and ($row_sorted['parent1_sn']!==""))
-                {
-                    $parent1['sn']=array (trim($row_sorted['parent1_sn']));
-                }
-                if(isset($row_sorted['parent1_givenName']) and ($row_sorted['parent1_givenName']!==""))
-                {
-                    $parent1['givenName']=array (trim($row_sorted['parent1_givenName']));
-                }
-
-                if(isset($row_sorted['parent1_mail']) and $row_sorted['parent1_mail'])
-                {
-                    /* FIXME: Check for valid e-Mail format here */
-                    $parent1['mail']=array (trim($row_sorted['parent1_mail']));
-                }
-
-                $parent1['userPassword']= array("{%userPassword}");
-                /* see above for how to retrieve the template's DN */
-                $parent1['_template']=array($this->csvinfo['template_aux']);
-                $parent1['_status']=array('unchecked');
-                $parent1['_actions']=array('none');
-                $parent1['_group_actions']= array('none');
-
-                $parent2=array ();
-                if(isset($row_sorted['parent2_sn']) and ($row_sorted['parent2_sn']!==""))
-                {
-                    $parent2['sn']=array (trim($row_sorted['parent2_sn']));
-                }
-                if(isset($row_sorted['parent2_givenName']) and ($row_sorted['parent2_givenName']!==""))
-                {
-                    $parent2['givenName']=array (trim($row_sorted['parent2_givenName']));
-                }
-
-                if(isset($row_sorted['parent2_mail']) and $row_sorted['parent2_mail'])
-                {
-                    /* FIXME: Check for valid e-Mail format here */
-                    $parent2['mail']=array (trim($row_sorted['parent2_mail']));
-                }
-
-                $parent2['userPassword']= array("{%userPassword}");
-                /* see above for how to retrieve the template's DN */
-                $parent2['_template']=array(trim($this->csvinfo['template_aux']));
-                $parent2['_status']=array('unchecked');
-                $parent2['_actions']=array('none');
-                $parent2['_group_actions']= array('none');
-
                 /* groups for this account */
 
                 /* class group */
@@ -258,52 +203,11 @@ class importstudentsandparents extends importaccounts {
                         }
                     }
                 }
-                $parent_group= array ();
-                $parent_group['cn']= array('parents_{%uid}');
-                $parent_group['description']= array(sprintf(_('parent group of user %s %s'), $student['givenName'][0], $student['sn'][0]));
-                $parent_group['objectClass'] = array(
-                    'gosaGroupOfNames'
-                );
-
-                $parent_group['member']= array();
-                if(isset($parent1['mail']))
-                {
-                    $parent_group['member'][]= 'uid='.strtolower($parent1['mail'][0]).','.get_people_ou().dn2base($this->csvinfo['templates']['DNs'][$this->csvinfo['template_aux']]);
-                }
-                if(isset($parent2['mail']))
-                {
-                    $parent_group['member'][]= 'uid='.strtolower($parent2['mail'][0]).','.get_people_ou().dn2base($this->csvinfo['templates']['DNs'][$this->csvinfo['template_aux']]);
-                }
-                $parent_group['_status']=array('unchecked');
-                $parent_group['_actions']=array('none');
-                $parent_group['_key']= array('aux_accounts_groups');
-
-                $groups= array();
-                if (!empty($class_group))    { $groups= array_merge($groups, array($class_group['cn'][0] => $class_group)); }
-                $groups= array_merge($groups, $course_groups);
-
-                $aux_accounts_groups= array();
-                if (!empty($parent_group))
-                {
-                    $aux_accounts_groups[$parent_group['cn'][0]]= $parent_group;
-                }
-            }
-
-            $_aux_accounts= array();
-            if(isset($parent1['sn'][0]) and isset($parent1['givenName'][0]))
-            {
-                $_aux_accounts[]= $parent1;
-            }
-            if(isset($parent2['sn'][0]) and isset($parent2['givenName'][0]))
-            {
-                $_aux_accounts[]= $parent2;
             }
 
             $data_preldap[]= array(
                 'main_account' => $student,
-                'aux_accounts' => $_aux_accounts,
                 'groups' => $groups,
-                'aux_accounts_groups' => $aux_accounts_groups,
             );
 
         }

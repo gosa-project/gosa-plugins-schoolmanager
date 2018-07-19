@@ -530,9 +530,9 @@ class importaccounts extends plugin{
                  *        groups have been updated? How many groups were not empty and
                  *        required dropping of all members? Etc.
                  */
-
+                
                 $smarty->assign ("accounts_reviewed",TRUE);
-
+                
                 $this->accountStatusCheck();
                 $smarty->assign("data",$this->csvinfo['data_preldap']);
 
@@ -1766,12 +1766,16 @@ class importaccounts extends plugin{
                         /* FIXME: Report an error. No exact UIDs given, no UID column in the CSV sheet,
                          *        no premission to use the MAIL attribute as UID.
                          */
+                        log ("ERROR","No exact UIDs given, no UID column in the CSV sheet, premission to use the MAIL attribute as UID", $this->dn);
+                        msg_dialog::display("ERROR", "No exact UIDs given, no UID column in the CSV sheet, premission to use the MAIL attribute as UID",ERROR_DIALOG);
                     }
                 }
                 else {
                     /* FIXME: error message, if uid is not provided and sn+givenName is not provided or incomplete,
                      *        we cannot go on...
                      */
+                    log ("ERROR","if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...", $this->dn);
+                    msg_dialog::display("ERROR", "if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...",ERROR_DIALOG);
                 }
                 $_user_properties_base["sn"]= $user_data['sn'][0];
                 $_user_properties_base["givenName"]= $user_data['givenName'][0];
@@ -1896,7 +1900,6 @@ class importaccounts extends plugin{
                  */
 
                 $this->failure_in_this_phase= TRUE;
-
             } else {
 
                 $usertab->save();
@@ -2201,4 +2204,4 @@ class importaccounts extends plugin{
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
-?>
+?>nd a
