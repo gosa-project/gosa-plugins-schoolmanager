@@ -121,11 +121,12 @@ class importstudentsonly extends importaccounts {
 
                 $_dateOfBirth= trim($row_sorted['dateOfBirth']);
                 /* FIXME 1: On a German localized GOsa², this is not required..., but how about other locales???
-                 * FIXME 2: If date is formated like "29.04.02" Gosa will not use 2002 as the birthyear but print error
+                 * FIXME 2: If date is formated like "dd.mm.yy" GOsa² will not use yy as the birthyear but print error
                  */
                 if (strpos($_dateOfBirth,'.')) {
                     list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
-                    $_dateOfBirth = $year."-".$month."-20".$day;
+                    //$_dateOfBirth = $year."-".$month."-".$day;
+                    $_dateOfBirth = $day.".".$month.".20".$year;
                 }
                 $student['dateOfBirth']=array ($_dateOfBirth);
                 $student['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
