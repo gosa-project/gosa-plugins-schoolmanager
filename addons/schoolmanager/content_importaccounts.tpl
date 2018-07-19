@@ -59,13 +59,7 @@
         <tr><td>{t}Column{/t} 07</td><td><b>{t}Date of Birth{/t}</b></td><td>{t}The student's date of birth. This field is an obligatory field as it is used to distinguish accounts with identical first and last names.{/t}</td></tr>
         <tr><td>{t}Column{/t} 08</td><td><b>{t}Gender{/t}</b></td><td>{t}The student's gender (male / female / ...).{/t}</td></tr>
         <tr><td>{t}Column{/t} 09</td><td><b>{t}Class{/t}</b></td><td>{t}The class name / identifier.{/t}</td></tr>
-        <tr><td>{t}Column{/t} 10</td><td><b>{t}Last Name (Parent 1){/t}</b></td><td>{t}Last name of parent 1 (e.g. mother).{/t}</td></tr>
-        <tr><td>{t}Column{/t} 11</td><td><b>{t}First Name (Parent 1){/t}</b></td><td>{t}First (and middle) name(s) of parent 1.{/t}</td></tr>
-        <tr><td>{t}Column{/t} 12</td><td><b>{t}Mail Address (Parent 1){/t}</b></td><td>{t}Mail address of parent 1.{/t}</td></tr>
-        <tr><td>{t}Column{/t} 13</td><td><b>{t}Last Name (Parent 2){/t}</b></td><td>{t}Last name of parent 2 (e.g. father).{/t}</td></tr>
-        <tr><td>{t}Column{/t} 14</td><td><b>{t}First Name (Parent 2){/t}</b></td><td>{t}First (and middle) name(s) of parent 2.{/t}</td></tr>
-        <tr><td>{t}Column{/t} 15</td><td><b>{t}Mail Address (Parent 2){/t}</b></td><td>{t}Mail address of parent 2.{/t}</td></tr>
-        <tr><td>{t}Column{/t} 16&ndash;XX</td><td><b>{t}Courses{/t}</b></td><td>{t}Courses a student is signed up for (one per column, use as many columns as needed).{/t}</td></tr>
+        <tr><td>{t}Column{/t} 10&ndash;XX</td><td><b>{t}Courses{/t}</b></td><td>{t}Courses a student is signed up for (one per column, use as many columns as needed).{/t}</td></tr>
 	{/if}
 	</table>
 </p>
@@ -234,22 +228,11 @@
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="template_studentsandparents">{t}Select template for student accounts{/t}</LABEL>
+            <LABEL for="template_studentsonly">{t}Select template for student accounts{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
-			<select id="template_studentsandparents" name="template_studentsandparents"  size="1" title="">
-			{html_options options=$templates selected=$preset_template_studentsandparents}
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td style="width: 1em;">&nbsp;</td>
-		<td style="vertical-align: middle;">
-			<LABEL for="template_studentsandparents_aux">{t}(REMOVE) (REMOVE) Select template for parent accounts{/t}</LABEL>
-		</td>
-		<td style="vertical-align: middle;">
-			<select id="template_studentsandparents_aux" name="template_studentsandparents_aux"  size="1" title="">
-			{html_options options=$templates selected=$preset_template_studentsandparents_aux}
+			<select id="template_studentsonly" name="template_studentsonly"  size="1" title="">
+			{html_options options=$templates selected=$preset_template_studentsonly}
 			</select>
 		</td>
 	</tr>
