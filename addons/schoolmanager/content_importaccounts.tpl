@@ -352,7 +352,6 @@
 
 {elseif $accounts_reviewed != TRUE || $accounts_imported != TRUE || ( $groups_reviewed == TRUE && $groups_imported == TRUE && ( $accounts_groupmembers_reviewed != TRUE || $accounts_groupmembers_updated != TRUE ) )  }
 
-<!--new logsd ('debugDaniel', 'accounts_imported=', $accounts_imported, ' accounts_reviewed=', $accounts_reviewed) -->
 {if $accounts_reviewed != TRUE}
 <input type="hidden" name="phase_04">
 <br><h3>{t 1="4/11"}STEP %1: Review user account objects before LDAP import{/t}</h3>

@@ -522,11 +522,7 @@ class importaccounts extends plugin{
                     }
                 }
             }
-            
-            /*debug*/
-            new log ("debug","Test if false", $this->dn);
-            msg_dialog::display("debug", "Test if false",ERROR_DIALOG);
-            
+
             if($this->failure_in_this_phase===FALSE)
             {
                 /* FIXME: present a message dialog box that informs on the statistics of
@@ -536,8 +532,6 @@ class importaccounts extends plugin{
                  */
                 
                 $smarty->assign ("accounts_reviewed",TRUE);
-                new log ("debug","NO FAILURES", $this->dn);
-                msg_dialog::display("debug", "NO_FAILURES",ERROR_DIALOG);
                 
                 $this->accountStatusCheck();
                 $smarty->assign("data",$this->csvinfo['data_preldap']);
@@ -549,16 +543,11 @@ class importaccounts extends plugin{
                 foreach($this->failure_messages as $msg)
                 {
                     msg_dialog::displayChecks($msg);
-                    new log ("debug","Failure: ".$msg, $this->dn);
-                    msg_dialog::display("debug", "Failure: ".$msg,ERROR_DIALOG);
                 }
 
                 /* prepare for reloading this phase's web page again */
                 $this->accountStatusCheck();
                 $smarty->assign("data",$this->csvinfo['data_preldap']);
-
-                new log ("debug","FAILURES!!!", $this->dn);
-                msg_dialog::display("debug", "FAILURES!!!",ERROR_DIALOG);
             }
         }
         /*
@@ -1911,9 +1900,6 @@ class importaccounts extends plugin{
                  */
 
                 $this->failure_in_this_phase= TRUE;
-                new log ("debug","failure set to true usertab->check()", $this->dn);
-                msg_dialog::display("debug", "failure set to true usertab->check()",ERROR_DIALOG);
-
             } else {
 
                 $usertab->save();
