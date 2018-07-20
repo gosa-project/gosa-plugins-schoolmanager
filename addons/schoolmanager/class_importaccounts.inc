@@ -457,7 +457,7 @@ class importaccounts extends plugin{
                         {
                                 $data_row_sorted[$value_of_selection] = $data_in_cell;
                                 $attrs_counter[$value_of_selection] = 1;
-                        } else 
+                        } else
                         {
                                 $this->failure_in_this_phase=TRUE;
                                 $smarty->assign ("LDIFError",TRUE);
@@ -1763,15 +1763,16 @@ class importaccounts extends plugin{
                         $_user_properties_base['uid']= strtolower($user_data['mail'][0]);
                     }
                     else {
-                        /* FIXME: Report an error. No exact UIDs given, no UID column in the CSV sheet,
-                         *        no premission to use the MAIL attribute as UID.
-                         */
+                        log ("ERROR","No exact UIDs given, no UID column in the CSV sheet, permission to use the MAIL attribute as UID", $this->dn);
+                        msg_dialog::display("ERROR", "No exact UIDs given, no UID column in the CSV sheet, permission to use the MAIL attribute as UID",ERROR_DIALOG);
                     }
                 }
                 else {
                     /* FIXME: error message, if uid is not provided and sn+givenName is not provided or incomplete,
                      *        we cannot go on...
                      */
+                    log ("ERROR","if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...", $this->dn);
+                    msg_dialog::display("ERROR", "if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...",ERROR_DIALOG);
                 }
                 $_user_properties_base["sn"]= $user_data['sn'][0];
                 $_user_properties_base["givenName"]= $user_data['givenName'][0];
@@ -1896,7 +1897,6 @@ class importaccounts extends plugin{
                  */
 
                 $this->failure_in_this_phase= TRUE;
-
             } else {
 
                 $usertab->save();
@@ -2150,7 +2150,7 @@ class importaccounts extends plugin{
                                 /* FIXME: DN memberships are case insensitive, we need to convert
                                  *        $groupofnames_members[$group_key] items into lower case and then
                                  *        compare with strtolower($aux_account['_dn_ldap'][0]).
-                                 *        Only if there is no case-insensitive match, we may add 
+                                 *        Only if there is no case-insensitive match, we may add
                                  *        another member DN to this group.
                                  */
 
