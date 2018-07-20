@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-schoolmanager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-26 12:24+0200\n"
+"POT-Creation-Date: 2018-07-19 18:14+0200\n"
 "PO-Revision-Date: \n"
-"Last-Translator: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>\n"
+"Last-Translator: DanielsLPecke <daniel.letsplay007@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -14,13 +14,856 @@ msgstr ""
 "X-Generator: Poedit 1.8.11\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: addons/schoolmanager/class_archiveaccounts.inc:26
-msgid "Archive Accounts"
-msgstr "Benutzerkonten Archivieren"
+#: addons/schoolmanager/class_schoolmgr.inc:26
+#: addons/schoolmanager/class_schoolmgr.inc:61
+#: addons/schoolmanager/class_schoolmgr.inc:67
+msgid "School Manager"
+msgstr "Schulverwaltung"
 
-#: addons/schoolmanager/class_archiveaccounts.inc:27
-msgid "GOsa2 School Manager Module: Archive Accounts"
-msgstr "GOsa² Schulverwaltung: Benutzerkonten archivieren"
+#: addons/schoolmanager/class_schoolmgr.inc:27
+#: addons/schoolmanager/class_schoolmgr.inc:62
+msgid "Administration Utility for Schools"
+msgstr "Administrationswerkzeug für Schulen"
+
+#: addons/schoolmanager/class_importstudentsandparents.inc:24
+msgid "Import Students and Parents"
+msgstr "Eltern und Schüler Importieren"
+
+#: addons/schoolmanager/class_importstudentsandparents.inc:25
+msgid "GOsa2 School Manager Module: Import Students and Parents"
+msgstr "GOsa²-Schulverwaltungsmodul: Eltern und Schüler Importieren"
+
+#: addons/schoolmanager/class_importstudentsandparents.inc:234
+#: addons/schoolmanager/class_importteachers.inc:179
+#: addons/schoolmanager/class_importstudentsonly.inc:179
+#, php-format
+msgid "SchoolManager class group %s"
+msgstr "GOsa² Schulverwaltung: Klassengruppe %s"
+
+#: addons/schoolmanager/class_importstudentsandparents.inc:253
+#: addons/schoolmanager/class_importteachers.inc:227
+#: addons/schoolmanager/class_importstudentsonly.inc:198
+#, php-format
+msgid "SchoolManager course group %s"
+msgstr "GOsa² Schulverwaltung: Kursgruppe %s"
+
+#: addons/schoolmanager/class_importstudentsandparents.inc:263
+#, php-format
+msgid "parent group of user %s %s"
+msgstr "Elterngruppe des Benutzers %s %s"
+
+#: addons/schoolmanager/class_importteachers.inc:24
+msgid "Import Teachers"
+msgstr "Lehrer Importieren"
+
+#: addons/schoolmanager/class_importteachers.inc:25
+msgid "GOsa2 School Manager Module: Import Teachers"
+msgstr "GOsa² Schulverwaltungsmodul: Lehrer Importieren"
+
+#: addons/schoolmanager/class_importteachers.inc:203
+#, php-format
+msgid "SchoolManager subject group %s"
+msgstr "GOsa² Schulverwaltung: Fachschaftsgruppe %s"
+
+#: addons/schoolmanager/class_importaccounts.inc:24
+msgid "Manage Accounts"
+msgstr "Benutzerkontenmodul"
+
+#: addons/schoolmanager/class_importaccounts.inc:25
+msgid "GOsa2 School Manager super-class for managing accounts"
+msgstr "GOsa² Schulverwaltung Super-Klasse für Accountverwaltung"
+
+#: addons/schoolmanager/class_importaccounts.inc:137
+msgid "komma separated values"
+msgstr "Komma-getrennte Werte"
+
+#: addons/schoolmanager/class_importaccounts.inc:138
+msgid "semicolon separated values"
+msgstr "Semikolon-getrennte Werte"
+
+#: addons/schoolmanager/class_importaccounts.inc:139
+msgid "tabstop separated values"
+msgstr "Tabulator-getrennte Werte"
+
+#: addons/schoolmanager/class_importaccounts.inc:140
+msgid "blank separated values"
+msgstr "Leerzeichen-getrennte Werte"
+
+#: addons/schoolmanager/class_importaccounts.inc:158
+msgid "Permission error"
+msgstr "Berechtigungsfehler"
+
+#: addons/schoolmanager/class_importaccounts.inc:158
+msgid "You've no permission to import user data!"
+msgstr "Sie haben nicht die Berechtigung, Benutzerdaten zu importieren!"
+
+#: addons/schoolmanager/class_importaccounts.inc:180
+#: addons/schoolmanager/class_importaccounts.inc:184
+#: addons/schoolmanager/class_importaccounts.inc:190
+#: addons/schoolmanager/class_importaccounts.inc:194
+#: addons/schoolmanager/class_importaccounts.inc:217
+#: addons/schoolmanager/class_importaccounts.inc:310
+#: addons/schoolmanager/class_importaccounts.inc:335
+#: addons/schoolmanager/class_importaccounts.inc:464
+#: addons/schoolmanager/class_importaccounts.inc:1500
+msgid "Error"
+msgstr "Fehler"
+
+#: addons/schoolmanager/class_importaccounts.inc:180
+#: addons/schoolmanager/class_importaccounts.inc:184
+#: addons/schoolmanager/class_importaccounts.inc:190
+#: addons/schoolmanager/class_importaccounts.inc:194
+#, php-format
+msgid "Cannot read uploaded file: %s"
+msgstr "Kann die hochzuladenen Datei nicht lesen: %s"
+
+#: addons/schoolmanager/class_importaccounts.inc:180
+#: addons/schoolmanager/class_importaccounts.inc:190
+msgid "file not found"
+msgstr "Datei nicht gefunden"
+
+#: addons/schoolmanager/class_importaccounts.inc:184
+msgid "file is empty"
+msgstr "Datei ist leer"
+
+#: addons/schoolmanager/class_importaccounts.inc:194
+msgid "file not readable"
+msgstr "Datei ist nicht lesbar"
+
+#: addons/schoolmanager/class_importaccounts.inc:217
+msgid "File has an unsupported encoding!"
+msgstr "Textenkodierung der Datei wird nicht unterstützt!"
+
+#: addons/schoolmanager/class_importaccounts.inc:310
+msgid "Cannot find CSV data in the selected file!"
+msgstr "Es können keine CSV-Daten in der ausgewählten Datei gefunden werden!"
+
+#: addons/schoolmanager/class_importaccounts.inc:335
+msgid "Domain for new groups is empty!"
+msgstr "Maildomäne für neue Gruppen ist leer!"
+
+#: addons/schoolmanager/class_importaccounts.inc:464
+#, php-format
+msgid "The attribute %s is only allowed to select once!"
+msgstr "Das Attribut %s darf nur einmal verwendet werden!"
+
+#: addons/schoolmanager/class_importaccounts.inc:1179
+msgid "male"
+msgstr "männlich"
+
+#: addons/schoolmanager/class_importaccounts.inc:1185
+msgid "female"
+msgstr "weiblich"
+
+#: addons/schoolmanager/class_importaccounts.inc:1500
+#, php-format
+msgid "Need at least %s and %s to create users (Check line %d in CSV file)!"
+msgstr ""
+"Brauche mindestens %s und %s um Benutzer zu erstellen (Bitte Zeile %d in der "
+"CSV-Datei überprüfen)!"
+
+#: addons/schoolmanager/class_importaccounts.inc:1850
+#, php-format
+msgid "Class: %s"
+msgstr "Klasse: %s"
+
+#: addons/schoolmanager/content_importaccounts.tpl:3
+msgid ""
+"With GOsa2 School Manager's <b>Import Students and Parents Module</b> you "
+"can import student user accounts, parent accounts, class groups and course "
+"groups from a single CSV file containing one user's account information per "
+"line."
+msgstr ""
+"Mit dem <b>Eltern und Schüler Importieren</b> Modul des GOsa² "
+"Schulverwaltungs-Add-Ons können Schüler/Studenten-Konten, Elternkonten und "
+"Klassen- bzw. Kursgruppen aus einer CSV-Datei, in der pro Zeile die Daten "
+"eines Benutzerkontos stehen importiert werden."
+
+#: addons/schoolmanager/content_importaccounts.tpl:5
+msgid ""
+"With GOsa2 School Manager's <b>Import Teachers Module</b> you can import "
+"teacher user accounts, class groups, course groups and subject groups from a "
+"single CSV file containing one user's account information per line."
+msgstr ""
+"Mit dem <b>Lehrer Importieren</b> Modul des GOsa² Schulverwaltungs-Add-Ons "
+"können Lehrer-Konten und Klassen- bzw. Kursgruppen aus einer CSV-Datei, in "
+"der pro Zeile die Daten eines Benutzerkontos stehen, importiert werden."
+
+#: addons/schoolmanager/content_importaccounts.tpl:7
+#, fuzzy
+msgid ""
+"With GOsa2 School Manager's <b>Import Students (Only) Module</b> you can "
+"import student user accounts, class groups and course groups from a single "
+"CSV file containing one user's account information per line."
+msgstr ""
+"Mit dem <b>Schüler Importieren</b> Modul des GOsa² "
+"Schulverwaltungs-Add-Ons können Schüler/Studenten-Konten, "
+"Klassen- bzw. Kursgruppen aus einer CSV-Datei, in der pro Zeile die Daten "
+"eines Benutzerkontos stehen importiert werden."
+
+#: addons/schoolmanager/content_importaccounts.tpl:17
+msgid "STEP %1: Upload CSV File"
+msgstr "Schritt %1: CSV-Datei hochladen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:20
+msgid ""
+"The data provided via the uploadable CSV file needs to be of the following "
+"data format:"
+msgstr ""
+"Der Datensatz, der in Form einer CSV-Datei hochgeladen wird, muss den "
+"folgenden Formatierungsrichtlinien genügen:"
+
+#: addons/schoolmanager/content_importaccounts.tpl:25
+#: addons/schoolmanager/content_importaccounts.tpl:26
+#: addons/schoolmanager/content_importaccounts.tpl:27
+#: addons/schoolmanager/content_importaccounts.tpl:28
+#: addons/schoolmanager/content_importaccounts.tpl:29
+#: addons/schoolmanager/content_importaccounts.tpl:30
+#: addons/schoolmanager/content_importaccounts.tpl:31
+#: addons/schoolmanager/content_importaccounts.tpl:32
+#: addons/schoolmanager/content_importaccounts.tpl:33
+#: addons/schoolmanager/content_importaccounts.tpl:34
+#: addons/schoolmanager/content_importaccounts.tpl:35
+#: addons/schoolmanager/content_importaccounts.tpl:36
+#: addons/schoolmanager/content_importaccounts.tpl:37
+#: addons/schoolmanager/content_importaccounts.tpl:38
+#: addons/schoolmanager/content_importaccounts.tpl:39
+#: addons/schoolmanager/content_importaccounts.tpl:40
+#: addons/schoolmanager/content_importaccounts.tpl:42
+#: addons/schoolmanager/content_importaccounts.tpl:43
+#: addons/schoolmanager/content_importaccounts.tpl:44
+#: addons/schoolmanager/content_importaccounts.tpl:45
+#: addons/schoolmanager/content_importaccounts.tpl:46
+#: addons/schoolmanager/content_importaccounts.tpl:47
+#: addons/schoolmanager/content_importaccounts.tpl:48
+#: addons/schoolmanager/content_importaccounts.tpl:49
+#: addons/schoolmanager/content_importaccounts.tpl:50
+#: addons/schoolmanager/content_importaccounts.tpl:51
+#: addons/schoolmanager/content_importaccounts.tpl:53
+#: addons/schoolmanager/content_importaccounts.tpl:54
+#: addons/schoolmanager/content_importaccounts.tpl:55
+#: addons/schoolmanager/content_importaccounts.tpl:56
+#: addons/schoolmanager/content_importaccounts.tpl:57
+#: addons/schoolmanager/content_importaccounts.tpl:58
+#: addons/schoolmanager/content_importaccounts.tpl:59
+#: addons/schoolmanager/content_importaccounts.tpl:60
+#: addons/schoolmanager/content_importaccounts.tpl:61
+#: addons/schoolmanager/content_importaccounts.tpl:62
+msgid "Column"
+msgstr "Spalte"
+
+#: addons/schoolmanager/content_importaccounts.tpl:25
+#: addons/schoolmanager/content_importaccounts.tpl:42
+#: addons/schoolmanager/content_importaccounts.tpl:53
+msgid "Number"
+msgstr "Nummer"
+
+#: addons/schoolmanager/content_importaccounts.tpl:25
+#: addons/schoolmanager/content_importaccounts.tpl:53
+msgid ""
+"This is useful for discussing issues with CSV import files, but the number "
+"column is normally not used."
+msgstr ""
+"Dies ist nützlich, wenn Probleme mit einer CSV-Datei besprochen werden "
+"müssen. Normalerweise wird die \"Nummer\"-Spalte aber nicht verwendet."
+
+#: addons/schoolmanager/content_importaccounts.tpl:26
+#: addons/schoolmanager/content_importaccounts.tpl:43
+#: addons/schoolmanager/content_importaccounts.tpl:54
+msgid "Login"
+msgstr "Anmeldename"
+
+#: addons/schoolmanager/content_importaccounts.tpl:26
+#: addons/schoolmanager/content_importaccounts.tpl:43
+#: addons/schoolmanager/content_importaccounts.tpl:54
+msgid ""
+"The user account's login ID. If left empty, it will be attempted to auto-"
+"generated a login ID."
+msgstr ""
+"Der Anmeldename des Benutzerkontos. Wird dies frei gelassen, wird ein "
+"Anmeldename automatisch generiert."
+
+#: addons/schoolmanager/content_importaccounts.tpl:27
+#: addons/schoolmanager/content_importaccounts.tpl:44
+#: addons/schoolmanager/content_importaccounts.tpl:55
+msgid "Password"
+msgstr "Passwort"
+
+#: addons/schoolmanager/content_importaccounts.tpl:27
+#: addons/schoolmanager/content_importaccounts.tpl:44
+#: addons/schoolmanager/content_importaccounts.tpl:55
+msgid ""
+"The user's password. If left empty, a password will be generated during the "
+"import."
+msgstr ""
+"Das Benutzerkennwort. Wird dies frei gelassen, wird ein Kennwort automatisch "
+"beim Import erstellt."
+
+#: addons/schoolmanager/content_importaccounts.tpl:28
+#: addons/schoolmanager/content_importaccounts.tpl:56
+msgid "Student ID"
+msgstr "Hauptbuchnummer"
+
+#: addons/schoolmanager/content_importaccounts.tpl:28
+#: addons/schoolmanager/content_importaccounts.tpl:56
+msgid ""
+"An unequivocal number that a student is associated with in the school's "
+"administration software."
+msgstr ""
+"Eine eindeutige Nummer, anhand der ein Schüler in der Verwaltungssoftware "
+"der Schule gefunden werden kann."
+
+#: addons/schoolmanager/content_importaccounts.tpl:29
+#: addons/schoolmanager/content_importaccounts.tpl:57
+msgid "Last Name(s)"
+msgstr "Nachname(n)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:29
+#: addons/schoolmanager/content_importaccounts.tpl:57
+msgid "The student's last name(s)."
+msgstr "Der Nachname des/r Schülers/in."
+
+#: addons/schoolmanager/content_importaccounts.tpl:30
+#: addons/schoolmanager/content_importaccounts.tpl:58
+msgid "First Name(s)"
+msgstr "Vorname(n)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:30
+#: addons/schoolmanager/content_importaccounts.tpl:58
+msgid "The student's first and middle name(s)."
+msgstr "Vor- und Mittelnamen(n) des/r Schüler/in."
+
+#: addons/schoolmanager/content_importaccounts.tpl:31
+#: addons/schoolmanager/content_importaccounts.tpl:47
+#: addons/schoolmanager/content_importaccounts.tpl:59
+msgid "Date of Birth"
+msgstr "Geburtsdatum"
+
+#: addons/schoolmanager/content_importaccounts.tpl:31
+#: addons/schoolmanager/content_importaccounts.tpl:59
+msgid ""
+"The student's date of birth. This field is an obligatory field as it is used "
+"to distinguish accounts with identical first and last names."
+msgstr ""
+"Das Geburtsdatum des/r Schüler/in. Dies ist ein Pflichtfeld, weil es dazu "
+"verwendet wird, Benutzer mit identischen Vor- und Zunamen zu unterscheiden."
+
+#: addons/schoolmanager/content_importaccounts.tpl:32
+#: addons/schoolmanager/content_importaccounts.tpl:48
+#: addons/schoolmanager/content_importaccounts.tpl:60
+msgid "Gender"
+msgstr "Geschlecht"
+
+#: addons/schoolmanager/content_importaccounts.tpl:32
+#: addons/schoolmanager/content_importaccounts.tpl:48
+#: addons/schoolmanager/content_importaccounts.tpl:60
+msgid "The student's gender (male / female / ...)."
+msgstr ""
+"Das Geschlecht des/r Schülers/in (männlich / weiblich / ... ). Auch ein "
+"Pflichtfeld."
+
+#: addons/schoolmanager/content_importaccounts.tpl:33
+#: addons/schoolmanager/content_importaccounts.tpl:50
+#: addons/schoolmanager/content_importaccounts.tpl:61
+msgid "Class"
+msgstr "Klasse"
+
+#: addons/schoolmanager/content_importaccounts.tpl:33
+#: addons/schoolmanager/content_importaccounts.tpl:61
+msgid "The class name / identifier."
+msgstr "Der Klassenname."
+
+#: addons/schoolmanager/content_importaccounts.tpl:34
+msgid "Last Name (Parent 1)"
+msgstr "Nachname (Elternteil 1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:34
+msgid "Last name of parent 1 (e.g. mother)."
+msgstr "Nachname des ersten Elternteils (z.Bsp. Mutter)."
+
+#: addons/schoolmanager/content_importaccounts.tpl:35
+msgid "First Name (Parent 1)"
+msgstr "Vorname (Elternteil 1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:35
+msgid "First (and middle) name(s) of parent 1."
+msgstr "Vor-(und Mittel-)Name(n) des ersten Elternteils."
+
+#: addons/schoolmanager/content_importaccounts.tpl:36
+msgid "Mail Address (Parent 1)"
+msgstr "E-Mail Adresse (Elternteil 1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:36
+msgid "Mail address of parent 1."
+msgstr "E-Mail Adresse des ersten Elternteils."
+
+#: addons/schoolmanager/content_importaccounts.tpl:37
+msgid "Last Name (Parent 2)"
+msgstr "Nachname (Elternteil 2)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:37
+msgid "Last name of parent 2 (e.g. father)."
+msgstr "Nachname des zweiten Elternteils (z.Bsp. Vater)."
+
+#: addons/schoolmanager/content_importaccounts.tpl:38
+msgid "First Name (Parent 2)"
+msgstr "Vorname (Elternteil 2)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:38
+msgid "First (and middle) name(s) of parent 2."
+msgstr "Vor-(und Mittel-)Name(n) des zweiten Elternteils."
+
+#: addons/schoolmanager/content_importaccounts.tpl:39
+msgid "Mail Address (Parent 2)"
+msgstr "E-Mail Adresse (Elternteil 2)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:39
+msgid "Mail address of parent 2."
+msgstr "E-Mail Adresse des zweiten Elternteils."
+
+#: addons/schoolmanager/content_importaccounts.tpl:40
+#: addons/schoolmanager/content_importaccounts.tpl:51
+#: addons/schoolmanager/content_importaccounts.tpl:62
+msgid "Courses"
+msgstr "Unterrichtskurse"
+
+#: addons/schoolmanager/content_importaccounts.tpl:40
+#: addons/schoolmanager/content_importaccounts.tpl:62
+msgid ""
+"Courses a student is signed up for (one per column, use as many columns as "
+"needed)."
+msgstr ""
+"Unterrichtskurse, an denen ein/e Schüler/in teilnimmt (ein Kurs pro Spalte, "
+"es können so viele Spalten verwendet werden, wie notwendig ist)."
+
+#: addons/schoolmanager/content_importaccounts.tpl:42
+msgid ""
+"This is useful for manual discussing issues with CSV import files, but the "
+"number column is normally not used."
+msgstr ""
+"Dies ist nützlich, wenn Probleme mit einer CSV-Datei besprochen werden "
+"müssen. Normalerweise wird die \"Nummer\"-Spalte aber nicht verwendet."
+
+#: addons/schoolmanager/content_importaccounts.tpl:45
+msgid "Last Name"
+msgstr "Nachname"
+
+#: addons/schoolmanager/content_importaccounts.tpl:45
+msgid "The teacher's last name(s)."
+msgstr "Der Nachname des/r Lehrer/in."
+
+#: addons/schoolmanager/content_importaccounts.tpl:46
+msgid "First Name"
+msgstr "Vorname"
+
+#: addons/schoolmanager/content_importaccounts.tpl:46
+msgid "The teacher's first (and middle) name(s)."
+msgstr "Der Vor-(und Mittel-)Name des/r Lehrer/in."
+
+#: addons/schoolmanager/content_importaccounts.tpl:47
+msgid ""
+"The teachers's date of birth. This field is an obligatory field as it is "
+"used to distinguish accounts with identical first and last names."
+msgstr ""
+"Das Geburtsdatum des/r Lehrer/in. Dies ist ein Pflichtfeld, weil es dazu "
+"verwendet wird, Benutzer mit identischen Vor- und Zunamen zu  unterscheiden."
+
+#: addons/schoolmanager/content_importaccounts.tpl:49
+msgid "Subjects"
+msgstr "Fächer"
+
+#: addons/schoolmanager/content_importaccounts.tpl:49
+msgid "The subjects a teacher can teach / is trained for."
+msgstr "Die Fächerkombination, die von einem/r Lehrer/in unterrichtet wird."
+
+#: addons/schoolmanager/content_importaccounts.tpl:50
+msgid ""
+"The primary class a teacher is assigned to. If the teacher is not a class "
+"teacher, then leave empty."
+msgstr ""
+"Die Klasse, von der der Lehrer Klassenlehrer ist. Wenn der Lehrer kein "
+"Klassenlehrer ist, bitte frei lassen."
+
+#: addons/schoolmanager/content_importaccounts.tpl:51
+msgid ""
+"Courses a teacher teaches (one per column, use as many columns as needed)."
+msgstr ""
+"Kurse, die ein Lehrer unterrichtet (ein Kurs je Spalte, es können so viele "
+"Spalten verwendet werden, wie notwendig ist)."
+
+#: addons/schoolmanager/content_importaccounts.tpl:67
+msgid "Upload CSV File"
+msgstr "CSV-Datei hochladen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:71
+msgid "Select CSV file with students' and their parents' data to import:"
+msgstr ""
+"CSV-Datei mit den zu importierenden Daten der Eltern und Schüler auswählen:"
+
+#: addons/schoolmanager/content_importaccounts.tpl:73
+msgid "Select CSV file with teachers' data to import:"
+msgstr "CSV-Datei mit den Daten der zu importierenden Lehrer auswählen:"
+
+#: addons/schoolmanager/content_importaccounts.tpl:75
+#, fuzzy
+msgid "Select CSV file with students' data to import:"
+msgstr "CSV-Datei mit den Daten der zu importierenden Schüler auswählen:"
+
+#: addons/schoolmanager/content_importaccounts.tpl:80
+msgid "Browse"
+msgstr "Durchsuchen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:86
+msgid "CSV format options:"
+msgstr "CSV Formateinstellungen:"
+
+#: addons/schoolmanager/content_importaccounts.tpl:91
+msgid ""
+"First line in CSV file contains column headers (so ignore that first line):"
+msgstr ""
+"Die erste Zeile der CSV-Datei enhält sog. Spaltenköpfe (insofern bitte die "
+"erste Zeile ignorieren):"
+
+#: addons/schoolmanager/content_importaccounts.tpl:98
+msgid "Delimiter for column fields in CSV file:"
+msgstr "Spalten-Trennzeichen zwischen Datenzellen in der CSV-Datei:"
+
+#: addons/schoolmanager/content_importaccounts.tpl:106
+msgid "Note:"
+msgstr "Hinweis:"
+
+#: addons/schoolmanager/content_importaccounts.tpl:106
+msgid "The following filters are automatically applied on CSV file import..."
+msgstr ""
+"Die folgenden Filter werden automatisch auf die CSV-Datei angewendet..."
+
+#: addons/schoolmanager/content_importaccounts.tpl:108
+msgid ""
+"Auto-detection of charset encoding (everything gets converted internally to "
+"UTF-8)"
+msgstr ""
+"Automatisch Erkennung der Zeichen-Enkodierung (alles wird intern nach UTF-8 "
+"konvertiert)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:109
+msgid "Single and double quotes next to the field delimiters get removed"
+msgstr ""
+"Einzelne und doppelte Anführungszeichen neben den Spalten-Trennzeichen "
+"werden entfernt"
+
+#: addons/schoolmanager/content_importaccounts.tpl:110
+msgid ""
+"MS-DOS / Unix line ending style gets recognized automatically and processed "
+"accordingly"
+msgstr ""
+"MS-DOS- bzw. Unix-konforme Sonderzeichen am Zeilenende werden automatisch "
+"erkannt und entsprechend verarbeitet"
+
+#: addons/schoolmanager/content_importaccounts.tpl:122
+msgid "STEP %1: Configure import options"
+msgstr "STEP %1: Importoptionen konfigurieren"
+
+#: addons/schoolmanager/content_importaccounts.tpl:125
+msgid ""
+"School Manager's import functionality is very flexible and can be adapted to "
+"your needs. Please configure options of this import below."
+msgstr ""
+"Die Importfunktion des Schulverwaltungs-Add-Ons ist sehr flexibel und kann "
+"an die eigenen Bedürfnisse angepasst werden. BItte weiter unten die Optionen "
+"dieses Imports einstellen."
+
+#: addons/schoolmanager/content_importaccounts.tpl:128
+msgid "Configure import options"
+msgstr "Importoptionen konfigurieren"
+
+#: addons/schoolmanager/content_importaccounts.tpl:133
+msgid ""
+"Please choose from the available GOsa2 user object templates what account "
+"templates to use for students and for their parents."
+msgstr ""
+"Bitte für die Erstellung von Schüler/Studenten- und Eltern-Konten jeweils "
+"eine der in GOsa² verfügbaren Benutzerobjektvorlagen auswählen."
+
+#: addons/schoolmanager/content_importaccounts.tpl:139
+#: addons/schoolmanager/content_importaccounts.tpl:231
+msgid "Select template for student accounts"
+msgstr "Vorlagen für Schüler-Konten auswählen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:150
+msgid "Select template for parent accounts"
+msgstr "Vorlage für Elternkonten auswählen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:161
+#: addons/schoolmanager/content_importaccounts.tpl:242
+msgid ""
+"Create a sub-OU for each class and place student accounts belonging to the "
+"same class into their corresponding class OU?"
+msgstr ""
+"Für jede Klasse eine eigene Unter-OU erstellen und Benutzerkonten von SuS "
+"unterhalb der jeweiligen OU ablegen?"
+
+#: addons/schoolmanager/content_importaccounts.tpl:169
+#: addons/schoolmanager/content_importaccounts.tpl:183
+#: addons/schoolmanager/content_importaccounts.tpl:216
+#: addons/schoolmanager/content_importaccounts.tpl:250
+#: addons/schoolmanager/content_importaccounts.tpl:264
+msgid "(tick this check box, if yes)"
+msgstr "(falls ja, dieses Kästchen markieren)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:175
+#: addons/schoolmanager/content_importaccounts.tpl:256
+msgid ""
+"If CSV data does not contain a user ID (uid) column, use the mail address as "
+"user ID instead?"
+msgstr ""
+"Wenn die CSV-Daten keine Spalte für die Benutzerkennung (uid) beinhalten, "
+"soll versucht werden, die Mailadresse als Benutzerkennung zu verwenden?"
+
+#: addons/schoolmanager/content_importaccounts.tpl:191
+msgid ""
+"Please choose from the available GOsa2 user object templates what account "
+"template to use for teachers."
+msgstr ""
+"Bitte für die Erstellung von Lehrer-Konten eine der in GOsa² verfügbaren "
+"Benutzerobjektvorlagen auswählen."
+
+#: addons/schoolmanager/content_importaccounts.tpl:197
+msgid "Select template for teacher accounts"
+msgstr "Vorlage für Lehrer-Konten auswählen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:208
+msgid ""
+"Make all teachers teaching courses in a class members of that class group?"
+msgstr ""
+"Lehrer, die ein Fach in der Klasse unterrichten, zu Mitgliedern der "
+"Klassengruppe machen?"
+
+#: addons/schoolmanager/content_importaccounts.tpl:225
+#, fuzzy
+msgid ""
+"Please choose from the available GOsa2 user object templates what account "
+"templates to use for students."
+msgstr ""
+"Bitte für die Erstellung von Schüler-Konten eine der in GOsa² verfügbaren "
+"Benutzerobjektvorlagen auswählen."
+
+#: addons/schoolmanager/content_importaccounts.tpl:272
+msgid ""
+"During this import we will probably create several non-primary groups (for "
+"classes, courses). Where in the LDAP tree shall these new group objects be "
+"created?"
+msgstr ""
+"Während dieses Imports werden wahrscheinlich einige nicht-primäre Gruppen "
+"(für Klassen, Kurse) erstellt werden. Wo im LDAP-Baum sollen diese "
+"Gruppenobjekte erstellt werden?"
+
+#: addons/schoolmanager/content_importaccounts.tpl:278
+msgid "Select OU for new groups:"
+msgstr "OU für neue Gruppen auswählen:"
+
+#: addons/schoolmanager/content_importaccounts.tpl:288
+msgid "And what mail domain should these new groups be in?"
+msgstr "Und in welcher Maildomäne sollen diese neuen Gruppen sein?"
+
+#: addons/schoolmanager/content_importaccounts.tpl:294
+msgid "Mail domain for new groups:"
+msgstr "Maildomäne für neue Gruppen:"
+
+#: addons/schoolmanager/content_importaccounts.tpl:309
+#: addons/schoolmanager/content_importaccounts.tpl:618
+msgid "STEP %1: Check CSV data and assign to LDAP attributes"
+msgstr "Schritt %1: CSV-Daten überprüfen und LDAP-Attributen zuweisen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:312
+msgid ""
+"Please assign the offered (LDAP) attributes to the CSV data columns. Note "
+"that the CSV file has been rotated 90DEGREES counter-clockwise for better "
+"readability."
+msgstr ""
+"Bitte die angebotenen (LDAP-)Attribute den Spalten des CSV-Datensatzes "
+"zuweisen. Die CSV-Datei wurde zur besseren Lesbarkeit um 90° gegen den "
+"Uhrzeigersinn gedreht."
+
+#: addons/schoolmanager/content_importaccounts.tpl:316
+msgid "Check CSV data"
+msgstr "Prüfe CSV-Datensatz"
+
+#: addons/schoolmanager/content_importaccounts.tpl:340
+msgid "STEP %1: Review user account objects before LDAP import"
+msgstr "Schritt %1: Benutzerobjekte vor LDAP-Import überprüfen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:344
+msgid ""
+"STEP %1  (LDAP import status): User account objects have been imported into "
+"LDAP"
+msgstr ""
+"Schritt %1 (LDAP-Importstatus): Benutzerobjekte wurden nach LDAP importiert."
+
+#: addons/schoolmanager/content_importaccounts.tpl:350
+msgid "STEP %1  Review group memberships before LDAP update"
+msgstr "Schritt %1: Gruppenmitgliedschaften vor LDAP-Import überprüfen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:354
+msgid ""
+"STEP %1 (LDAP import status): Accounts' group memberships have been updated "
+"in LDAP"
+msgstr ""
+"Schritt %1 (LDAP-Importstatus): Gruppenmitgliedschaften der Nutzerkonten "
+"wurden in LDAP aktualisiert"
+
+#: addons/schoolmanager/content_importaccounts.tpl:359
+#: addons/schoolmanager/content_importaccounts.tpl:370
+#: addons/schoolmanager/content_importaccounts.tpl:456
+msgid "User account: %1, %2"
+msgstr "Benutzerkonto: %1, %2"
+
+#: addons/schoolmanager/content_importaccounts.tpl:368
+msgid "New user account: %1, %2"
+msgstr "Neues Benutzerkonto: %1, %2"
+
+#: addons/schoolmanager/content_importaccounts.tpl:377
+msgid "Account group for %1, %2"
+msgstr "Kontogruppen für %1, %2"
+
+#: addons/schoolmanager/content_importaccounts.tpl:388
+#: addons/schoolmanager/content_importaccounts.tpl:477
+msgid "<keep>"
+msgstr "<unverändert-lassen>"
+
+#: addons/schoolmanager/content_importaccounts.tpl:400
+#: addons/schoolmanager/content_importaccounts.tpl:490
+msgid "Groups"
+msgstr "Gruppen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:403
+#: addons/schoolmanager/content_importaccounts.tpl:493
+msgid "Group membership actions"
+msgstr "Gruppenmitgliedschaftsaktionen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:460
+msgid "New associated account: %1, %2"
+msgstr "Neues assoziiertes Konto: %1, %2"
+
+#: addons/schoolmanager/content_importaccounts.tpl:462
+msgid "Insufficient account data: %1, %2"
+msgstr "Unzureichende Kontodaten: %1, %2"
+
+#: addons/schoolmanager/content_importaccounts.tpl:464
+msgid "Associated account: %1, %2"
+msgstr "Assoziiertes Konto: %1, %2"
+
+#: addons/schoolmanager/content_importaccounts.tpl:536
+msgid "STEP %1: Review group objects before LDAP import"
+msgstr "Schritt %1: Gruppenobjekte vor LDAP-Import überprüfen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:540
+msgid ""
+"STEP %1 (LDAP import status): Group objects have been imported into LDAP"
+msgstr ""
+"Schritt %1 (LDAP-Importstatus): Gruppenobjekte wurden in LDAP importiert."
+
+#: addons/schoolmanager/content_importaccounts.tpl:546
+msgid "Standard (POSIX) groups"
+msgstr "Standard-(POSIX)-Gruppen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:552
+#: addons/schoolmanager/content_importaccounts.tpl:555
+#: addons/schoolmanager/content_importaccounts.tpl:587
+#: addons/schoolmanager/content_importaccounts.tpl:590
+#: addons/schoolmanager/content_smflushgroupmembers.tpl:116
+msgid "Group object: %1"
+msgstr "Gruppenobjekt: %1"
+
+#: addons/schoolmanager/content_importaccounts.tpl:581
+msgid "Object groups"
+msgstr "Objektgruppen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:626
+msgid ""
+"STEP %1: LDAP import completed. Statistical overview of all import actions."
+msgstr ""
+"Schritt %1: LDAP-Import abgeschlossen. Statistische Übersicht über alle "
+"Importaktionen."
+
+#: addons/schoolmanager/content_importaccounts.tpl:630
+msgid "All entries have been written to the LDAP database successfully."
+msgstr "Alle Einträge wurden erfolgreich in die LDAP-Datenbank geschrieben."
+
+#: addons/schoolmanager/content_importaccounts.tpl:632
+msgid "There has been at least one error during the import of your data."
+msgstr "Es ist mindestens ein Fehler während des Datenimports aufgetreten."
+
+#: addons/schoolmanager/content_importaccounts.tpl:636
+msgid "Here is the status report for the import:"
+msgstr "Hier ist der Statusbericht des Imports:"
+
+#: addons/schoolmanager/content_importaccounts.tpl:649
+#: addons/schoolmanager/content_importaccounts.tpl:652
+#: addons/schoolmanager/content_importaccounts.tpl:655
+#: addons/schoolmanager/content_importaccounts.tpl:661
+#: addons/schoolmanager/content_importaccounts.tpl:673
+#: addons/schoolmanager/content_importaccounts.tpl:676
+msgid "Continue here, when ready"
+msgstr "Hier klicken, um fortzusetzen"
+
+#: addons/schoolmanager/content_importaccounts.tpl:649
+msgid "Set import configuration option (Step %1)"
+msgstr "Import konfigurieren (Schritt %1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:652
+msgid "Check and Sort CSV Data (Step %1)"
+msgstr "Prüfe und sortiere CSV-Daten (Schritt %1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:655
+msgid "Review user account objects before LDAP import (Step %1)"
+msgstr "Benutzerobjekte vor LDAP-Import prüfen (Schritt %1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:658
+#: addons/schoolmanager/content_importaccounts.tpl:664
+#: addons/schoolmanager/content_importaccounts.tpl:667
+#: addons/schoolmanager/content_importaccounts.tpl:670
+msgid "Continue here, when ready (this can take a while...)"
+msgstr "Hier klicken, um fortzusetzen (dies kann eine Weile dauern...)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:658
+msgid "Import user account objects into LDAP (Step %1)"
+msgstr "Benutzerkonten nach LDAP importieren (Schritt %1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:661
+msgid "Review group objects (Step %1)"
+msgstr "Gruppenobjekte prüfen (Schritt %1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:664
+msgid "Import group objects into LDAP (Step %1)"
+msgstr "Gruppenobjekte nach LDAP importieren (Schritt %1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:667
+msgid "Review accounts' group memberships before LDAP import (Step %1)"
+msgstr "Gruppenmitgliedschaften vor LDAP-Import prüfen (Schritt %1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:670
+msgid "Update accounts' group memberships in LDAP (Step %1)"
+msgstr "Gruppenmitgliedschaften in LDAP aktualisieren (Schritt %1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:673
+msgid "Some post-import clean-ups (Step %1)"
+msgstr "Einige Aufräumarbeiten nach dem Import (Schritt %1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:676
+msgid "Finish LDAP import (Step %1)"
+msgstr "LDAP-Import abschließen (Schritt %1)"
+
+#: addons/schoolmanager/content_importaccounts.tpl:681
+msgid "Cancel Import"
+msgstr "Import abbrechen"
+
+#: addons/schoolmanager/class_schoolmanagerintro.inc:50
+msgid "Introduction"
+msgstr "Einführung"
+
+#: addons/schoolmanager/class_schoolmanagerintro.inc:51
+msgid "GOsa2 School Manager Module: Introduction"
+msgstr "GOsa² Schulverwaltung: Einführung"
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:3
 msgid "Step 3:"
@@ -130,7 +973,8 @@ msgstr ""
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:51
 msgid "Really empty all POSIX groups listed below, now!"
 msgstr ""
-"Jetzt wirklich alle Benutzer aus den unten gelisteten POSIX-Gruppen austragen!"
+"Jetzt wirklich alle Benutzer aus den unten gelisteten POSIX-Gruppen "
+"austragen!"
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:59
 msgid "POSIX Group: %1"
@@ -200,22 +1044,6 @@ msgid "Really empty all parent (object) groups listed below, now!"
 msgstr ""
 "Jetzt wirklich alle Eltern aus den unten gelisteten Objektgruppen austragen!"
 
-#: addons/schoolmanager/content_smflushgroupmembers.tpl:116
-#: addons/schoolmanager/content_importaccounts.tpl:489
-#: addons/schoolmanager/content_importaccounts.tpl:492
-#: addons/schoolmanager/content_importaccounts.tpl:524
-#: addons/schoolmanager/content_importaccounts.tpl:527
-msgid "Group object: %1"
-msgstr "Gruppenobjekt: %1"
-
-#: addons/schoolmanager/class_schoolmanagerintro.inc:50
-msgid "Introduction"
-msgstr "Einführung"
-
-#: addons/schoolmanager/class_schoolmanagerintro.inc:51
-msgid "GOsa2 School Manager Module: Introduction"
-msgstr "GOsa² Schulverwaltung: Einführung"
-
 #: addons/schoolmanager/content_archiveaccounts.tpl:2
 msgid ""
 "GOsa2 School Manager's <b>Archive Old Accounts</b> has not been implemented, "
@@ -223,6 +1051,16 @@ msgid ""
 msgstr ""
 "Das <b>Nutzerkonten Archivieren</b> Modul für GOsa² Schulverwaltung ist "
 "leider noch nicht implementiert."
+
+#: addons/schoolmanager/class_importstudentsonly.inc:24
+#, fuzzy
+msgid "Import Students (Only)"
+msgstr "Nur Schüler Importieren"
+
+#: addons/schoolmanager/class_importstudentsonly.inc:25
+#, fuzzy
+msgid "GOsa2 School Manager Module: Import Students (Only)"
+msgstr "GOsa²-Schulverwaltungsmodul: Nur Schüler Importieren"
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:1
 msgid "Introduction to GOsa2's School Manager Add-On"
@@ -536,777 +1374,13 @@ msgstr ""
 "Bitte setzen Sie sich via Github mit den Entwicklern von GOsa² in Verbindung "
 "und wir werden schauen, was wir für Sie tun können:"
 
-#: addons/schoolmanager/content_importaccounts.tpl:3
-msgid ""
-"With GOsa2 School Manager's <b>Import Students and Parents Module</b> you "
-"can import student user accounts, parent accounts, class groups and course "
-"groups from a single CSV file containing one user's account information per "
-"line."
-msgstr ""
-"Mit dem <b>Eltern und Schüler Importieren</b> Modul des GOsa² "
-"Schulverwaltungs-Add-Ons können Schüler/Studenten-Konten, Elternkonten und "
-"Klassen- bzw. Kursgruppen aus einer CSV-Datei, in der pro Zeile die Daten "
-"eines Benutzerkontos stehen importiert werden."
-
-#: addons/schoolmanager/content_importaccounts.tpl:5
-msgid ""
-"With GOsa2 School Manager's <b>Import Teachers Module</b> you can import "
-"teacher user accounts, class groups, course groups and subject groups from a "
-"single CSV file containing one user's account information per line."
-msgstr ""
-"Mit dem <b>Lehrer Importieren</b> Modul des GOsa² Schulverwaltungs-Add-Ons "
-"können Lehrer-Konten und Klassen- bzw. Kursgruppen aus einer CSV-Datei, in "
-"der pro Zeile die Daten eines Benutzerkontos stehen, importiert werden."
-
-#: addons/schoolmanager/content_importaccounts.tpl:15
-msgid "STEP %1: Upload CSV File"
-msgstr "Schritt %1: CSV-Datei hochladen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:18
-msgid ""
-"The data provided via the uploadable CSV file needs to be of the following "
-"data format:"
-msgstr ""
-"Der Datensatz, der in Form einer CSV-Datei hochgeladen wird, muss den "
-"folgenden Formatierungsrichtlinien genügen:"
-
-#: addons/schoolmanager/content_importaccounts.tpl:23
-#: addons/schoolmanager/content_importaccounts.tpl:24
-#: addons/schoolmanager/content_importaccounts.tpl:25
-#: addons/schoolmanager/content_importaccounts.tpl:26
-#: addons/schoolmanager/content_importaccounts.tpl:27
-#: addons/schoolmanager/content_importaccounts.tpl:28
-#: addons/schoolmanager/content_importaccounts.tpl:29
-#: addons/schoolmanager/content_importaccounts.tpl:30
-#: addons/schoolmanager/content_importaccounts.tpl:31
-#: addons/schoolmanager/content_importaccounts.tpl:32
-#: addons/schoolmanager/content_importaccounts.tpl:33
-#: addons/schoolmanager/content_importaccounts.tpl:34
-#: addons/schoolmanager/content_importaccounts.tpl:35
-#: addons/schoolmanager/content_importaccounts.tpl:36
-#: addons/schoolmanager/content_importaccounts.tpl:37
-#: addons/schoolmanager/content_importaccounts.tpl:38
-#: addons/schoolmanager/content_importaccounts.tpl:40
-#: addons/schoolmanager/content_importaccounts.tpl:41
-#: addons/schoolmanager/content_importaccounts.tpl:42
-#: addons/schoolmanager/content_importaccounts.tpl:43
-#: addons/schoolmanager/content_importaccounts.tpl:44
-#: addons/schoolmanager/content_importaccounts.tpl:45
-#: addons/schoolmanager/content_importaccounts.tpl:46
-#: addons/schoolmanager/content_importaccounts.tpl:47
-#: addons/schoolmanager/content_importaccounts.tpl:48
-#: addons/schoolmanager/content_importaccounts.tpl:49
-msgid "Column"
-msgstr "Spalte"
-
-#: addons/schoolmanager/content_importaccounts.tpl:23
-#: addons/schoolmanager/content_importaccounts.tpl:40
-msgid "Number"
-msgstr "Nummer"
-
-#: addons/schoolmanager/content_importaccounts.tpl:23
-msgid ""
-"This is useful for discussing issues with CSV import files, but the number "
-"column is normally not used."
-msgstr ""
-"Dies ist nützlich, wenn Probleme mit einer CSV-Datei besprochen werden "
-"müssen. Normalerweise wird die \"Nummer\"-Spalte aber nicht verwendet."
-
-#: addons/schoolmanager/content_importaccounts.tpl:24
-#: addons/schoolmanager/content_importaccounts.tpl:41
-msgid "Login"
-msgstr "Anmeldename"
-
-#: addons/schoolmanager/content_importaccounts.tpl:24
-#: addons/schoolmanager/content_importaccounts.tpl:41
-msgid ""
-"The user account's login ID. If left empty, it will be attempted to auto-"
-"generated a login ID."
-msgstr ""
-"Der Anmeldename des Benutzerkontos. Wird dies frei gelassen, wird ein "
-"Anmeldename automatisch generiert."
-
-#: addons/schoolmanager/content_importaccounts.tpl:25
-#: addons/schoolmanager/content_importaccounts.tpl:42
-msgid "Password"
-msgstr "Passwort"
-
-#: addons/schoolmanager/content_importaccounts.tpl:25
-#: addons/schoolmanager/content_importaccounts.tpl:42
-msgid ""
-"The user's password. If left empty, a password will be generated during the "
-"import."
-msgstr ""
-"Das Benutzerkennwort. Wird dies frei gelassen, wird ein Kennwort automatisch "
-"beim Import erstellt."
-
-#: addons/schoolmanager/content_importaccounts.tpl:26
-msgid "Student ID"
-msgstr "Hauptbuchnummer"
-
-#: addons/schoolmanager/content_importaccounts.tpl:26
-msgid ""
-"An unequivocal number that a student is associated with in the school's "
-"administration software."
-msgstr ""
-"Eine eindeutige Nummer, anhand der ein Schüler in der Verwaltungssoftware "
-"der Schule gefunden werden kann."
-
-#: addons/schoolmanager/content_importaccounts.tpl:27
-msgid "Last Name(s)"
-msgstr "Nachname(n)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:27
-msgid "The student's last name(s)."
-msgstr "Der Nachname des/r Schülers/in."
-
-#: addons/schoolmanager/content_importaccounts.tpl:28
-msgid "First Name(s)"
-msgstr "Vorname(n)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:28
-msgid "The student's first and middle name(s)."
-msgstr "Vor- und Mittelnamen(n) des/r Schüler/in."
-
-#: addons/schoolmanager/content_importaccounts.tpl:29
-#: addons/schoolmanager/content_importaccounts.tpl:45
-msgid "Date of Birth"
-msgstr "Geburtsdatum"
-
-#: addons/schoolmanager/content_importaccounts.tpl:29
-msgid ""
-"The student's date of birth. This field is an obligatory field as it is used "
-"to distinguish accounts with identical first and last names."
-msgstr ""
-"Das Geburtsdatum des/r Schüler/in. Dies ist ein Pflichtfeld, weil es dazu "
-"verwendet wird, Benutzer mit identischen Vor- und Zunamen zu unterscheiden."
-
-#: addons/schoolmanager/content_importaccounts.tpl:30
-#: addons/schoolmanager/content_importaccounts.tpl:46
-msgid "Gender"
-msgstr "Geschlecht"
-
-#: addons/schoolmanager/content_importaccounts.tpl:30
-#: addons/schoolmanager/content_importaccounts.tpl:46
-msgid "The student's gender (male / female / ...)."
-msgstr ""
-"Das Geschlecht des/r Schülers/in (männlich / weiblich / ... ). Auch ein "
-"Pflichtfeld."
-
-#: addons/schoolmanager/content_importaccounts.tpl:31
-#: addons/schoolmanager/content_importaccounts.tpl:48
-msgid "Class"
-msgstr "Klasse"
-
-#: addons/schoolmanager/content_importaccounts.tpl:31
-msgid "The class name / identifier."
-msgstr "Der Klassenname."
-
-#: addons/schoolmanager/content_importaccounts.tpl:32
-msgid "Last Name (Parent 1)"
-msgstr "Nachname (Elternteil 1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:32
-msgid "Last name of parent 1 (e.g. mother)."
-msgstr "Nachname des ersten Elternteils (z.Bsp. Mutter)."
-
-#: addons/schoolmanager/content_importaccounts.tpl:33
-msgid "First Name (Parent 1)"
-msgstr "Vorname (Elternteil 1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:33
-msgid "First (and middle) name(s) of parent 1."
-msgstr "Vor-(und Mittel-)Name(n) des ersten Elternteils."
-
-#: addons/schoolmanager/content_importaccounts.tpl:34
-msgid "Mail Address (Parent 1)"
-msgstr "E-Mail Adresse (Elternteil 1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:34
-msgid "Mail address of parent 1."
-msgstr "E-Mail Adresse des ersten Elternteils."
-
-#: addons/schoolmanager/content_importaccounts.tpl:35
-msgid "Last Name (Parent 2)"
-msgstr "Nachname (Elternteil 2)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:35
-msgid "Last name of parent 2 (e.g. father)."
-msgstr "Nachname des zweiten Elternteils (z.Bsp. Vater)."
-
-#: addons/schoolmanager/content_importaccounts.tpl:36
-msgid "First Name (Parent 2)"
-msgstr "Vorname (Elternteil 2)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:36
-msgid "First (and middle) name(s) of parent 2."
-msgstr "Vor-(und Mittel-)Name(n) des zweiten Elternteils."
-
-#: addons/schoolmanager/content_importaccounts.tpl:37
-msgid "Mail Address (Parent 2)"
-msgstr "E-Mail Adresse (Elternteil 2)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:37
-msgid "Mail address of parent 2."
-msgstr "E-Mail Adresse des zweiten Elternteils."
-
-#: addons/schoolmanager/content_importaccounts.tpl:38
-#: addons/schoolmanager/content_importaccounts.tpl:49
-msgid "Courses"
-msgstr "Unterrichtskurse"
-
-#: addons/schoolmanager/content_importaccounts.tpl:38
-msgid ""
-"Courses a student is signed up for (one per column, use as many columns as "
-"needed)."
-msgstr ""
-"Unterrichtskurse, an denen ein/e Schüler/in teilnimmt (ein Kurs pro Spalte, "
-"es können so viele Spalten verwendet werden, wie notwendig ist)."
-
-#: addons/schoolmanager/content_importaccounts.tpl:40
-msgid ""
-"This is useful for manual discussing issues with CSV import files, but the "
-"number column is normally not used."
-msgstr ""
-"Dies ist nützlich, wenn Probleme mit einer CSV-Datei besprochen werden "
-"müssen. Normalerweise wird die \"Nummer\"-Spalte aber nicht verwendet."
-
-#: addons/schoolmanager/content_importaccounts.tpl:43
-msgid "Last Name"
-msgstr "Nachname"
-
-#: addons/schoolmanager/content_importaccounts.tpl:43
-msgid "The teacher's last name(s)."
-msgstr "Der Nachname des/r Lehrer/in."
-
-#: addons/schoolmanager/content_importaccounts.tpl:44
-msgid "First Name"
-msgstr "Vorname"
-
-#: addons/schoolmanager/content_importaccounts.tpl:44
-msgid "The teacher's first (and middle) name(s)."
-msgstr "Der Vor-(und Mittel-)Name des/r Lehrer/in."
-
-#: addons/schoolmanager/content_importaccounts.tpl:45
-msgid ""
-"The teachers's date of birth. This field is an obligatory field as it is "
-"used to distinguish accounts with identical first and last names."
-msgstr ""
-"Das Geburtsdatum des/r Lehrer/in. Dies ist ein Pflichtfeld, weil es dazu "
-"verwendet wird, Benutzer mit identischen Vor- und Zunamen zu  unterscheiden."
-
-#: addons/schoolmanager/content_importaccounts.tpl:47
-msgid "Subjects"
-msgstr "Fächer"
-
-#: addons/schoolmanager/content_importaccounts.tpl:47
-msgid "The subjects a teacher can teach / is trained for."
-msgstr "Die Fächerkombination, die von einem/r Lehrer/in unterrichtet wird."
-
-#: addons/schoolmanager/content_importaccounts.tpl:48
-msgid ""
-"The primary class a teacher is assigned to. If the teacher is not a class "
-"teacher, then leave empty."
-msgstr ""
-"Die Klasse, von der der Lehrer Klassenlehrer ist. Wenn der Lehrer kein "
-"Klassenlehrer ist, bitte frei lassen."
-
-#: addons/schoolmanager/content_importaccounts.tpl:49
-msgid ""
-"Courses a teacher teaches (one per column, use as many columns as needed)."
-msgstr ""
-"Kurse, die ein Lehrer unterrichtet (ein Kurs je Spalte, es können so viele "
-"Spalten verwendet werden, wie notwendig ist)."
-
-#: addons/schoolmanager/content_importaccounts.tpl:54
-msgid "Upload CSV File"
-msgstr "CSV-Datei hochladen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:58
-msgid "Select CSV file with students' and their parents' data to import:"
-msgstr ""
-"CSV-Datei mit den zu importierenden Daten der Eltern und Schüler auswählen:"
-
-#: addons/schoolmanager/content_importaccounts.tpl:60
-msgid "Select CSV file with teachers' data to import:"
-msgstr "CSV-Datei mit den Daten der zu importierenden Lehrer auswählen:"
-
-#: addons/schoolmanager/content_importaccounts.tpl:65
-msgid "Browse"
-msgstr "Durchsuchen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:71
-msgid "CSV format options:"
-msgstr "CSV Formateinstellungen:"
-
-#: addons/schoolmanager/content_importaccounts.tpl:76
-msgid ""
-"First line in CSV file contains column headers (so ignore that first line):"
-msgstr ""
-"Die erste Zeile der CSV-Datei enhält sog. Spaltenköpfe (insofern bitte die "
-"erste Zeile ignorieren):"
-
-#: addons/schoolmanager/content_importaccounts.tpl:83
-msgid "Delimiter for column fields in CSV file:"
-msgstr "Spalten-Trennzeichen zwischen Datenzellen in der CSV-Datei:"
-
-#: addons/schoolmanager/content_importaccounts.tpl:91
-msgid "Note:"
-msgstr "Hinweis:"
-
-#: addons/schoolmanager/content_importaccounts.tpl:91
-msgid "The following filters are automatically applied on CSV file import..."
-msgstr ""
-"Die folgenden Filter werden automatisch auf die CSV-Datei angewendet..."
-
-#: addons/schoolmanager/content_importaccounts.tpl:93
-msgid ""
-"Auto-detection of charset encoding (everything gets converted internally to "
-"UTF-8)"
-msgstr ""
-"Automatisch Erkennung der Zeichen-Enkodierung (alles wird intern nach UTF-8 "
-"konvertiert)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:94
-msgid "Single and double quotes next to the field delimiters get removed"
-msgstr ""
-"Einzelne und doppelte Anführungszeichen neben den Spalten-Trennzeichen "
-"werden entfernt"
-
-#: addons/schoolmanager/content_importaccounts.tpl:95
-msgid ""
-"MS-DOS / Unix line ending style gets recognized automatically and processed "
-"accordingly"
-msgstr ""
-"MS-DOS- bzw. Unix-konforme Sonderzeichen am Zeilenende werden automatisch "
-"erkannt und entsprechend verarbeitet"
-
-#: addons/schoolmanager/content_importaccounts.tpl:107
-msgid "STEP %1: Configure import options"
-msgstr "STEP %1: Importoptionen konfigurieren"
-
-#: addons/schoolmanager/content_importaccounts.tpl:110
-msgid ""
-"School Manager's import functionality is very flexible and can be adapted to "
-"your needs. Please configure options of this import below."
-msgstr ""
-"Die Importfunktion des Schulverwaltungs-Add-Ons ist sehr flexibel und kann "
-"an die eigenen Bedürfnisse angepasst werden. BItte weiter unten die Optionen "
-"dieses Imports einstellen."
-
-#: addons/schoolmanager/content_importaccounts.tpl:113
-msgid "Configure import options"
-msgstr "Importoptionen konfigurieren"
-
-#: addons/schoolmanager/content_importaccounts.tpl:118
-msgid ""
-"Please choose from the available GOsa2 user object templates what account "
-"templates to use for students and for their parents."
-msgstr ""
-"Bitte für die Erstellung von Schüler/Studenten- und Eltern-Konten jeweils "
-"eine der in GOsa² verfügbaren Benutzerobjektvorlagen auswählen."
-
-#: addons/schoolmanager/content_importaccounts.tpl:124
-msgid "Select template for student accounts"
-msgstr "Vorlagen für Schüler-Konten auswählen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:135
-msgid "Select template for parent accounts"
-msgstr "Vorlage für Elternkonten auswählen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:146
-msgid ""
-"Create a sub-OU for each class and place student accounts belonging to the "
-"same class into their corresponding class OU?"
-msgstr ""
-"Für jede Klasse eine eigene Unter-OU erstellen und Benutzerkonten von SuS "
-"unterhalb der jeweiligen OU ablegen?"
-
-#: addons/schoolmanager/content_importaccounts.tpl:154
-#: addons/schoolmanager/content_importaccounts.tpl:168
-#: addons/schoolmanager/content_importaccounts.tpl:201
-msgid "(tick this check box, if yes)"
-msgstr "(falls ja, dieses Kästchen markieren)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:160
-msgid ""
-"If CSV data does not contain a user ID (uid) column, use the mail address as "
-"user ID instead?"
-msgstr ""
-"Wenn die CSV-Daten keine Spalte für die Benutzerkennung (uid) beinhalten, "
-"soll versucht werden, die Mailadresse als Benutzerkennung zu verwenden?"
-
-#: addons/schoolmanager/content_importaccounts.tpl:176
-msgid ""
-"Please choose from the available GOsa2 user object templates what account "
-"template to use for teachers."
-msgstr ""
-"Bitte für die Erstellung von Lehrer-Konten eine der in GOsa² verfügbaren "
-"Benutzerobjektvorlagen auswählen."
-
-#: addons/schoolmanager/content_importaccounts.tpl:182
-msgid "Select template for teacher accounts"
-msgstr "Vorlage für Lehrer-Konten auswählen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:193
-msgid ""
-"Make all teachers teaching courses in a class members of that class group?"
-msgstr ""
-"Lehrer, die ein Fach in der Klasse unterrichten, zu Mitgliedern der "
-"Klassengruppe machen?"
-
-#: addons/schoolmanager/content_importaccounts.tpl:209
-msgid ""
-"During this import we will probably create several non-primary groups (for "
-"classes, courses). Where in the LDAP tree shall these new group objects be "
-"created?"
-msgstr ""
-"Während dieses Imports werden wahrscheinlich einige nicht-primäre Gruppen "
-"(für Klassen, Kurse) erstellt werden. Wo im LDAP-Baum sollen diese "
-"Gruppenobjekte erstellt werden?"
-
-#: addons/schoolmanager/content_importaccounts.tpl:215
-msgid "Select OU for new groups:"
-msgstr "OU für neue Gruppen auswählen:"
-
-#: addons/schoolmanager/content_importaccounts.tpl:225
-msgid "And what mail domain should these new groups be in?"
-msgstr "Und in welcher Maildomäne sollen diese neuen Gruppen sein?"
-
-#: addons/schoolmanager/content_importaccounts.tpl:231
-msgid "Mail domain for new groups:"
-msgstr "Maildomäne für neue Gruppen:"
-
-#: addons/schoolmanager/content_importaccounts.tpl:246
-#: addons/schoolmanager/content_importaccounts.tpl:555
-msgid "STEP %1: Check CSV data and assign to LDAP attributes"
-msgstr "Schritt %1: CSV-Daten überprüfen und LDAP-Attributen zuweisen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:249
-msgid ""
-"Please assign the offered (LDAP) attributes to the CSV data columns. Note "
-"that the CSV file has been rotated 90DEGREES counter-clockwise for better "
-"readability."
-msgstr ""
-"Bitte die angebotenen (LDAP-)Attribute den Spalten des CSV-Datensatzes "
-"zuweisen. Die CSV-Datei wurde zur besseren Lesbarkeit um 90° gegen den "
-"Uhrzeigersinn gedreht."
-
-#: addons/schoolmanager/content_importaccounts.tpl:253
-msgid "Check CSV data"
-msgstr "Prüfe CSV-Datensatz"
-
-#: addons/schoolmanager/content_importaccounts.tpl:277
-msgid "STEP %1: Review user account objects before LDAP import"
-msgstr "Schritt %1: Benutzerobjekte vor LDAP-Import überprüfen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:281
-msgid ""
-"STEP %1  (LDAP import status): User account objects have been imported into "
-"LDAP"
-msgstr ""
-"Schritt %1 (LDAP-Importstatus): Benutzerobjekte wurden nach LDAP importiert."
-
-#: addons/schoolmanager/content_importaccounts.tpl:287
-msgid "STEP %1  Review group memberships before LDAP update"
-msgstr "Schritt %1: Gruppenmitgliedschaften vor LDAP-Import überprüfen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:291
-msgid ""
-"STEP %1 (LDAP import status): Accounts' group memberships have been updated "
-"in LDAP"
-msgstr ""
-"Schritt %1 (LDAP-Importstatus): Gruppenmitgliedschaften der Nutzerkonten "
-"wurden in LDAP aktualisiert"
-
-#: addons/schoolmanager/content_importaccounts.tpl:296
-#: addons/schoolmanager/content_importaccounts.tpl:307
-#: addons/schoolmanager/content_importaccounts.tpl:393
-msgid "User account: %1, %2"
-msgstr "Benutzerkonto: %1, %2"
-
-#: addons/schoolmanager/content_importaccounts.tpl:305
-msgid "New user account: %1, %2"
-msgstr "Neues Benutzerkonto: %1, %2"
-
-#: addons/schoolmanager/content_importaccounts.tpl:314
-msgid "Account group for %1, %2"
-msgstr "Kontogruppen für %1, %2"
-
-#: addons/schoolmanager/content_importaccounts.tpl:325
-#: addons/schoolmanager/content_importaccounts.tpl:414
-msgid "<keep>"
-msgstr "<unverändert-lassen>"
-
-#: addons/schoolmanager/content_importaccounts.tpl:337
-#: addons/schoolmanager/content_importaccounts.tpl:427
-msgid "Groups"
-msgstr "Gruppen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:340
-#: addons/schoolmanager/content_importaccounts.tpl:430
-msgid "Group membership actions"
-msgstr "Gruppenmitgliedschaftsaktionen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:397
-msgid "New associated account: %1, %2"
-msgstr "Neues assoziiertes Konto: %1, %2"
-
-#: addons/schoolmanager/content_importaccounts.tpl:399
-msgid "Insufficient account data: %1, %2"
-msgstr "Unzureichende Kontodaten: %1, %2"
-
-#: addons/schoolmanager/content_importaccounts.tpl:401
-msgid "Associated account: %1, %2"
-msgstr "Assoziiertes Konto: %1, %2"
-
-#: addons/schoolmanager/content_importaccounts.tpl:473
-msgid "STEP %1: Review group objects before LDAP import"
-msgstr "Schritt %1: Gruppenobjekte vor LDAP-Import überprüfen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:477
-msgid ""
-"STEP %1 (LDAP import status): Group objects have been imported into LDAP"
-msgstr ""
-"Schritt %1 (LDAP-Importstatus): Gruppenobjekte wurden in LDAP importiert."
-
-#: addons/schoolmanager/content_importaccounts.tpl:483
-msgid "Standard (POSIX) groups"
-msgstr "Standard-(POSIX)-Gruppen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:518
-msgid "Object groups"
-msgstr "Objektgruppen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:563
-msgid ""
-"STEP %1: LDAP import completed. Statistical overview of all import actions."
-msgstr ""
-"Schritt %1: LDAP-Import abgeschlossen. Statistische Übersicht über alle "
-"Importaktionen."
-
-#: addons/schoolmanager/content_importaccounts.tpl:567
-msgid "All entries have been written to the LDAP database successfully."
-msgstr "Alle Einträge wurden erfolgreich in die LDAP-Datenbank geschrieben."
-
-#: addons/schoolmanager/content_importaccounts.tpl:569
-msgid "There has been at least one error during the import of your data."
-msgstr "Es ist mindestens ein Fehler während des Datenimports aufgetreten."
-
-#: addons/schoolmanager/content_importaccounts.tpl:573
-msgid "Here is the status report for the import:"
-msgstr "Hier ist der Statusbericht des Imports:"
-
-#: addons/schoolmanager/content_importaccounts.tpl:586
-#: addons/schoolmanager/content_importaccounts.tpl:589
-#: addons/schoolmanager/content_importaccounts.tpl:592
-#: addons/schoolmanager/content_importaccounts.tpl:598
-#: addons/schoolmanager/content_importaccounts.tpl:610
-#: addons/schoolmanager/content_importaccounts.tpl:613
-msgid "Continue here, when ready"
-msgstr "Hier klicken, um fortzusetzen"
-
-#: addons/schoolmanager/content_importaccounts.tpl:586
-msgid "Set import configuration option (Step %1)"
-msgstr "Import konfigurieren (Schritt %1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:589
-msgid "Check and Sort CSV Data (Step %1)"
-msgstr "Prüfe und sortiere CSV-Daten (Schritt %1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:592
-msgid "Review user account objects before LDAP import (Step %1)"
-msgstr "Benutzerobjekte vor LDAP-Import prüfen (Schritt %1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:595
-#: addons/schoolmanager/content_importaccounts.tpl:601
-#: addons/schoolmanager/content_importaccounts.tpl:604
-#: addons/schoolmanager/content_importaccounts.tpl:607
-msgid "Continue here, when ready (this can take a while...)"
-msgstr "Hier klicken, um fortzusetzen (dies kann eine Weile dauern...)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:595
-msgid "Import user account objects into LDAP (Step %1)"
-msgstr "Benutzerkonten nach LDAP importieren (Schritt %1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:598
-msgid "Review group objects (Step %1)"
-msgstr "Gruppenobjekte prüfen (Schritt %1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:601
-msgid "Import group objects into LDAP (Step %1)"
-msgstr "Gruppenobjekte nach LDAP importieren (Schritt %1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:604
-msgid "Review accounts' group memberships before LDAP import (Step %1)"
-msgstr "Gruppenmitgliedschaften vor LDAP-Import prüfen (Schritt %1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:607
-msgid "Update accounts' group memberships in LDAP (Step %1)"
-msgstr "Gruppenmitgliedschaften in LDAP aktualisieren (Schritt %1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:610
-msgid "Some post-import clean-ups (Step %1)"
-msgstr "Einige Aufräumarbeiten nach dem Import (Schritt %1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:613
-msgid "Finish LDAP import (Step %1)"
-msgstr "LDAP-Import abschließen (Schritt %1)"
-
-#: addons/schoolmanager/content_importaccounts.tpl:618
-msgid "Cancel Import"
-msgstr "Import abbrechen"
-
-#: addons/schoolmanager/class_importteachers.inc:24
-msgid "Import Teachers"
-msgstr "Lehrer Importieren"
-
-#: addons/schoolmanager/class_importteachers.inc:25
-msgid "GOsa2 School Manager Module: Import Teachers"
-msgstr "GOsa² Schulverwaltungsmodul: Lehrer Importieren"
-
-#: addons/schoolmanager/class_importteachers.inc:177
-#: addons/schoolmanager/class_importstudentsandparents.inc:231
-#, php-format
-msgid "SchoolManager class group %s"
-msgstr "GOsa² Schulverwaltung: Klassengruppe %s"
-
-#: addons/schoolmanager/class_importteachers.inc:201
-#, php-format
-msgid "SchoolManager subject group %s"
-msgstr "GOsa² Schulverwaltung: Fachschaftsgruppe %s"
-
-#: addons/schoolmanager/class_importteachers.inc:225
-#: addons/schoolmanager/class_importstudentsandparents.inc:250
-#, php-format
-msgid "SchoolManager course group %s"
-msgstr "GOsa² Schulverwaltung: Kursgruppe %s"
-
-#: addons/schoolmanager/class_schoolmgr.inc:26
-#: addons/schoolmanager/class_schoolmgr.inc:61
-#: addons/schoolmanager/class_schoolmgr.inc:67
-msgid "School Manager"
-msgstr "Schulverwaltung"
-
-#: addons/schoolmanager/class_schoolmgr.inc:27
-#: addons/schoolmanager/class_schoolmgr.inc:62
-msgid "Administration Utility for Schools"
-msgstr "Administrationswerkzeug für Schulen"
-
-#: addons/schoolmanager/class_importstudentsandparents.inc:24
-msgid "Import Students and Parents"
-msgstr "Eltern und Schüler Importieren"
-
-#: addons/schoolmanager/class_importstudentsandparents.inc:25
-msgid "GOsa2 School Manager Module: Import Students and Parents"
-msgstr "GOsa²-Schulverwaltungsmodul: Eltern und Schüler Importieren"
-
-#: addons/schoolmanager/class_importstudentsandparents.inc:260
-#, php-format
-msgid "parent group of user %s %s"
-msgstr "Elterngruppe des Benutzers %s %s"
-
-#: addons/schoolmanager/class_importaccounts.inc:24
-msgid "Manage Accounts"
-msgstr "Benutzerkontenmodul"
-
-#: addons/schoolmanager/class_importaccounts.inc:25
-msgid "GOsa2 School Manager super-class for managing accounts"
-msgstr "GOsa² Schulverwaltung Super-Klasse für Accountverwaltung"
-
-#: addons/schoolmanager/class_importaccounts.inc:137
-msgid "komma separated values"
-msgstr "Komma-getrennte Werte"
-
-#: addons/schoolmanager/class_importaccounts.inc:138
-msgid "semicolon separated values"
-msgstr "Semikolon-getrennte Werte"
-
-#: addons/schoolmanager/class_importaccounts.inc:139
-msgid "tabstop separated values"
-msgstr "Tabulator-getrennte Werte"
-
-#: addons/schoolmanager/class_importaccounts.inc:140
-msgid "blank separated values"
-msgstr "Leerzeichen-getrennte Werte"
-
-#: addons/schoolmanager/class_importaccounts.inc:158
-msgid "Permission error"
-msgstr "Berechtigungsfehler"
-
-#: addons/schoolmanager/class_importaccounts.inc:158
-msgid "You've no permission to import user data!"
-msgstr "Sie haben nicht die Berechtigung, Benutzerdaten zu importieren!"
-
-#: addons/schoolmanager/class_importaccounts.inc:180
-#: addons/schoolmanager/class_importaccounts.inc:184
-#: addons/schoolmanager/class_importaccounts.inc:190
-#: addons/schoolmanager/class_importaccounts.inc:194
-#: addons/schoolmanager/class_importaccounts.inc:217
-#: addons/schoolmanager/class_importaccounts.inc:303
-#: addons/schoolmanager/class_importaccounts.inc:328
-#: addons/schoolmanager/class_importaccounts.inc:457
-#: addons/schoolmanager/class_importaccounts.inc:1483
-msgid "Error"
-msgstr "Fehler"
-
-#: addons/schoolmanager/class_importaccounts.inc:180
-#: addons/schoolmanager/class_importaccounts.inc:184
-#: addons/schoolmanager/class_importaccounts.inc:190
-#: addons/schoolmanager/class_importaccounts.inc:194
-#, php-format
-msgid "Cannot read uploaded file: %s"
-msgstr "Kann die hochzuladenen Datei nicht lesen: %s"
-
-#: addons/schoolmanager/class_importaccounts.inc:180
-#: addons/schoolmanager/class_importaccounts.inc:190
-msgid "file not found"
-msgstr "Datei nicht gefunden"
-
-#: addons/schoolmanager/class_importaccounts.inc:184
-msgid "file is empty"
-msgstr "Datei ist leer"
-
-#: addons/schoolmanager/class_importaccounts.inc:194
-msgid "file not readable"
-msgstr "Datei ist nicht lesbar"
-
-#: addons/schoolmanager/class_importaccounts.inc:217
-msgid "File has an unsupported encoding!"
-msgstr "Textenkodierung der Datei wird nicht unterstützt!"
-
-#: addons/schoolmanager/class_importaccounts.inc:303
-msgid "Cannot find CSV data in the selected file!"
-msgstr "Es können keine CSV-Daten in der ausgewählten Datei gefunden werden!"
-
-#: addons/schoolmanager/class_importaccounts.inc:328
-msgid "Domain for new groups is empty!"
-msgstr "Maildomäne für neue Gruppen ist leer!"
-
-#: addons/schoolmanager/class_importaccounts.inc:457
-#, php-format
-msgid "The attribute %s is only allowed to select once!"
-msgstr "Das Attribut %s darf nur einmal verwendet werden!"
-
-#: addons/schoolmanager/class_importaccounts.inc:1162
-msgid "male"
-msgstr "männlich"
-
-#: addons/schoolmanager/class_importaccounts.inc:1168
-msgid "female"
-msgstr "weiblich"
-
-#: addons/schoolmanager/class_importaccounts.inc:1483
-#, php-format
-msgid "Need at least %s and %s to create users (Check line %d in CSV file)!"
-msgstr ""
-"Brauche mindestens %s und %s um Benutzer zu erstellen (Bitte Zeile %d in der "
-"CSV-Datei überprüfen)!"
-
-#: addons/schoolmanager/class_importaccounts.inc:1829
-#, php-format
-msgid "Class: %s"
-msgstr "Klasse: %s"
+#: addons/schoolmanager/class_archiveaccounts.inc:26
+msgid "Archive Accounts"
+msgstr "Benutzerkonten Archivieren"
+
+#: addons/schoolmanager/class_archiveaccounts.inc:27
+msgid "GOsa2 School Manager Module: Archive Accounts"
+msgstr "GOsa² Schulverwaltung: Benutzerkonten archivieren"
 
 #~ msgid "Management utility for schools"
 #~ msgstr "Verwaltungswerkzeug für Schulen"
