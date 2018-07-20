@@ -457,7 +457,7 @@ class importaccounts extends plugin{
                         {
                                 $data_row_sorted[$value_of_selection] = $data_in_cell;
                                 $attrs_counter[$value_of_selection] = 1;
-                        } else 
+                        } else
                         {
                                 $this->failure_in_this_phase=TRUE;
                                 $smarty->assign ("LDIFError",TRUE);
@@ -2150,7 +2150,7 @@ class importaccounts extends plugin{
                                 /* FIXME: DN memberships are case insensitive, we need to convert
                                  *        $groupofnames_members[$group_key] items into lower case and then
                                  *        compare with strtolower($aux_account['_dn_ldap'][0]).
-                                 *        Only if there is no case-insensitive match, we may add 
+                                 *        Only if there is no case-insensitive match, we may add
                                  *        another member DN to this group.
                                  */
 
