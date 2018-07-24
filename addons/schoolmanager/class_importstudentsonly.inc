@@ -203,6 +203,10 @@ class importstudentsonly extends importaccounts {
                         }
                     }
                 }
+
+                $groups= array();
+                if (!empty($class_group))    { $groups= array_merge($groups, array($class_group['cn'][0] => $class_group)); }
+                $groups= array_merge($groups, $course_groups);
             }
 
             $data_preldap[]= array(
