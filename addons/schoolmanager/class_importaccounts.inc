@@ -293,6 +293,11 @@ class importaccounts extends plugin{
                         $this->csvinfo['ou_groups']= $default_ou_groups;
                         $this->csvinfo['accounts_in_class_ou']= TRUE;
                         $this->csvinfo['try_mail_as_uid']= TRUE;
+                        $this->csvinfo['sel_ldap_match_attr_studentid']= FALSE;
+                        $this->csvinfo['sel_ldap_match_attr_name']= TRUE;
+                        $this->csvinfo['sel_ldap_match_attr_snname']= TRUE;
+                        $this->csvinfo['sel_ldap_match_attr_birthday']= TRUE;
+                        $this->csvinfo['sel_ldap_match_attr_gender']= TRUE;
                         $this->csvinfo['add_course_members_to_class_group']= TRUE;
 
                         /* provide pre-set values for account template forms */
@@ -302,6 +307,11 @@ class importaccounts extends plugin{
                         $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                         $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                         $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
+                        $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
+                        $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
+                        $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
+                        $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
+                        $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
                         $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
                     }
                     else {
@@ -361,6 +371,14 @@ class importaccounts extends plugin{
                 else {
                     $this->csvinfo['try_mail_as_uid'] = FALSE;
                 }
+
+                /* Same as if statement above but more compact */
+                $this->csvinfo['sel_ldap_match_attr_studentid'] = isset ($_POST["sel_ldap_match_attr_studentid"]);
+                $this->csvinfo['sel_ldap_match_attr_name']      = isset ($_POST["sel_ldap_match_attr_name"]);
+                $this->csvinfo['sel_ldap_match_attr_snname']    = isset ($_POST["sel_ldap_match_attr_snname"]);
+                $this->csvinfo['sel_ldap_match_attr_birthday']  = isset ($_POST["sel_ldap_match_attr_birthday"]);
+                $this->csvinfo['sel_ldap_match_attr_gender']    = isset ($_POST["sel_ldap_match_attr_gender"]);
+
                 if (isset ($_POST["add_course_members_to_class_group"]))
                 {
                     $this->csvinfo['add_course_members_to_class_group'] = TRUE;
@@ -398,6 +416,11 @@ class importaccounts extends plugin{
                     $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                     $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                     $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
+                    $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
+                    $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
+                    $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
+                    $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
+                    $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
                     $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
                 }
             }
@@ -969,8 +992,15 @@ class importaccounts extends plugin{
             {
                 if (isset($row['main_account']))
                 {
+                    $test_attrs = array();
+                    if ($this->csvinfo['sel_ldap_match_attr_studentid']) $test_attrs[] = "employeeNumber";
+                    if ($this->csvinfo['sel_ldap_match_attr_snname'])    $test_attrs[] = "sn";
+                    if ($this->csvinfo['sel_ldap_match_attr_name'])      $test_attrs[] = "givenName";
+                    if ($this->csvinfo['sel_ldap_match_attr_gender'])    $test_attrs[] = "gender";
+                    if ($this->csvinfo['sel_ldap_match_attr_birthday'])  $test_attrs[] = "dateOfBirth";
+
                     /* detect status */
-                    if ($this->compareObjects($row['main_account'], $gosa_account, array("sn", "givenName", "gender", "dateOfBirth"), "", TRUE)===TRUE)
+                    if ($this->compareObjects($row['main_account'], $gosa_account, $test_attrs, "", TRUE);)
                     {
                         if((!isset($row['main_account']['uid'][0])) || ($row['main_account']['uid'][0]==="{%uid}"))
                         {
@@ -996,9 +1026,12 @@ class importaccounts extends plugin{
                             $_actions[]= "move";
                         }
 
-                        /* only update attributes that are already set in the main account dataset */
+                        /*
+                         * Only update attributes that are already set in the main account dataset
+                         * People should be able to change everything. For example because of a typo or a new name.
+                         */
                         $_updatable_attrs= array();
-                        foreach(array("mail","employeeNumber","departmentNumber") as $_attr)
+                        foreach(array("mail", "employeeNumber", "departmentNumber", "sn", "givenName", "gender", "dateOfBirth") as $_attr)
                         {
                             if(isset($row['main_account'][$_attr]))
                             {
@@ -1771,7 +1804,7 @@ class importaccounts extends plugin{
                     /* FIXME: error message, if uid is not provided and sn+givenName is not provided or incomplete,
                      *        we cannot go on...
                      */
-                    log ("ERROR","if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...", $this->dn);
+                    new log ("ERROR","if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...", $this->dn);
                     msg_dialog::display("ERROR", "if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...",ERROR_DIALOG);
                 }
                 $_user_properties_base["sn"]= $user_data['sn'][0];
@@ -1814,6 +1847,22 @@ class importaccounts extends plugin{
             if(isset($user_data['mail'][0]) and ((strpos($user_data['_actions'][0],'update-mail')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
             {
                 $_user_properties_extras["mail"]= $user_data['mail'][0];
+            }
+            if(isset($user_data['sn'][0]) and ((strpos($user_data['_actions'][0],'update-sn')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
+            {
+                $_user_properties_extras["sn"]= $user_data['sn'][0];
+            }
+            if(isset($user_data['givenName'][0]) and ((strpos($user_data['_actions'][0],'update-givenName')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
+            {
+                $_user_properties_extras["givenName"]= $user_data['givenName'][0];
+            }
+            if(isset($user_data['dateOfBirth'][0]) and ((strpos($user_data['_actions'][0],'update-dateOfBirth')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
+            {
+                $_user_properties_extras["dateOfBirth"]= $user_data['dateOfBirth'][0];
+            }
+            if(isset($user_data['gender'][0]) and ((strpos($user_data['_actions'][0],'update-gender')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
+            {
+                $_user_properties_extras["gender"]= $user_data['gender'][0];
             }
 
             if($user_data['_template'][0] != 0)
