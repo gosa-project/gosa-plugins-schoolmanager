@@ -298,6 +298,90 @@
 			<input type="text" id="domain_groups" name="domain_groups" value="{$preset_domain_groups}">
 		</td>
 	</tr>
+
+    <tr>
+		<td colspan="3">
+			<hr>
+			<p>{t}Please select the Attributes which will identify users from the CSV file and existing users{/t}</p>
+		</td>
+	</tr>
+
+    <tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle; horizontal-align: left;">
+			<LABEL for="sel_ldap_match_attr_studentid">{t escape=no}Student ID{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+{if $preset_sel_ldap_match_attr_studentid}
+			<input type="checkbox" id="sel_ldap_match_attr_studentid" name="sel_ldap_match_attr_studentid" checked>
+{else}
+			<input type="checkbox" id="sel_ldap_match_attr_studentid" name="sel_ldap_match_attr_studentid">
+{/if}
+			{t}(tick this check box, if yes){/t}
+		</td>
+	</tr>
+
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="sel_ldap_match_attr_name">{t escape=no}Name{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+{if $preset_sel_ldap_match_attr_name}
+			<input type="checkbox" id="sel_ldap_match_attr_name" name="sel_ldap_match_attr_name" checked>
+{else}
+			<input type="checkbox" id="sel_ldap_match_attr_name" name="sel_ldap_match_attr_name">
+{/if}
+			{t}(tick this check box, if yes){/t}
+		</td>
+	</tr>
+
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="sel_ldap_match_attr_snname">{t escape=no}Second Name{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+{if $preset_sel_ldap_match_attr_snname}
+			<input type="checkbox" id="sel_ldap_match_attr_snname" name="sel_ldap_match_attr_snname" checked>
+{else}
+			<input type="checkbox" id="sel_ldap_match_attr_snname" name="sel_ldap_match_attr_snname">
+{/if}
+			{t}(tick this check box, if yes){/t}
+		</td>
+	</tr>
+
+    <tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="sel_ldap_match_attr_birthday">{t escape=no}Birthday{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+{if $preset_sel_ldap_match_attr_birthday}
+			<input type="checkbox" id="sel_ldap_match_attr_birthday" name="sel_ldap_match_attr_birthday" checked>
+{else}
+			<input type="checkbox" id="sel_ldap_match_attr_birthday" name="sel_ldap_match_attr_birthday">
+{/if}
+			{t}(tick this check box, if yes){/t}
+		</td>
+	</tr>
+
+    <tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="sel_ldap_match_attr_gender">{t escape=no}Gender{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+{if $preset_sel_ldap_match_attr_gender}
+			<input type="checkbox" id="sel_ldap_match_attr_gender" name="sel_ldap_match_attr_gender" checked>
+{else}
+			<input type="checkbox" id="sel_ldap_match_attr_gender" name="sel_ldap_match_attr_gender">
+{/if}
+			{t}(tick this check box, if yes){/t}
+		</td>
+	</tr>
+
+
 </table>
 
 
