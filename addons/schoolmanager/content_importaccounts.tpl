@@ -324,7 +324,7 @@
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="sel_ldap_match_attr_name">{t escape=no}Name{/t}</LABEL>
+			<LABEL for="sel_ldap_match_attr_name">{t escape=no}Surname{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 {if $preset_sel_ldap_match_attr_name}
@@ -339,7 +339,7 @@
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="sel_ldap_match_attr_snname">{t escape=no}Second Name{/t}</LABEL>
+			<LABEL for="sel_ldap_match_attr_snname">{t escape=no}Last Name{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 {if $preset_sel_ldap_match_attr_snname}
@@ -354,7 +354,7 @@
     <tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="sel_ldap_match_attr_birthday">{t escape=no}Birthday{/t}</LABEL>
+			<LABEL for="sel_ldap_match_attr_birthday">{t escape=no}Date of Birth{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 {if $preset_sel_ldap_match_attr_birthday}
