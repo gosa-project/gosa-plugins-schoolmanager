@@ -21,8 +21,8 @@
 class importstudentsonly extends importaccounts {
 
     /* Definitions */
-    var $plHeadline= "Import Students (Only)";
-    var $plDescription= "GOsa2 School Manager Module: Import Students (Only)";
+    var $plHeadline= "Import Students (only)";
+    var $plDescription= "GOsa2 School Manager Module: Import Students (only)";
     var $access="";
 
     var $default_template_main = "student";

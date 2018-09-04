@@ -4,7 +4,7 @@
 	{elseif $import_account_type == "teachers"}
 	{t escape=no}With GOsa2 School Manager's <b>Import Teachers Module</b> you can import teacher user accounts, class groups, course groups and subject groups from a single CSV file containing one user's account information per line.{/t}
 	{elseif $import_account_type == "studentsonly"}
-	{t escape=no}With GOsa2 School Manager's <b>Import Students (Only) Module</b> you can import student user accounts, class groups and course groups from a single CSV file containing one user's account information per line.{/t}
+	{t escape=no}With GOsa2 School Manager's <b>Import Students (only) Module</b> you can import student user accounts, class groups and course groups from a single CSV file containing one user's account information per line.{/t}
 	{/if}
 </p>
 <hr>
