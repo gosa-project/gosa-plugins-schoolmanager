@@ -1000,7 +1000,7 @@ class importaccounts extends plugin{
                     if ($this->csvinfo['sel_ldap_match_attr_birthday'])  $test_attrs[] = "dateOfBirth";
 
                     /* detect status */
-                    if ($this->compareObjects($row['main_account'], $gosa_account, $test_attrs, "", TRUE);)
+                    if ($this->compareObjects($row['main_account'], $gosa_account, $test_attrs, "", TRUE))
                     {
                         if((!isset($row['main_account']['uid'][0])) || ($row['main_account']['uid'][0]==="{%uid}"))
                         {
