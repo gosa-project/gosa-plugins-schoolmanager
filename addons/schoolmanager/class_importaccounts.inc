@@ -90,7 +90,7 @@ class importaccounts extends plugin{
         /* initiate smarty */
         $smarty=get_smarty ();
 
-        /* Import students or teachers */
+        /* Import (students and parents), (students only) or (teachers only) */
         $smarty->assign ("import_account_type",$import_account_type);
 
 
@@ -134,7 +134,7 @@ class importaccounts extends plugin{
         }
 
         $smarty->assign('available_delimiters', array(
-                               0 => '"," - '._("komma separated values"),
+                               0 => '"," - '._("comma separated values"),
                                1 => '";" - '._("semicolon separated values"),
                                2 => '<-> - '._("tabstop separated values"),
                                3 => '" " - '._("blank separated values")));
@@ -841,7 +841,7 @@ class importaccounts extends plugin{
                 switch ($this->csvinfo['delimiter_id'])
                 {
                     case 0:
-                        /* komma separated values */
+                        /* comma separated values */
                         $delimiter_char = ",";
                         break;
                     case 1:
