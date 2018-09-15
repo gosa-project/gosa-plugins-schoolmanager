@@ -423,6 +423,27 @@ class importaccounts extends plugin{
                     $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
                     $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
                 }
+            } else {
+                /* Something is not right! */
+                $reloadphase2 = TRUE;
+                msg_dialog::display (_ ("Error"), _("Something went wrong! Something from the form went missing! Please try again."), ERROR_DIALOG);
+            }
+            if ($reloadphase2 === TRUE) {
+                /* prepare for reloading this phase's web page again */
+                $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
+                $smarty->assign("ous_available",$this->csvinfo['ou_tree']['formfields']);
+                $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
+                $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
+                $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+                $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
+                $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+                $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
+                $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
+                $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
+                $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
+                $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
+                $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
+                $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
             }
         }
 
@@ -1781,11 +1802,7 @@ class importaccounts extends plugin{
                             $_user_properties_base['uid']= gen_uids($_genStr,$_attributes)[0];
                         }
                         else {
-
-                            /* FIXME: We can only auto-generate uid strings if the idGenerator is configured
-                             *        Report this as an error dialog box.
-                             */
-
+                            msg_dialog::display(_("ERROR"), _("We can only auto-generate uid strings if the idGenerator is configured!"), ERROR_DIALOG);
                         }
                     }
                     elseif(
@@ -1796,16 +1813,16 @@ class importaccounts extends plugin{
                         $_user_properties_base['uid']= strtolower($user_data['mail'][0]);
                     }
                     else {
-                        log ("ERROR","No exact UIDs given, no UID column in the CSV sheet, permission to use the MAIL attribute as UID", $this->dn);
-                        msg_dialog::display("ERROR", "No exact UIDs given, no UID column in the CSV sheet, permission to use the MAIL attribute as UID",ERROR_DIALOG);
+                        new log (_("ERROR"), _("No exact UIDs given, no UID column in the CSV sheet, permission to use the MAIL attribute as UID"), $this->dn);
+                        msg_dialog::display(_("ERROR"), _("No exact UIDs given, no UID column in the CSV sheet, permission to use the MAIL attribute as UID"), ERROR_DIALOG);
                     }
                 }
                 else {
                     /* FIXME: error message, if uid is not provided and sn+givenName is not provided or incomplete,
                      *        we cannot go on...
                      */
-                    new log ("ERROR","if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...", $this->dn);
-                    msg_dialog::display("ERROR", "if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on...",ERROR_DIALOG);
+                    new log (_("ERROR"), _("if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on..."), $this->dn);
+                    msg_dialog::display(_("ERROR"), _("if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on..."),ERROR_DIALOG);
                 }
                 $_user_properties_base["sn"]= $user_data['sn'][0];
                 $_user_properties_base["givenName"]= $user_data['givenName'][0];
