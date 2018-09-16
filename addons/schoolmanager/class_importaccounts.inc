@@ -1030,14 +1030,25 @@ class importaccounts extends plugin{
                         }
                         $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
                         $expected_account_dn= "uid=".$row['main_account']['uid'][0].','.get_people_ou().$expected_base;
+                        $expected_account_uid= $row['main_account']['uid'][0];
                         $gosa_account_dn= $gosa_account['dn'];
+                        /* Explode into array, pick first then get the part after uid= */
+                        $gosa_account_uid= explode(",", $gosa_account_dn, 2);
+                        $gosa_account_uid= $gosa_account_uid[0];
+                        $gosa_account_uid= substr($gosa_account_uid, strpos($gosa_account_uid, "=") + 1);
 
+                        /* Test if base is equal */
                         if(strtolower($gosa_account_dn)==strtolower($expected_account_dn))
                         {
                             $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'exists';
                         }
-                        else {
+                        /* Test if UID needs to be renamed otherwise it exists somewhere else */
+                        else if(strtolower($gosa_account_uid)==strtolower($expected_account_uid))
+                        {
                             $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'exists-elsewhere';
+                        }
+                        else {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]= 'needs-renaming';
                         }
 
                         /* detect actions */
@@ -1045,6 +1056,9 @@ class importaccounts extends plugin{
                         if($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]==='exists-elsewhere')
                         {
                             $_actions[]= "move";
+                        } else if($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]==='needs-renaming')
+                        {
+                            $_actions[]= "rename-uid";
                         }
 
                         /*
@@ -1771,11 +1785,16 @@ class importaccounts extends plugin{
             return;
         }
 
-        if((strpos($user_data['_actions'][0],'update')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE) or (strpos($user_data['_actions'][0],'move')!==FALSE))
+        if((strpos($user_data['_actions'][0],'update')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE) or (strpos($user_data['_actions'][0],'move')!==FALSE) or (strpos($user_data['_actions'][0],'needs-renaming')!==FALSE))
         {
             $_user_properties_base= array();
             $_user_properties_extras= array();
 
+            if (strpos($user_date['_actions'][0], 'rename-uid')!==FALSE){
+                if(isset($user_data['uid'][0]) and ($user_data['uid'][0]!=="{%uid}" and $user_data['uid'][0]!=="")) {
+                    $_user_properties_base["uid"]= $user_data['uid'][0];
+                }
+            }
             if (strpos($user_data['_actions'][0],'create')!==FALSE)
             {
                 /* instantiate a new user object */
@@ -1984,6 +2003,10 @@ class importaccounts extends plugin{
                 }
 
                 if(strpos($user_data['_actions'][0],'move')!==FALSE)
+                {
+                    $usertab->by_object['user']->rename($usertab->dn, $user_data['_dn'][0]);
+                }
+                if(strpos($user_data['_actions'][0],'rename-uid')!==FALSE)
                 {
                     $usertab->by_object['user']->rename($usertab->dn, $user_data['_dn'][0]);
                 }
