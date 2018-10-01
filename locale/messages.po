@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-01 15:45+0200\n"
+"POT-Creation-Date: 2018-10-01 16:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -231,15 +231,15 @@ msgid "Really empty all parent (object) groups listed below, now!"
 msgstr ""
 
 #: addons/schoolmanager/content_smflushgroupmembers.tpl:116
-#: addons/schoolmanager/content_importaccounts.tpl:638
-#: addons/schoolmanager/content_importaccounts.tpl:641
-#: addons/schoolmanager/content_importaccounts.tpl:673
-#: addons/schoolmanager/content_importaccounts.tpl:676
+#: addons/schoolmanager/content_importaccounts.tpl:640
+#: addons/schoolmanager/content_importaccounts.tpl:643
+#: addons/schoolmanager/content_importaccounts.tpl:675
+#: addons/schoolmanager/content_importaccounts.tpl:678
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_smflushgroupmembers.tpl:116
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:636
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:639
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:671
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:674
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:638
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:641
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:673
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:676
 msgid "Group object: %1"
 msgstr ""
 
@@ -704,7 +704,7 @@ msgstr ""
 #: addons/schoolmanager/content_importaccounts.tpl:314
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:28
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:56
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:312
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:314
 msgid "Student ID"
 msgstr ""
 
@@ -748,11 +748,11 @@ msgstr ""
 #: addons/schoolmanager/content_importaccounts.tpl:31
 #: addons/schoolmanager/content_importaccounts.tpl:47
 #: addons/schoolmanager/content_importaccounts.tpl:59
-#: addons/schoolmanager/content_importaccounts.tpl:359
+#: addons/schoolmanager/content_importaccounts.tpl:360
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:31
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:47
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:59
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:357
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:359
 msgid "Date of Birth"
 msgstr ""
 
@@ -768,11 +768,11 @@ msgstr ""
 #: addons/schoolmanager/content_importaccounts.tpl:32
 #: addons/schoolmanager/content_importaccounts.tpl:48
 #: addons/schoolmanager/content_importaccounts.tpl:60
-#: addons/schoolmanager/content_importaccounts.tpl:374
+#: addons/schoolmanager/content_importaccounts.tpl:375
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:32
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:48
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:60
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:372
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:374
 msgid "Gender"
 msgstr ""
 
@@ -887,9 +887,8 @@ msgid ""
 msgstr ""
 
 #: addons/schoolmanager/content_importaccounts.tpl:45
-#: addons/schoolmanager/content_importaccounts.tpl:344
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:45
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:342
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:344
 msgid "Last Name"
 msgstr ""
 
@@ -1059,20 +1058,20 @@ msgstr ""
 #: addons/schoolmanager/content_importaccounts.tpl:250
 #: addons/schoolmanager/content_importaccounts.tpl:264
 #: addons/schoolmanager/content_importaccounts.tpl:322
-#: addons/schoolmanager/content_importaccounts.tpl:337
-#: addons/schoolmanager/content_importaccounts.tpl:352
-#: addons/schoolmanager/content_importaccounts.tpl:367
-#: addons/schoolmanager/content_importaccounts.tpl:382
+#: addons/schoolmanager/content_importaccounts.tpl:338
+#: addons/schoolmanager/content_importaccounts.tpl:353
+#: addons/schoolmanager/content_importaccounts.tpl:368
+#: addons/schoolmanager/content_importaccounts.tpl:383
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:169
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:183
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:216
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:250
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:264
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:320
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:335
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:350
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:365
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:380
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:322
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:337
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:352
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:367
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:382
 msgid "(tick this check box, if yes)"
 msgstr ""
 
@@ -1133,236 +1132,241 @@ msgstr ""
 msgid "Mail domain for new groups:"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:307
+#: addons/schoolmanager/content_importaccounts.tpl:306
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:307
 msgid ""
 "Please select the attributes which will identify users from the CSV file as "
 "existing users"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:329
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:327
+#: addons/schoolmanager/content_importaccounts.tpl:330
+msgid "Given Name"
+msgstr ""
+
+#: addons/schoolmanager/content_importaccounts.tpl:345
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:329
 msgid "Surname"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:395
-#: addons/schoolmanager/content_importaccounts.tpl:704
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:393
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:702
+#: addons/schoolmanager/content_importaccounts.tpl:397
+#: addons/schoolmanager/content_importaccounts.tpl:706
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:395
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:704
 msgid "STEP %1: Check CSV data and assign to LDAP attributes"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:398
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:396
+#: addons/schoolmanager/content_importaccounts.tpl:400
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:398
 msgid ""
 "Please assign the offered (LDAP) attributes to the CSV data columns. Note "
 "that the CSV file has been rotated 90DEGREES counter-clockwise for better "
 "readability."
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:402
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:400
+#: addons/schoolmanager/content_importaccounts.tpl:404
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:402
 msgid "Check CSV data"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:426
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:424
+#: addons/schoolmanager/content_importaccounts.tpl:428
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:426
 msgid "STEP %1: Review user account objects before LDAP import"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:430
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:428
+#: addons/schoolmanager/content_importaccounts.tpl:432
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:430
 msgid ""
 "STEP %1  (LDAP import status): User account objects have been imported into "
 "LDAP"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:436
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:434
+#: addons/schoolmanager/content_importaccounts.tpl:438
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:436
 msgid "STEP %1  Review group memberships before LDAP update"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:440
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:438
+#: addons/schoolmanager/content_importaccounts.tpl:442
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:440
 msgid ""
 "STEP %1 (LDAP import status): Accounts' group memberships have been updated "
 "in LDAP"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:445
-#: addons/schoolmanager/content_importaccounts.tpl:456
-#: addons/schoolmanager/content_importaccounts.tpl:542
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:443
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:454
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:540
+#: addons/schoolmanager/content_importaccounts.tpl:447
+#: addons/schoolmanager/content_importaccounts.tpl:458
+#: addons/schoolmanager/content_importaccounts.tpl:544
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:445
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:456
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:542
 msgid "User account: %1, %2"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:454
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:452
+#: addons/schoolmanager/content_importaccounts.tpl:456
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:454
 msgid "New user account: %1, %2"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:463
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:461
+#: addons/schoolmanager/content_importaccounts.tpl:465
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:463
 msgid "Account group for %1, %2"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:474
-#: addons/schoolmanager/content_importaccounts.tpl:563
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:472
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:561
+#: addons/schoolmanager/content_importaccounts.tpl:476
+#: addons/schoolmanager/content_importaccounts.tpl:565
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:474
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:563
 msgid "<keep>"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:486
-#: addons/schoolmanager/content_importaccounts.tpl:576
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:484
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:574
+#: addons/schoolmanager/content_importaccounts.tpl:488
+#: addons/schoolmanager/content_importaccounts.tpl:578
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:486
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:576
 msgid "Groups"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:489
-#: addons/schoolmanager/content_importaccounts.tpl:579
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:487
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:577
+#: addons/schoolmanager/content_importaccounts.tpl:491
+#: addons/schoolmanager/content_importaccounts.tpl:581
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:489
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:579
 msgid "Group membership actions"
-msgstr ""
-
-#: addons/schoolmanager/content_importaccounts.tpl:546
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:544
-msgid "New associated account: %1, %2"
 msgstr ""
 
 #: addons/schoolmanager/content_importaccounts.tpl:548
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:546
-msgid "Insufficient account data: %1, %2"
+msgid "New associated account: %1, %2"
 msgstr ""
 
 #: addons/schoolmanager/content_importaccounts.tpl:550
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:548
+msgid "Insufficient account data: %1, %2"
+msgstr ""
+
+#: addons/schoolmanager/content_importaccounts.tpl:552
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:550
 msgid "Associated account: %1, %2"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:622
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:620
+#: addons/schoolmanager/content_importaccounts.tpl:624
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:622
 msgid "STEP %1: Review group objects before LDAP import"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:626
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:624
+#: addons/schoolmanager/content_importaccounts.tpl:628
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:626
 msgid ""
 "STEP %1 (LDAP import status): Group objects have been imported into LDAP"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:632
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:630
+#: addons/schoolmanager/content_importaccounts.tpl:634
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:632
 msgid "Standard (POSIX) groups"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:667
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:665
+#: addons/schoolmanager/content_importaccounts.tpl:669
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:667
 msgid "Object groups"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:712
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:710
+#: addons/schoolmanager/content_importaccounts.tpl:714
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:712
 msgid ""
 "STEP %1: LDAP import completed. Statistical overview of all import actions."
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:716
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:714
+#: addons/schoolmanager/content_importaccounts.tpl:718
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:716
 msgid "All entries have been written to the LDAP database successfully."
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:718
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:716
+#: addons/schoolmanager/content_importaccounts.tpl:720
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:718
 msgid "There has been at least one error during the import of your data."
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:722
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:720
+#: addons/schoolmanager/content_importaccounts.tpl:724
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:722
 msgid "Here is the status report for the import:"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:735
-#: addons/schoolmanager/content_importaccounts.tpl:738
-#: addons/schoolmanager/content_importaccounts.tpl:741
-#: addons/schoolmanager/content_importaccounts.tpl:747
-#: addons/schoolmanager/content_importaccounts.tpl:759
-#: addons/schoolmanager/content_importaccounts.tpl:762
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:733
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:736
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:739
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:745
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:757
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:760
+#: addons/schoolmanager/content_importaccounts.tpl:737
+#: addons/schoolmanager/content_importaccounts.tpl:740
+#: addons/schoolmanager/content_importaccounts.tpl:743
+#: addons/schoolmanager/content_importaccounts.tpl:749
+#: addons/schoolmanager/content_importaccounts.tpl:761
+#: addons/schoolmanager/content_importaccounts.tpl:764
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:735
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:738
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:741
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:747
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:759
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:762
 msgid "Continue here, when ready"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:735
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:733
+#: addons/schoolmanager/content_importaccounts.tpl:737
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:735
 msgid "Set import configuration option (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:738
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:736
+#: addons/schoolmanager/content_importaccounts.tpl:740
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:738
 msgid "Check and Sort CSV Data (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:741
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:739
+#: addons/schoolmanager/content_importaccounts.tpl:743
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:741
 msgid "Review user account objects before LDAP import (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:744
-#: addons/schoolmanager/content_importaccounts.tpl:750
-#: addons/schoolmanager/content_importaccounts.tpl:753
-#: addons/schoolmanager/content_importaccounts.tpl:756
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:742
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:748
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:751
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:754
+#: addons/schoolmanager/content_importaccounts.tpl:746
+#: addons/schoolmanager/content_importaccounts.tpl:752
+#: addons/schoolmanager/content_importaccounts.tpl:755
+#: addons/schoolmanager/content_importaccounts.tpl:758
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:744
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:750
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:753
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:756
 msgid "Continue here, when ready (this can take a while...)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:744
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:742
+#: addons/schoolmanager/content_importaccounts.tpl:746
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:744
 msgid "Import user account objects into LDAP (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:747
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:745
+#: addons/schoolmanager/content_importaccounts.tpl:749
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:747
 msgid "Review group objects (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:750
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:748
+#: addons/schoolmanager/content_importaccounts.tpl:752
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:750
 msgid "Import group objects into LDAP (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:753
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:751
+#: addons/schoolmanager/content_importaccounts.tpl:755
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:753
 msgid "Review accounts' group memberships before LDAP import (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:756
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:754
+#: addons/schoolmanager/content_importaccounts.tpl:758
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:756
 msgid "Update accounts' group memberships in LDAP (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:759
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:757
+#: addons/schoolmanager/content_importaccounts.tpl:761
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:759
 msgid "Some post-import clean-ups (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:762
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:760
+#: addons/schoolmanager/content_importaccounts.tpl:764
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:762
 msgid "Finish LDAP import (Step %1)"
 msgstr ""
 
-#: addons/schoolmanager/content_importaccounts.tpl:767
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:765
+#: addons/schoolmanager/content_importaccounts.tpl:769
+#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:767
 msgid "Cancel Import"
 msgstr ""
 
@@ -1545,10 +1549,4 @@ msgstr ""
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/class_importaccounts.inc:1896
 #, php-format
 msgid "Class: %s"
-msgstr ""
-
-#: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:305
-msgid ""
-"Please select the Attributes which will identify users from the CSV file and "
-"existing users"
 msgstr ""
