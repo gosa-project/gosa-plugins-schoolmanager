@@ -327,13 +327,13 @@
 	<tr style="background-color: gainsboro; color: black"> <!-- black on gray -->
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="sel_ldap_match_attr_name">{t escape=no}Surname{/t}</LABEL>
+			<LABEL for="sel_ldap_match_attr_givenname">{t escape=no}Given Name{/t}</LABEL>
 		</td>
 		<td style="float: right;">
-{if $preset_sel_ldap_match_attr_name}
-			<input type="checkbox" id="sel_ldap_match_attr_name" name="sel_ldap_match_attr_name" checked>
+{if $preset_sel_ldap_match_attr_givenname}
+			<input type="checkbox" id="sel_ldap_match_attr_givenname" name="sel_ldap_match_attr_givenname" checked>
 {else}
-			<input type="checkbox" id="sel_ldap_match_attr_name" name="sel_ldap_match_attr_name">
+			<input type="checkbox" id="sel_ldap_match_attr_givenname" name="sel_ldap_match_attr_givenname">
 {/if}
 			{t}(tick this check box, if yes){/t}
 		</td>
@@ -342,7 +342,7 @@
     <tr style="background-color:whitesmoke; color: black;"> <!-- black on lightgray -->
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="sel_ldap_match_attr_snname">{t escape=no}Last Name{/t}</LABEL>
+			<LABEL for="sel_ldap_match_attr_snname">{t escape=no}Surname{/t}</LABEL>
 		</td>
 		<td style="float: right;">
 {if $preset_sel_ldap_match_attr_snname}

@@ -294,7 +294,7 @@ class importaccounts extends plugin{
                         $this->csvinfo['accounts_in_class_ou']= TRUE;
                         $this->csvinfo['try_mail_as_uid']= TRUE;
                         $this->csvinfo['sel_ldap_match_attr_studentid']= FALSE;
-                        $this->csvinfo['sel_ldap_match_attr_name']= TRUE;
+                        $this->csvinfo['sel_ldap_match_attr_givenname']= TRUE;
                         $this->csvinfo['sel_ldap_match_attr_snname']= TRUE;
                         $this->csvinfo['sel_ldap_match_attr_birthday']= TRUE;
                         $this->csvinfo['sel_ldap_match_attr_gender']= TRUE;
@@ -308,7 +308,7 @@ class importaccounts extends plugin{
                         $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                         $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
                         $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
-                        $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
+                        $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
                         $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
                         $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
                         $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
@@ -374,7 +374,7 @@ class importaccounts extends plugin{
 
                 /* Same as if statement above but more compact */
                 $this->csvinfo['sel_ldap_match_attr_studentid'] = isset ($_POST["sel_ldap_match_attr_studentid"]);
-                $this->csvinfo['sel_ldap_match_attr_name']      = isset ($_POST["sel_ldap_match_attr_name"]);
+                $this->csvinfo['sel_ldap_match_attr_givenname']      = isset ($_POST["sel_ldap_match_attr_givenname"]);
                 $this->csvinfo['sel_ldap_match_attr_snname']    = isset ($_POST["sel_ldap_match_attr_snname"]);
                 $this->csvinfo['sel_ldap_match_attr_birthday']  = isset ($_POST["sel_ldap_match_attr_birthday"]);
                 $this->csvinfo['sel_ldap_match_attr_gender']    = isset ($_POST["sel_ldap_match_attr_gender"]);
@@ -417,7 +417,7 @@ class importaccounts extends plugin{
                     $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                     $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
                     $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
-                    $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
+                    $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
                     $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
                     $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
                     $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
@@ -995,7 +995,7 @@ class importaccounts extends plugin{
                     $test_attrs = array();
                     if ($this->csvinfo['sel_ldap_match_attr_studentid']) $test_attrs[] = "employeeNumber";
                     if ($this->csvinfo['sel_ldap_match_attr_snname'])    $test_attrs[] = "sn";
-                    if ($this->csvinfo['sel_ldap_match_attr_name'])      $test_attrs[] = "givenName";
+                    if ($this->csvinfo['sel_ldap_match_attr_givenname']) $test_attrs[] = "givenName";
                     if ($this->csvinfo['sel_ldap_match_attr_gender'])    $test_attrs[] = "gender";
                     if ($this->csvinfo['sel_ldap_match_attr_birthday'])  $test_attrs[] = "dateOfBirth";
 
