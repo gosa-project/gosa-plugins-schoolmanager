@@ -298,16 +298,16 @@
 			<input type="text" id="domain_groups" name="domain_groups" value="{$preset_domain_groups}">
 		</td>
 	</tr>
-</table>
 
-<table style="min-width:100%">
-    <tr>
+<tr><td colspan="3"><table style="min-width: 100%;">
+        <tr>
 		<td colspan="3">
 			<hr>
-			<p>{t}Please select the attributes which will identify users from the CSV file as existing users{/t}</p>
+			<p>{t}Please select the attributes which will identify users from the CSV file as existing users{/t}:</p>
 		</td>
 	</tr>
 
+{if $import_account_type != 'teachers'}
     <tr style="background-color:whitesmoke; color: black;"> <!-- black on lightgray -->
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
@@ -322,6 +322,7 @@
 			{t}(tick this check box, if yes){/t}
 		</td>
 	</tr>
+{/if}
 
 	<tr style="background-color: gainsboro; color: black"> <!-- black on gray -->
 		<td style="width: 1em;">&nbsp;</td>
@@ -384,6 +385,7 @@
 	</tr>
 
 
+</td></tr></table>
 </table>
 
 
