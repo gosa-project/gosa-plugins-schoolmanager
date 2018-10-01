@@ -298,20 +298,22 @@
 			<input type="text" id="domain_groups" name="domain_groups" value="{$preset_domain_groups}">
 		</td>
 	</tr>
+</table>
 
+<table style="min-width:100%">
     <tr>
 		<td colspan="3">
 			<hr>
-			<p>{t}Please select the Attributes which will identify users from the CSV file and existing users{/t}</p>
+			<p>{t}Please select the attributes which will identify users from the CSV file as existing users{/t}</p>
 		</td>
 	</tr>
 
-    <tr>
+    <tr style="background-color:whitesmoke; color: black;"> <!-- black on lightgray -->
 		<td style="width: 1em;">&nbsp;</td>
-		<td style="vertical-align: middle; horizontal-align: left;">
+		<td style="vertical-align: middle;">
 			<LABEL for="sel_ldap_match_attr_studentid">{t escape=no}Student ID{/t}</LABEL>
 		</td>
-		<td style="vertical-align: middle;">
+		<td style="float: right;">
 {if $preset_sel_ldap_match_attr_studentid}
 			<input type="checkbox" id="sel_ldap_match_attr_studentid" name="sel_ldap_match_attr_studentid" checked>
 {else}
@@ -321,12 +323,12 @@
 		</td>
 	</tr>
 
-	<tr>
+	<tr style="background-color: gainsboro; color: black"> <!-- black on gray -->
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
 			<LABEL for="sel_ldap_match_attr_name">{t escape=no}Surname{/t}</LABEL>
 		</td>
-		<td style="vertical-align: middle;">
+		<td style="float: right;">
 {if $preset_sel_ldap_match_attr_name}
 			<input type="checkbox" id="sel_ldap_match_attr_name" name="sel_ldap_match_attr_name" checked>
 {else}
@@ -336,12 +338,12 @@
 		</td>
 	</tr>
 
-	<tr>
+    <tr style="background-color:whitesmoke; color: black;"> <!-- black on lightgray -->
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
 			<LABEL for="sel_ldap_match_attr_snname">{t escape=no}Last Name{/t}</LABEL>
 		</td>
-		<td style="vertical-align: middle;">
+		<td style="float: right;">
 {if $preset_sel_ldap_match_attr_snname}
 			<input type="checkbox" id="sel_ldap_match_attr_snname" name="sel_ldap_match_attr_snname" checked>
 {else}
@@ -351,12 +353,12 @@
 		</td>
 	</tr>
 
-    <tr>
+    <tr style="background-color: gainsboro; color: black"> <!-- black on gray -->
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
 			<LABEL for="sel_ldap_match_attr_birthday">{t escape=no}Date of Birth{/t}</LABEL>
 		</td>
-		<td style="vertical-align: middle;">
+		<td style="float: right;">
 {if $preset_sel_ldap_match_attr_birthday}
 			<input type="checkbox" id="sel_ldap_match_attr_birthday" name="sel_ldap_match_attr_birthday" checked>
 {else}
@@ -366,12 +368,12 @@
 		</td>
 	</tr>
 
-    <tr>
+    <tr style="background-color: whitesmoke; color: black;"> <!-- black on lightgray -->
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
 			<LABEL for="sel_ldap_match_attr_gender">{t escape=no}Gender{/t}</LABEL>
 		</td>
-		<td style="vertical-align: middle;">
+		<td style="float: right;">
 {if $preset_sel_ldap_match_attr_gender}
 			<input type="checkbox" id="sel_ldap_match_attr_gender" name="sel_ldap_match_attr_gender" checked>
 {else}
