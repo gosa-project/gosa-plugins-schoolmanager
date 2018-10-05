@@ -53,7 +53,7 @@ class importstudentsonly extends importaccounts {
         $attrs[]= "dateOfBirth";
         $attrs[]= "gender";
         $attrs[]= "class";
-	    $attrs[]= "course";
+        $attrs[]= "course";
         /* FIXME: allow "mail" as possible attribute...
          *        If "mail" is given, it should override the default value from the GOsa user
          *        template (if provided there).
