@@ -127,17 +127,23 @@ class importstudentsandparents extends importaccounts {
                 $student['sn']=array (trim($row_sorted['sn']));
                 $student['givenName']=array (trim($row_sorted['givenName']));
 
-                $_dateOfBirth= trim($row_sorted['dateOfBirth']);
-                /* FIXME 1: On a German localized GOsa², this is not required..., but how about other locales???
-                 * FIXME 2: If date is formatted like "dd.mm.yy" GOsa² will not use yy as the birthyear but print error
-                 */
-                if (strpos($_dateOfBirth,'.')) {
-                    list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
-                    $_dateOfBirth = $year."-".$month."-".$day;
-                    //$_dateOfBirth = $day.".".$month.".20".$year;
+                if(isset($row_sorted['dateOfBirth']) and $row_sorted['dateOfBirth'])
+                {
+                    $_dateOfBirth= trim($row_sorted['dateOfBirth']);
+                    /* FIXME 1: On a German localized GOsa², this is not required..., but how about other locales???
+                     * FIXME 2: If date is formatted like "dd.mm.yy" GOsa² will not use yy as the birthyear but print error
+                     */
+                    if (strpos($_dateOfBirth,'.')) {
+                        list($day, $month, $year)= explode(".", $_dateOfBirth, 3);
+                        $_dateOfBirth = $year."-".$month."-".$day;
+                        //$_dateOfBirth = $day.".".$month.".20".$year;
+                    }
+                    $student['dateOfBirth']=array ($_dateOfBirth);
                 }
-                $student['dateOfBirth']=array ($_dateOfBirth);
-                $student['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
+                if(isset($row_sorted['gender']) and $row_sorted['gender'])
+                {
+                    $student['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
+                }
                 if(isset($row_sorted['employeeNumber']) and $row_sorted['employeeNumber'])
                 {
                     $student['employeeNumber']= array($row_sorted['employeeNumber']);
