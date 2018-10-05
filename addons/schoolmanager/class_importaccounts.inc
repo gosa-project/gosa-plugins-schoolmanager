@@ -254,7 +254,7 @@ class importaccounts extends plugin{
                                 $this->csvinfo["template_main"]= $i;
 
                                 # obtain mail domain from pre-selected main user template, if that is available
-                                if (strpos($result['mail'][0], '@')) {
+                                if (isset($result['mail']) && strpos($result['mail'][0], '@')) {
                                     $this->csvinfo["domain_groups"] = preg_split('/@/', $result['mail'][0],2)[1];
                                 }
                             }
