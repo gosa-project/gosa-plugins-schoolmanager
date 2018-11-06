@@ -99,7 +99,7 @@ class importstudentsandparents extends importaccounts {
 
     function prepareLdapImport($csv_data_sorted)
     {
-        /* Get elemenet */
+        /* Get element */
         $data_preldap= array();
 
         foreach ($csv_data_sorted as $idx => $row_sorted)

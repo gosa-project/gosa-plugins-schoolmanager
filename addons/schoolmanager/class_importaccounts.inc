@@ -1656,7 +1656,7 @@ class importaccounts extends plugin{
             $_ldapsearch= $this->_ldap->search("(&(objectClass=".$_group_obclass.")(cn=".$group_name."))", array("*"));
 
             /* There should only be _ONE_ object of this CN in the given LDAP (sub)tree scope.
-             * Thus, only fetching the first obejct.
+             * Thus, only fetching the first object.
              */
             $source= $this->_ldap->fetch($_ldapsearch);
 
