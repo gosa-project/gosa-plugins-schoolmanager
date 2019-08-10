@@ -1790,7 +1790,7 @@ class importaccounts extends plugin{
             $_user_properties_base= array();
             $_user_properties_extras= array();
 
-            if (strpos($user_date['_actions'][0], 'rename-uid')!==FALSE){
+            if (strpos($user_data['_actions'][0], 'rename-uid')!==FALSE){
                 if(isset($user_data['uid'][0]) and ($user_data['uid'][0]!=="{%uid}" and $user_data['uid'][0]!=="")) {
                     $_user_properties_base["uid"]= $user_data['uid'][0];
                 }
