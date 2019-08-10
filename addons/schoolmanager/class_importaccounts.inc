@@ -164,6 +164,9 @@ class importaccounts extends plugin{
          * PHASES
          */
 
+        /* special handling of reloading phase 2 */
+        $reloadphase2 = FALSE;
+
         /* reset our failure status from last template view... */
         $this->failure_in_this_phase = FALSE;
 
