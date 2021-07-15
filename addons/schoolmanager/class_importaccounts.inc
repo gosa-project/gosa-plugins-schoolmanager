@@ -1195,7 +1195,7 @@ class importaccounts extends plugin{
                     $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
                     if(isset($row['main_account']['uid'][0]))
                     {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array("uid=".$row['main_account']['uid'][0].",".$expected_base);
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array("uid=".$row['main_account']['uid'][0] . "," . get_people_ou() . $expected_base);
                     }
                     else {
                         $this->csvinfo['data_preldap'][$key]['main_account']['_dn']= array("new");
