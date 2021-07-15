@@ -1022,7 +1022,7 @@ class archiveaccounts extends plugin {
 		} else {
 			$this->_ldap->cd ( $this->config->current ['BASE'] );
 			$ldapsearch = $this->_ldap->search ( "(objectClass=gosaAccount)", $ldapsearch );
-		}rMana
+		}
 
 		/* this will probably scale very very badly... Improvement needed. Suggestions? */
 		while ( $gosa_account = $this->_ldap->fetch ( $ldapsearch ) ) {
