@@ -506,7 +506,7 @@ class archiveaccounts extends plugin {
 		/* only perform on this user dataset if _actions does not contain "none"... */
 		if ((strpos ( $user_data ['_actions'] [0], 'none' ) !== FALSE) or (strpos ( $user_data ['_actions'] [0], 'ignore' ) !== FALSE)) {
 			/* Errorcode 1403 */
-                        $returnval =1403
+                        $returnval = 1403;
                         return $returnval;
 		}
 
@@ -525,7 +525,7 @@ class archiveaccounts extends plugin {
 
 			$this->failure_in_this_phase = TRUE;
 			/* Errorcode 3004 */
-			$returnval = 3004
+			$returnval = 3004;
 			return $returnval;
 		} else {
 			/* Moving and renaming user */
