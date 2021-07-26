@@ -1171,6 +1171,7 @@ class importaccounts extends plugin{
 
                         if (isset($aux_account['mail'][0])) {
 
+
                             $_ldapfilter = "(&(objectClass=gosaAccount)(mail=".$aux_account['mail'][0]."))";
                             $ldapsearch = $this->_ldap->search($_ldapfilter, array("sn","givenName","mail"));
                             $gosa_aux_accounts = array();
@@ -1181,7 +1182,7 @@ class importaccounts extends plugin{
 
                                 $gosa_account = $gosa_aux_accounts[0];
 
-                                if ($this->compareObjects($aux_account, $gosa_account, array("sn", "givenName", "mail"), "", TRUE)===TRUE)
+                                if ($this->compareObjects($aux_account, $gosa_account, array("mail"), "", TRUE)===TRUE)
                                 {
                                     $expected_base= $this->genAccountBase($aux_account);
                                     $gosa_account_dn= $gosa_account['dn'];
