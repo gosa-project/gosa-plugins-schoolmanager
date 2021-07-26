@@ -1080,6 +1080,7 @@ class importaccounts extends plugin{
                         $_check_attrs= $this->compareObjects($row['main_account'], $gosa_account, $_updatable_attrs, "update-");
                         if ($_check_attrs===TRUE)
                         {
+                            /* nothing to do */
                         }
                         else {
                             $_actions= array_merge($_actions, $_check_attrs);
@@ -1152,6 +1153,7 @@ class importaccounts extends plugin{
                             $_check_attrs= $this->compareObjects($aux_account, $gosa_account, $_updatable_attrs, "update-");
                             if ($_check_attrs===TRUE)
                             {
+                                /* nothing to do */
                             }
                             else {
                                 $_actions= array_merge($_actions, $_check_attrs);
@@ -1418,6 +1420,7 @@ class importaccounts extends plugin{
                         $_check_attrs= $this->compareObjects($group, $gosa_group, array("mail","description"), "update-");
                         if ($_check_attrs===TRUE)
                         {
+                            /* nothing to do */
                         }
                         else {
                             $_actions= array_merge($_actions, $_check_attrs);
