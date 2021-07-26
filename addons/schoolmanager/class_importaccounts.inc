@@ -376,7 +376,7 @@ class importaccounts extends plugin{
 
                 /* Same as if statement above but more compact */
                 $this->csvinfo['sel_ldap_match_attr_studentid'] = isset ($_POST["sel_ldap_match_attr_studentid"]);
-                $this->csvinfo['sel_ldap_match_attr_givenname']      = isset ($_POST["sel_ldap_match_attr_givenname"]);
+                $this->csvinfo['sel_ldap_match_attr_givenname'] = isset ($_POST["sel_ldap_match_attr_givenname"]);
                 $this->csvinfo['sel_ldap_match_attr_snname']    = isset ($_POST["sel_ldap_match_attr_snname"]);
                 $this->csvinfo['sel_ldap_match_attr_birthday']  = isset ($_POST["sel_ldap_match_attr_birthday"]);
                 $this->csvinfo['sel_ldap_match_attr_gender']    = isset ($_POST["sel_ldap_match_attr_gender"]);
@@ -992,7 +992,6 @@ class importaccounts extends plugin{
         if(empty($unequal))
         {
             /* if TRUE is returned, objects regarding the given attributes are identical */
-
             return TRUE;
         }
         else {
@@ -1039,6 +1038,7 @@ class importaccounts extends plugin{
                         $expected_account_dn= "uid=".$row['main_account']['uid'][0].','.get_people_ou().$expected_base;
                         $expected_account_uid= $row['main_account']['uid'][0];
                         $gosa_account_dn= $gosa_account['dn'];
+
                         /* Explode into array, pick first then get the part after uid= */
                         $gosa_account_uid= explode(",", $gosa_account_dn, 2);
                         $gosa_account_uid= $gosa_account_uid[0];
@@ -1103,7 +1103,7 @@ class importaccounts extends plugin{
                     }
                     elseif ($this->compareObjects($row['main_account'], $gosa_account, array("uid"), "", TRUE)===TRUE)
                     {
-                        # The LDAP tree already has an account with this uid, this requires manual introspection
+                        /* The LDAP tree already has an account with this uid, this requires manual introspection */
 
                         $expected_base= $this->genAccountBase($row['main_account'], $row['groups']);
                         $expected_account_dn= "uid=".$row['main_account']['uid'][0].','.get_people_ou().$expected_base;
