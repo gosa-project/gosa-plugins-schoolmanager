@@ -1142,9 +1142,9 @@ class importaccounts extends plugin{
 
                             /* only update attributes that are already set in the main account dataset */
                             $_updatable_attrs= array();
-                            foreach(array("mail") as $_attr)
+                            foreach(array("sn", "givenName") as $_attr)
                             {
-                                if(isset($row['main_account'][$_attr]))
+                                if(isset($aux_account[$_attr]))
                                 {
                                     $_updatable_attrs[]= $_attr;
                                 }
