@@ -1821,7 +1821,12 @@ class importaccounts extends plugin{
                                 'sn' => $user_data['sn'][0],
                                 'givenName' => $user_data['givenName'][0]
                             );
-                            $_user_properties_base['uid']= gen_uids($_genStr,$_attributes)[0];
+                            $_genUids = gen_uids($_genStr,$_attributes);
+                            if (is_countable($_genUids) and (count($_genUids) >= 1)) {
+                                $_user_properties_base['uid']= $_genUids[0];
+                            } else {
+                                msg_dialog::display(_("ERROR"), _("Failure during uid auto-generation for ".$user_data['givenName'][0]." ".$user_data['sn'][0]."! No list of possible UIDs returned."), ERROR_DIALOG);
+                            }
                         }
                         else {
                             msg_dialog::display(_("ERROR"), _("We can only auto-generate uid strings if the idGenerator is configured!"), ERROR_DIALOG);
