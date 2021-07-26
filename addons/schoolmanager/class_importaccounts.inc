@@ -124,7 +124,6 @@ class importaccounts extends plugin{
         /* PHASE 10 done, set $cleanup_completed to TRUE */
         $smarty->assign ("cleanup_completed",0);
 
-
         /* Get the LDAP link, to generate the Export */
         $this->_ldap=$this->config->get_ldap_link ();
 
@@ -831,7 +830,12 @@ class importaccounts extends plugin{
     {
 
         $this->csvinfo['delimiter_id'] = $_POST['delimiter_id'];
-        $this->csvinfo['skip_first_line'] = $_POST['csv_with_column_headers'];
+        if (isset($_POST['csv_with_column_headers'])) {
+            $this->csvinfo['skip_first_line'] = TRUE;
+        }
+        else {
+            $this->csvinfo['skip_first_line'] = FALSE;
+        }
 
         $raw_csv_data = str_replace('\r', '', $raw_csv_data);
 
