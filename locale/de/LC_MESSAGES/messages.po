@@ -1331,7 +1331,7 @@ msgstr "Vorname"
 #: addons/schoolmanager/content_importaccounts.tpl:345
 #: debian/gosa-plugin-schoolmanager/usr/share/gosa/plugins/addons/schoolmanager/content_importaccounts.tpl:329
 msgid "Surname"
-msgstr "Vorname"
+msgstr "Nachname"
 
 #: addons/schoolmanager/content_importaccounts.tpl:397
 #: addons/schoolmanager/content_importaccounts.tpl:706
