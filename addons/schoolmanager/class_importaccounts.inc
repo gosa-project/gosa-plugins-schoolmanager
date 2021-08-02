@@ -255,8 +255,24 @@ class importaccounts extends plugin{
                             if ( ($this->default_template_main != "") && (preg_match ( "/".$this->default_template_main."/i", $result['sn'][0] ) ) ) {
                                 $this->csvinfo["template_main"]= $i;
 
-                                # obtain mail domain from pre-selected main user template, if that is available
-                                if (isset($result['mail']) && strpos($result['mail'][0], '@')) {
+                                /* obtain mail domain from group template object of pre-selected main user template, if available */
+                                if (isset($result['uid'])) {
+                                    $_ldap_group_search = $this->_ldap->search("(&(objectClass=gosaMailAccount)(objectClass=posixGroup)(gidNumber=".$result['gidNumber'][0]."))");
+                                    while ($_template_group = $this->_ldap->fetch($_ldap_group_search)) {
+
+                                        if (isset($_template_group['mail']) && strpos($_template_group['mail'][0], '@')) {
+                                            $this->csvinfo["domain_groups"] = preg_split('/@/', $_template_group['mail'][0],2)[1];
+                                        }
+
+                                        /*
+                                         * there should only be one template group with given gidNumber
+                                         * if otherwise, there is something wrong (and let's ignore it here)
+                                         */
+                                        break;
+                                    }
+                                }
+                                /* otherwise obtain mail domain from pre-selected main user template, if that is available */
+                                else if (isset($result['mail']) && strpos($result['mail'][0], '@')) {
                                     $this->csvinfo["domain_groups"] = preg_split('/@/', $result['mail'][0],2)[1];
                                 }
                             }
