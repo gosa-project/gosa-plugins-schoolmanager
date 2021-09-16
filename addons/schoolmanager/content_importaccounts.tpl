@@ -226,6 +226,23 @@
 			<input type="text" id="domain_users" name="domain_users" value="{$preset_domain_users}">
 		</td>
 	</tr>
+
+{if $domain_school}
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="aliases_in_schooldomain">{t}Teachers shall have mail aliases in the school's mail domain ({$domain_school}):{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+{if $preset_aliases_in_schooldomain}
+			<input type="checkbox" id="aliases_in_schooldomain" name="aliases_in_schooldomain" checked>
+{else}
+			<input type="checkbox" id="aliases_in_schooldomain" name="aliases_in_schooldomain">
+{/if}
+		</td>
+	</tr>
+{/if}
+
 {/if}
 {if $import_account_type == 'studentsonly'}
 	<tr>
@@ -479,11 +496,17 @@
 						<b>{$property}:</b>
 					</td>
 					<td bgcolor="#F8F8F8">
-{if $property != "userPassword" || $data[$key]['main_account'][$property][0]===""}
+{if ($property != "userPassword" && $property != "alias") || $data[$key]['main_account'][$property][0]===""}
 						{$data[$key]['main_account'][$property][0]}
-{elseif strpos($data[$key]['main_account']['_status'][0],"exists")!==FALSE }
+{elseif $property == "userPassword" && strpos($data[$key]['main_account']['_status'][0],"exists")!==FALSE }
 						{t}<keep>{/t}
 {elseif strpos($data[$key]['main_account']['_status'][0],"data-incomplete")!==FALSE }
+{elseif $property == "alias" }
+{foreach from=$data[$key]['main_account']['alias'] item=alias key=idx}
+{if "$idx" != "count" }
+						{$alias}<br>
+{/if}
+{/foreach}
 {else}
 						************
 {/if}

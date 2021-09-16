@@ -332,6 +332,7 @@ class importaccounts extends plugin{
                         /* import configuration defaults, only set them if PHASE 1 has been successful */
                         $this->csvinfo['ou_groups']= $default_ou_groups;
                         $this->csvinfo['accounts_in_class_ou']= TRUE;
+                        $this->csvinfo['aliases_in_schooldomain']= TRUE;
                         $this->csvinfo['try_mail_as_uid']= TRUE;
                         $this->csvinfo['sel_ldap_match_attr_studentid']= FALSE;
                         $this->csvinfo['sel_ldap_match_attr_givenname']= TRUE;
@@ -348,6 +349,7 @@ class importaccounts extends plugin{
                         $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
                         $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                         $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+                        $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
                         $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
                         $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
                         $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
@@ -415,6 +417,7 @@ class importaccounts extends plugin{
                     $this->csvinfo['template_aux'] = $_POST["template_".$import_account_type."_aux"];
                 }
                 $this->csvinfo['accounts_in_class_ou'] = isset ($_POST["accounts_in_class_ou"]);
+                $this->csvinfo['aliases_in_schooldomain'] = isset ($_POST["aliases_in_schooldomain"]);
                 $this->csvinfo['try_mail_as_uid'] = isset ($_POST["try_mail_as_uid"]);
                 $this->csvinfo['sel_ldap_match_attr_studentid'] = isset ($_POST["sel_ldap_match_attr_studentid"]);
                 $this->csvinfo['sel_ldap_match_attr_givenname'] = isset ($_POST["sel_ldap_match_attr_givenname"]);
@@ -453,6 +456,7 @@ class importaccounts extends plugin{
                     $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
                     $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                     $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+                    $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
                     $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
                     $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
                     $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
@@ -475,6 +479,7 @@ class importaccounts extends plugin{
                 $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
                 $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                 $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+                $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
                 $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
                 $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
                 $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
@@ -1071,7 +1076,7 @@ class importaccounts extends plugin{
                     $_ldapfilter = $_ldapfilter.")";
                 }
 
-                $ldapsearch = $this->_ldap->search($_ldapfilter, array("uid", "sn","givenName","gender","dateOfBirth", "mail", "departmentNumber", "employeeNumber"));
+                $ldapsearch = $this->_ldap->search($_ldapfilter, array("uid", "sn","givenName","gender","dateOfBirth", "mail", "alias", "departmentNumber", "employeeNumber"));
                 $gosa_main_accounts = array();
                 while ($ldap_obj = $this->_ldap->fetch($ldapsearch)) {
                     $gosa_main_accounts[] = $ldap_obj;
@@ -1081,7 +1086,7 @@ class importaccounts extends plugin{
 
                     /* let's try "fuzzy" search (only look for givenName and sn) */
                     $_ldapfilter = "(&(objectClass=gosaAccount)(sn=".$row['main_account']['sn'][0].")(givenName=".$row['main_account']['givenName'][0]."))";
-                    $ldapsearch = $this->_ldap->search($_ldapfilter, array("uid", "sn","givenName","gender","dateOfBirth", "mail", "departmentNumber", "employeeNumber"));
+                    $ldapsearch = $this->_ldap->search($_ldapfilter, array("uid", "sn","givenName","gender","dateOfBirth", "mail", "alias", "departmentNumber", "employeeNumber"));
                     $gosa_main_accounts = array();
                     while ($ldap_obj = $this->_ldap->fetch($ldapsearch)) {
                         $gosa_main_accounts[] = $ldap_obj;
@@ -1161,6 +1166,47 @@ class importaccounts extends plugin{
                         }
                         else {
                             $_actions= array_merge($_actions, $_check_attrs);
+                        }
+
+                        /* Obtain the alias field from the LDAP object if present.
+                         * This is required for showing the aliases in the user property overview page.
+                         */
+                        if (isset($gosa_account['alias']))
+                        {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['alias'] = $gosa_account['alias'];
+                        }
+                        else
+                        {
+                            $this->csvinfo['data_preldap'][$key]['main_account']['alias'] = array();
+                        }
+
+                        /* Check if the alias LDAP attribute needs to be modified. */
+                        if ($this->csvinfo['aliases_in_schooldomain'])
+                        {
+                            if (isset($gosa_account['alias']) && (in_array($row['main_account']['uid'][0]."@".$this->csvinfo['domain_school'], $gosa_account['alias'])))
+                            {
+                                /* nothing to do */
+                            }
+                            else if (isset($gosa_account['mail']) && (in_array($row['main_account']['uid'][0]."@".$this->csvinfo['domain_school'], $gosa_account['mail'])))
+                            {
+                                /* nothing to do either, <uid>@<domain_school> is primary mail address */
+                            }
+                            else
+                            {
+                                $_actions[]= 'add-uid-at-domain-to-aliases';
+                            }
+                        }
+                        else {
+                            if (isset($gosa_account['alias']) && (in_array($row['main_account']['uid'][0]."@".$this->csvinfo['domain_school'], $gosa_account['alias'])))
+                            {
+                                $_actions[]= 'drop-uid-at-domain-from-aliases';
+                            }
+                        }
+
+                        /* don't allow primary mail address ending up in 'alias' attribute description */
+                        if (isset($gosa_account['mail'][0]) && isset($gosa_account['alias']) && (in_array($row['main_account']['mail'][0], $gosa_account['alias'])))
+                        {
+                            $_actions[]= 'drop-uid-at-domain-from-aliases';
                         }
 
                         if(empty($_actions))
@@ -1899,7 +1945,7 @@ class importaccounts extends plugin{
             return;
         }
 
-        if((strpos($user_data['_actions'][0],'update')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE) or (strpos($user_data['_actions'][0],'move')!==FALSE) or (strpos($user_data['_actions'][0],'needs-renaming')!==FALSE))
+        if( (strpos($user_data['_actions'][0],'update')!==FALSE) or (strpos($user_data['_actions'][0],'add-uid-at-domain-to-aliases')!==FALSE) or (strpos($user_data['_actions'][0],'drop-uid-at-domain-from-aliases')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE) or (strpos($user_data['_actions'][0],'move')!==FALSE) or (strpos($user_data['_actions'][0],'needs-renaming')!==FALSE))
         {
             $_user_properties_base= array();
             $_user_properties_extras= array();
@@ -2030,6 +2076,45 @@ class importaccounts extends plugin{
             if(isset($user_data['gender'][0]) and ((strpos($user_data['_actions'][0],'update-gender')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
             {
                 $_user_properties_extras["gender"]= $user_data['gender'][0];
+            }
+
+            /*
+             * Handle alias field if aliases_in_schooldomain is set.
+             */
+            $uid_at_domain = $user_data['uid'][0]."@".$this->csvinfo['domain_school'];
+
+            /* add <uid>@<domain> to alias field, if this is supposed to happen */
+            if ($this->csvinfo['aliases_in_schooldomain']) {
+                print ("1<br>");
+                if ((strpos($user_data['_actions'][0],'add-uid-at-domain-to-aliases')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE))
+                {
+                    if (isset($user_data['alias'][0]))
+                    {
+                        $_user_properties_extras["alias"] = $user_data['alias'];
+                    }
+                    else
+                    {
+                        $_user_properties_extras["alias"] = array();
+                    }
+
+                    if (!in_array($uid_at_domain, $_user_properties_extras["alias"])) {
+                        $_user_properties_extras["alias"][] = $uid_at_domain;
+                    }
+                }
+            }
+
+            /* drop <uid>@<domain> from alias field, if this is supposed to happen */
+            if (strpos($user_data['_actions'][0],'drop-uid-at-domain-from-aliases')!==FALSE)
+            {
+                if (isset($user_data['alias'][0]))
+                {
+                    $_user_properties_extras["alias"] = $user_data['alias'][0];
+                    if (in_array($uid_at_domain, $_user_properties_extras["alias"]))
+                    {
+                        unset($_user_properties_extras["alias"][$key]);
+                        $_user_properties_extras["alias"] = array_values($_user_properties_extras["alias"]);
+                    }
+                }
             }
 
             if($user_data['_template'][0] != 0)
