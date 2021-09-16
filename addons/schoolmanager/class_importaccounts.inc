@@ -1956,11 +1956,11 @@ class importaccounts extends plugin{
                     }
                 }
                 else {
-                    /* FIXME: error message, if uid is not provided and sn+givenName is not provided or incomplete,
+                    /* FIXME: error message, if UID is not provided and sn+givenName is not provided or incomplete,
                      *        we cannot go on...
                      */
-                    new log (_("ERROR"), _("if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on..."), $this->dn);
-                    msg_dialog::display(_("ERROR"), _("if uid is not provided and sn+givenName is not provided or incomplete, we cannot go on..."),ERROR_DIALOG);
+                    new log (_("ERROR"), _("If UID is not provided and sn+givenName is not provided either or incomplete, we cannot go on..."), $this->dn);
+                    msg_dialog::display(_("ERROR"), _("If UID is not provided and sn+givenName is not provided either or incomplete, we cannot go on..."),ERROR_DIALOG);
                 }
                 $_user_properties_base["sn"]= $user_data['sn'][0];
                 $_user_properties_base["givenName"]= $user_data['givenName'][0];
