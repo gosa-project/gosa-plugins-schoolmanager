@@ -216,7 +216,16 @@
 			{t}(tick this check box, if yes){/t}
 		</td>
 	</tr>
-
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="domain_users">{t}Mail domain for new teachers (if not specified in import file explicitly):{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			@
+			<input type="text" id="domain_users" name="domain_users" value="{$preset_domain_users}">
+		</td>
+	</tr>
 {/if}
 {if $import_account_type == 'studentsonly'}
 	<tr>

@@ -52,13 +52,10 @@ class importteachers extends importaccounts {
         $attrs[]= "givenName";
         $attrs[]= "dateOfBirth";
         $attrs[]= "gender";
+        $attrs[]= "mail";
         $attrs[]= "subjects";
         $attrs[]= "class";
         $attrs[]= "course";
-        /* FIXME: allow "mail" as possible attribute...
-         *        If "mail" is given, it should override the default value from the GOsa user
-         *        template (if provided there).
-         */
 
         return $attrs;
     }
@@ -77,13 +74,13 @@ class importteachers extends importaccounts {
          */
 
         $selection = array();
-        for($i=0; $i<9; $i++)
+        for($i=0; $i<10; $i++)
         {
              $selection[] = $i;
         }
-        for($i=9; $i<$size; $i++)
+        for($i=10; $i<$size; $i++)
         {
-             $selection[] = 9;
+             $selection[] = 10;
         }
         return $selection;
     }
@@ -126,11 +123,17 @@ class importteachers extends importaccounts {
                 $teacher['givenName']=array (trim($row_sorted['givenName']));
                 $teacher['gender']=array ($this->normalizeGenderString(trim($row_sorted['gender'])));
                 $_dateOfBirth= trim($row_sorted['dateOfBirth']);
-                if(isset($row_sorted['mail']) and $row_sorted['mail'])
+                if(isset($row_sorted['mail']) and trim($row_sorted['mail'])!="")
                 {
                     /* FIXME: Check for valid e-Mail format here */
-                    $teacher['mail']=array ($row_sorted['mail']);
+                    $teacher['mail']=array(trim($row_sorted['mail']));
                 }
+                else
+                {
+                    /* FIXME: this needs to become much more configurable */
+                    $teacher['mail']=array($teacher['uid'][0]."@".$this->csvinfo['domain_school']);
+                }
+                $teacher['alias'] = array();
 
                 /* FIXME: On a German localized GOsa², this is not required..., but how about other locales??? */
                 if (strpos($_dateOfBirth,'.')) {

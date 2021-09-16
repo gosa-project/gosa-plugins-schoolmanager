@@ -232,7 +232,6 @@ class importaccounts extends plugin{
 
                         /* Search all Templates    */
                         $this->csvinfo['templates'] = array();
-                        $this->csvinfo['templates']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaUserTemplate)",array("*"));
 
                         /* add the "None" template first */
                         $this->csvinfo['templates']['formfields'] = array();
@@ -240,9 +239,20 @@ class importaccounts extends plugin{
                         $this->csvinfo['templates']['DNs'] = array();
                         $this->csvinfo['templates']['DNs'][]   = "";
 
-                        # Set the default mail domain for group accounts here...
+                        # Set the default mail domain for users, groups and for the school here (they might differ)...
+                        $this->csvinfo['domain_school']= "intern";
+                        $this->csvinfo['domain_users']= "intern";
                         $this->csvinfo['domain_groups']= "intern";
 
+                        $_base_search = $this->_ldap->search("(objectClass=dcObject)",array("o"));
+                        $_base_obj = $this->_ldap->fetch($_base_search, $this->config->current['BASE']);
+
+                        // FIXME: Do a is_valid_domain_name check here...
+                        if (isset($_base_obj['o']) && isset($_base_obj['o'][0])) {
+                            $this->csvinfo['domain_school']= trim($_base_obj['o'][0]);
+                        }
+
+                        $this->csvinfo['templates']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaUserTemplate)",array("*"));
                         /* add found gosaUserTemplate objects */
                         $i = 0;
                         while($result = $this->_ldap->fetch($this->csvinfo['templates']['ldapsearch'])){
@@ -254,6 +264,15 @@ class importaccounts extends plugin{
 
                             if ( ($this->default_template_main != "") && (preg_match ( "/".$this->default_template_main."/i", $result['sn'][0] ) ) ) {
                                 $this->csvinfo["template_main"]= $i;
+
+                                /* user mail domain */
+
+                                /* obtain mail domain from pre-selected main user template, if that is available */
+                                if (isset($result['mail']) && strpos($result['mail'][0], '@')) {
+                                    $this->csvinfo["domain_users"] = trim(preg_split('/@/', $result['mail'][0],2)[1]);
+                                }
+
+                                /* group mail domain */
 
                                 /* obtain mail domain from group template object of pre-selected main user template, if available */
                                 if (isset($result['uid'])) {
@@ -271,9 +290,10 @@ class importaccounts extends plugin{
                                         break;
                                     }
                                 }
-                                /* otherwise obtain mail domain from pre-selected main user template, if that is available */
-                                else if (isset($result['mail']) && strpos($result['mail'][0], '@')) {
-                                    $this->csvinfo["domain_groups"] = preg_split('/@/', $result['mail'][0],2)[1];
+
+                                /* otherwise use $this->csvinfo["domain_users"] as detected above */
+                                else if (isset($this->csvinfo["domain_users"])) {
+                                    $this->csvinfo["domain_groups"] = $this->csvinfo["domain_users"];
                                 }
                             }
                             if ( ($this->default_template_aux != "") && (preg_match ( "/".$this->default_template_aux."/i", $result['sn'][0] ) ) ) {
@@ -322,6 +342,8 @@ class importaccounts extends plugin{
                         $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
                         $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
                         $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+                        $smarty->assign("domain_school", $this->csvinfo['domain_school']);
+                        $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
                         $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                         $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                         $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
@@ -349,12 +371,27 @@ class importaccounts extends plugin{
             $smarty->assign ("file_uploaded",TRUE);
 
             /* configure options */
-            if (isset ($_POST["template_".$import_account_type]) and isset ($_POST["ou_groups"]) and isset ($_POST["domain_groups"]))
+            if (isset ($_POST["template_".$import_account_type]) and isset ($_POST["ou_groups"]))
             {
                 $this->csvinfo['template_main'] = $_POST["template_".$import_account_type];
 
                 /* Obtain the OU name like this: $this->csvinfo['ou_tree']['OUs'][$this->csvinfo['ou_groups']] */
                 $this->csvinfo['ou_groups'] = $_POST["ou_groups"];
+
+                if ( (isset($_POST["domain_users"])) && (empty($_POST["domain_users"])) )
+                {
+                    $this->csvinfo['domain_users']= "";
+                    $smarty->assign ("LDIFError",TRUE);
+                    msg_dialog::display (_ ("Error"),_ ("Domain for new users is empty!"),ERROR_DIALOG);
+                    $this->failure_in_this_phase= TRUE;
+
+                } elseif(substr($_POST["domain_users"],0,1) == "@")
+                {
+                    $this->csvinfo['domain_users'] = trim(substr($_POST["domain_users"],1,strlen($_POST["domain_users"])));
+                } else
+                {
+                    $this->csvinfo['domain_users'] = trim($_POST["domain_users"]);
+                }
 
                 if(empty($_POST["domain_groups"]))
                 {
@@ -431,6 +468,7 @@ class importaccounts extends plugin{
                     $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
                     $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
                     $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+                    $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
                     $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
                     $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
                     $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
@@ -1981,7 +2019,19 @@ class importaccounts extends plugin{
             }
             if(isset($user_data['mail'][0]) and ((strpos($user_data['_actions'][0],'update-mail')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
             {
-                $_user_properties_extras["mail"]= $user_data['mail'][0];
+                /*
+                 * FIXME: We need to dearly improve this bit and make this more configurable
+                 *        I.e. allow for more patterns, such as {%uid}@{%domain_teachers}, etc.
+                 */
+                if ($user_data['mail'][0] == "{%uid}@{%domain_school}")
+                {
+                    $_user_properties_extras["mail"] = array();
+                    $_user_properties_extras["mail"][0] = $user_data['uid'][0]."@".$this->csvinfo['domain_school'];
+                }
+                else
+                {
+                    $_user_properties_extras["mail"]= $user_data['mail'][0];
+                }
             }
             if(isset($user_data['sn'][0]) and ((strpos($user_data['_actions'][0],'update-sn')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE)))
             {
