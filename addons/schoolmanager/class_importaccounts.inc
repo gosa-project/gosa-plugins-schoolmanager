@@ -414,35 +414,15 @@ class importaccounts extends plugin{
                 {
                     $this->csvinfo['template_aux'] = $_POST["template_".$import_account_type."_aux"];
                 }
-                if (isset ($_POST["accounts_in_class_ou"]))
-                {
-                    $this->csvinfo['accounts_in_class_ou'] = TRUE;
-                }
-                else {
-                    $this->csvinfo['accounts_in_class_ou'] = FALSE;
-                }
-                if (isset ($_POST["try_mail_as_uid"]))
-                {
-                    $this->csvinfo['try_mail_as_uid'] = TRUE;
-                }
-                else {
-                    $this->csvinfo['try_mail_as_uid'] = FALSE;
-                }
-
-                /* Same as if statement above but more compact */
+                $this->csvinfo['accounts_in_class_ou'] = isset ($_POST["accounts_in_class_ou"]);
+                $this->csvinfo['try_mail_as_uid'] = isset ($_POST["try_mail_as_uid"]);
                 $this->csvinfo['sel_ldap_match_attr_studentid'] = isset ($_POST["sel_ldap_match_attr_studentid"]);
                 $this->csvinfo['sel_ldap_match_attr_givenname'] = isset ($_POST["sel_ldap_match_attr_givenname"]);
                 $this->csvinfo['sel_ldap_match_attr_snname']    = isset ($_POST["sel_ldap_match_attr_snname"]);
                 $this->csvinfo['sel_ldap_match_attr_birthday']  = isset ($_POST["sel_ldap_match_attr_birthday"]);
                 $this->csvinfo['sel_ldap_match_attr_gender']    = isset ($_POST["sel_ldap_match_attr_gender"]);
+                $this->csvinfo['add_course_members_to_class_group'] = isset ($_POST["add_course_members_to_class_group"]);
 
-                if (isset ($_POST["add_course_members_to_class_group"]))
-                {
-                    $this->csvinfo['add_course_members_to_class_group'] = TRUE;
-                }
-                else {
-                    $this->csvinfo['add_course_members_to_class_group'] = FALSE;
-                }
                 if($this->failure_in_this_phase===FALSE)
                 {
                     $smarty->assign ("import_configured",TRUE);
