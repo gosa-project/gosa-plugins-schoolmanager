@@ -276,11 +276,13 @@ class importaccounts extends plugin{
 
                                 /* obtain mail domain from group template object of pre-selected main user template, if available */
                                 if (isset($result['uid'])) {
+
                                     $_ldap_group_search = $this->_ldap->search("(&(objectClass=gosaMailAccount)(objectClass=posixGroup)(gidNumber=".$result['gidNumber'][0]."))");
                                     while ($_template_group = $this->_ldap->fetch($_ldap_group_search)) {
 
                                         if (isset($_template_group['mail']) && strpos($_template_group['mail'][0], '@')) {
-                                            $this->csvinfo["domain_groups"] = preg_split('/@/', $_template_group['mail'][0],2)[1];
+                                            $this->csvinfo["domain_groups"] = trim(preg_split('/@/', $_template_group['mail'][0],2)[1]);
+
                                         }
 
                                         /*
@@ -402,10 +404,10 @@ class importaccounts extends plugin{
 
                 } elseif(substr($_POST["domain_groups"],0,1) == "@")
                 {
-                    $this->csvinfo['domain_groups'] = substr($_POST["domain_groups"],1,strlen($_POST["domain_groups"]));
+                    $this->csvinfo['domain_groups'] = trim(substr($_POST["domain_groups"],1,strlen($_POST["domain_groups"])));
                 } else
                 {
-                    $this->csvinfo['domain_groups'] = $_POST["domain_groups"];
+                    $this->csvinfo['domain_groups'] = trim($_POST["domain_groups"]);
                 }
 
                 if (isset ($_POST["template_".$import_account_type."_aux"]))
