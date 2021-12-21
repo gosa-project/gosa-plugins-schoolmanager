@@ -401,8 +401,7 @@ class archiveaccounts extends plugin {
 			if ($return === TRUE) {
 				/* Now we're going to lock the User account. */
 				$this->lockEntry ( $user_data ['main_account'] ['_dn'] );
-				$user = new userManagement ();
-				$user->lockEntry ();
+
 				/* Setting _status of user to 'archived,acc-locked' */
 				$this->csvinfo ['data_preldap'] [$idx] ['main_account'] ['_status'] [0] = "archived,acc-locked";
 				$this->csvinfo ['data_preldap'] [$idx] ['main_account'] ['_actions'] [0] = "none";
