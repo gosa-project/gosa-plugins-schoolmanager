@@ -508,7 +508,7 @@ class archiveaccounts extends plugin {
 		return $returnval;
 	}
 	function archiveLDAPUserObject($user_data) {
-		/* only perform on this user dataset if _actions does not contain "none"... */
+		/* only perform on this user dataset if _actions does not contain "none" or "ignore"... */
 		if ((strpos ( $user_data ['_actions'] [0], 'none' ) !== FALSE) or (strpos ( $user_data ['_actions'] [0], 'ignore' ) !== FALSE)) {
 			/* Errorcode 1403 */
                         $returnval = 1403;
@@ -1004,7 +1004,8 @@ class archiveaccounts extends plugin {
 		/* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail... */
 		if (! is_array ( $this->csvinfo ['data_preldap'] ) or (empty ( $this->csvinfo ['data_preldap'] ))) {
 			$this->failure_in_this_phase = TRUE;
-			msg_dialog::display ( _ ( "Error" ), _ ( "csvinfo['data_preldap'] is empty or not an array! Can't complete accountStatusCheck(). Please try again." ), ERROR_DIALOG );
+			msg_dialog::display ( _( "Error" ), _( "csvinfo['data_preldap'] is empty or not an array! " .
+							       "Can't complete accountStatusCheck(). Please try again." ), ERROR_DIALOG );
 			return 1; /* We showed an Error box so value '1' (We dont want more boxes) */
 		}
 
@@ -1047,7 +1048,10 @@ class archiveaccounts extends plugin {
 
 					/* detect status */
 					if ($this->compareObjects ( $row ['main_account'], $gosa_account, $test_attrs, "", TRUE ) === TRUE) {
-						if ((! isset ( $row ['main_account'] ['uid'] [0] )) || ($row ['main_account'] ['uid'] [0] === "{%uid}") || ($row ['main_account'] ['uid'] [0] === "%uid")) {
+						if ((! isset ( $row ['main_account'] ['uid'] [0] )) ||
+						    ($row ['main_account'] ['uid'] [0] === "{%uid}") ||
+						    ($row ['main_account'] ['uid'] [0] === "%uid"))
+						{
 							$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['uid'] = array (
 									$gosa_account ['uid'] [0]
 							);
@@ -1065,9 +1069,10 @@ class archiveaccounts extends plugin {
 						$gosa_account_base = explode ( ",", $gosa_account_dn, 3 );
 						$gosa_account_base = $gosa_account_base [2];
 
-						$new_dn = "uid=archived-" . date ( "Ymd" ) . "-" . $row ['main_account'] ['uid'] [0] . ',' . get_people_ou () . $new_base;
+						$new_dn = "uid=archived-" . date ( "Ymd" ) . "-" . $row ['main_account'] ['uid'] [0] . ',' . get_people_ou() . $new_base;
 
 						$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_status'] [0] = 'exists';
+						$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_actions'] [0] = "archive";
 
 						/* detect actions */
 						$_actions = array ();
@@ -1112,11 +1117,12 @@ class archiveaccounts extends plugin {
 				}
 			}
 		}
+
 		foreach ( $this->csvinfo ['data_preldap'] as $key => $row ) {
 			if (isset ( $row ['main_account'] )) {
 				if ($this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_status'] [0] == 'unchecked') {
 					$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_status'] [0] = 'not-found';
-					$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_actions'] [0] = 'ignore,check-manually';
+					$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_actions'] [0] = 'none,ignore,check-manually';
 				}
 			}
 		}
@@ -1241,8 +1247,6 @@ class archiveaccounts extends plugin {
 			/* change UI dir back to where we came from */
 			change_ui_dn ( dn2base ( $_pre_ou . "," . $this->config->current ['BASE'] ), $old_ui_dn );
 			session::global_set ( "CurrentMainBase", $old_current_main_base );
-		} else {
-			msg_dialog::display ( _ ( "Info" ), sprintf ( _ ( "%s already exists. Using it." ), $base ), INFO_DIALOG );
 		}
 		return TRUE;
 	}
