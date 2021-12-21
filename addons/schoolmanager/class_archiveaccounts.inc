@@ -439,7 +439,13 @@ class archiveaccounts extends plugin {
 				$this->csvinfo ['data_preldap'] [$idx] ['main_account'] ['_primgroup_dn'] [0] = $new_primgroup_dn;
 				$this->csvinfo ['data_preldap'] [$idx] ['main_account'] ['_primgroup_dn_ldap'] [0] = var_export ( $primgroup ['dn'], TRUE );
 			} else if ($return !== 1) { // return val 1 -> error msg. was already shown.
-				$failed_accs [] = sprintf ( _ ( "%s %s with error code: %s" ), $user_data ['main_account'] ['givenName'] [0], $user_data ['main_account'] ['sn'] [0], $return );
+				if ($return !== 1403) { // 1403 is set if action is set to 'none' or 'ignore'.
+					$failed_accs [] = sprintf(_( "%s %s with error code: %s" ),
+								   $user_data ['main_account'] ['givenName'] [0],
+								   $user_data ['main_account'] ['sn'] [0],
+								   $return
+								 );
+				}
 			}
 		}
 
