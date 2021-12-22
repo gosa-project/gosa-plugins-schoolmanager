@@ -213,7 +213,43 @@ class importstudentsandparents extends importaccounts {
                 $parent2['_actions']=array('none');
                 $parent2['_group_actions']= array('none');
 
-                /* groups for this account */
+                // If both parents email addresses are the same, handle parents as ONE gosa-account.
+                if ((isset($row_sorted['parent1_mail']) and $row_sorted['parent1_mail']) and
+                    (isset($row_sorted['parent2_mail']) and $row_sorted['parent2_mail']) and
+                    (isset($row_sorted['parent1_sn']) and ($row_sorted['parent1_sn']!=="")) and
+                    (isset($row_sorted['parent2_sn']) and ($row_sorted['parent2_sn']!=="")) and
+                    (isset($row_sorted['parent1_givenName']) and ($row_sorted['parent1_givenName']!=="")) and
+                    (isset($row_sorted['parent2_givenName']) and ($row_sorted['parent2_givenName']!=="")))
+                {
+                    if (strtolower(trim($row_sorted['parent1_mail'])) === strtolower(trim($row_sorted['parent2_mail'])))
+                    {
+                        // Do not import second parent account.
+                        //$parent2['mail']         = array();
+                        $parent2['_status']      = array('same-mail-as-parent1');
+                        $parent2['_actions']     = array('ignore');
+
+                        // givenName: Jon & Jane
+                        // second name: Doe & Smith  OR (if both have same the name):
+                        // second name: Doe
+                        if (strtolower(trim($row_sorted['parent1_sn'])) === strtolower(trim($row_sorted['parent2_sn'])))
+                        {
+                            $parent_surname = trim($row_sorted['parent1_sn']);
+                        } else {
+                            $parent_surname = trim($row_sorted['parent1_sn']) . " & " . trim($row_sorted['parent2_sn']);
+                        }
+
+                        // Always indicate that this account represents two real people (if both have the same name, it would be something like Jon & Jon)
+                        $parent_givenName = trim($row_sorted['parent1_givenName']) . " & " . trim($row_sorted['parent2_givenName']);
+
+                        // *Parent1* represents two real people now. (since both have the same email address.)
+                        $parent1['sn'] = array($parent_surname);
+                        $parent1['givenName'] = array($parent_givenName);
+                    }
+                }
+
+                /*
+                 * Groups for this account:
+                 */
 
                 /* class group */
                 $class_group= array ();
