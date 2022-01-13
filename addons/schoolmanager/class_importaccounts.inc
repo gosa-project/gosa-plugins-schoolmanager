@@ -1087,6 +1087,7 @@ class importaccounts extends plugin{
                     /* let's try "fuzzy" search (only look for givenName and sn) */
                     $_ldapfilter = "(&(objectClass=gosaAccount)(sn=".$row['main_account']['sn'][0].")(givenName=".$row['main_account']['givenName'][0]."))";
                     $ldapsearch = $this->_ldap->search($_ldapfilter, array("uid", "sn","givenName","gender","dateOfBirth", "mail", "alias", "departmentNumber", "employeeNumber"));
+
                     $gosa_main_accounts = array();
                     while ($ldap_obj = $this->_ldap->fetch($ldapsearch)) {
                         $gosa_main_accounts[] = $ldap_obj;
@@ -1250,79 +1251,99 @@ class importaccounts extends plugin{
                 {
                     foreach ($row['aux_accounts'] as $idx_aux => $aux_account)
                     {
+                        /*
+                         * Don't perform on this aux-user dataset if:
+                         *   - parent1 and parent2 have the same email AND
+                         *   - aux-user is parent2
+                         */
+                        if (strpos($aux_account['_status'][0], 'same-mail-as-parent1') !== FALSE)
+                        {
+                            continue;
+                        }
+
+
+                        // $gosa_aux_accounts still holds old values..
+                        unset($gosa_aux_accounts);
 
                         if (isset($aux_account['mail'][0])) {
-
-
-                            $_ldapfilter = "(&(objectClass=gosaAccount)(mail=".$aux_account['mail'][0]."))";
+                            $_ldapfilter = "(&(objectClass=gosaAccount)(uid=".$aux_account['mail'][0]."))";
                             $ldapsearch = $this->_ldap->search($_ldapfilter, array("sn","givenName","mail"));
+
+
                             $gosa_aux_accounts = array();
                             while ($ldap_obj = $this->_ldap->fetch($ldapsearch)) {
                                 $gosa_aux_accounts[] = $ldap_obj;
                             }
-                            if ((is_countable ($gosa_aux_accounts)) and (count ($gosa_aux_accounts) == 1)) {
 
-                                $gosa_account = $gosa_aux_accounts[0];
+                        } else {
+                            // E-Mail is not set. Skip.
+                            continue;
+                        }
 
-                                if ($this->compareObjects($aux_account, $gosa_account, array("mail"), "", TRUE)===TRUE)
+
+                        if ((is_countable ($gosa_aux_accounts)) and (count ($gosa_aux_accounts) == 0))
+                        {
+
+                            // Nothing to do. Just create the account.
+                        } elseif ((is_countable ($gosa_aux_accounts)) and (count ($gosa_aux_accounts) == 1))
+                        {
+
+                            // We only found one account, assume it's at 0th place.
+                            $gosa_account = $gosa_aux_accounts[0];
+
+                            $expected_base= $this->genAccountBase($aux_account);
+                            $gosa_account_dn= $gosa_account['dn'];
+
+                            /* detect status */
+
+                            /*
+                                * FIXME: Support automatic moving of AUX accounts!!!
+                                */
+
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]= 'exists';
+
+                            $_actions= array();
+
+                            /*
+                                * FIXME: Hard-code a "none" action here in case we found a matching account in LDAP.
+                                *        Later, we need to make actions more configurable...
+                                */
+
+                            /* only update attributes that are already set in the main account dataset */
+                            $_updatable_attrs= array();
+                            foreach(array("sn", "givenName") as $_attr)
+                            {
+                                if(isset($aux_account[$_attr]))
                                 {
-                                    $expected_base= $this->genAccountBase($aux_account);
-                                    $gosa_account_dn= $gosa_account['dn'];
-
-                                    /* detect status */
-
-                                    /*
-                                     * FIXME: Support automatic moving of AUX accounts!!!
-                                     */
-
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0]= 'exists';
-
-                                    $_actions= array();
-
-                                    /*
-                                     * FIXME: Hard-code a "none" action here in case we found a matching account in LDAP.
-                                     *        Later, we need to make actions more configurable...
-                                     */
-
-                                    /* only update attributes that are already set in the main account dataset */
-                                    $_updatable_attrs= array();
-                                    foreach(array("sn", "givenName") as $_attr)
-                                    {
-                                        if(isset($aux_account[$_attr]))
-                                        {
-                                            $_updatable_attrs[]= $_attr;
-                                        }
-                                    }
-
-                                    $_check_attrs= $this->compareObjects($aux_account, $gosa_account, $_updatable_attrs, "update-");
-                                    if ($_check_attrs===TRUE)
-                                    {
-                                        /* nothing to do */
-                                    }
-                                    else {
-                                        $_actions= array_merge($_actions, $_check_attrs);
-                                    }
-
-                                    if(empty($_actions))
-                                    {
-                                        $_actions[]= 'none';
-                                    }
-
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0]= implode(",", $_actions);
-
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_dn_ldap']= array($gosa_account_dn);
-
-                                    /* FIXME: We need a check that DN generation for aux accounts will actually work, probably when
-                                     *        constructing $this->csvinfo['data_preldap'].
-                                     */
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base']= array($expected_base);
+                                    $_updatable_attrs[]= $_attr;
                                 }
                             }
-                        }
-                        elseif ((is_countable ($gosa_aux_accounts)) and (count ($gosa_aux_accounts) > 1)) {
+
+                            $_check_attrs= $this->compareObjects($aux_account, $gosa_account, $_updatable_attrs, "update-");
+                            if ($_check_attrs===TRUE)
+                            {
+                                /* nothing to do */
+                            }
+                            else {
+                                $_actions= array_merge($_actions, $_check_attrs);
+                            }
+
+                            if(empty($_actions))
+                            {
+                                $_actions[]= 'none';
+                            }
+
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0]= implode(",", $_actions);
+
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_dn_ldap']= array($gosa_account_dn);
+
+                            /* FIXME: We need a check that DN generation for aux accounts will actually work, probably when
+                                *        constructing $this->csvinfo['data_preldap'].
+                                */
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base']= array($expected_base);
+                        } elseif ((is_countable ($gosa_aux_accounts)) and (count ($gosa_aux_accounts) > 1)) {
                             msg_dialog::display (_ ("LDAP Tree Error"),_ ("The LDAP search query with filter '".$_ldapfilter."' returned more than one account object. There should only be one such object in the LDAP tree."), ERROR_DIALOG);
-                        }
-                        elseif ((!is_countable ($gosa_aux_accounts))) {
+                        } elseif ((!is_countable ($gosa_aux_accounts))) {
                             msg_dialog::display (_ ("LDAP Error"),_ ("The LDAP search query with filter '.$_ldapfilter.' returned with an unknown error."), ERROR_DIALOG);
                         }
                     }
@@ -1468,7 +1489,6 @@ class importaccounts extends plugin{
         /* this will probably scale very very badly... Improvement needed. Suggestions? */
         foreach ($this->csvinfo['data_preldap'] as $key => $row)
         {
-
             if(strpos($row['main_account']['_actions'][0],'ignore')!==FALSE)
             {
                 continue;
@@ -2111,6 +2131,7 @@ class importaccounts extends plugin{
                     $_user_properties_extras["alias"] = $user_data['alias'][0];
                     if (in_array($uid_at_domain, $_user_properties_extras["alias"]))
                     {
+                        // FIXME: $key isn't set anywhere?
                         unset($_user_properties_extras["alias"][$key]);
                         $_user_properties_extras["alias"] = array_values($_user_properties_extras["alias"]);
                     }
@@ -2126,7 +2147,6 @@ class importaccounts extends plugin{
             $this->_ldap->cat($user_data['_base'][0]);
             if(!$this->_ldap->fetch())
             {
-
                 /* change UI "dir" in LDAP to the place where we want to create sub-OUs... */
                 $_ui= get_userinfo();
                 $old_ui_dn= $_ui->dn;
