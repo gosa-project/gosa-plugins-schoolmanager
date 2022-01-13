@@ -2105,7 +2105,6 @@ class importaccounts extends plugin{
 
             /* add <uid>@<domain> to alias field, if this is supposed to happen */
             if ($this->csvinfo['aliases_in_schooldomain']) {
-                print ("1<br>");
                 if ((strpos($user_data['_actions'][0],'add-uid-at-domain-to-aliases')!==FALSE) or (strpos($user_data['_actions'][0],'create')!==FALSE))
                 {
                     if (isset($user_data['alias'][0]))
