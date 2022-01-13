@@ -496,7 +496,7 @@
 						<b>{$property}:</b>
 					</td>
 					<td bgcolor="#F8F8F8">
-{if ($property != "userPassword" && $property != "alias") || $data[$key]['main_account'][$property][0]===""}
+{if ($property != "userPassword" && $property != "alias") || ( isset($data[$key]['main_account'][$property][0]) && $data[$key]['main_account'][$property][0]==="" )}
 						{$data[$key]['main_account'][$property][0]}
 {elseif $property == "userPassword" && strpos($data[$key]['main_account']['_status'][0],"exists")!==FALSE }
 						{t}<keep>{/t}
@@ -591,7 +591,7 @@
 						<b>{$property}:</b>
 					</td>
 					<td bgcolor="#F8F8F8">
-{if $property != "userPassword" || $aux_account[$property][0]===""}
+{if $property != "userPassword" || ( isset ($aux_account[$property][0]) && $aux_account[$property][0]==="" )}
 						{$aux_account[$property][0]}
 {elseif strpos($aux_account['_status'][0],"exists")!==FALSE }
 						{t}<keep>{/t}
