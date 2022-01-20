@@ -68,10 +68,679 @@ class importaccounts extends plugin{
         /* adapt this in sub-classes!!! */
         return array();
     }
+
     function getAttrsPreSelection($size)
     {
         /* adapt this in sub-classes!!! */
         return array();
+    }
+
+    /*
+     * PHASE 01:
+     */
+    function execute_phase1($smarty)
+    {
+        /* Check if theres a file uploaded */
+        if (!empty($_FILES['userfile']['name'])) {
+            $handle = NULL;
+            $filename = gosa_file_name($_FILES['userfile']['tmp_name']);
+            if (!isset($_FILES['userfile']['name'])) {
+                msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file not found")), ERROR_DIALOG);
+                $smarty->assign("LDIFError", TRUE);
+            }
+            elseif (!$_FILES['userfile']['size'] > 0) {
+                msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file is empty")), ERROR_DIALOG);
+                $smarty->assign("LDIFError", TRUE);
+            }
+
+            /* Is there a tmp file, which we can use ? */
+            elseif (!file_exists($filename)) {
+                msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file not found")), ERROR_DIALOG);
+                $smarty->assign("LDIFError", TRUE);
+            }
+            elseif (!$handle = @fopen($filename, "r")) {
+                msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file not readable")), ERROR_DIALOG);
+                $smarty->assign("LDIFError", TRUE);
+            }
+            else {
+                $smarty->assign("file_uploaded", TRUE);
+                $raw_csv_data = "";
+
+                /* Reading content */
+                while (!feof($handle)) {
+                    $raw_csv_data .= fread($handle, 1024);
+                }
+
+                @fclose($handle);
+
+                if (!mb_check_encoding($raw_csv_data, "UTF-8")) {
+                    if (mb_check_encoding($raw_csv_data, "iso-8859-1")) {
+                        $raw_csv_data = utf8_encode($raw_csv_data);
+                    }
+                    else {
+                        $smarty->assign("LDIFError", TRUE);
+                        $smarty->assign("file_uploaded", FALSE);
+                        msg_dialog::display(_("Error"), _("File has an unsupported encoding!"), ERROR_DIALOG);
+                    }
+                }
+
+                $parser_ok = importaccounts::parseCSV($raw_csv_data);
+
+                if ($parser_ok !== FALSE) {
+
+                    $this->csvinfo["template_main"] = 0;
+                    $this->csvinfo["template_aux"] = 0;
+
+                    /* Populate the Template Selectors for PHASE 2 */
+
+                    /* Search all Templates    */
+                    $this->csvinfo['templates'] = array();
+
+                    /* add the "None" template first */
+                    $this->csvinfo['templates']['formfields'] = array();
+                    $this->csvinfo['templates']['formfields'][] = "None";
+                    $this->csvinfo['templates']['DNs'] = array();
+                    $this->csvinfo['templates']['DNs'][] = "";
+
+                    # Set the default mail domain for users, groups and for the school here (they might differ)...
+                    $this->csvinfo['domain_school'] = "intern";
+                    $this->csvinfo['domain_users'] = "intern";
+                    $this->csvinfo['domain_groups'] = "intern";
+
+                    $_base_search = $this->_ldap->search("(objectClass=dcObject)", array("o"));
+                    $_base_obj = $this->_ldap->fetch($_base_search, $this->config->current['BASE']);
+
+                    // FIXME: Do a is_valid_domain_name check here...
+                    if (isset($_base_obj['o']) && isset($_base_obj['o'][0])) {
+                        $this->csvinfo['domain_school'] = trim($_base_obj['o'][0]);
+                    }
+
+                    $_ldapsearch = $this->_ldap->search("(objectClass=gosaUserTemplate)", array("*"));
+
+                    /* add found gosaUserTemplate objects */
+                    $i = 0;
+                    while ($result = $this->_ldap->fetch($_ldapsearch)) {
+                        $this->csvinfo['templates']['formfields'][] = $result['sn'][0] . " - " . $this->config->idepartments[preg_replace("/^[^,]+," . preg_quote(get_people_ou(), '/') . "/i", "", $result['dn'])];
+                        $this->csvinfo['templates']['DNs'][] = $result['dn'];
+
+                        $i = $i + 1;
+
+                        if (($this->default_template_main != "") && (preg_match("/" . $this->default_template_main . "/i", $result['sn'][0]))) {
+                            $this->csvinfo["template_main"] = $i;
+
+                            /* user mail domain */
+
+                            /* obtain mail domain from pre-selected main user template, if that is available */
+                            if (isset($result['mail']) && strpos($result['mail'][0], '@')) {
+                                $this->csvinfo["domain_users"] = trim(preg_split('/@/', $result['mail'][0], 2)[1]);
+                            }
+
+                            /* group mail domain */
+
+                            /* obtain mail domain from group template object of pre-selected main user template, if available */
+                            if (isset($result['uid'])) {
+
+                                $_ldap_group_search = $this->_ldap->search("(&(objectClass=gosaMailAccount)(objectClass=posixGroup)(gidNumber=" . $result['gidNumber'][0] . "))");
+                                while ($_template_group = $this->_ldap->fetch($_ldap_group_search)) {
+
+                                    if (isset($_template_group['mail']) && strpos($_template_group['mail'][0], '@')) {
+                                        $this->csvinfo["domain_groups"] = trim(preg_split('/@/', $_template_group['mail'][0], 2)[1]);
+
+                                    }
+
+                                    /*
+                                     * there should only be one template group with given gidNumber
+                                     * if otherwise, there is something wrong (and let's ignore it here)
+                                     */
+                                    break;
+                                }
+                            }
+
+                            /* otherwise use $this->csvinfo["domain_users"] as detected above */
+                            else if (isset($this->csvinfo["domain_users"])) {
+                                $this->csvinfo["domain_groups"] = $this->csvinfo["domain_users"];
+                            }
+                        }
+                        if (($this->default_template_aux != "") && (preg_match("/" . $this->default_template_aux . "/i", $result['sn'][0]))) {
+                            $this->csvinfo["template_aux"] = $i;
+                        }
+
+                    }
+
+                    $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
+
+                    /* Search OUs with objectClass gosaDepartment */
+                    $this->csvinfo['ou_tree'] = array();
+                    $this->csvinfo['ou_tree']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaDepartment)", array("ou", "description"));
+
+                    /* create arrays for search results */
+                    $this->csvinfo['ou_tree']['formfields'] = array();
+                    $this->csvinfo['ou_tree']['OUs'] = array();
+
+                    /* add found gosaDepartment objects */
+                    $i = 0;
+                    $default_ou_groups = 0;
+                    while ($result = $this->_ldap->fetch($this->csvinfo['ou_tree']['ldapsearch'])) {
+                        $this->csvinfo['ou_tree']['OUs'][] = $result['ou'][0];
+                        $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0] . " - " . $result['description'][0];
+                        $this->csvinfo['ou_tree']['DNs'][] = $result['dn'];
+                        if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
+                            $default_ou_groups = $i;
+                        }
+                        $i = $i + 1;
+                    }
+
+                    $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
+
+                    /* import configuration defaults, only set them if PHASE 1 has been successful */
+                    $this->csvinfo['ou_groups'] = $default_ou_groups;
+                    $this->csvinfo['accounts_in_class_ou'] = TRUE;
+                    $this->csvinfo['aliases_in_schooldomain'] = TRUE;
+                    $this->csvinfo['try_mail_as_uid'] = TRUE;
+                    $this->csvinfo['sel_ldap_match_attr_studentid'] = FALSE;
+                    $this->csvinfo['sel_ldap_match_attr_givenname'] = TRUE;
+                    $this->csvinfo['sel_ldap_match_attr_snname'] = TRUE;
+                    $this->csvinfo['sel_ldap_match_attr_birthday'] = TRUE;
+                    $this->csvinfo['sel_ldap_match_attr_gender'] = TRUE;
+                    $this->csvinfo['add_course_members_to_class_group'] = TRUE;
+
+                    /* provide pre-set values for account template forms */
+                    $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
+                    $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
+                    $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+                    $smarty->assign("domain_school", $this->csvinfo['domain_school']);
+                    $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
+                    $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
+                    $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+                    $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
+                    $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
+                    $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
+                    $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
+                    $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
+                    $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
+                    $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
+                    $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
+                }
+                else {
+                    $smarty->assign("LDIFError", TRUE);
+                    $smarty->assign("file_uploaded", FALSE);
+                    msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);
+                }
+            }
+        }
+    }
+
+    /*
+     * PHASE 02:
+     */
+    function execute_phase2($smarty)
+    {
+        $smarty->assign("file_uploaded", TRUE);
+
+        /* configure options */
+        if (isset($_POST["template_" . $this->import_account_type]) and isset($_POST["ou_groups"])) {
+            $this->csvinfo['template_main'] = $_POST["template_" . $this->import_account_type];
+
+            /* Obtain the OU name like this: $this->csvinfo['ou_tree']['OUs'][$this->csvinfo['ou_groups']] */
+            $this->csvinfo['ou_groups'] = $_POST["ou_groups"];
+
+            if ((isset($_POST["domain_users"])) && (empty($_POST["domain_users"]))) {
+                $this->csvinfo['domain_users'] = "";
+                $smarty->assign("LDIFError", TRUE);
+                msg_dialog::display(_("Error"), _("Domain for new users is empty!"), ERROR_DIALOG);
+                $this->failure_in_this_phase = TRUE;
+
+            }
+            elseif (substr($_POST["domain_users"], 0, 1) == "@") {
+                $this->csvinfo['domain_users'] = trim(substr($_POST["domain_users"], 1, strlen($_POST["domain_users"])));
+            }
+            else {
+                $this->csvinfo['domain_users'] = trim($_POST["domain_users"]);
+            }
+
+            if (empty($_POST["domain_groups"])) {
+                $this->csvinfo['domain_groups'] = "";
+                $smarty->assign("LDIFError", TRUE);
+                msg_dialog::display(_("Error"), _("Domain for new groups is empty!"), ERROR_DIALOG);
+                $this->failure_in_this_phase = TRUE;
+
+            }
+            elseif (substr($_POST["domain_groups"], 0, 1) == "@") {
+                $this->csvinfo['domain_groups'] = trim(substr($_POST["domain_groups"], 1, strlen($_POST["domain_groups"])));
+            }
+            else {
+                $this->csvinfo['domain_groups'] = trim($_POST["domain_groups"]);
+            }
+
+            if (isset($_POST["template_" . $this->import_account_type . "_aux"])) {
+                $this->csvinfo['template_aux'] = $_POST["template_" . $this->import_account_type . "_aux"];
+            }
+            $this->csvinfo['accounts_in_class_ou'] = isset($_POST["accounts_in_class_ou"]);
+            $this->csvinfo['aliases_in_schooldomain'] = isset($_POST["aliases_in_schooldomain"]);
+            $this->csvinfo['try_mail_as_uid'] = isset($_POST["try_mail_as_uid"]);
+            $this->csvinfo['sel_ldap_match_attr_studentid'] = isset($_POST["sel_ldap_match_attr_studentid"]);
+            $this->csvinfo['sel_ldap_match_attr_givenname'] = isset($_POST["sel_ldap_match_attr_givenname"]);
+            $this->csvinfo['sel_ldap_match_attr_snname'] = isset($_POST["sel_ldap_match_attr_snname"]);
+            $this->csvinfo['sel_ldap_match_attr_birthday'] = isset($_POST["sel_ldap_match_attr_birthday"]);
+            $this->csvinfo['sel_ldap_match_attr_gender'] = isset($_POST["sel_ldap_match_attr_gender"]);
+            $this->csvinfo['add_course_members_to_class_group'] = isset($_POST["add_course_members_to_class_group"]);
+
+            if ($this->failure_in_this_phase === FALSE) {
+                $smarty->assign("import_configured", TRUE);
+
+                /* initialize $this->csvinfo['attrs_selected'], only do this here and once */
+                $this->csvinfo['attrs_selected'] = $this->getAttrsPreSelection($this->csvinfo['num_cols']);
+
+                /* student import attributes */
+                $smarty->assign("attrs", $this->csvinfo['attrs']);
+
+                /* per row selected student import attributes */
+                $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
+
+                /* number of CSV columns -> number of rows in 90°-counter-clockwise-rotated table */
+                $smarty->assign("num_rows", $this->csvinfo['num_cols']);
+
+                /* CSV data */
+                $smarty->assign("data_size", $this->csvinfo['num_rows']);
+                $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
+            }
+            else {
+                /* prepare for reloading this phase's web page again */
+                $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
+                $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
+                $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
+                $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
+                $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+                $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
+                $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
+                $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+                $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
+                $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
+                $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
+                $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
+                $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
+                $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
+                $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
+                $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
+            }
+        }
+        else {
+            /* Something is not right! */
+            $reloadphase2 = TRUE;
+            msg_dialog::display(_("Error"), _("Something went wrong! Something from the form went missing! Please try again."), ERROR_DIALOG);
+        }
+        if ($reloadphase2 === TRUE) {
+            /* prepare for reloading this phase's web page again */
+            $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
+            $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
+            $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
+            $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
+            $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+            $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
+            $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+            $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
+            $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
+            $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
+            $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
+            $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
+            $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
+            $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
+            $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
+        }
+    }
+
+    /*
+     * PHASE 03:
+     */
+    function execute_phase3($smarty)
+    {
+        $smarty->assign("file_uploaded", TRUE);
+        $smarty->assign("import_configured", TRUE);
+
+        /* sanity checks on LDAP attributes assignments */
+
+        /* read attributes assignments from $_POST */
+        $new_attrs_selected = array();
+        for ($i = 0; $i < count($this->csvinfo['attrs_selected']); $i++) {
+            if (isset($_POST["column_head_$i"])) {
+                $new_attrs_selected[] = $_POST["column_head_$i"];
+            }
+            else {
+                $new_attrs_selected[] = $i;
+            }
+        }
+        $this->csvinfo['attrs_selected'] = $new_attrs_selected;
+
+        /* sort the CSV date table according to how it got re-ordered by the webUI admin user */
+        $this->csvinfo['data_sorted'] = array();
+        $multi_attrs = $this->getMultiAttributes();
+        foreach ($this->csvinfo['data'] as $data_row) {
+
+            $attrs_counter = array();
+            $data_row_sorted = array();
+
+            for ($i = 0; $i < count($data_row); $i++) {
+                $data_in_cell = $data_row[$i];
+                $selection_in_cell = $this->csvinfo['attrs_selected'][$i];
+                $value_of_selection = $this->csvinfo['attrs'][$selection_in_cell];
+                if ($value_of_selection == "---") {
+                }
+                elseif (in_array($value_of_selection, $multi_attrs)) {
+                    if (isset($attrs_counter[$value_of_selection])) {
+                        $attrs_counter[$value_of_selection] = $attrs_counter[$value_of_selection];
+                    }
+                    else {
+                        $attrs_counter[$value_of_selection] = 0;
+                    }
+                    $data_row_sorted[$value_of_selection . $attrs_counter[$value_of_selection]] = $data_in_cell;
+                    $attrs_counter[$value_of_selection]++;
+                }
+                elseif (empty($attrs_counter[$value_of_selection])) {
+                    $data_row_sorted[$value_of_selection] = $data_in_cell;
+                    $attrs_counter[$value_of_selection] = 1;
+                }
+                else {
+                    $this->failure_in_this_phase = TRUE;
+                    $smarty->assign("LDIFError", TRUE);
+                    msg_dialog::display(_("Error"), sprintf(_("The attribute %s is only allowed to select once!"), bold($value_of_selection)), ERROR_DIALOG);
+                }
+            }
+
+            $this->csvinfo['data_sorted'][] = $data_row_sorted;
+        }
+
+        /* transform data_sorted to data_preldap array */
+        $this->csvinfo['data_preldap'] = $this->prepareLdapImport($this->csvinfo['data_sorted']);
+
+        /* $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport ... */
+        if ($this->failure_in_this_phase === FALSE) {
+            /* free some memory... */
+            unset($this->csvinfo['data_sorted']);
+
+            $this->accountStatusCheck();
+
+            $smarty->assign("data_sorted", TRUE);
+            $smarty->assign("data", $this->csvinfo['data_preldap']);
+        }
+        else {
+            /* prepare for reloading this phase's web page again */
+            $smarty->assign("attrs", $this->csvinfo['attrs']);
+            $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
+            $smarty->assign("num_rows", $this->csvinfo['num_cols']);
+            $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
+        }
+    }
+
+    /*
+     * PHASE 04:
+     */
+    function execute_phase4($smarty)
+    {
+        $smarty->assign("file_uploaded", TRUE);
+        $smarty->assign("import_configured", TRUE);
+        $smarty->assign("data_sorted", TRUE);
+
+        /*
+         * Add users to / update users in LDAP
+         */
+        foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
+            /* import the user's main account */
+            if ((isset($user_data['main_account']) && (!empty($user_data['main_account'])))) {
+
+                $this->importLDAPUserObject($user_data['main_account']);
+
+            }
+
+            /* import the user's aux account (e.g., parent accounts) */
+            if ((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts'])))) {
+                foreach ($user_data['aux_accounts'] as $idx_aux => $aux_account) {
+                    /* import aux account $aux_account_data */
+                    $this->importLDAPUserObject($aux_account);
+                }
+            }
+        }
+
+        if ($this->failure_in_this_phase === FALSE) {
+            /* FIXME: present a message dialog box that informs on the statistics of
+             *        the LDAP group import. (How many groups got created? How many
+             *        groups have been updated? How many groups were not empty and
+             *        required dropping of all members? Etc.
+             */
+
+            $smarty->assign("accounts_reviewed", TRUE);
+
+            $this->accountStatusCheck();
+            $smarty->assign("data", $this->csvinfo['data_preldap']);
+
+        }
+        else {
+
+            /* show failure messages */
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks($msg);
+            }
+
+            /* prepare for reloading this phase's web page again */
+            $this->accountStatusCheck();
+            $smarty->assign("data", $this->csvinfo['data_preldap']);
+        }
+    }
+
+    /*
+     * PHASE 05:
+     */
+    function execute_phase5($smarty)
+    {
+        $smarty->assign("file_uploaded", TRUE);
+        $smarty->assign("import_configured", TRUE);
+        $smarty->assign("data_sorted", TRUE);
+        $smarty->assign("accounts_reviewed", TRUE);
+
+        if ($this->failure_in_this_phase === FALSE) {
+            $smarty->assign("accounts_imported", TRUE);
+
+            foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
+                if ((isset($user_data['main_account']) && (!empty($user_data['main_account'])))) {
+                    $_uid = $user_data['main_account']['uid'][0];
+
+                    $_all_groups = array();
+                    if (isset($user_data['groups'])) {
+                        $_all_groups = array_merge($_all_groups, $user_data['groups']);
+                    }
+                    if (isset($user_data['aux_accounts_groups'])) {
+                        $_all_groups = array_merge($_all_groups, $user_data['aux_accounts_groups']);
+                    }
+
+                    foreach ($_all_groups as $group_key => $group_data) {
+
+                        if (isset($group_data['_key'][0])) {
+                            $_group_type_key = $group_data['_key'][0];
+                        }
+                        else {
+                            $_group_type_key = 'groups';
+                        }
+
+                        /* find+replace {%uid} in group CN with the user's uid string */
+                        $_group_name = $group_data['cn'][0];
+                        if (preg_match('/\{%uid\}/', $_group_name)) {
+                            $this->csvinfo['data_preldap'][$idx][$_group_type_key][$group_key]['cn'][0] = str_replace('{%uid}', $_uid, $_group_name);
+                        }
+                        if (preg_match('/\{%uid\}/', $group_key)) {
+                            $this->csvinfo['data_preldap'][$idx][$_group_type_key][str_replace('{%uid}', $_uid, $group_key)] = $this->csvinfo['data_preldap'][$idx][$_group_type_key][$group_key];
+                            unset($this->csvinfo['data_preldap'][$idx][$_group_type_key][$group_key]);
+                        }
+                    }
+                }
+            }
+
+            $this->groupStatusCheck();
+
+            $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
+            $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
+        }
+        else {
+            /* prepare for reloading this phase's web page again */
+            $this->accountStatusCheck();
+            $smarty->assign("data", $this->csvinfo['data_preldap']);
+        }
+    }
+
+    /*
+     * PHASE 06:
+     */
+    function execute_phase6($smarty)
+    {
+        $smarty->assign("file_uploaded", TRUE);
+        $smarty->assign("import_configured", TRUE);
+        $smarty->assign("data_sorted", TRUE);
+        $smarty->assign("accounts_reviewed", TRUE);
+        $smarty->assign("accounts_imported", TRUE);
+
+        foreach ($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data) {
+
+            /* only perform on this group if _actions is not "none" */
+            if (strpos($group_data['_actions'][0], 'none') === FALSE) {
+
+                $this->importLDAPGroupObject($group_name, $group_data);
+
+            }
+        }
+
+        foreach ($this->csvinfo['data_preldap_ogroups'] as $group_name => $group_data) {
+            /* only perform on this group if _actions is not "none" */
+            if (strpos($group_data['_actions'][0], 'none') === FALSE) {
+                $this->importLDAPGroupObject($group_name, $group_data);
+            }
+        }
+
+        $this->groupStatusCheck();
+
+        $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
+        $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
+
+        if ($this->failure_in_this_phase === FALSE) {
+            $smarty->assign("groups_reviewed", TRUE);
+
+        }
+        else {
+        /* prepare for reloading this phase's web page again */
+        }
+    }
+
+    /*
+     * PHASE 07:
+     */
+    function execute_phase7($smarty)
+    {
+        $smarty->assign("file_uploaded", TRUE);
+        $smarty->assign("import_configured", TRUE);
+        $smarty->assign("data_sorted", TRUE);
+        $smarty->assign("accounts_reviewed", TRUE);
+        $smarty->assign("accounts_imported", TRUE);
+        $smarty->assign("groups_reviewed", TRUE);
+
+        $this->accountStatusCheck();
+        $this->groupStatusCheck();
+        $this->prepareGroupMemberships();
+        $smarty->assign("data", $this->csvinfo['data_preldap']);
+
+        if ($this->failure_in_this_phase === FALSE) {
+            $smarty->assign("groups_imported", TRUE);
+        }
+        else {
+            /* prepare for reloading this phase's web page again */
+            $this->groupStatusCheck();
+            $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
+            $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
+        }
+    }
+
+    /*
+     * PHASE 08:
+     */
+    function execute_phase8($smarty)
+    {
+        $smarty->assign("file_uploaded", TRUE);
+        $smarty->assign("import_configured", TRUE);
+        $smarty->assign("data_sorted", TRUE);
+        $smarty->assign("accounts_reviewed", TRUE);
+        $smarty->assign("accounts_imported", TRUE);
+        $smarty->assign("groups_reviewed", TRUE);
+        $smarty->assign("groups_imported", TRUE);
+
+        $this->addLDAPUserObjectsToGroups($this->posixgroup_members);
+        $this->addLDAPUserObjectsToOGroups($this->groupofnames_members);
+        $this->moveLDAPPrimGroupObjects();
+
+        /* FIXME: present a message dialog box that informs on the statistics of
+         *        the LDAP group membership updates.
+         */
+
+        $this->accountStatusCheck();
+        $this->groupStatusCheck();
+        $smarty->assign("data", $this->csvinfo['data_preldap']);
+        if ($this->failure_in_this_phase === FALSE) {
+            $smarty->assign("accounts_groupmembers_reviewed", TRUE);
+        }
+        else {
+            /* prepare for reloading this phase's web page again */
+            $this->prepareGroupMemberships();
+        }
+    }
+
+    /*
+     * PHASE 09:
+     */
+    function execute_phase9($smarty)
+    {
+        $smarty->assign("file_uploaded", TRUE);
+        $smarty->assign("import_configured", TRUE);
+        $smarty->assign("data_sorted", TRUE);
+        $smarty->assign("accounts_reviewed", TRUE);
+        $smarty->assign("accounts_imported", TRUE);
+        $smarty->assign("groups_reviewed", TRUE);
+        $smarty->assign("groups_imported", TRUE);
+        $smarty->assign("accounts_groupmembers_reviewed", TRUE);
+
+        if ($this->failure_in_this_phase === FALSE) {
+            $smarty->assign("accounts_groupmembers_updated", TRUE);
+        }
+        else {
+        /* prepare for reloading this phase's web page again */
+        }
+    }
+
+    /*
+     * PHASE 10:
+     */
+    function execute_phase10($smarty)
+    {
+        $smarty->assign("file_uploaded", TRUE);
+        $smarty->assign("import_configured", TRUE);
+        $smarty->assign("data_sorted", TRUE);
+        $smarty->assign("accounts_reviewed", TRUE);
+        $smarty->assign("accounts_imported", TRUE);
+        $smarty->assign("groups_reviewed", TRUE);
+        $smarty->assign("groups_imported", TRUE);
+        $smarty->assign("accounts_groupmembers_reviewed", TRUE);
+        $smarty->assign("accounts_groupmembers_updated", TRUE);
+
+        if ($this->failure_in_this_phase === FALSE) {
+
+            /*
+             * FIXME: If automatic password generation is used, present a download link
+             *        for a generated credentials sheet of paper.
+             */
+
+            /* Render the final SUCCESS page */
+            $smarty->assign("cleanup_completed", TRUE);
+
+        }
+        else {
+
+        /* FIXME: no clue what to do on failures here... We will see. */
+
+        }
     }
 
     function execute () {
@@ -79,7 +748,7 @@ class importaccounts extends plugin{
         /* Call parent execute */
         plugin::execute ();
 
-        $import_account_type = substr(get_class($this), 6, strlen(get_class($this)));
+        $this->import_account_type = substr(get_class($this), 6, strlen(get_class($this)));
 
         /* Log view */
         if (!$this->view_logged) {
@@ -91,7 +760,7 @@ class importaccounts extends plugin{
         $smarty=get_smarty ();
 
         /* Import (students and parents), (students only) or (teachers only) */
-        $smarty->assign ("import_account_type",$import_account_type);
+        $smarty->assign ("import_account_type", $this->import_account_type);
 
 
         /* PHASE 01 done, set $file_uploaded to TRUE */
@@ -169,697 +838,37 @@ class importaccounts extends plugin{
         /* reset our failure status from last template view... */
         $this->failure_in_this_phase = FALSE;
 
-        /*
-         * PHASE 01
-         */
-        if (isset ($_POST['phase_01']) && isset($_POST['file_uploaded']) && (!isset($_POST['cancel_import']))) {
-
-            /* Check if theres a file uploaded */
-            if (!empty ($_FILES['userfile']['name'])) {
-                $handle=NULL;
-                $filename=gosa_file_name ($_FILES['userfile']['tmp_name']);
-                if ( !isset ($_FILES['userfile']['name'])) {
-                    msg_dialog::display (_ ("Error"),sprintf (_ ("Cannot read uploaded file: %s"),_ ("file not found")),ERROR_DIALOG);
-                    $smarty->assign ("LDIFError",TRUE);
-                }
-                elseif (!$_FILES['userfile']['size']>0) {
-                    msg_dialog::display (_ ("Error"),sprintf (_ ("Cannot read uploaded file: %s"),_ ("file is empty")),ERROR_DIALOG);
-                    $smarty->assign ("LDIFError",TRUE);
-                }
-
-                /* Is there a tmp file, which we can use ? */
-                elseif (!file_exists ($filename)) {
-                    msg_dialog::display (_ ("Error"),sprintf (_ ("Cannot read uploaded file: %s"),_ ("file not found")),ERROR_DIALOG);
-                    $smarty->assign ("LDIFError",TRUE);
-                }
-                elseif (!$handle=@fopen ($filename,"r")) {
-                    msg_dialog::display (_ ("Error"),sprintf (_ ("Cannot read uploaded file: %s"),_ ("file not readable")),ERROR_DIALOG);
-                    $smarty->assign ("LDIFError",TRUE);
-                }
-                else {
-                    $smarty->assign ("file_uploaded",TRUE);
-                    $raw_csv_data="";
-
-                    /* Reading content */
-                    while (!feof ($handle)) {
-                        $raw_csv_data.=fread ($handle,1024);
-                    }
-
-                    @fclose ($handle);
-
-                    if(!mb_check_encoding($raw_csv_data, "UTF-8"))
-                    {
-                        if(mb_check_encoding($raw_csv_data, "iso-8859-1"))
-                        {
-                            $raw_csv_data = utf8_encode($raw_csv_data);
-                        } else
-                        {
-                            $smarty->assign ("LDIFError",TRUE);
-                            $smarty->assign ("file_uploaded",FALSE);
-                            msg_dialog::display (_ ("Error"),_ ("File has an unsupported encoding!"),ERROR_DIALOG);
-                        }
-                    }
-
-                    $parser_ok = importaccounts::parseCSV($raw_csv_data);
-
-                    if ($parser_ok!==FALSE)
-                    {
-
-                        $this->csvinfo["template_main"]= 0;
-                        $this->csvinfo["template_aux"]= 0;
-
-                        /* Populate the Template Selectors for PHASE 2 */
-
-                        /* Search all Templates    */
-                        $this->csvinfo['templates'] = array();
-
-                        /* add the "None" template first */
-                        $this->csvinfo['templates']['formfields'] = array();
-                        $this->csvinfo['templates']['formfields'][] = "None";
-                        $this->csvinfo['templates']['DNs'] = array();
-                        $this->csvinfo['templates']['DNs'][]   = "";
-
-                        # Set the default mail domain for users, groups and for the school here (they might differ)...
-                        $this->csvinfo['domain_school']= "intern";
-                        $this->csvinfo['domain_users']= "intern";
-                        $this->csvinfo['domain_groups']= "intern";
-
-                        $_base_search = $this->_ldap->search("(objectClass=dcObject)",array("o"));
-                        $_base_obj = $this->_ldap->fetch($_base_search, $this->config->current['BASE']);
-
-                        // FIXME: Do a is_valid_domain_name check here...
-                        if (isset($_base_obj['o']) && isset($_base_obj['o'][0])) {
-                            $this->csvinfo['domain_school']= trim($_base_obj['o'][0]);
-                        }
-
-                        $this->csvinfo['templates']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaUserTemplate)",array("*"));
-                        /* add found gosaUserTemplate objects */
-                        $i = 0;
-                        while($result = $this->_ldap->fetch($this->csvinfo['templates']['ldapsearch'])){
-
-                            $this->csvinfo['templates']['formfields'][] = $result['sn'][0]." - ".$this->config->idepartments[preg_replace("/^[^,]+,".preg_quote(get_people_ou(), '/')."/i", "", $result['dn'])];
-                            $this->csvinfo['templates']['DNs'][] = $result['dn'];
-
-                            $i = $i + 1;
-
-                            if ( ($this->default_template_main != "") && (preg_match ( "/".$this->default_template_main."/i", $result['sn'][0] ) ) ) {
-                                $this->csvinfo["template_main"]= $i;
-
-                                /* user mail domain */
-
-                                /* obtain mail domain from pre-selected main user template, if that is available */
-                                if (isset($result['mail']) && strpos($result['mail'][0], '@')) {
-                                    $this->csvinfo["domain_users"] = trim(preg_split('/@/', $result['mail'][0],2)[1]);
-                                }
-
-                                /* group mail domain */
-
-                                /* obtain mail domain from group template object of pre-selected main user template, if available */
-                                if (isset($result['uid'])) {
-
-                                    $_ldap_group_search = $this->_ldap->search("(&(objectClass=gosaMailAccount)(objectClass=posixGroup)(gidNumber=".$result['gidNumber'][0]."))");
-                                    while ($_template_group = $this->_ldap->fetch($_ldap_group_search)) {
-
-                                        if (isset($_template_group['mail']) && strpos($_template_group['mail'][0], '@')) {
-                                            $this->csvinfo["domain_groups"] = trim(preg_split('/@/', $_template_group['mail'][0],2)[1]);
-
-                                        }
-
-                                        /*
-                                         * there should only be one template group with given gidNumber
-                                         * if otherwise, there is something wrong (and let's ignore it here)
-                                         */
-                                        break;
-                                    }
-                                }
-
-                                /* otherwise use $this->csvinfo["domain_users"] as detected above */
-                                else if (isset($this->csvinfo["domain_users"])) {
-                                    $this->csvinfo["domain_groups"] = $this->csvinfo["domain_users"];
-                                }
-                            }
-                            if ( ($this->default_template_aux != "") && (preg_match ( "/".$this->default_template_aux."/i", $result['sn'][0] ) ) ) {
-                                $this->csvinfo["template_aux"]= $i;
-                            }
-
-                        }
-
-                        $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
-
-                        /* Search OUs with objectClass gosaDepartment */
-                        $this->csvinfo['ou_tree'] = array();
-                        $this->csvinfo['ou_tree']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaDepartment)",array("ou","description"));
-
-                        /* create arrays for search results */
-                        $this->csvinfo['ou_tree']['formfields'] = array();
-                        $this->csvinfo['ou_tree']['OUs'] = array();
-
-                        /* add found gosaDepartment objects */
-                        $i = 0;
-                        $default_ou_groups = 0;
-                        while($result = $this->_ldap->fetch($this->csvinfo['ou_tree']['ldapsearch'])) {
-                            $this->csvinfo['ou_tree']['OUs'][] = $result['ou'][0];
-                            $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0]." - ".$result['description'][0];
-                            $this->csvinfo['ou_tree']['DNs'][] = $result['dn'];
-                            if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
-                                $default_ou_groups = $i;
-                            }
-                            $i = $i + 1;
-                        }
-
-                        $smarty->assign("ous_available",$this->csvinfo['ou_tree']['formfields']);
-
-                        /* import configuration defaults, only set them if PHASE 1 has been successful */
-                        $this->csvinfo['ou_groups']= $default_ou_groups;
-                        $this->csvinfo['accounts_in_class_ou']= TRUE;
-                        $this->csvinfo['aliases_in_schooldomain']= TRUE;
-                        $this->csvinfo['try_mail_as_uid']= TRUE;
-                        $this->csvinfo['sel_ldap_match_attr_studentid']= FALSE;
-                        $this->csvinfo['sel_ldap_match_attr_givenname']= TRUE;
-                        $this->csvinfo['sel_ldap_match_attr_snname']= TRUE;
-                        $this->csvinfo['sel_ldap_match_attr_birthday']= TRUE;
-                        $this->csvinfo['sel_ldap_match_attr_gender']= TRUE;
-                        $this->csvinfo['add_course_members_to_class_group']= TRUE;
-
-                        /* provide pre-set values for account template forms */
-                        $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
-                        $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
-                        $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
-                        $smarty->assign("domain_school", $this->csvinfo['domain_school']);
-                        $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
-                        $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-                        $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
-                        $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
-                        $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
-                        $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
-                        $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
-                        $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
-                        $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
-                        $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
-                        $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
-                    }
-                    else {
-                        $smarty->assign ("LDIFError",TRUE);
-                        $smarty->assign ("file_uploaded",FALSE);
-                        msg_dialog::display (_ ("Error"),_ ("Cannot find CSV data in the selected file!"),ERROR_DIALOG);
-                    }
-                }
+        /* Execute next phase, if user didn't abort. */
+        if (!isset($_POST['cancel_import'])) {
+            if (isset($_POST['phase_01']) && isset($_POST['file_uploaded'])) {
+                $this->execute_phase1($smarty);
             }
-        }
-
-        /*
-         * PHASE 2
-         */
-        elseif (isset ($_POST['phase_02']) && isset($_POST['import_configured']) && (!isset($_POST['cancel_import']))) {
-
-            $smarty->assign ("file_uploaded",TRUE);
-
-            /* configure options */
-            if (isset ($_POST["template_".$import_account_type]) and isset ($_POST["ou_groups"]))
-            {
-                $this->csvinfo['template_main'] = $_POST["template_".$import_account_type];
-
-                /* Obtain the OU name like this: $this->csvinfo['ou_tree']['OUs'][$this->csvinfo['ou_groups']] */
-                $this->csvinfo['ou_groups'] = $_POST["ou_groups"];
-
-                if ( (isset($_POST["domain_users"])) && (empty($_POST["domain_users"])) )
-                {
-                    $this->csvinfo['domain_users']= "";
-                    $smarty->assign ("LDIFError",TRUE);
-                    msg_dialog::display (_ ("Error"),_ ("Domain for new users is empty!"),ERROR_DIALOG);
-                    $this->failure_in_this_phase= TRUE;
-
-                } elseif(substr($_POST["domain_users"],0,1) == "@")
-                {
-                    $this->csvinfo['domain_users'] = trim(substr($_POST["domain_users"],1,strlen($_POST["domain_users"])));
-                } else
-                {
-                    $this->csvinfo['domain_users'] = trim($_POST["domain_users"]);
-                }
-
-                if(empty($_POST["domain_groups"]))
-                {
-                    $this->csvinfo['domain_groups']= "";
-                    $smarty->assign ("LDIFError",TRUE);
-                    msg_dialog::display (_ ("Error"),_ ("Domain for new groups is empty!"),ERROR_DIALOG);
-                    $this->failure_in_this_phase= TRUE;
-
-                } elseif(substr($_POST["domain_groups"],0,1) == "@")
-                {
-                    $this->csvinfo['domain_groups'] = trim(substr($_POST["domain_groups"],1,strlen($_POST["domain_groups"])));
-                } else
-                {
-                    $this->csvinfo['domain_groups'] = trim($_POST["domain_groups"]);
-                }
-
-                if (isset ($_POST["template_".$import_account_type."_aux"]))
-                {
-                    $this->csvinfo['template_aux'] = $_POST["template_".$import_account_type."_aux"];
-                }
-                $this->csvinfo['accounts_in_class_ou'] = isset ($_POST["accounts_in_class_ou"]);
-                $this->csvinfo['aliases_in_schooldomain'] = isset ($_POST["aliases_in_schooldomain"]);
-                $this->csvinfo['try_mail_as_uid'] = isset ($_POST["try_mail_as_uid"]);
-                $this->csvinfo['sel_ldap_match_attr_studentid'] = isset ($_POST["sel_ldap_match_attr_studentid"]);
-                $this->csvinfo['sel_ldap_match_attr_givenname'] = isset ($_POST["sel_ldap_match_attr_givenname"]);
-                $this->csvinfo['sel_ldap_match_attr_snname']    = isset ($_POST["sel_ldap_match_attr_snname"]);
-                $this->csvinfo['sel_ldap_match_attr_birthday']  = isset ($_POST["sel_ldap_match_attr_birthday"]);
-                $this->csvinfo['sel_ldap_match_attr_gender']    = isset ($_POST["sel_ldap_match_attr_gender"]);
-                $this->csvinfo['add_course_members_to_class_group'] = isset ($_POST["add_course_members_to_class_group"]);
-
-                if($this->failure_in_this_phase===FALSE)
-                {
-                    $smarty->assign ("import_configured",TRUE);
-
-                    /* initialize $this->csvinfo['attrs_selected'], only do this here and once */
-                    $this->csvinfo['attrs_selected']=$this->getAttrsPreSelection($this->csvinfo['num_cols']);
-
-                    /* student import attributes */
-                    $smarty->assign ("attrs",$this->csvinfo['attrs']);
-
-                    /* per row selected student import attributes */
-                    $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
-
-                    /* number of CSV columns -> number of rows in 90°-counter-clockwise-rotated table */
-                    $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
-
-                    /* CSV data */
-                    $smarty->assign ("data_size",$this->csvinfo['num_rows']);
-                    $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
-                }
-                else {
-                    /* prepare for reloading this phase's web page again */
-                    $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
-                    $smarty->assign("ous_available",$this->csvinfo['ou_tree']['formfields']);
-                    $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
-                    $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
-                    $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
-                    $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
-                    $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-                    $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
-                    $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
-                    $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
-                    $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
-                    $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
-                    $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
-                    $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
-                    $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
-                    $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
-                }
-            } else {
-                /* Something is not right! */
-                $reloadphase2 = TRUE;
-                msg_dialog::display (_ ("Error"), _("Something went wrong! Something from the form went missing! Please try again."), ERROR_DIALOG);
+            elseif (isset($_POST['phase_02']) && isset($_POST['import_configured'])) {
+                $this->execute_phase2($smarty);
             }
-            if ($reloadphase2 === TRUE) {
-                /* prepare for reloading this phase's web page again */
-                $smarty->assign("templates",$this->csvinfo['templates']['formfields']);
-                $smarty->assign("ous_available",$this->csvinfo['ou_tree']['formfields']);
-                $smarty->assign("preset_template_".$import_account_type, $this->csvinfo['template_main']);
-                $smarty->assign("preset_template_".$import_account_type."_aux", $this->csvinfo['template_aux']);
-                $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
-                $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-                $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
-                $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
-                $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
-                $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
-                $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
-                $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
-                $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
-                $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
-                $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
+            elseif (isset($_POST['phase_03']) && isset($_POST['data_sorted'])) {
+                $this->execute_phase3($smarty);
             }
-        }
-
-        /*
-         * PHASE 03
-         */
-        elseif (isset ($_POST['phase_03']) && isset($_POST['data_sorted']) && (!isset($_POST['cancel_import']))) {
-
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("import_configured",TRUE);
-
-            /* sanity checks on LDAP attributes assignments */
-
-            /* read attributes assignments from $_POST */
-            $new_attrs_selected = array();
-            for ($i=0; $i<count($this->csvinfo['attrs_selected']);$i++)
-            {
-                if(isset($_POST["column_head_$i"]))
-                {
-                    $new_attrs_selected[] = $_POST["column_head_$i"];
-                }
-                else {
-                    $new_attrs_selected[] = $i;
-                }
+            elseif (isset($_POST['phase_04']) && isset($_POST['accounts_reviewed'])) {
+                $this->execute_phase4($smarty);
             }
-            $this->csvinfo['attrs_selected'] = $new_attrs_selected;
-
-            /* sort the CSV date table according to how it got re-ordered by the webUI admin user */
-            $this->csvinfo['data_sorted'] = array();
-            $multi_attrs=$this->getMultiAttributes();
-            foreach ($this->csvinfo['data'] as $data_row) {
-
-                $attrs_counter=array();
-                $data_row_sorted= array();
-
-                for ($i=0;$i<count($data_row);$i++)
-                {
-                        $data_in_cell = $data_row[$i];
-                        $selection_in_cell = $this->csvinfo['attrs_selected'][$i];
-                        $value_of_selection = $this->csvinfo['attrs'][$selection_in_cell];
-                        if($value_of_selection == "---")
-                        {
-                        } elseif(in_array($value_of_selection,$multi_attrs))
-                        {
-                                if(isset($attrs_counter[$value_of_selection]))
-                                {
-                                    $attrs_counter[$value_of_selection]=$attrs_counter[$value_of_selection];
-                                }
-                                else {
-                                    $attrs_counter[$value_of_selection]= 0;
-                                }
-                                $data_row_sorted[$value_of_selection . $attrs_counter[$value_of_selection]] = $data_in_cell;
-                                $attrs_counter[$value_of_selection]++;
-                        } elseif(empty($attrs_counter[$value_of_selection]))
-                        {
-                                $data_row_sorted[$value_of_selection] = $data_in_cell;
-                                $attrs_counter[$value_of_selection] = 1;
-                        } else
-                        {
-                                $this->failure_in_this_phase=TRUE;
-                                $smarty->assign ("LDIFError",TRUE);
-                                msg_dialog::display (_ ("Error"),sprintf (_ ("The attribute %s is only allowed to select once!"),bold ($value_of_selection)),ERROR_DIALOG);
-                        }
-                }
-
-                $this->csvinfo['data_sorted'][] = $data_row_sorted;
+            elseif (isset($_POST['phase_05']) && isset($_POST['accounts_imported'])) {
+                $this->execute_phase5($smarty);
             }
-
-            /* transform data_sorted to data_preldap array */
-            $this->csvinfo['data_preldap']= $this->prepareLdapImport($this->csvinfo['data_sorted']);
-
-            /* $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport ... */
-            if($this->failure_in_this_phase===FALSE)
-            {
-                /* free some memory... */
-                unset ($this->csvinfo['data_sorted']);
-
-                $this->accountStatusCheck();
-
-                $smarty->assign ("data_sorted",TRUE);
-                $smarty->assign ("data",$this->csvinfo['data_preldap']);
+            elseif (isset($_POST['phase_06']) && isset($_POST['groups_reviewed'])) {
+                $this->execute_phase6($smarty);
             }
-            else {
-                /* prepare for reloading this phase's web page again */
-                $smarty->assign ("attrs",$this->csvinfo['attrs']);
-                $smarty->assign ("attrs_selected",$this->csvinfo['attrs_selected']);
-                $smarty->assign ("num_rows",$this->csvinfo['num_cols']);
-                $smarty->assign ("data",array_slice($this->csvinfo['data'], 0, 5));
+            elseif (isset($_POST['phase_07']) && isset($_POST['groups_imported'])) {
+                $this->execute_phase7($smarty);
             }
-        }
-        /*
-         * PHASE 04
-         */
-        elseif (isset ($_POST['phase_04']) && isset($_POST['accounts_reviewed']) && (!isset($_POST['cancel_import']))) {
-
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("import_configured",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
-
-            /*
-             * Add users to / update users in LDAP
-             */
-            foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
-            {
-                /* import the user's main account */
-                if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
-                {
-
-                    $this->importLDAPUserObject($user_data['main_account']);
-
-                }
-
-                /* import the user's aux account (e.g., parent accounts) */
-                if((isset($user_data['aux_accounts']) && (!empty($user_data['aux_accounts']))))
-                {
-                    foreach($user_data['aux_accounts'] as $idx_aux => $aux_account)
-                    {
-                        /* import aux account $aux_account_data */
-                        $this->importLDAPUserObject($aux_account);
-                    }
-                }
+            elseif (isset($_POST['phase_08']) && isset($_POST['accounts_groupmembers_reviewed'])) {
+                $this->execute_phase8($smarty);
             }
-
-            if($this->failure_in_this_phase===FALSE)
-            {
-                /* FIXME: present a message dialog box that informs on the statistics of
-                 *        the LDAP group import. (How many groups got created? How many
-                 *        groups have been updated? How many groups were not empty and
-                 *        required dropping of all members? Etc.
-                 */
-
-                $smarty->assign ("accounts_reviewed",TRUE);
-
-                $this->accountStatusCheck();
-                $smarty->assign("data",$this->csvinfo['data_preldap']);
-
+            elseif (isset($_POST['phase_09']) && isset($_POST['accounts_groupmembers_updated'])) {
+                $this->execute_phase9($smarty);
             }
-            else {
-
-                /* show failure messages */
-                foreach($this->failure_messages as $msg)
-                {
-                    msg_dialog::displayChecks($msg);
-                }
-
-                /* prepare for reloading this phase's web page again */
-                $this->accountStatusCheck();
-                $smarty->assign("data",$this->csvinfo['data_preldap']);
-            }
-        }
-        /*
-         * PHASE 05
-         */
-        elseif (isset ($_POST['phase_05']) && isset($_POST['accounts_imported']) && (!isset($_POST['cancel_import'])))
-        {
-
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("import_configured",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
-            $smarty->assign ("accounts_reviewed",TRUE);
-
-            if($this->failure_in_this_phase===FALSE)
-            {
-                $smarty->assign ("accounts_imported",TRUE);
-
-                foreach($this->csvinfo['data_preldap'] as $idx => $user_data)
-                {
-                    if((isset($user_data['main_account']) && (!empty($user_data['main_account']))))
-                    {
-                        $_uid= $user_data['main_account']['uid'][0];
-
-                        $_all_groups= array();
-                        if(isset($user_data['groups'])) { $_all_groups= array_merge($_all_groups, $user_data['groups']); }
-                        if(isset($user_data['aux_accounts_groups'])) { $_all_groups= array_merge($_all_groups, $user_data['aux_accounts_groups']); }
-
-                        foreach($_all_groups as $group_key => $group_data)
-                        {
-
-                            if(isset($group_data['_key'][0])) { $_group_type_key= $group_data['_key'][0]; }
-                            else { $_group_type_key= 'groups'; }
-
-                            /* find+replace {%uid} in group CN with the user's uid string */
-                            $_group_name= $group_data['cn'][0];
-                            if(preg_match('/\{%uid\}/', $_group_name))
-                            {
-                                $this->csvinfo['data_preldap'][$idx][$_group_type_key][$group_key]['cn'][0]= str_replace('{%uid}', $_uid, $_group_name);
-                            }
-                            if(preg_match('/\{%uid\}/', $group_key))
-                            {
-                                $this->csvinfo['data_preldap'][$idx][$_group_type_key][str_replace('{%uid}', $_uid, $group_key)]= $this->csvinfo['data_preldap'][$idx][$_group_type_key][$group_key];
-                                unset($this->csvinfo['data_preldap'][$idx][$_group_type_key][$group_key]);
-                            }
-                        }
-                    }
-                }
-
-                $this->groupStatusCheck();
-
-                $smarty->assign ("data_groups", $this->csvinfo['data_preldap_posixgroups']);
-                $smarty->assign ("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
-            }
-            else {
-                /* prepare for reloading this phase's web page again */
-                $this->accountStatusCheck();
-                $smarty->assign("data",$this->csvinfo['data_preldap']);
-            }
-        }
-
-        /*
-         * PHASE 06
-         */
-        elseif (isset ($_POST['phase_06']) && isset($_POST['groups_reviewed']) && (!isset($_POST['cancel_import'])))
-        {
-
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("import_configured",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
-            $smarty->assign ("accounts_reviewed",TRUE);
-            $smarty->assign ("accounts_imported",TRUE);
-
-            foreach($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data)
-            {
-
-                /* only perform on this group if _actions is not "none" */
-                if(strpos($group_data['_actions'][0],'none')===FALSE)
-                {
-
-                    $this->importLDAPGroupObject($group_name, $group_data);
-
-                }
-            }
-
-            foreach($this->csvinfo['data_preldap_ogroups'] as $group_name => $group_data)
-            {
-
-                /* only perform on this group if _actions is not "none" */
-                if(strpos($group_data['_actions'][0],'none')===FALSE)
-                {
-
-                    $this->importLDAPGroupObject($group_name, $group_data);
-
-                }
-            }
-
-            $this->groupStatusCheck();
-
-            $smarty->assign ("data_groups", $this->csvinfo['data_preldap_posixgroups']);
-            $smarty->assign ("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
-
-            if($this->failure_in_this_phase===FALSE)
-            {
-                $smarty->assign ("groups_reviewed",TRUE);
-
-            }
-            else {
-                /* prepare for reloading this phase's web page again */
-            }
-        }
-        /*
-         * PHASE 07
-         */
-        elseif (isset ($_POST['phase_07']) && isset($_POST['groups_imported']) && (!isset($_POST['cancel_import']))) {
-
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("import_configured",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
-            $smarty->assign ("accounts_reviewed",TRUE);
-            $smarty->assign ("accounts_imported",TRUE);
-            $smarty->assign ("groups_reviewed",TRUE);
-
-            $this->accountStatusCheck();
-            $this->groupStatusCheck();
-            $this->prepareGroupMemberships();
-            $smarty->assign("data",$this->csvinfo['data_preldap']);
-
-            if ($this->failure_in_this_phase===FALSE)
-            {
-                $smarty->assign ("groups_imported",TRUE);
-            }
-            else {
-                /* prepare for reloading this phase's web page again */
-                $this->groupStatusCheck();
-                $smarty->assign ("data_groups", $this->csvinfo['data_preldap_posixgroups']);
-                $smarty->assign ("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
-            }
-        }
-
-        /*
-         * PHASE 08
-         */
-        elseif (isset ($_POST['phase_08']) && isset($_POST['accounts_groupmembers_reviewed']) && (!isset($_POST['cancel_import']))) {
-
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("import_configured",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
-            $smarty->assign ("accounts_reviewed",TRUE);
-            $smarty->assign ("accounts_imported",TRUE);
-            $smarty->assign ("groups_reviewed",TRUE);
-            $smarty->assign ("groups_imported",TRUE);
-
-            $this->addLDAPUserObjectsToGroups($this->posixgroup_members);
-            $this->addLDAPUserObjectsToOGroups($this->groupofnames_members);
-            $this->moveLDAPPrimGroupObjects();
-
-            /* FIXME: present a message dialog box that informs on the statistics of
-             *        the LDAP group membership updates.
-             */
-
-            $this->accountStatusCheck();
-            $this->groupStatusCheck();
-            $smarty->assign("data",$this->csvinfo['data_preldap']);
-            if ($this->failure_in_this_phase===FALSE)
-            {
-                $smarty->assign ("accounts_groupmembers_reviewed",TRUE);
-            }
-            else {
-                /* prepare for reloading this phase's web page again */
-                $this->prepareGroupMemberships();
-            }
-        }
-        /*
-         * PHASE 09
-         */
-        elseif (isset ($_POST['phase_09']) && isset($_POST['accounts_groupmembers_updated']) && (!isset($_POST['cancel_import']))) {
-
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("import_configured",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
-            $smarty->assign ("accounts_reviewed",TRUE);
-            $smarty->assign ("accounts_imported",TRUE);
-            $smarty->assign ("groups_reviewed",TRUE);
-            $smarty->assign ("groups_imported",TRUE);
-            $smarty->assign ("accounts_groupmembers_reviewed",TRUE);
-
-            if ($this->failure_in_this_phase===FALSE)
-            {
-                $smarty->assign ("accounts_groupmembers_updated",TRUE);
-            }
-            else {
-                /* prepare for reloading this phase's web page again */
-            }
-        }
-        /*
-         * PHASE 10
-         */
-        elseif (isset ($_POST['phase_10']) && isset($_POST['cleanup_completed']) && (!isset($_POST['cancel_import']))) {
-
-            $smarty->assign ("file_uploaded",TRUE);
-            $smarty->assign ("import_configured",TRUE);
-            $smarty->assign ("data_sorted",TRUE);
-            $smarty->assign ("accounts_reviewed",TRUE);
-            $smarty->assign ("accounts_imported",TRUE);
-            $smarty->assign ("groups_reviewed",TRUE);
-            $smarty->assign ("groups_imported",TRUE);
-            $smarty->assign ("accounts_groupmembers_reviewed",TRUE);
-            $smarty->assign ("accounts_groupmembers_updated",TRUE);
-
-            if ($this->failure_in_this_phase===FALSE)
-            {
-
-                /*
-                 * FIXME: If automatic password generation is used, present a download link
-                 *        for a generated credentials sheet of paper.
-                 */
-
-                /* Render the final SUCCESS page */
-                $smarty->assign ("cleanup_completed",TRUE);
-
-            }
-            else {
-
-                /* FIXME: no clue what to do on failures here... We will see. */
-
+            elseif (isset($_POST['phase_10']) && isset($_POST['cleanup_completed'])) {
+                $this->execute_phase10($smarty);
             }
         }
 
