@@ -419,9 +419,9 @@ class importaccounts extends plugin
         $smarty->assign("file_uploaded", TRUE);
         $smarty->assign("import_configured", TRUE);
 
-        /* sanity checks on LDAP attributes assignments */
+        /* Sanity checks on LDAP attributes assignments */
 
-        /* read attributes assignments from $_POST */
+        // Read attributes assignments from $_POST
         $new_attrs_selected = array();
         for ($i = 0; $i < count($this->csvinfo['attrs_selected']); $i++) {
             if (isset($_POST["column_head_$i"])) {
@@ -433,11 +433,11 @@ class importaccounts extends plugin
         }
         $this->csvinfo['attrs_selected'] = $new_attrs_selected;
 
-        /* sort the CSV date table according to how it got re-ordered by the webUI admin user */
+        // Transform $this->csvinfo['data'] ---> $this->csvinfo['data_sorted'] using $this->csvinfo['attrs_selected']'
+        // Sort the CSV data table according to how it got re-ordered by the plugin-user
         $this->csvinfo['data_sorted'] = array();
         $multi_attrs = $this->getMultiAttributes();
         foreach ($this->csvinfo['data'] as $data_row) {
-
             $attrs_counter = array();
             $data_row_sorted = array();
 
@@ -445,9 +445,11 @@ class importaccounts extends plugin
                 $data_in_cell = $data_row[$i];
                 $selection_in_cell = $this->csvinfo['attrs_selected'][$i];
                 $value_of_selection = $this->csvinfo['attrs'][$selection_in_cell];
-                if ($value_of_selection == "---") {
-                }
-                elseif (in_array($value_of_selection, $multi_attrs)) {
+
+                // Skip every '---'
+                if ($value_of_selection == "---") continue;
+
+                if (in_array($value_of_selection, $multi_attrs)) {
                     if (isset($attrs_counter[$value_of_selection])) {
                         $attrs_counter[$value_of_selection] = $attrs_counter[$value_of_selection];
                     }
@@ -464,19 +466,24 @@ class importaccounts extends plugin
                 else {
                     $this->failure_in_this_phase = TRUE;
                     $smarty->assign("LDIFError", TRUE);
-                    msg_dialog::display(_("Error"), sprintf(_("The attribute %s is only allowed to select once!"), bold($value_of_selection)), ERROR_DIALOG);
+                    msg_dialog::display(
+                        _("Error"),
+                        sprintf(_("The attribute '%s' is only allowed to be selected once!"),
+                        bold($value_of_selection)), ERROR_DIALOG
+                    );
                 }
             }
 
             $this->csvinfo['data_sorted'][] = $data_row_sorted;
         }
 
-        /* transform data_sorted to data_preldap array */
+        // Transform 'data_sorted' ---> 'data_preldap' array
+        // by using by sub-class overloaded prepareLdapImport()
         $this->csvinfo['data_preldap'] = $this->prepareLdapImport($this->csvinfo['data_sorted']);
 
-        /* $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport ... */
+        // $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport()...
         if ($this->failure_in_this_phase === FALSE) {
-            /* free some memory... */
+            // Free old & now unused memory
             unset($this->csvinfo['data_sorted']);
 
             $this->accountStatusCheck();
@@ -485,7 +492,7 @@ class importaccounts extends plugin
             $smarty->assign("data", $this->csvinfo['data_preldap']);
         }
         else {
-            /* prepare for reloading this phase's web page again */
+            /* Prepare for reloading this phase's web page again */
             $smarty->assign("attrs", $this->csvinfo['attrs']);
             $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
             $smarty->assign("num_rows", $this->csvinfo['num_cols']);
