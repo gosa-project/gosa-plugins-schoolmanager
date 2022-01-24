@@ -291,16 +291,19 @@ class importaccounts extends plugin
 
     /*
      * PHASE 02:
+     *   - Set import options which the user configured.
+     *     - Checkboxes, OU's for new groups & users, etc...
      */
     function execute_phase2($smarty)
     {
         $smarty->assign("file_uploaded", TRUE);
 
-        /* configure options */
+        // Configure import options
         if (isset($_POST["template_" . $this->import_account_type]) and isset($_POST["ou_groups"])) {
             $this->csvinfo['template_main'] = $_POST["template_" . $this->import_account_type];
 
-            /* Obtain the OU name like this: $this->csvinfo['ou_tree']['OUs'][$this->csvinfo['ou_groups']] */
+            // Obtaining the OU name can be done like this:
+            // $this->csvinfo['ou_tree']['OUs'][$this->csvinfo['ou_groups']]
             $this->csvinfo['ou_groups'] = $_POST["ou_groups"];
 
             if (isset($_POST["domain_users"])) {
@@ -311,6 +314,8 @@ class importaccounts extends plugin
                     $this->failure_in_this_phase = TRUE;
                 }
                 elseif (substr($_POST["domain_users"], 0, 1) == "@") {
+                    // $_POST["domain_users"] begins with '@'.
+                    // Get the part after '@', trim and save in $this->csvinfo['domain_users'].
                     $this->csvinfo['domain_users'] = trim(substr($_POST["domain_users"], 1, strlen($_POST["domain_users"])));
                 }
                 else {
@@ -329,6 +334,8 @@ class importaccounts extends plugin
 
             }
             elseif (substr($_POST["domain_groups"], 0, 1) == "@") {
+                // $_POST["domain_groups"] begins with '@'.
+                // Get the part after '@', trim and save in $this->csvinfo['domain_groups'].
                 $this->csvinfo['domain_groups'] = trim(substr($_POST["domain_groups"], 1, strlen($_POST["domain_groups"])));
             }
             else {
@@ -338,6 +345,8 @@ class importaccounts extends plugin
             if (isset($_POST["template_" . $this->import_account_type . "_aux"])) {
                 $this->csvinfo['template_aux'] = $_POST["template_" . $this->import_account_type . "_aux"];
             }
+
+            // Checkboxes (If they are NOT checked, they are NOT set in $_POST)
             $this->csvinfo['accounts_in_class_ou'] = isset($_POST["accounts_in_class_ou"]);
             $this->csvinfo['aliases_in_schooldomain'] = isset($_POST["aliases_in_schooldomain"]);
             $this->csvinfo['try_mail_as_uid'] = isset($_POST["try_mail_as_uid"]);
@@ -351,49 +360,39 @@ class importaccounts extends plugin
             if ($this->failure_in_this_phase === FALSE) {
                 $smarty->assign("import_configured", TRUE);
 
-                /* initialize $this->csvinfo['attrs_selected'], only do this here and once */
+                // Initialize $this->csvinfo['attrs_selected'], only do this here and once
                 $this->csvinfo['attrs_selected'] = $this->getAttrsPreSelection($this->csvinfo['num_cols']);
 
-                /* student import attributes */
+                // User import attributes
                 $smarty->assign("attrs", $this->csvinfo['attrs']);
 
-                /* per row selected student import attributes */
+                // Per row selected user import attributes
                 $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
 
-                /* number of CSV columns -> number of rows in 90°-counter-clockwise-rotated table */
+                // Number of CSV columns --==-> Number of rows in 90°-counter-clockwise-rotated table
                 $smarty->assign("num_rows", $this->csvinfo['num_cols']);
 
-                /* CSV data */
+                // CSV data
                 $smarty->assign("data_size", $this->csvinfo['num_rows']);
                 $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
             }
             else {
-                /* prepare for reloading this phase's web page again */
-                $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
-                $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
-                $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
-                $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
-                $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
-                $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
-                $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-                $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
-                $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
-                $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
-                $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
-                $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
-                $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
-                $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
-                $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
-                $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
+                // $this->failure_in_this_phase is set.
+                $reloadphase2 = TRUE;
             }
         }
         else {
             /* Something is not right! */
             $reloadphase2 = TRUE;
-            msg_dialog::display(_("Error"), _("Something went wrong! Something from the form went missing! Please try again."), ERROR_DIALOG);
+            msg_dialog::display(
+                _("Error"),
+                _("Something went wrong! Something from the form went missing! Please try again."),
+                ERROR_DIALOG
+            );
         }
+
         if ($reloadphase2 === TRUE) {
-            /* prepare for reloading this phase's web page again */
+            /* Prepare for reloading this phase's web page again */
             $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
             $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
             $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
