@@ -281,18 +281,22 @@ class importaccounts extends plugin
             /* Obtain the OU name like this: $this->csvinfo['ou_tree']['OUs'][$this->csvinfo['ou_groups']] */
             $this->csvinfo['ou_groups'] = $_POST["ou_groups"];
 
-            if ((isset($_POST["domain_users"])) && (empty($_POST["domain_users"]))) {
-                $this->csvinfo['domain_users'] = "";
-                $smarty->assign("LDIFError", TRUE);
-                msg_dialog::display(_("Error"), _("Domain for new users is empty!"), ERROR_DIALOG);
-                $this->failure_in_this_phase = TRUE;
-
-            }
-            elseif (substr($_POST["domain_users"], 0, 1) == "@") {
-                $this->csvinfo['domain_users'] = trim(substr($_POST["domain_users"], 1, strlen($_POST["domain_users"])));
+            if (isset($_POST["domain_users"])) {
+                if (empty($_POST["domain_users"])) {
+                    $this->csvinfo['domain_users'] = "";
+                    $smarty->assign("LDIFError", TRUE);
+                    msg_dialog::display(_("Error"), _("Domain for new users is empty!"), ERROR_DIALOG);
+                    $this->failure_in_this_phase = TRUE;
+                }
+                elseif (substr($_POST["domain_users"], 0, 1) == "@") {
+                    $this->csvinfo['domain_users'] = trim(substr($_POST["domain_users"], 1, strlen($_POST["domain_users"])));
+                }
+                else {
+                    $this->csvinfo['domain_users'] = trim($_POST["domain_users"]);
+                }
             }
             else {
-                $this->csvinfo['domain_users'] = trim($_POST["domain_users"]);
+                $this->csvinfo['domain_users'] = "intern";
             }
 
             if (empty($_POST["domain_groups"])) {
