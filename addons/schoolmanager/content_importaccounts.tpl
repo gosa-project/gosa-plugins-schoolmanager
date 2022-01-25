@@ -172,6 +172,16 @@
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
+			<LABEL for="domain_users">{t}Mail domain for new students (if not specified in import file explicitly):{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			@
+			<input type="text" id="domain_users" name="domain_users" value="{$preset_domain_users}">
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
 			<LABEL for="try_mail_as_uid">{t escape=no}If CSV data does not contain a user ID (uid) column, use the mail address as user ID instead?{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
@@ -274,6 +284,16 @@
 			<input type="checkbox" id="accounts_in_class_ou" name="accounts_in_class_ou">
 {/if}
 			{t}(tick this check box, if yes){/t}
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 1em;">&nbsp;</td>
+		<td style="vertical-align: middle;">
+			<LABEL for="domain_users">{t}Mail domain for new students (if not specified in import file explicitly):{/t}</LABEL>
+		</td>
+		<td style="vertical-align: middle;">
+			@
+			<input type="text" id="domain_users" name="domain_users" value="{$preset_domain_users}">
 		</td>
 	</tr>
 	<tr>
