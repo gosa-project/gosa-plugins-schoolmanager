@@ -70,7 +70,7 @@ class importaccounts extends plugin
 
     /*
      * The next few functions should be overriden by it's sub-classes
-     * like class_importstudents, class_archiveaccounts, ...
+     * like class_importstudents, class_archiveaccounts, etc…
      */
     function getMultiAttributes() { return array(); }
     function getAttrsPreSelection($size) { return array(); }
@@ -149,7 +149,7 @@ class importaccounts extends plugin
                 $this->csvinfo['templates']['DNs'] = array();
                 $this->csvinfo['templates']['DNs'][] = "";
 
-                // Set the default mail domain for users, groups and for the school here (they might differ)...
+                // Set the default mail domain for users, groups and for the school here (they might differ)…
                 $this->csvinfo['domain_school'] = "intern";
                 $this->csvinfo['domain_users'] = "intern";
                 $this->csvinfo['domain_groups'] = "intern";
@@ -157,7 +157,7 @@ class importaccounts extends plugin
                 $_base_search = $this->_ldap->search("(objectClass=dcObject)", array("o"));
                 $_base_obj = $this->_ldap->fetch($_base_search, $this->config->current['BASE']);
 
-                // FIXME: Do a is_valid_domain_name check here...
+                // FIXME: Do a is_valid_domain_name check here…
                 if (isset($_base_obj['o']) && isset($_base_obj['o'][0])) {
                     $this->csvinfo['domain_school'] = trim($_base_obj['o'][0]);
                 }
@@ -292,7 +292,7 @@ class importaccounts extends plugin
     /*
      * PHASE 02:
      *   - Set import options which the user configured.
-     *     - Checkboxes, OU's for new groups & users, etc...
+     *     - Checkboxes, OU's for new groups & users, etc…
      */
     function execute_phase2($smarty)
     {
@@ -481,7 +481,7 @@ class importaccounts extends plugin
         // by using by sub-class overloaded prepareLdapImport()
         $this->csvinfo['data_preldap'] = $this->prepareLdapImport($this->csvinfo['data_sorted']);
 
-        // $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport()...
+        // $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport()…
         if ($this->failure_in_this_phase === FALSE) {
             // Free old & now unused memory
             unset($this->csvinfo['data_sorted']);
@@ -767,7 +767,7 @@ class importaccounts extends plugin
         }
         else {
 
-        /* FIXME: no clue what to do on failures here... We will see. */
+        /* FIXME: no clue what to do on failures here… We will see. */
 
         }
     }
@@ -867,7 +867,7 @@ class importaccounts extends plugin
         /* special handling of reloading phase 2 */
         $reloadphase2 = FALSE;
 
-        /* reset our failure status from last template view... */
+        /* reset our failure status from last template view… */
         $this->failure_in_this_phase = FALSE;
 
         /* Execute next phase, if user didn't abort. */
@@ -1069,7 +1069,7 @@ class importaccounts extends plugin
 
     function accountStatusCheck()
     {
-        /* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail... */
+        /* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail… */
         if (!is_array($this->csvinfo['data_preldap']) or (empty($this->csvinfo['data_preldap']))) {
             $this->failure_in_this_phase = TRUE;
             return;
@@ -1077,7 +1077,7 @@ class importaccounts extends plugin
 
         $this->_ldap->cd($this->config->current['BASE']);
 
-        /* this will probably scale very very badly... Improvement needed. Suggestions? */
+        /* this will probably scale very very badly… Improvement needed. Suggestions? */
         foreach ($this->csvinfo['data_preldap'] as $key => $row) {
             if (isset($row['main_account'])) {
                 $test_attrs = array();
@@ -1311,7 +1311,7 @@ class importaccounts extends plugin
 
                             /*
                              * FIXME: Hard-code a "none" action here in case we found a matching account in LDAP.
-                             *        Later, we need to make actions more configurable...
+                             *        Later, we need to make actions more configurable…
                              */
 
                             /* only update attributes that are already set in the main account dataset */
@@ -1354,7 +1354,7 @@ class importaccounts extends plugin
             }
         }
 
-        /* post-processing, probably appendable to above code block... */
+        /* post-processing, probably appendable to above code block… */
         foreach ($this->csvinfo['data_preldap'] as $key => $row) {
             if (isset($row['main_account'])) {
                 if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] == 'unchecked') {
@@ -1470,7 +1470,7 @@ class importaccounts extends plugin
         $this->csvinfo['data_preldap_posixgroups'] = array();
         $this->csvinfo['data_preldap_ogroups'] = array();
 
-        /* this will probably scale very very badly... Improvement needed. Suggestions? */
+        /* this will probably scale very very badly… Improvement needed. Suggestions? */
         foreach ($this->csvinfo['data_preldap'] as $key => $row) {
             if (strpos($row['main_account']['_actions'][0], 'ignore') !== FALSE) {
                 continue;
@@ -1516,7 +1516,7 @@ class importaccounts extends plugin
                     $ldapsearch = $this->_ldap->search("(&(objectClass=gosaGroupOfNames)(cn=" . $_cn . "))", array("cn", $memberAttr, "mail", "description"));
                 }
                 else {
-                    /* neither gosaGroupOfNames nor posixGroup import, no clue what to do... */
+                    /* neither gosaGroupOfNames nor posixGroup import, no clue what to do… */
                     continue;
                 }
 
@@ -1682,7 +1682,7 @@ class importaccounts extends plugin
                         }
                     }
                     else {
-                        /* neither gosaGroupOfNames nor posixGroup import, no clue what to do... */
+                        /* neither gosaGroupOfNames nor posixGroup import, no clue what to do… */
                         continue;
                     }
                 }
@@ -1724,7 +1724,7 @@ class importaccounts extends plugin
     {
         foreach ($this->csvinfo['data_preldap'] as $idx => $row) {
 
-            /* we should get here, but just in case... */
+            /* we should get here, but just in case… */
             if (strpos($row['main_account']['_actions'][0], 'ignore') !== FALSE) {
                 continue;
             }
@@ -1768,7 +1768,7 @@ class importaccounts extends plugin
     function importLDAPGroupObject($group_name, $group_data)
     {
 
-        /* only perform on this user dataset if _actions does not contain "none"... */
+        /* only perform on this user dataset if _actions does not contain "none"… */
         if ((strpos($group_data['_actions'][0], 'none') !== FALSE) or (strpos($group_data['_actions'][0], 'ignore') !== FALSE)) {
             return;
         }
@@ -1838,7 +1838,7 @@ class importaccounts extends plugin
         }
 
         /*
-         * FIXME: Make mail address creation (from CN) configurable somewhere...
+         * FIXME: Make mail address creation (from CN) configurable somewhere…
          */
 
         /* Populate sub-object attributes for $grouptab with same values */
@@ -1890,7 +1890,7 @@ class importaccounts extends plugin
 
     function importLDAPUserObject($user_data)
     {
-        /* only perform on this user dataset if _actions does not contain "none" or "ignore"... */
+        // Only perform on this user dataset if '_actions' does NOT contain "none" or "ignore"…
         if ((strpos($user_data['_actions'][0], 'none') !== FALSE) or (strpos($user_data['_actions'][0], 'ignore') !== FALSE)) {
             return;
         }
@@ -1949,10 +1949,10 @@ class importaccounts extends plugin
                 else {
                     /*
                      * FIXME: error message, if UID is not provided and sn+givenName is not provided or incomplete,
-                     *        we cannot go on...
+                     *        we cannot go on…
                      */
-                    new log(_("ERROR"), _("If UID is not provided and sn+givenName is not provided either or incomplete, we cannot go on..."), $this->dn);
-                    msg_dialog::display(_("ERROR"), _("If UID is not provided and sn+givenName is not provided either or incomplete, we cannot go on..."), ERROR_DIALOG);
+                    new log(_("ERROR"), _("If UID is not provided and sn+givenName is not provided either or incomplete, we cannot go on…"), $this->dn);
+                    msg_dialog::display(_("ERROR"), _("If UID is not provided and sn+givenName is not provided either or incomplete, we cannot go on…"), ERROR_DIALOG);
                 }
                 $_user_properties_base["sn"] = $user_data['sn'][0];
                 $_user_properties_base["givenName"] = $user_data['givenName'][0];
@@ -2055,7 +2055,7 @@ class importaccounts extends plugin
             /* test if base DN exists, this is only relevant for actions "create" and "move" but does not hurt for updates, either */
             $this->_ldap->cat($user_data['_base'][0]);
             if (!$this->_ldap->fetch()) {
-                /* change UI "dir" in LDAP to the place where we want to create sub-OUs... */
+                /* change UI "dir" in LDAP to the place where we want to create sub-OUs… */
                 $_ui = get_userinfo();
                 $old_ui_dn = $_ui->dn;
                 $old_current_main_base = session::global_is_set("CurrentMainBase") ?session::global_get("CurrentMainBase") : $_ui->dn;
@@ -2256,7 +2256,7 @@ class importaccounts extends plugin
 
                 if (strpos($group_data['cn'][0], 'class_') !== FALSE) {
                     $_class_group = 'ou=' . str_replace('class_', '', $group_data['cn'][0]) . ',';
-                    /* we take the first class group we find...
+                    /* we take the first class group we find…
                      * presuming that students only have _one_ class group assigned(!)
                      */
                     break;
@@ -2361,7 +2361,7 @@ class importaccounts extends plugin
     {
         /*
          * FIXME: 1 This can be better done with regular expressions!!!
-         * FIXME: 2 The transliteration part is locale-dependent. We tried iconv and it did not work...
+         * FIXME: 2 The transliteration part is locale-dependent. We tried iconv and it did not work…
          */
 
         $_grp = str_replace('ä', 'ae',
