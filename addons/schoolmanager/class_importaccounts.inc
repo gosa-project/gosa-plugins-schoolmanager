@@ -56,6 +56,10 @@ class importaccounts extends plugin
         /* Include config object */
         $this->config = & $config;
         $this->ui = get_userinfo();
+
+        /* Initialize utils class */
+        $this->utils = new schoolmgr_utils($config);
+
         stats::log('plugin', $class = get_class($this), $category = array($this->acl_category),
                    $action = 'open', $amount = 1, $duration = (microtime(TRUE) - $this->initTime));
     }
@@ -99,201 +103,237 @@ class importaccounts extends plugin
         $handle = NULL;
         $filename = gosa_file_name($_FILES['userfile']['tmp_name']);
 
+        // TODO: FIXME: Check if file does actually end with '.csv'…
+
         if (!isset($_FILES['userfile']['name'])) {
             msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file not found")), ERROR_DIALOG);
             $smarty->assign("LDIFError", TRUE);
+            return;
         }
         elseif (!$_FILES['userfile']['size'] > 0) {
             msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file is empty")), ERROR_DIALOG);
             $smarty->assign("LDIFError", TRUE);
+            return;
         }
-
         // Is there a tmp file which we can use?
         elseif (!file_exists($filename)) {
             msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file not found")), ERROR_DIALOG);
             $smarty->assign("LDIFError", TRUE);
+            return;
         }
         elseif (!$handle = @fopen($filename, "r")) {
             msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file not readable")), ERROR_DIALOG);
             $smarty->assign("LDIFError", TRUE);
+            return;
         }
-        else {
-            $smarty->assign("file_uploaded", TRUE);
-            $raw_csv_data = "";
 
-            // Reading content of file
-            while (!feof($handle)) {
-                $raw_csv_data .= fread($handle, 1024);
-            }
-            @fclose($handle);
+        $smarty->assign("file_uploaded", TRUE);
+        $raw_csv_data = "";
 
-            // Most of the time the files are encoded in 'UTF-8' or 'ISO-8859-1'.
-            if (!mb_check_encoding($raw_csv_data, "UTF-8")) {
-                if (mb_check_encoding($raw_csv_data, "iso-8859-1")) {
-                    $raw_csv_data = utf8_encode($raw_csv_data);
-                }
-                else {
-                    $smarty->assign("LDIFError", TRUE);
-                    $smarty->assign("file_uploaded", FALSE);
-                    msg_dialog::display(_("Error"), _("File has an unsupported encoding!"), ERROR_DIALOG);
-                }
-            }
+        // Reading content of file
+        while (!feof($handle)) {
+            $raw_csv_data .= fread($handle, 1024);
+        }
+        @fclose($handle);
 
-            $parser_ok = importaccounts::parseCSV($raw_csv_data);
-
-            if ($parser_ok !== FALSE) {
-                $this->csvinfo["template_main"] = 0;
-                $this->csvinfo["template_aux"] = 0;
-
-                /* Populate the Template Selectors for PHASE 2 */
-
-                // Search all Templates
-                $this->csvinfo['templates'] = array();
-
-                // Add the "None" template first
-                $this->csvinfo['templates']['formfields'] = array();
-                $this->csvinfo['templates']['formfields'][] = "None";
-                $this->csvinfo['templates']['DNs'] = array();
-                $this->csvinfo['templates']['DNs'][] = "";
-
-                // Set the default mail domain for users, groups and for the school here (they might differ)…
-                $this->csvinfo['domain_school'] = "intern";
-                $this->csvinfo['domain_users'] = "intern";
-                $this->csvinfo['domain_groups'] = "intern";
-
-                $_base_search = $this->_ldap->search("(objectClass=dcObject)", array("o"));
-                $_base_obj = $this->_ldap->fetch($_base_search, $this->config->current['BASE']);
-
-                // FIXME: Do a is_valid_domain_name check here…
-                if (isset($_base_obj['o']) && isset($_base_obj['o'][0])) {
-                    $this->csvinfo['domain_school'] = trim($_base_obj['o'][0]);
-                }
-
-                /*
-                 * Search for GOsa² user templates
-                 */
-                $_ldapsearch = $this->_ldap->search("(objectClass=gosaUserTemplate)", array("*"));
-
-                // Only store the *index* of gosaUserTemplate
-                $i = 0;
-
-                // Add found gosaUserTemplate objects
-                while ($result = $this->_ldap->fetch($_ldapsearch)) {
-                    $tmp = $result['sn'][0] . " - " .
-                           $this->config->idepartments[preg_replace("/^[^,]+," . preg_quote(get_people_ou(), '/') .
-                           "/i", "", $result['dn'])];
-
-                    $this->csvinfo['templates']['formfields'][] = $tmp;
-                    $this->csvinfo['templates']['DNs'][] = $result['dn'];
-
-                    $i = $i + 1;
-
-                    if (($this->default_template_main != "") && (preg_match("/" . $this->default_template_main . "/i",
-                                                                            $result['sn'][0]))) {
-                        $this->csvinfo["template_main"] = $i;
-
-                        // User mail domain
-
-                        // Obtain mail domain from pre-selected main user template, if that is available
-                        if (isset($result['mail']) && strpos($result['mail'][0], '@')) {
-                            $this->csvinfo["domain_users"] = trim(preg_split('/@/', $result['mail'][0], 2)[1]);
-                        }
-
-                        // Group mail domain
-
-                        // Obtain mail domain from group template object of pre-selected main user template, if available
-                        if (isset($result['uid'])) {
-
-                            $_ldapsearch = "(&(objectClass=gosaMailAccount)(objectClass=posixGroup)(gidNumber=" .
-                                            $result['gidNumber'][0] . "))";
-                            $_ldap_group_search = $this->_ldap->search($_ldapsearch);
-                            while ($_template_group = $this->_ldap->fetch($_ldap_group_search)) {
-
-                                if (isset($_template_group['mail']) && strpos($_template_group['mail'][0], '@')) {
-                                    $this->csvinfo["domain_groups"] = trim(preg_split('/@/', $_template_group['mail'][0], 2)[1]);
-                                }
-
-                                /*
-                                 * There should only be one template group with given 'gidNumber'
-                                 * if otherwise, there is something wrong (and let's ignore it here)
-                                 */
-                                break;
-                            }
-                        }
-
-                        /* Otherwise use $this->csvinfo["domain_users"] as detected above */
-                        else if (isset($this->csvinfo["domain_users"])) {
-                            $this->csvinfo["domain_groups"] = $this->csvinfo["domain_users"];
-                        }
-                    }
-                    if (($this->default_template_aux != "") && (preg_match("/" . $this->default_template_aux . "/i", $result['sn'][0]))) {
-                        $this->csvinfo["template_aux"] = $i;
-                    }
-
-                }
-
-                $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
-
-                /*
-                 * Search OUs with objectClass gosaDepartment
-                 */
-                $this->csvinfo['ou_tree'] = array();
-                $this->csvinfo['ou_tree']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaDepartment)", array("ou", "description"));
-
-                // Create arrays for search results
-                $this->csvinfo['ou_tree']['formfields'] = array();
-                $this->csvinfo['ou_tree']['OUs'] = array();
-
-                // Add found gosaDepartment objects
-                $i = 0;
-                $default_ou_for_groups = 0;
-                while ($result = $this->_ldap->fetch($this->csvinfo['ou_tree']['ldapsearch'])) {
-                    $this->csvinfo['ou_tree']['OUs'][] = $result['ou'][0];
-                    $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0] . " - " . $result['description'][0];
-                    $this->csvinfo['ou_tree']['DNs'][] = $result['dn'];
-                    if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
-                        $default_ou_for_groups = $i;
-                    }
-                    $i = $i + 1;
-                }
-
-                $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
-
-                // Set import configuration defaults
-                $this->csvinfo['ou_groups'] = $default_ou_for_groups;
-                $this->csvinfo['accounts_in_class_ou'] = TRUE;
-                $this->csvinfo['aliases_in_schooldomain'] = TRUE;
-                $this->csvinfo['try_mail_as_uid'] = TRUE;
-                $this->csvinfo['sel_ldap_match_attr_studentid'] = FALSE;
-                $this->csvinfo['sel_ldap_match_attr_givenname'] = TRUE;
-                $this->csvinfo['sel_ldap_match_attr_snname'] = TRUE;
-                $this->csvinfo['sel_ldap_match_attr_birthday'] = TRUE;
-                $this->csvinfo['sel_ldap_match_attr_gender'] = TRUE;
-                $this->csvinfo['add_course_members_to_class_group'] = TRUE;
-
-                // Provide pre-set values for account template forms
-                $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
-                $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
-                $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
-                $smarty->assign("domain_school", $this->csvinfo['domain_school']);
-                $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
-                $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-                $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
-                $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
-                $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
-                $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
-                $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
-                $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
-                $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
-                $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
-                $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
+        // Most of the time the files are encoded in 'UTF-8' or 'ISO-8859-1'.
+        if (!mb_check_encoding($raw_csv_data, "UTF-8")) {
+            if (mb_check_encoding($raw_csv_data, "iso-8859-1")) {
+                $raw_csv_data = utf8_encode($raw_csv_data);
             }
             else {
                 $smarty->assign("LDIFError", TRUE);
                 $smarty->assign("file_uploaded", FALSE);
-                msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);
+                msg_dialog::display(_("Error"), _("File has an unsupported encoding!"), ERROR_DIALOG);
             }
         }
+
+        // Parse user settings…
+        switch ($_POST['delimiter_id']) {
+            case 0:
+                // Comma separated values
+                $delimiter_char = ",";
+                break;
+            case 1:
+                // Semicolon separated values
+                $delimiter_char = ";";
+                break;
+            case 2:
+                // Tabstop separated values
+                $delimiter_char = "\t";
+                break;
+            case 3:
+                // Blank separated values
+                $delimiter_char = " ";
+                break;
+            default:
+                // Default CSV delimiter.
+                $delimiter_char = $this->utils->getConfigValue("csv_column_delimiter");
+                break;
+        }
+
+        if (isset($_POST['csv_with_column_headers'])) {
+            $this->csvinfo['skip_first_line'] = TRUE;
+        }
+        else {
+            $this->csvinfo['skip_first_line'] = FALSE;
+        }
+
+        // Parse CSV file using utils class.
+        $parser_ret = $this->utils->parseCSV($raw_csv_data, $delimiter_char,
+                                             $this->csvinfo['skip_first_line']);
+
+        if(empty($parser_ret)) {
+            $smarty->assign("LDIFError", TRUE);
+            $smarty->assign("file_uploaded", FALSE);
+
+            msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);
+
+            return;
+        } else {
+            $this->csvinfo = $parser_ret;
+        }
+
+        /* --- Populate the Template Selectors for PHASE 2 --- */
+        $this->csvinfo["template_main"] = 0;
+        $this->csvinfo["template_aux"]  = 0;
+        $this->csvinfo['templates']     = array();
+
+        // Add the "None" template first
+        $this->csvinfo['templates']['formfields']   = array();
+        $this->csvinfo['templates']['formfields'][] = "None";
+        $this->csvinfo['templates']['DNs']   = array();
+        $this->csvinfo['templates']['DNs'][] = "";
+
+        // Set the default mail domain for users, groups and for the school here (they might differ)…
+        $this->csvinfo['domain_school'] = "intern";
+        $this->csvinfo['domain_users']  = "intern";
+        $this->csvinfo['domain_groups'] = "intern";
+
+        $_base_search = $this->_ldap->search("(objectClass=dcObject)", array("o"));
+        $_base_obj = $this->_ldap->fetch($_base_search, $this->config->current['BASE']);
+
+        // FIXME: Do a is_valid_domain_name check here…
+        if (isset($_base_obj['o']) && isset($_base_obj['o'][0])) {
+            $this->csvinfo['domain_school'] = trim($_base_obj['o'][0]);
+        }
+
+        // Search for GOsa² user templates in LDAP-tree
+        $_ldapsearch = $this->_ldap->search("(objectClass=gosaUserTemplate)", array("*"));
+
+        // Only store the *index* of gosaUserTemplate
+        $i = 0;
+
+        // Add found gosaUserTemplate objects
+        while ($result = $this->_ldap->fetch($_ldapsearch)) {
+            $tmp = $result['sn'][0] . " - " .
+                    $this->config->idepartments[preg_replace("/^[^,]+," . preg_quote(get_people_ou(), '/') .
+                    "/i", "", $result['dn'])];
+
+            $this->csvinfo['templates']['formfields'][] = $tmp;
+            $this->csvinfo['templates']['DNs'][] = $result['dn'];
+
+            $i = $i + 1;
+
+            if (($this->default_template_main != "") && (preg_match("/" . $this->default_template_main . "/i",
+                                                                    $result['sn'][0]))) {
+                $this->csvinfo["template_main"] = $i;
+
+                // User mail domain
+
+                // Obtain mail domain from pre-selected main user template, if that is available
+                if (isset($result['mail']) && strpos($result['mail'][0], '@')) {
+                    $this->csvinfo["domain_users"] = trim(preg_split('/@/', $result['mail'][0], 2)[1]);
+                }
+
+                // Group mail domain
+
+                // Obtain mail domain from group template object of pre-selected main user template, if available
+                if (isset($result['uid'])) {
+
+                    $_ldapsearch = "(&(objectClass=gosaMailAccount)(objectClass=posixGroup)(gidNumber=" .
+                                    $result['gidNumber'][0] . "))";
+                    $_ldap_group_search = $this->_ldap->search($_ldapsearch);
+                    while ($_template_group = $this->_ldap->fetch($_ldap_group_search)) {
+
+                        if (isset($_template_group['mail']) && strpos($_template_group['mail'][0], '@')) {
+                            $this->csvinfo["domain_groups"] = trim(preg_split('/@/', $_template_group['mail'][0], 2)[1]);
+                        }
+
+                        /*
+                         * There should only be one template group with given 'gidNumber'
+                         * if otherwise, there is something wrong (and let's ignore it here)
+                         */
+                        break;
+                    }
+                }
+
+                /* Otherwise use $this->csvinfo["domain_users"] as detected above */
+                else if (isset($this->csvinfo["domain_users"])) {
+                    $this->csvinfo["domain_groups"] = $this->csvinfo["domain_users"];
+                }
+            }
+            if (($this->default_template_aux != "") && (preg_match("/" . $this->default_template_aux . "/i", $result['sn'][0]))) {
+                $this->csvinfo["template_aux"] = $i;
+            }
+
+        }
+
+        $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
+
+        /*
+            * Search OUs with objectClass gosaDepartment
+            */
+        $this->csvinfo['ou_tree'] = array();
+        $this->csvinfo['ou_tree']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaDepartment)", array("ou", "description"));
+
+        // Create arrays for search results
+        $this->csvinfo['ou_tree']['formfields'] = array();
+        $this->csvinfo['ou_tree']['OUs'] = array();
+
+        // Add found gosaDepartment objects
+        $i = 0;
+        $default_ou_for_groups = 0;
+        while ($result = $this->_ldap->fetch($this->csvinfo['ou_tree']['ldapsearch'])) {
+            $this->csvinfo['ou_tree']['OUs'][] = $result['ou'][0];
+            $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0] . " - " . $result['description'][0];
+            $this->csvinfo['ou_tree']['DNs'][] = $result['dn'];
+            if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
+                $default_ou_for_groups = $i;
+            }
+            $i = $i + 1;
+        }
+
+        $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
+
+        // Set import configuration defaults
+        $this->csvinfo['ou_groups'] = $default_ou_for_groups;
+        $this->csvinfo['accounts_in_class_ou'] = TRUE;
+        $this->csvinfo['aliases_in_schooldomain'] = TRUE;
+        $this->csvinfo['try_mail_as_uid'] = TRUE;
+        $this->csvinfo['sel_ldap_match_attr_studentid'] = FALSE;
+        $this->csvinfo['sel_ldap_match_attr_givenname'] = TRUE;
+        $this->csvinfo['sel_ldap_match_attr_snname'] = TRUE;
+        $this->csvinfo['sel_ldap_match_attr_birthday'] = TRUE;
+        $this->csvinfo['sel_ldap_match_attr_gender'] = TRUE;
+        $this->csvinfo['add_course_members_to_class_group'] = TRUE;
+
+        // Provide pre-set values for account template forms
+        $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
+        $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
+        $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+        $smarty->assign("domain_school", $this->csvinfo['domain_school']);
+        $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
+        $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
+        $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+        $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
+        $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
+        $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
+        $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
+        $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
+        $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
+        $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
+        $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
     }
 
 
@@ -905,138 +945,6 @@ class importaccounts extends plugin
 
         // Show main page…
         return ($smarty->fetch(get_template_path('content_importaccounts.tpl', TRUE)));
-    }
-
-
-    function parseCSV($raw_csv_data)
-    {
-        $this->csvinfo['delimiter_id'] = $_POST['delimiter_id'];
-        if (isset($_POST['csv_with_column_headers'])) {
-            $this->csvinfo['skip_first_line'] = TRUE;
-        }
-        else {
-            $this->csvinfo['skip_first_line'] = FALSE;
-        }
-
-        $raw_csv_data = str_replace('\r', '', $raw_csv_data);
-
-        $lines = preg_split("/\n/", $raw_csv_data);
-        $num_columns = 0;
-        $rest = 0;
-        $data = array();
-
-        if ($this->csvinfo['skip_first_line']) {
-            array_shift($lines);
-        }
-
-        /* check column count, if it stays zero, we probably don't have a comma separated CSV file */
-        if (is_array($lines)) {
-            foreach ($lines as $line) {
-
-                $line = trim($line);
-
-                /* ignore empty lines */
-                if (!$line) {
-                    continue;
-                }
-
-                /* continue if theres a comment */
-                if (substr($line, 0, 1) == "#") {
-                    continue;
-                }
-
-                $cells = array();
-
-                switch ($this->csvinfo['delimiter_id']) {
-                    case 0:
-                        /* comma separated values */
-                        $delimiter_char = ",";
-                        break;
-                    case 1:
-                        /* semikolon separated values */
-                        $delimiter_char = ";";
-                        break;
-                    case 2:
-                        /* tabstop separated values */
-                        $delimiter_char = "\t";
-                        break;
-                    case 3:
-                        /* blank separated values */
-                        $delimiter_char = " ";
-                        break;
-                }
-
-                $raw_cells = explode($delimiter_char, $line);
-
-                $concatenating = FALSE;
-                $concat_cell = "";
-                $concat_quote = "";
-
-                foreach ($raw_cells as $cell) {
-                    if ((!$concatenating) && (substr($cell, 0, 1) == '"')) {
-                        $concat_cell = substr($cell, 1);
-                        $concatenating = TRUE;
-                        $concat_quote = '"';
-                    }
-                    elseif ((!$concatenating) && (substr($cell, 0, 1) == "'")) {
-                        $concat_cell = substr($cell, 1);
-                        $concatenating = TRUE;
-                        $concat_quote = '"';
-                    }
-                    elseif (($concatenating) && (substr($cell, -1) == $concat_quote)) {
-                        $concat_cell = $concat_cell . $delimiter_char . substr($cell, 0, -1);
-                        $cells[] = $concat_cell;
-                        $concatenating = FALSE;
-                        $concat_cell = "";
-                        $concat_quote = "";
-                    }
-                    elseif ($concatenating) {
-                        $concat_cell = $concat_cell . $delimiter_char . $cell;
-                    }
-                    else {
-                        $cells[] = $cell;
-                    }
-                }
-
-                if (count($cells) > $num_columns) {
-                    $num_columns = count($cells);
-                }
-
-                $data[] = $cells;
-
-            }
-
-        }
-
-        /* parse rows and import into $this->csvinfo */
-        if ($num_columns >= 1) {
-
-            /* Generate array with output info  */
-
-            foreach ($data as $row) {
-
-                /* fill up rows if less cells then num_columns */
-                if (is_array($row)) {
-
-                    /* cell count less than num_columns, attach some empty fields */
-                    if (count($row) <= $num_columns) {
-                        $rest = $num_columns - count($row);
-                        for ($i = 0; $i < $rest; $i++) {
-                            $row[] = "";
-                        }
-                    }
-
-                }
-
-            }
-
-            unset($this->csvinfo['data_sorted']);
-            $this->csvinfo['num_cols'] = $num_columns;
-            $this->csvinfo['data'] = $data;
-            $this->csvinfo['num_rows'] = count($this->csvinfo['data']);
-            return TRUE;
-        }
-        return FALSE;
     }
 
 

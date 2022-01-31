@@ -43,6 +43,10 @@ class archiveaccounts extends plugin {
 		$this->config = &$config;
 
 		$this->ui = get_userinfo ();
+
+		/* Initialize utils class */
+		$this->utils = new schoolmgr_utils($config);
+
 		stats::log ( 'plugin', $class = get_class ( $this ), $category = array (
 				$this->acl_category
 		), $action = 'open', $amount = 1, $duration = (microtime ( TRUE ) - $this->initTime) );
@@ -719,15 +723,50 @@ class archiveaccounts extends plugin {
 					}
 				}
 
-				$parser_ok = $this->parseCSV ( $raw_csv_data );
+				// Parse user settings…
+				switch ($_POST['delimiter_id']) {
+					case 0:
+						// Comma separated values
+						$delimiter_char = ",";
+						break;
+					case 1:
+						// Semicolon separated values
+						$delimiter_char = ";";
+						break;
+					case 2:
+						// Tabstop separated values
+						$delimiter_char = "\t";
+						break;
+					case 3:
+						// Blank separated values
+						$delimiter_char = " ";
+						break;
+					default:
+						// Default CSV delimiter.
+						$delimiter_char = $this->getConfigValue("csv_column_delimiter");
+						break;
+				}
 
-				if ($parser_ok !== FALSE) {
-					return TRUE;
+				if (isset($_POST['csv_with_column_headers'])) {
+					$this->csvinfo['skip_first_line'] = TRUE;
+				}
+				else {
+					$this->csvinfo['skip_first_line'] = FALSE;
+				}
+
+				// Parse CSV file using utils class.
+				$parser_ret = $this->utils->parseCSV($raw_csv_data, $delimiter_char,
+													 $this->csvinfo['skip_first_line']);
+
+				if(empty($parser_ret)) {
+					$smarty->assign("LDIFError", TRUE);
+					$smarty->assign("file_uploaded", FALSE);
+
+					msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);
+
+					return;
 				} else {
-					$smarty->assign ( "LDIFError", TRUE );
-					$smarty->assign ( "file_uploaded", FALSE );
-					msg_dialog::display ( _ ( "Error" ), _ ( "Cannot find CSV data in the selected file!" ), ERROR_DIALOG );
-					return FALSE;
+					$this->csvinfo = $parser_ret;
 				}
 			}
 		} else {
@@ -737,123 +776,7 @@ class archiveaccounts extends plugin {
 			return FALSE;
 		}
 	}
-	function parseCSV($raw_csv_data) {
-		$this->csvinfo ['delimiter_id'] = $_POST ['delimiter_id'];
-		$this->csvinfo ['skip_first_line'] = $_POST ['csv_with_column_headers'];
 
-		$raw_csv_data = str_replace ( '\r', '', $raw_csv_data );
-
-		$lines = preg_split ( "/\n/", $raw_csv_data );
-		$num_columns = 0;
-		$rest = 0;
-		$data = array ();
-
-		if ($this->csvinfo ['skip_first_line']) {
-			array_shift ( $lines );
-		}
-
-		/* check column count, if it stays zero, we probably don't have a comma separated CSV file */
-		if (is_array ( $lines )) {
-			foreach ( $lines as $line ) {
-
-				$line = trim ( $line );
-
-				/* ignore empty lines */
-				if (! $line) {
-					continue;
-				}
-
-				/* continue if theres a comment */
-				if (substr ( $line, 0, 1 ) == "#") {
-					continue;
-				}
-
-				$cells = array ();
-
-				switch ($this->csvinfo ['delimiter_id']) {
-					case 0:
-                        /* comma separated values */
-                        $delimiter_char = ",";
-						break;
-					case 1:
-                        /* semikolon separated values */
-                        $delimiter_char = ";";
-						break;
-					case 2:
-                        /* tabstop separated values */
-                        $delimiter_char = "\t";
-						break;
-					case 3:
-                        /* blank separated values */
-                        $delimiter_char = " ";
-						break;
-				}
-
-				$raw_cells = explode ( $delimiter_char, $line );
-
-				$concatenating = FALSE;
-				$concat_cell = "";
-				$concat_quote = "";
-
-				foreach ( $raw_cells as $cell ) {
-
-					if ((! $concatenating) && (substr ( $cell, 0, 1 ) == '"')) {
-						$concat_cell = substr ( $cell, 1 );
-						$concatenating = TRUE;
-						$concat_quote = '"';
-					} elseif ((! $concatenating) && (substr ( $cell, 0, 1 ) == "'")) {
-						$concat_cell = substr ( $cell, 1 );
-						$concatenating = TRUE;
-						$concat_quote = '"';
-					} elseif (($concatenating) && (substr ( $cell, - 1 ) == $concat_quote)) {
-						$concat_cell = $concat_cell . $delimiter_char . substr ( $cell, 0, - 1 );
-						$cells [] = $concat_cell;
-						$concatenating = FALSE;
-						$concat_cell = "";
-						$concat_quote = "";
-					} elseif ($concatenating) {
-						$concat_cell = $concat_cell . $delimiter_char . $cell;
-					} else {
-						$cells [] = $cell;
-					}
-				}
-
-				if (count ( $cells ) > $num_columns) {
-					$num_columns = count ( $cells );
-				}
-
-				$data [] = $cells;
-			}
-		}
-
-		/* parse rows and import into $this->csvinfo */
-		if ($num_columns >= 1) {
-
-			/* Generate array with output info */
-
-			foreach ( $data as $row ) {
-
-				/* fill up rows if less cells then num_columns */
-				if (is_array ( $row )) {
-
-					/* cell count less than num_columns, attach some empty fields */
-					if (count ( $row ) <= $num_columns) {
-						$rest = $num_columns - count ( $row );
-						for($i = 0; $i < $rest; $i ++) {
-							$row [] = "";
-						}
-					}
-				}
-			}
-
-			unset ( $this->csvinfo ['data_sorted'] );
-			$this->csvinfo ['num_cols'] = $num_columns;
-			$this->csvinfo ['data'] = $data;
-			$this->csvinfo ['num_rows'] = count ( $this->csvinfo ['data'] );
-			return TRUE;
-		}
-		return FALSE;
-	}
 	function getAttributes() {
 		$attrs = array ();
 		$attrs [] = "no";
