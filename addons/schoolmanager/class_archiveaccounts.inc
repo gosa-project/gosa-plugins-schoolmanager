@@ -965,8 +965,8 @@ class archiveaccounts extends plugin {
 					if ($this->csvinfo ['sel_ldap_match_attr_birthday'])
 						$test_attrs [] = "dateOfBirth";
 
-					/* detect status */
-					if ($this->compareObjects ( $row ['main_account'], $gosa_account, $test_attrs, "", TRUE ) === TRUE) {
+					// Detect status of account
+					if ($this->utils->compareObjects ( $row ['main_account'], $gosa_account, $test_attrs, "", TRUE ) === NULL) {
 						if ((! isset ( $row ['main_account'] ['uid'] [0] )) || ($row ['main_account'] ['uid'] [0] === "{%uid}") || ($row ['main_account'] ['uid'] [0] === "%uid")) {
 							$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['uid'] = array (
 									$gosa_account ['uid'] [0]
@@ -1013,59 +1013,22 @@ class archiveaccounts extends plugin {
 						$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_base'] = array (
 								$new_base
 						);
-					} // elseif ($this->compareObjects($row['main_account'], $gosa_account, array(
-					  // "uid"
-					  // ), "", TRUE) === TRUE) {
-					  // // The LDAP tree already has an account with this uid, this requires manual introspection
-
-					// $expected_base = $this->genAccountBase($row['main_account'], $row['groups']);
-					// $expected_account_dn = "uid=" . $row['main_account']['uid'][0] . ',' . get_people_ou() . $expected_base;
-					// $gosa_account_dn = $gosa_account['dn'];
-
-					// if (strtolower($gosa_account_dn) == strtolower($expected_account_dn)) {
-					// $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'uid-used-in-same-ou';
-					// } else {
-					// $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'uid-used-in-other-ou';
-					// }
-					// $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
-					// }
+					}
 				}
 			}
 		}
 		foreach ( $this->csvinfo ['data_preldap'] as $key => $row ) {
 			if (isset ( $row ['main_account'] )) {
-				if ($this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_status'] [0] == 'unchecked') {
-					$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_status'] [0] = 'not-found';
+				if ($this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_status'] [0] == 'unchecked')
+				{
+					$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_status']  [0] = 'not-found';
 					$this->csvinfo ['data_preldap'] [$key] ['main_account'] ['_actions'] [0] = 'ignore,check-manually';
 				}
 			}
 		}
 	}
-	function compareObjects($object_a, $object_b, $attrs = array("sn", "givenName"), $prefix = "", $ci = FALSE) {
-		$unequal = array ();
-		foreach ( $attrs as $key => $attr ) {
 
-			$val_a = $val_b = NULL;
-			if (isset ( $object_a [$attr] [0] )) {
-				$val_a = ($ci === TRUE) ? strtolower ( $object_a [$attr] [0] ) : $object_a [$attr] [0];
-			}
-			if (isset ( $object_b [$attr] [0] )) {
-				$val_b = ($ci === TRUE) ? strtolower ( $object_b [$attr] [0] ) : $object_b [$attr] [0];
-			}
 
-			if ($val_a !== $val_b) {
-				$unequal [] = $prefix . $attr;
-			}
-		}
-		if (empty ( $unequal )) {
-			/* if TRUE is returned, objects regarding the given attributes are identical */
-
-			return TRUE;
-		} else {
-			/* otherwise return those attribute names that did not give a match */
-			return $unequal;
-		}
-	}
 	function genAccountBase($user_data, $groups_data = array()) {
 		if ($user_data ['_template'] [0] != 0) {
 			$template_dn = $this->csvinfo ['templates'] ['DNs'] [$user_data ['_template'] [0]];

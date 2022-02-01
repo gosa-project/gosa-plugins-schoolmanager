@@ -58,6 +58,35 @@ class schoolmgr_utils
         return $ret;
     }
 
+    function compareObjects($object_a, $object_b, $attrs = array("sn", "givenName"), $prefix = "", $ci = FALSE): ?array
+    {
+        $unequal = array();
+        foreach ($attrs as $key => $attr) {
+
+            $val_a = $val_b = NULL;
+            if (isset($object_a[$attr][0])) {
+                $val_a = ($ci === TRUE) ? strtolower($object_a[$attr][0]) : $object_a[$attr][0];
+            }
+            if (isset($object_b[$attr][0])) {
+                $val_b = ($ci === TRUE) ? strtolower($object_b[$attr][0]) : $object_b[$attr][0];
+            }
+
+            if ($val_a !== $val_b) {
+                $unequal[] = $prefix . $attr;
+            }
+        }
+
+        if (empty($unequal)) {
+            // If 'null' is returned, objects regarding the given attributes are identical
+            return null;
+        }
+        else {
+            // Otherwise return those attribute names that did not give a match
+            return $unequal;
+        }
+    }
+
+
     function parseCSV(string $raw_csv_data,
                       string $delimiter_str,
                       bool $skip_first_line): array

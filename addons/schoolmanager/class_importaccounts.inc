@@ -948,35 +948,6 @@ class importaccounts extends plugin
     }
 
 
-    function compareObjects($object_a, $object_b, $attrs = array("sn", "givenName"), $prefix = "", $ci = FALSE)
-    {
-        $unequal = array();
-        foreach ($attrs as $key => $attr) {
-
-            $val_a = $val_b = NULL;
-            if (isset($object_a[$attr][0])) {
-                $val_a = ($ci === TRUE) ? strtolower($object_a[$attr][0]) : $object_a[$attr][0];
-            }
-            if (isset($object_b[$attr][0])) {
-                $val_b = ($ci === TRUE) ? strtolower($object_b[$attr][0]) : $object_b[$attr][0];
-            }
-
-            if ($val_a !== $val_b) {
-                $unequal[] = $prefix . $attr;
-            }
-        }
-
-        if (empty($unequal)) {
-            // If TRUE is returned, objects regarding the given attributes are identical
-            return TRUE;
-        }
-        else {
-            // Otherwise return those attribute names that did not give a match
-            return $unequal;
-        }
-    }
-
-
     function accountStatusCheck()
     {
         /* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail… */
@@ -1043,8 +1014,8 @@ class importaccounts extends plugin
 
                     $gosa_account = $gosa_main_accounts[0];
 
-                    /* detect status */
-                    if ($this->compareObjects($row['main_account'], $gosa_account, $test_attrs, "", TRUE) === TRUE) {
+                    // Detect status of account.
+                    if ($this->utils->compareObjects($row['main_account'], $gosa_account, $test_attrs, "", TRUE) === NULL) {
                         if ((!isset($row['main_account']['uid'][0])) || ($row['main_account']['uid'][0] === "{%uid}")) {
                             $this->csvinfo['data_preldap'][$key]['main_account']['uid'] = array($gosa_account['uid'][0]);
                             $row['main_account']['uid'] = $this->csvinfo['data_preldap'][$key]['main_account']['uid'];
@@ -1091,9 +1062,9 @@ class importaccounts extends plugin
                             }
                         }
 
-                        $_check_attrs = $this->compareObjects($row['main_account'], $gosa_account, $_updatable_attrs, "update-");
-                        if ($_check_attrs === TRUE) {
-                        /* nothing to do */
+                        $_check_attrs = $this->utils->compareObjects($row['main_account'], $gosa_account, $_updatable_attrs, "update-");
+                        if ($_check_attrs === NULL) {
+                            // Nothing to do
                         }
                         else {
                             $_actions = array_merge($_actions, $_check_attrs);
@@ -1143,8 +1114,8 @@ class importaccounts extends plugin
                         $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array($expected_account_dn);
                         $this->csvinfo['data_preldap'][$key]['main_account']['_base'] = array($expected_base);
                     }
-                    elseif ($this->compareObjects($row['main_account'], $gosa_account, array("uid"), "", TRUE) === TRUE) {
-                        /* The LDAP tree already has an account with this uid, this requires manual introspection */
+                    elseif ($this->utils->compareObjects($row['main_account'], $gosa_account, array("uid"), "", TRUE) === NULL) {
+                        // The LDAP tree already has an account with this UID, this requires manual introspection
 
                         $expected_base = $this->genAccountBase($row['main_account'], $row['groups']);
                         $expected_account_dn = "uid=" . $row['main_account']['uid'][0] . ',' . get_people_ou() . $expected_base;
@@ -1232,8 +1203,8 @@ class importaccounts extends plugin
                                 }
                             }
 
-                            $_check_attrs = $this->compareObjects($aux_account, $gosa_account, $_updatable_attrs, "update-");
-                            if ($_check_attrs === TRUE) {
+                            $_check_attrs = $this->utils->compareObjects($aux_account, $gosa_account, $_updatable_attrs, "update-");
+                            if ($_check_attrs === NULL) {
                                 // Nothing to do
                             }
                             else {
@@ -1448,8 +1419,8 @@ class importaccounts extends plugin
                 }
 
                 if ($gosa_group = $this->_ldap->fetch($ldapsearch)) {
-                    /* detect status */
-                    if ($this->compareObjects($group, $gosa_group, array("cn")) === TRUE) {
+                    // Detect status of group
+                    if ($this->utils->compareObjects($group, $gosa_group, array("cn")) === NULL) {
                         if (in_array('posixGroup', $group['objectClass'])) {
                             $expected_group_dn = 'cn=' . $group['cn'][0] . ',' . get_groups_ou() . $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
                         }
@@ -1482,11 +1453,11 @@ class importaccounts extends plugin
                 if ($this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0] === 'exists-elsewhere') {
                     $_actions[] = "move";
                 }
-                if ($this->compareObjects($group, $gosa_group, array("cn")) === TRUE) {
+                if ($this->utils->compareObjects($group, $gosa_group, array("cn")) === NULL) {
                     if ($_group_type_key !== 'optional_groups') {
-                        $_check_attrs = $this->compareObjects($group, $gosa_group, array("mail", "description"), "update-");
-                        if ($_check_attrs === TRUE) {
-                        /* nothing to do */
+                        $_check_attrs = $this->utils->compareObjects($group, $gosa_group, array("mail", "description"), "update-");
+                        if ($_check_attrs === NULL) {
+                            // Nothing to do
                         }
                         else {
                             $_actions = array_merge($_actions, $_check_attrs);
