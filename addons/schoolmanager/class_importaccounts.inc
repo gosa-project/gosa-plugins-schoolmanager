@@ -381,14 +381,10 @@ class importaccounts extends plugin
                 $smarty->assign("data_size", $this->csvinfo['num_rows']);
                 $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
             }
-            else {
-                // $this->failure_in_this_phase is set.
-                $reloadphase2 = TRUE;
-            }
         }
         else {
             /* Something is not right! */
-            $reloadphase2 = TRUE;
+            $this->failure_in_this_phase = TRUE;
             msg_dialog::display(
                 _("Error"),
                 _("Something went wrong! Something from the form went missing! Please try again."),
@@ -396,7 +392,7 @@ class importaccounts extends plugin
             );
         }
 
-        if ($reloadphase2 === TRUE) {
+        if ($this->failure_in_this_phase === TRUE) {
             /* Prepare for reloading this phase's web page again */
             $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
             $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
@@ -868,9 +864,6 @@ class importaccounts extends plugin
         /*
          * PHASES
          */
-
-        /* special handling of reloading phase 2 */
-        $reloadphase2 = FALSE;
 
         /* reset our failure status from last template view… */
         $this->failure_in_this_phase = FALSE;
