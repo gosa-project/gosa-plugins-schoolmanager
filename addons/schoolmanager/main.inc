@@ -21,33 +21,33 @@
  */
 
 
-/* Remove locks created by this plugin
-*/
-if ($remove_lock){
-  if(session::is_set('schoolmgr')){
-    // Nothing to unlock here
-  }
+// Remove locks created by this plugin
+/*
+if ($remove_lock) {
+    if (session::is_set('schoolmgr')) {
+        // Nothing to unlock here
+    }
 }
-
-/* Remove this plugin from session
 */
-if ( $cleanup ){
-  session::un_set('schoolmgr');
-}else{
 
-	/* Create schoolmgr object on demand */
-	if (!session::is_set('schoolmgr')){
-		$schoolmgr= new schoolmgr ($config);
-		$schoolmgr->set_acl_category("schoolmgr");
-		session::set('schoolmgr',$schoolmgr);
-	}
-	$schoolmgr = session::get('schoolmgr');
+// Remove this plugin from session
+if ($cleanup) {
+    session::un_set('schoolmgr');
+}
+else {
+    /* Create schoolmgr object on demand */
+    if (!session::is_set('schoolmgr')) {
+        $schoolmgr = new schoolmgr($config);
+        $schoolmgr->set_acl_category("schoolmgr");
+        session::set('schoolmgr', $schoolmgr);
+    }
+    $schoolmgr = session::get('schoolmgr');
 
-	/* Execute formular */
-	$display= $schoolmgr->execute ();
-	$display.= "<input type=\"hidden\" name=\"ignore\">\n";
+    // Execute formular
+    $display = $schoolmgr->execute();
+    $display .= "<input type=\"hidden\" name=\"ignore\">\n";
 
-	/* Store changes  in session */
-	session::set('schoolmgr',$schoolmgr);
+    // Store changes in session
+    session::set('schoolmgr', $schoolmgr);
 }
 ?>
