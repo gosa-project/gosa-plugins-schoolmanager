@@ -43,6 +43,7 @@ class schoolmgr_utils
         echo "<script>console.log('" . addslashes($data) . "');</script>";
     }
 
+
     function getConfigValue(string $key): string {
         // Define our main class
         $class = "schoolmgr";
@@ -57,6 +58,7 @@ class schoolmgr_utils
 
         return $ret;
     }
+
 
     function compareObjects($object_a, $object_b, $attrs = array("sn", "givenName"), $prefix = "", $ci = FALSE): ?array
     {
