@@ -468,7 +468,8 @@ class archiveaccounts extends plugin {
 
 		foreach ( $this->csvinfo ['data_preldap'] as $idx => $user_data ) {
 			if ((isset ( $user_data ['main_account'] ) && (! empty ( $user_data ['main_account'] )))) {
-				if (strpos ( $user_data ['main_account'] ['_group_actions'] [0], 'move-primgroup' ) !== FALSE) {
+				if ($this->utils->strcontains($user_data['main_account']['_group_actions'][0], 'move-primgroup'))
+				{
 					/* Old UID == Groupname (Hopefully) */
 					$group_name = $user_data ['main_account'] ['uid'] [0];
 					$new_group_name = ('archived-' . date ( "Ymd" ) . '-' . $group_name);
@@ -510,10 +511,12 @@ class archiveaccounts extends plugin {
 	}
 	function archiveLDAPUserObject($user_data) {
 		/* only perform on this user dataset if _actions does not contain "none"... */
-		if ((strpos ( $user_data ['_actions'] [0], 'none' ) !== FALSE) or (strpos ( $user_data ['_actions'] [0], 'ignore' ) !== FALSE)) {
+		if (($this->utils->strcontains($user_data ['_actions'] [0], 'none')) or
+		    ($this->utils->strcontains($user_data ['_actions'] [0], 'ignore')))
+		{
 			/* Errorcode 1403 */
-                        $returnval = 1403;
-                        return $returnval;
+			$returnval = 1403;
+			return $returnval;
 		}
 
 		/* Retrieve user object from LDAP */
@@ -564,7 +567,9 @@ class archiveaccounts extends plugin {
 		$returnval = "TRUE";
 
 		/* only perform on this user dataset if _actions does not contain "none"... */
-		if ((strpos ( $group_data ['_actions'] [0], 'none' ) !== FALSE) or (strpos ( $group_data ['_actions'] [0], 'ignore' ) !== FALSE)) {
+		if ($this->utils->strcontains($group_data['_actions'][0], 'none' ) or
+		    $this->utils->strcontains($group_data['_actions'][0], 'ignore'))
+		{
 			/* Errorcode 1403 */
 			$returnval = 1403;
 			return $returnval;
@@ -584,8 +589,9 @@ class archiveaccounts extends plugin {
 			$_group_obj = "ogroup";
 		}
 
-		if ((strpos ( $group_data ['_actions'] [0], 'create' ) !== FALSE) or (strpos ( $group_data ['_actions'] [0], 'move' ) !== FALSE)) {
-
+		if ($this->utils->strcontains($group_data['_actions'][0], 'create') or
+		    $this->utils->strcontains($group_data['_actions'][0], 'move'))
+		{
 			/* Instantiate a new group object via GOsa²'s API */
 			$grouptab = new $_group_tabs_class ( $this->config, $this->config->data ['TABS'] [$_group_tabs], 'new' );
 			if (isset ( $group_data ['_dn'] [0] )) {
@@ -596,7 +602,8 @@ class archiveaccounts extends plugin {
 			$grouptab = new $_group_tabs_class ( $this->config, $this->config->data ['TABS'] [$_group_tabs], $group_data ['_dn'] [0] );
 		}
 
-		if (strpos ( $group_data ['_actions'] [0], 'move' ) !== FALSE) {
+		if ($this->utils->strcontains($group_data['_actions'][0], 'move'))
+		{
 			/* do an ldapsearch for the source object and prepare a copy+paste action */
 
 			$_ldapsearch = $this->_ldap->search ( "(&(objectClass=" . $_group_obclass . ")(cn=" . $group_name . "))", array (
@@ -621,10 +628,18 @@ class archiveaccounts extends plugin {
 		$_group_properties = array (
 				"cn" => $group_data ['cn'] [0]
 		);
-		if (((strpos ( $group_data ['_actions'] [0], 'update-description' ) !== FALSE) or (strpos ( $group_data ['_actions'] [0], 'create' ) !== FALSE)) and isset ( $group_data ['description'] [0] )) {
+
+		if (isset($group_data['description'][0]) and
+		   ($this->utils->strcontains($group_data['_actions'][0], 'update-description') or
+		    $this->utils->strcontains($group_data['_actions'][0], 'create')))
+		{
 			$_group_properties ["description"] = $group_data ['description'] [0];
 		}
-		if (((strpos ( $group_data ['_actions'] [0], 'update-mail' ) !== FALSE) or (strpos ( $group_data ['_actions'] [0], 'create' ) !== FALSE)) and isset ( $group_data ['mail'] [0] )) {
+
+		if (isset($group_data['mail'][0]) and
+		   ($this->utils->strcontains($group_data['_actions'][0], 'update-mail') or
+		    $this->utils->strcontains($group_data['_actions'][0], 'create')))
+		{
 			$_group_properties ["mail"] = $group_data ['mail'] [0];
 		}
 
@@ -671,9 +686,11 @@ class archiveaccounts extends plugin {
 		}
 
 		/* Present a status update in GOsa²''s logging system (/var/log/syslog mostly) */
-		if (strpos ( $group_data ['_actions'] [0], 'create' ) !== FALSE) {
+		if ($this->utils->strcontains($group_data['_actions'][0], 'create'))
+		{
 			new log ( "create", "groups/group", $grouptab->dn, array (), "New group created via SchoolManager add-on." );
-		} elseif (strpos ( $group_data ['_actions'] [0], 'none' ) !== FALSE) {
+		} elseif ($this->utils->strcontains($group_data['_actions'][0], 'none'))
+		{
 			new log ( "modify", "groups/group", $grouptab->dn, array (), "Existing group modified via SchoolManager add-on." );
 		}
 
@@ -836,7 +853,8 @@ class archiveaccounts extends plugin {
 				 * FIXME 1: On a German localized GOsa², this is not required..., but how about other locales???
 				 * FIXME 2: If date is formatted like "dd.mm.yy" GOsa² will not use yy as the birthyear but print error
 				 */
-				if (strpos ( $_dateOfBirth, '.' )) {
+				if ($this->utils->strcontains($_dateOfBirth, '.'))
+				{
 					list ( $day, $month, $year ) = explode ( ".", $_dateOfBirth, 3 );
 					$_dateOfBirth = $year . "-" . $month . "-" . $day;
 					// $_dateOfBirth = $day.".".$month.".20".$year;
@@ -1041,8 +1059,8 @@ class archiveaccounts extends plugin {
 		if ($this->csvinfo ['accounts_in_class_ou'] === TRUE) {
 			$_class_group = "";
 			foreach ( $groups_data as $group_key => $group_data ) {
-
-				if (strpos ( $group_data ['cn'] [0], 'class_' ) !== FALSE) {
+				if ($this->utils->strcontains($group_data['cn'][0], 'class_'))
+				{
 					$_class_group = 'ou=' . str_replace ( 'class_', '', $group_data ['cn'] [0] ) . ',';
 					/*
 					 * we take the first class group we find...
