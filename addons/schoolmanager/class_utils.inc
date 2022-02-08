@@ -23,6 +23,9 @@
 
 class schoolmgr_utils
 {
+    // Enables/Disables debug prints to js console.
+    var bool $DEBUG_MODE = true;
+
 
     function __construct(&$config)
     {
@@ -30,8 +33,12 @@ class schoolmgr_utils
     }
 
 
-    // Enables/Disables debug prints to js console.
-    var bool $DEBUG_MODE = true;
+    // str_contains is not available for PHP 7.
+    // So we write our own function wrapper.
+    function strcontains(string $haystack, string $needle): bool {
+        return strpos($haystack, $needle) !== FALSE;
+    }
+
 
     function debug_to_console($data) {
         // Don't print anything to js console, if DEBUG_MODE isn't 'true'.
@@ -42,6 +49,7 @@ class schoolmgr_utils
 
         echo "<script>console.log('" . addslashes($data) . "');</script>";
     }
+
 
     function getConfigValue(string $key): string {
         // Define our main class
@@ -57,6 +65,7 @@ class schoolmgr_utils
 
         return $ret;
     }
+
 
     function compareObjects($object_a, $object_b, $attrs = array("sn", "givenName"), $prefix = "", $ci = FALSE): ?array
     {
