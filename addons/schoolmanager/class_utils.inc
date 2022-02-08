@@ -59,7 +59,7 @@ class schoolmgr_utils
         // defaults from class_schoolmgr.inc
         $ret = $this->config->get_cfg_value($class, $key);
 
-        // Debug property to js console.
+        // Debug property to js console (if debugging is enabled!).
         $debug_str = "Got property(" . $class . "): '" . str_pad($key . "':", 60) . "'" . $ret . "'";
         $this->debug_to_console($debug_str);
 
