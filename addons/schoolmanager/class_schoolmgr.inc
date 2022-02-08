@@ -37,14 +37,20 @@ class schoolmgr extends plugin
     {
         $this->initTime = microtime(TRUE);
 
-        stats::log('plugin', $class = get_class($this), $category = array($this->acl_category),  $action = 'open',
-                $amount = 1, $duration = (microtime(TRUE) - $this->initTime));
+        stats::log(
+            'plugin',
+            $class    = get_class($this),
+            $category = array($this->acl_category),
+            $action   = 'open',
+            $amount   = 1,
+            $duration = (microtime(TRUE) - $this->initTime)
+        );
 
 
-        /* Include config object */
-        $this->schoolmgr= new schoolmanagertab($config, $config->data['TABS']['SCHOOLMANAGERTAB'], "");
-
+        // Include config object
+        $this->schoolmgr = new schoolmanagertab($config, $config->data['TABS']['SCHOOLMANAGERTAB'], "");
     }
+
 
     function execute()
     {
@@ -55,10 +61,14 @@ class schoolmgr extends plugin
         return ($this->schoolmgr->execute());
     }
 
+
     /* Return plugin informations for ACL handling */
-    static function plInfo() {
-        return (
-            array(
+    static function plInfo()
+    {
+        // Get properties from below.
+        $properties = schoolmgr::getProperties();
+
+        return (array(
                 "plShortName"    => _("School Manager"),
                 "plDescription"  => _("Administration Utility for Schools"),
                 "plSelfModify"   => FALSE,
@@ -66,113 +76,118 @@ class schoolmgr extends plugin
                 "plPriority"     => 1,
                 "plSection"      => array("addon"),
                 "plCategory"     => array("schoolmgr" => array("description" => _("School Manager"))),
-                "plProperties"   => array(
-                    array(
-                        "name" => "csv_column_delimiter",
-                        "type" => "string",
-                        "default" => ";",
-                        "description" => _("The default delimiter for CSV columns."),
-                        "check" => "gosaProperty::isString",
-                        "migrate" => "",
-                        "group" => "schoolmgr",
-                        "mandatory" => TRUE
-                    ),
-                    array(
-                        "name" => "accounts_in_class_ou",
-                        "type" => "bool",
-                        "default" => "true",
-                        "description" => _("Create a sub-OU for each class and place student " .
-                                           "accounts belonging to the same class into their " .
-                                           "corresponding class OU?"),
-                        "check" => "gosaProperty::isBool",
-                        "migrate" => "",
-                        "group" => "schoolmgr",
-                        "mandatory" => TRUE
-                    ),
-                    array(
-                        "name" => "try_mail_as_uid",
-                        "type" => "bool",
-                        "default" => "true",
-                        "description" => _("If CSV data does not contain a user ID (uid) " .
-                                           "column, use the mail address as user ID instead?"),
-                        "check" => "gosaProperty::isBool",
-                        "migrate" => "",
-                        "group" => "schoolmgr",
-                        "mandatory" => TRUE
-                    ),
-                    array(
-                        "name" => "ignore_first_row_of_csv_file",
-                        "type" => "bool",
-                        "default" => "true",
-                        "description" => _("The first row of the CSV file contains column heads."),
-                        "check" => "gosaProperty::isBool",
-                        "migrate" => "",
-                        "group" => "schoolmgr",
-                        "mandatory" => TRUE
-                    ),
-                    array(
-                        "name" => "ou_for_new_groups",
-                        "type" => "dn",
-                        "default" => "ou=SchoolManager,dc=skole,dc=skolelinux,dc=no",
-                        "description" => _("The OU for new groups."),
-                        "check" => "gosaProperty::isDn",
-                        "migrate" => "",
-                        "group" => "schoolmgr",
-                        "mandatory" => TRUE
-                    ),
-                    array(
-                        "name" => "domain_for_new_groups",
-                        "type" => "string",
-                        "default" => "@intern",
-                        "description" => _("In what mail domain should these new groups be?"),
-                        "check" => "gosaProperty::isString",
-                        "migrate" => "",
-                        "group" => "schoolmgr",
-                        "mandatory" => TRUE
-                    ),
-                    array(
-                        "name" => "template_for_new_students-importstudentsonly",
-                        "type" => "dn",
-                        "default" => "uid=newstudent,ou=people,ou=Students,dc=skole,dc=skolelinux,dc=no",
-                        "description" => _("Select a template for student accounts."),
-                        "check" => "gosaProperty::isDn",
-                        "migrate" => "",
-                        "group" => "schoolmgr",
-                        "mandatory" => TRUE
-                    ),
-                    array(
-                        "name" => "template_for_new_students-importstudentsandparents",
-                        "type" => "dn",
-                        "default" => "uid=newstudent,ou=people,ou=Students,dc=skole,dc=skolelinux,dc=no",
-                        "description" => _("Select a template for student accounts."),
-                        "check" => "gosaProperty::isDn",
-                        "migrate" => "",
-                        "group" => "schoolmgr",
-                        "mandatory" => TRUE
-                    ),
-                    array(
-                        "name" => "template_for_new_parents-importstudentandparents",
-                        "type" => "dn",
-                        "default" => "uid=newparent,ou=people,ou=Parents,dc=skole,dc=skolelinux,dc=no",
-                        "description" => _("Select a template for parents accounts."),
-                        "check" => "gosaProperty::isDn",
-                        "migrate" => "",
-                        "group" => "schoolmgr",
-                        "mandatory" => TRUE
-                    ),
-                    array(
-                        "name" => "template_for_new_teachers-importteachers",
-                        "type" => "dn",
-                        "default" => "uid=newteacher,ou=people,ou=Teacher,dc=skole,dc=skolelinux,dc=no",
-                        "description" => _("Select a template for teacher accounts."),
-                        "check" => "gosaProperty::isDn",
-                        "migrate" => "",
-                        "group" => "schoolmgr",
-                        "mandatory" => TRUE
-                    ),
-                ),
+                "plProperties"   => $properties,
                 "plProvidedAcls" => array(),
             )
+        );
+    }
+
+
+    static function getProperties() {
+        return array(
+            array(
+                "name"        => "csv_column_delimiter",
+                "type"        => "string",
+                "check"       => "gosaProperty::isString",
+                "group"       => "schoolmgr",
+                "default"     => ";",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("The default delimiter for CSV file columns."),
+            ),
+            array(
+                "name"        => "accounts_in_class_ou",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "true",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Create a sub-OU for each class and place student " .
+                                   "accounts belonging to the same class into their " .
+                                   "corresponding class OU?"),
+            ),
+            array(
+                "name"        => "try_mail_as_uid",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "true",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("If CSV data does not contain a user ID (uid) " .
+                                   "column, use the mail address as user ID instead?"),
+            ),
+            array(
+                "name"        => "ignore_first_row_of_csv_file",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "true",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("The first row of the CSV file contains column heads."),
+            ),
+            array(
+                "name"        => "ou_for_new_groups",
+                "type"        => "dn",
+                "check"       => "gosaProperty::isDn",
+                "group"       => "schoolmgr",
+                "default"     => "ou=SchoolManager,dc=skole,dc=skolelinux,dc=no",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("The OU for new groups."),
+            ),
+            array(
+                "name"        => "domain_for_new_groups",
+                "type"        => "string",
+                "check"       => "gosaProperty::isString",
+                "group"       => "schoolmgr",
+                "default"     => "@intern",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("In what mail domain should new groups be?"),
+            ),
+            array(
+                "name"        => "template_for_new_students-importstudentsonly",
+                "type"        => "dn",
+                "check"       => "gosaProperty::isDn",
+                "group"       => "schoolmgr",
+                "default"     => "uid=newstudent,ou=people,ou=Students,dc=skole,dc=skolelinux,dc=no",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Import students only: Select a template for student accounts."),
+            ),
+            array(
+                "name"        => "template_for_new_students-importstudentsandparents",
+                "type"        => "dn",
+                "check"       => "gosaProperty::isDn",
+                "group"       => "schoolmgr",
+                "migrate"     => "",
+                "default"     => "uid=newstudent,ou=people,ou=Students,dc=skole,dc=skolelinux,dc=no",
+                "mandatory"   => TRUE,
+                "description" => _("Import students and parents: Select a template for student accounts."),
+            ),
+            array(
+                "name"        => "template_for_new_parents-importstudentandparents",
+                "type"        => "dn",
+                "check"       => "gosaProperty::isDn",
+                "group"       => "schoolmgr",
+                "default"     => "uid=newparent,ou=people,ou=Parents,dc=skole,dc=skolelinux,dc=no",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Import students and parents: Select a template for parents accounts."),
+            ),
+            array(
+                "name"        => "template_for_new_teachers-importteachers",
+                "type"        => "dn",
+                "check"       => "gosaProperty::isDn",
+                "group"       => "schoolmgr",
+                "default"     => "uid=newteacher,ou=people,ou=Teacher,dc=skole,dc=skolelinux,dc=no",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Import teachers: Select a template for teacher accounts."),
+            ),
         );
     }
 }
