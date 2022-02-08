@@ -67,6 +67,70 @@ class schoolmgr_utils
     }
 
 
+    function checkUploadedFile(): array
+    {
+        // ret_array[0] = (successful): bool
+        // ret_array[1] = (error msg / raw csv data): string
+        $ret_array = array();
+
+        // Make sure there is a file uploaded…
+        if (empty($_FILES['userfile']['name'])) {
+            $ret_array[0] = FALSE; // Not successful.
+            $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file not found"));
+            return $ret_array;
+        }
+
+        $handle = NULL;
+        $filename = gosa_file_name($_FILES['userfile']['tmp_name']);
+
+        // TODO: FIXME: Check if file does actually end with '.csv'…
+
+        if (!isset($_FILES['userfile']['name'])) {
+            $ret_array[0] = FALSE; // Not successful.
+            $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file not found"));
+            return $ret_array;
+        } elseif (!$_FILES['userfile']['size'] > 0) {
+            $ret_array[0] = FALSE; // Not successful.
+            $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file is empty"));
+            return $ret_array;
+        } elseif (!file_exists($filename)) { // Is there a tmp file which we can use?
+            $ret_array[0] = FALSE; // Not successful.
+            $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file not found"));
+            return $ret_array;
+        } elseif (!$handle = @fopen($filename, "r")) {
+            $ret_array[0] = FALSE; // Not successful.
+            $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file not readable"));
+            return $ret_array;
+        }
+
+        $raw_csv_data = "";
+
+        // Reading content of file in 1024 chunks
+        while (!feof($handle)) {
+            $raw_csv_data .= fread($handle, 1024);
+        }
+        @fclose($handle);
+
+        // Most of the time the files are encoded in 'UTF-8' or 'ISO-8859-1'.
+        if (!mb_check_encoding($raw_csv_data, "UTF-8")) {
+            if (mb_check_encoding($raw_csv_data, "iso-8859-1")) {
+                $raw_csv_data = utf8_encode($raw_csv_data);
+            } else {
+                $ret_array[0] = FALSE; // Not successful.
+                $ret_array[1] = sprintf(
+                    _("Cannot read uploaded file: %s"),
+                    _("file encoding not supported")
+                );
+                return $ret_array;
+            }
+        }
+
+        $ret_array[0] = TRUE; // Successful!
+        $ret_array[1] = $raw_csv_data;
+        return $ret_array;
+    }
+
+
     function compareObjects($object_a, $object_b, $attrs = array("sn", "givenName"), $prefix = "", $ci = FALSE): ?array
     {
         $unequal = array();

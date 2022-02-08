@@ -103,77 +103,20 @@ class importaccounts extends plugin
      */
     function execute_phase1($smarty)
     {
-        // If there isn't a file uploaded: return
-        if (empty($_FILES['userfile']['name'])) return;
+        $ret_array = $this->utils->checkUploadedFile();
 
-        $handle = NULL;
-        $filename = gosa_file_name($_FILES['userfile']['tmp_name']);
+        // If successful.
+        if ($ret_array[0]) {
+            $raw_csv_data = $ret_array[1];
+            $smarty->assign("file_uploaded", TRUE);
+        } else {
+            $this->failure_in_this_phase = TRUE;
+            $smarty->assign("LDIFError", TRUE);
 
-        // TODO: FIXME: Check if file does actually end with '.csv'…
-
-        if (!isset($_FILES['userfile']['name'])) {
-            msg_dialog::display(
-                _("Error"),
-                sprintf(_("Cannot read uploaded file: %s"),
-                        _("file not found")),
-                ERROR_DIALOG
-            );
-            $smarty->assign("LDIFError", TRUE);
-            return;
-        } elseif (!$_FILES['userfile']['size'] > 0) {
-            msg_dialog::display(
-                _("Error"),
-                sprintf(_("Cannot read uploaded file: %s"),
-                        _("file is empty")),
-                ERROR_DIALOG
-            );
-            $smarty->assign("LDIFError", TRUE);
-            return;
-        }
-        // Is there a tmp file which we can use?
-        elseif (!file_exists($filename)) {
-            msg_dialog::display(
-                _("Error"),
-                sprintf(_("Cannot read uploaded file: %s"),
-                        _("file not found")),
-                ERROR_DIALOG
-            );
-            $smarty->assign("LDIFError", TRUE);
-            return;
-        } elseif (!$handle = @fopen($filename, "r")) {
-            msg_dialog::display(
-                _("Error"),
-                sprintf(_("Cannot read uploaded file: %s"),
-                        _("file not readable")),
-                ERROR_DIALOG
-            );
-            $smarty->assign("LDIFError", TRUE);
+            msg_dialog::display(_("Error"), $ret_array[1], ERROR_DIALOG);
             return;
         }
 
-        $smarty->assign("file_uploaded", TRUE);
-        $raw_csv_data = "";
-
-        // Reading content of file
-        while (!feof($handle)) {
-            $raw_csv_data .= fread($handle, 1024);
-        }
-        @fclose($handle);
-
-        // Most of the time the files are encoded in 'UTF-8' or 'ISO-8859-1'.
-        if (!mb_check_encoding($raw_csv_data, "UTF-8")) {
-            if (mb_check_encoding($raw_csv_data, "iso-8859-1")) {
-                $raw_csv_data = utf8_encode($raw_csv_data);
-            } else {
-                $smarty->assign("LDIFError", TRUE);
-                $smarty->assign("file_uploaded", FALSE);
-                msg_dialog::display(
-                    _("Error"),
-                    _("File has an unsupported encoding!"),
-                    ERROR_DIALOG
-                );
-            }
-        }
 
         // Parse user settings…
         switch ($_POST['delimiter_id']) {
