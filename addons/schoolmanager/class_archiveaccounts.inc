@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This code is an addon for GOsa (https://gosa.gonicus.de)
+ * This code is an addon for GOsa² (https://gosa.gonicus.de)
  * Copyright (C) 2015 Mike Gabriel
  * Copyright (C) 2015 Marius Rasch
  *
@@ -19,6 +19,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
+
 class archiveaccounts extends plugin {
 
 	/* Definitions */
