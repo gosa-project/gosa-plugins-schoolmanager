@@ -166,6 +166,27 @@ class schoolmgr extends plugin
             ),
             // Gets loaded as defaults for phase 2…
             array(
+                "name"        => "aliases_in_schooldomain",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "true",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Should aliases be created for teachers using the school domain? " .
+                                   "For example: <uid>@<domain_school>"),
+            ),
+            array(
+                "name"        => "add_course_members_to_class_group",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "true",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Should teachers be included as class members for courses they teach in a class?"),
+            ),
+            array(
                 "name"        => "accounts_in_class_ou",
                 "type"        => "bool",
                 "check"       => "gosaProperty::isBool",
@@ -178,14 +199,34 @@ class schoolmgr extends plugin
                                    "corresponding class OU?"),
             ),
             array(
-                "name"        => "domain_for_new_groups",
+                "name"        => "domain_groups",
                 "type"        => "string",
                 "check"       => "gosaProperty::isString",
                 "group"       => "schoolmgr",
-                "default"     => "@intern",
+                "default"     => "intern", // Without leading '@'
                 "migrate"     => "",
                 "mandatory"   => TRUE,
-                "description" => _("In what mail domain should new groups be?"),
+                "description" => _("The groups domain. Example: 'lists.john-doe-school.edu'"),
+            ),
+            array(
+                "name"        => "domain_users",
+                "type"        => "string",
+                "check"       => "gosaProperty::isString",
+                "group"       => "schoolmgr",
+                "default"     => "intern", // Without leading '@'
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("The users (pupil) domain. Example: 'pupils.john-doe-school.edu'"),
+            ),
+            array(
+                "name"        => "domain_school",
+                "type"        => "string",
+                "check"       => "gosaProperty::isString",
+                "group"       => "schoolmgr",
+                "default"     => "intern", // Without leading '@'
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("The school domain. Example: 'john-doe-school.edu'"),
             ),
             array(
                 "name"        => "try_mail_as_uid",

@@ -179,17 +179,11 @@ class importaccounts extends plugin
         $this->csvinfo['templates']['DNs'][] = "";
 
         // Set the default mail domain for users, groups and for the school here (they might differ)…
-        $this->csvinfo['domain_school'] = "intern";
-        $this->csvinfo['domain_users']  = "intern";
-        $this->csvinfo['domain_groups'] = "intern";
+        $this->csvinfo['domain_school'] = $this->utils->getConfigStrValue("domain_school");
+        $this->csvinfo['domain_users']  = $this->utils->getConfigStrValue("domain_users");
+        $this->csvinfo['domain_groups'] = $this->utils->getConfigStrValue("domain_groups");
 
-        $_base_search = $this->_ldap->search("(objectClass=dcObject)", array("o"));
-        $_base_obj = $this->_ldap->fetch($_base_search, $this->config->current['BASE']);
-
-        // FIXME: Do a is_valid_domain_name check here…
-        if (isset($_base_obj['o']) and isset($_base_obj['o'][0])) {
-            $this->csvinfo['domain_school'] = trim($_base_obj['o'][0]);
-        }
+        // TODO: FIXME: Check the domains above for validity!
 
         // Search for GOsa² user templates in LDAP-tree
         $_ldapsearch = $this->_ldap->search("(objectClass=gosaUserTemplate)", array("*"));
@@ -289,17 +283,17 @@ class importaccounts extends plugin
 
         $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
 
-        // Set import configuration defaults
-        $this->csvinfo['ou_groups'] = $default_ou_for_groups;
-        $this->csvinfo['accounts_in_class_ou']              = TRUE;
-        $this->csvinfo['aliases_in_schooldomain']           = TRUE;
-        $this->csvinfo['try_mail_as_uid']                   = TRUE;
-        $this->csvinfo['sel_ldap_match_attr_studentid']     = FALSE;
-        $this->csvinfo['sel_ldap_match_attr_givenname']     = TRUE;
-        $this->csvinfo['sel_ldap_match_attr_snname']        = TRUE;
-        $this->csvinfo['sel_ldap_match_attr_birthday']      = TRUE;
-        $this->csvinfo['sel_ldap_match_attr_gender']        = TRUE;
-        $this->csvinfo['add_course_members_to_class_group'] = TRUE;
+        // Set import configuration defaults for next phase.
+        $this->csvinfo['ou_groups']                         = $default_ou_for_groups;
+        $this->csvinfo['accounts_in_class_ou']              = $this->utils->getConfigBoolValue("accounts_in_class_ou");;
+        $this->csvinfo['add_course_members_to_class_group'] = $this->utils->getConfigBoolValue("add_course_members_to_class_group");;
+        $this->csvinfo['aliases_in_schooldomain']           = $this->utils->getConfigBoolValue("aliases_in_schooldomain");;
+        $this->csvinfo['try_mail_as_uid']                   = $this->utils->getConfigBoolValue("try_mail_as_uid");;
+        $this->csvinfo['sel_ldap_match_attr_studentid'] = $this->utils->getConfigBoolValue("ldap_match_attr_studentid");
+        $this->csvinfo['sel_ldap_match_attr_givenname'] = $this->utils->getConfigBoolValue("ldap_match_attr_givenname");
+        $this->csvinfo['sel_ldap_match_attr_snname']    = $this->utils->getConfigBoolValue("ldap_match_attr_snname");
+        $this->csvinfo['sel_ldap_match_attr_birthday']  = $this->utils->getConfigBoolValue("ldap_match_attr_birthday");
+        $this->csvinfo['sel_ldap_match_attr_gender']    = $this->utils->getConfigBoolValue("ldap_match_attr_gender");
 
         // Provide pre-set values for account template forms
         $smarty->assign("preset_template_" . $this->import_account_type,          $this->csvinfo['template_main']);
@@ -311,12 +305,12 @@ class importaccounts extends plugin
         $smarty->assign("preset_accounts_in_class_ou",                            $this->csvinfo['accounts_in_class_ou']);
         $smarty->assign("preset_aliases_in_schooldomain",                         $this->csvinfo['aliases_in_schooldomain']);
         $smarty->assign("preset_try_mail_as_uid",                                 $this->csvinfo['try_mail_as_uid']);
+        $smarty->assign("preset_add_course_members_to_class_group",               $this->csvinfo['add_course_members_to_class_group']);
         $smarty->assign("preset_sel_ldap_match_attr_studentid",                   $this->csvinfo['sel_ldap_match_attr_studentid']);
         $smarty->assign("preset_sel_ldap_match_attr_givenname",                   $this->csvinfo['sel_ldap_match_attr_givenname']);
         $smarty->assign("preset_sel_ldap_match_attr_snname",                      $this->csvinfo['sel_ldap_match_attr_snname']);
         $smarty->assign("preset_sel_ldap_match_attr_birthday",                    $this->csvinfo['sel_ldap_match_attr_birthday']);
         $smarty->assign("preset_sel_ldap_match_attr_gender",                      $this->csvinfo['sel_ldap_match_attr_gender']);
-        $smarty->assign("preset_add_course_members_to_class_group",               $this->csvinfo['add_course_members_to_class_group']);
     }
 
 
