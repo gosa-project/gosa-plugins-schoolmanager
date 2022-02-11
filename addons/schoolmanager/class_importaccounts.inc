@@ -795,15 +795,47 @@ class importaccounts extends plugin
             $this->csvinfo = array();
         }
 
-        // TODO: Replace current delimiter system and replace it with properties.
-        $smarty->assign('available_delimiters', array(
-            0 => '"," - ' . _("comma separated values"),
-            1 => '";" - ' . _("semicolon separated values"),
-            2 => '<-> - ' . _("tabstop separated values"),
-            3 => '" " - ' . _("blank separated values")
-        ));
+        // Get setting's default.
+        $delim_char = $this->utils->getConfigStrValue("csv_column_delimiter");
 
-        $smarty->assign('preset_delimiter_id', 0);
+        switch ($delim_char) {
+            case ",":
+                $delimiter_index = 0;
+                break;
+            case ";":
+                $delimiter_index = 1;
+                break;
+            case "\t":
+                $delimiter_index = 2;
+                break;
+            case " ":
+                $delimiter_index = 3;
+                break;
+            default:
+                // Custom character…
+                $delimiter_index = 4;
+                break;
+        }
+
+        $smarty->assign('preset_delimiter_id', $delimiter_index);
+        $available_delims = array(
+            0 => '","'  . " - " . _("comma separated values"),
+            1 => '";"'  . " - " . _("semicolon separated values"),
+            2 => '"\t"' . " - " . _("tabstop separated values"),
+            3 => '" "'  . " - " . _("blank separated values"),
+        );
+
+        // Add custom character radio button only if it should appear.
+        if ($delimiter_index === 4) {
+            $available_delims[4] = '"' . $delim_char . '" - ' . _("values seperated by custom character");
+        }
+
+        $smarty->assign('available_delimiters', $available_delims);
+
+        // Get setting's default.
+        $value = $this->utils->getConfigBoolValue("ignore_first_row_of_csv_file");
+        $smarty->assign('preset_csv_with_column_headers', $value);
+
 
         $this->csvinfo['attrs'] = $this->getAttributes();
         $this->csvinfo['attrs'][] = "---";
