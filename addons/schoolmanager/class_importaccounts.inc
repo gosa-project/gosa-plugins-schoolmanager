@@ -2057,8 +2057,6 @@ class importaccounts extends plugin
         } else {
             $usertab->save();
 
-            echo "success<br>";
-
             // Present a status update in GOsa²'s logging system (/var/log/syslog mostly)
             if ($this->utils->strcontains($user_data['_actions'][0], 'create')) {
                 new log("create", "users/user", $usertab->dn, array(), "New user (" . $usertab->sn . ", " . $usertab->givenName . ") created via SchoolManager add-on.");
