@@ -139,7 +139,7 @@ class importaccounts extends plugin
                 break;
             default:
                 // Default CSV delimiter.
-                $delimiter_char = $this->utils->getConfigValue("csv_column_delimiter");
+                $delimiter_char = $this->utils->getConfigStrValue("csv_column_delimiter");
                 break;
         }
 

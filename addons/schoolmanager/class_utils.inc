@@ -52,7 +52,8 @@ class schoolmgr_utils
     }
 
 
-    function getConfigValue(string $key): string {
+    function getConfigStrValue(string $key): string
+    {
         // Define our main class
         $class = "schoolmgr";
 
@@ -61,7 +62,31 @@ class schoolmgr_utils
         $ret = $this->config->get_cfg_value($class, $key);
 
         // Debug property to js console (if debugging is enabled!).
-        $debug_str = "Got property(" . $class . "): '" . str_pad($key . "':", 60) . "'" . $ret . "'";
+        $debug_str = "Got string property '" . str_pad($key . "':", 58) . "'" . $ret . "'";
+        $this->debug_to_console($debug_str);
+
+        return $ret;
+    }
+
+
+    function getConfigBoolValue(string $key): bool
+    {
+        // Get config value, but pause debugging output.
+        $debug_mode_then = $this->DEBUG_MODE;
+        $this->DEBUG_MODE = FALSE;
+        $conf_value = strtolower($this->getConfigStrValue($key));
+        $this->DEBUG_MODE = $debug_mode_then;
+
+        $ret = FALSE;
+
+        // Only return TRUE if value is literally "true"…
+        if ($conf_value === "true") {
+            $ret = TRUE;
+        }
+
+        // Debug property to js console (if debugging is enabled!).
+        $ret_str = $ret ? "✅" : "❌";
+        $debug_str = "Got bool property '" . str_pad($key . "':", 60) . "'" . $ret_str . "'";
         $this->debug_to_console($debug_str);
 
         return $ret;
