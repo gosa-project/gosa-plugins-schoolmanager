@@ -83,9 +83,67 @@ class schoolmgr extends plugin
         );
     }
 
-
     static function getProperties() {
-        return array(
+        $matching_attr_arr = array(
+            array(
+                "name"        => "ldap_match_attr_studentid",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "false",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Should this attribute be used to identify users " .
+                                   "from the CSV file as existing users in the LDAP-tree?"),
+            ),
+            array(
+                "name"        => "ldap_match_attr_givenname",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "true",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Should this attribute be used to identify users " .
+                                   "from the CSV file as existing users in the LDAP-tree?"),
+            ),
+            array(
+                "name"        => "ldap_match_attr_snname",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "true",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Should this attribute be used to identify users " .
+                                   "from the CSV file as existing users in the LDAP-tree?"),
+            ),
+            array(
+                "name"        => "ldap_match_attr_birthday",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "false",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Should this attribute be used to identify users " .
+                                   "from the CSV file as existing users in the LDAP-tree?"),
+            ),
+            array(
+                "name"        => "ldap_match_attr_gender",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "true",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("Should this attribute be used to identify users " .
+                                   "from the CSV file as existing users in the LDAP-tree?"),
+            ),
+        );
+
+        $ret_arr = array(
+            // Gets loaded as defaults for phase 1…
             array(
                 "name"        => "csv_column_delimiter",
                 "type"        => "string",
@@ -96,6 +154,17 @@ class schoolmgr extends plugin
                 "mandatory"   => TRUE,
                 "description" => _("The default delimiter for CSV file columns."),
             ),
+            array(
+                "name"        => "ignore_first_row_of_csv_file",
+                "type"        => "bool",
+                "check"       => "gosaProperty::isBool",
+                "group"       => "schoolmgr",
+                "default"     => "true",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("The first row of the CSV file contains column heads."),
+            ),
+            // Gets loaded as defaults for phase 2…
             array(
                 "name"        => "accounts_in_class_ou",
                 "type"        => "bool",
@@ -109,6 +178,16 @@ class schoolmgr extends plugin
                                    "corresponding class OU?"),
             ),
             array(
+                "name"        => "domain_for_new_groups",
+                "type"        => "string",
+                "check"       => "gosaProperty::isString",
+                "group"       => "schoolmgr",
+                "default"     => "@intern",
+                "migrate"     => "",
+                "mandatory"   => TRUE,
+                "description" => _("In what mail domain should new groups be?"),
+            ),
+            array(
                 "name"        => "try_mail_as_uid",
                 "type"        => "bool",
                 "check"       => "gosaProperty::isBool",
@@ -120,16 +199,6 @@ class schoolmgr extends plugin
                                    "column, use the mail address as user ID instead?"),
             ),
             array(
-                "name"        => "ignore_first_row_of_csv_file",
-                "type"        => "bool",
-                "check"       => "gosaProperty::isBool",
-                "group"       => "schoolmgr",
-                "default"     => "true",
-                "migrate"     => "",
-                "mandatory"   => TRUE,
-                "description" => _("The first row of the CSV file contains column heads."),
-            ),
-            array(
                 "name"        => "ou_for_new_groups",
                 "type"        => "dn",
                 "check"       => "gosaProperty::isDn",
@@ -138,16 +207,6 @@ class schoolmgr extends plugin
                 "migrate"     => "",
                 "mandatory"   => TRUE,
                 "description" => _("The OU for new groups."),
-            ),
-            array(
-                "name"        => "domain_for_new_groups",
-                "type"        => "string",
-                "check"       => "gosaProperty::isString",
-                "group"       => "schoolmgr",
-                "default"     => "@intern",
-                "migrate"     => "",
-                "mandatory"   => TRUE,
-                "description" => _("In what mail domain should new groups be?"),
             ),
             array(
                 "name"        => "template_for_new_students-importstudentsonly",
@@ -190,6 +249,8 @@ class schoolmgr extends plugin
                 "description" => _("Import teachers: Select a template for teacher accounts."),
             ),
         );
+
+        return array_merge($ret_arr, $matching_attr_arr);
     }
 }
 
