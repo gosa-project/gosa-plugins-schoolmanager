@@ -237,11 +237,11 @@
 		</td>
 	</tr>
 
-{if $domain_school}
+{if $preset_domain_school}
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="aliases_in_schooldomain">{t}Teachers shall have mail aliases in the school's mail domain ({$domain_school}):{/t}</LABEL>
+			<LABEL for="aliases_in_schooldomain">{t}Teachers shall have mail aliases in the school's mail domain ({$preset_domain_school}):{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 {if $preset_aliases_in_schooldomain}

@@ -299,7 +299,7 @@ class importaccounts extends plugin
         $smarty->assign("preset_template_" . $this->import_account_type,          $this->csvinfo['template_main']);
         $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
         $smarty->assign("preset_ou_groups",                                       $this->csvinfo['ou_groups']);
-        $smarty->assign("domain_school",                                          $this->csvinfo['domain_school']);
+        $smarty->assign("preset_domain_school",                                   $this->csvinfo['domain_school']);
         $smarty->assign("preset_domain_users",                                    $this->csvinfo['domain_users']);
         $smarty->assign("preset_domain_groups",                                   $this->csvinfo['domain_groups']);
         $smarty->assign("preset_accounts_in_class_ou",                            $this->csvinfo['accounts_in_class_ou']);
