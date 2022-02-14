@@ -36,12 +36,14 @@ class schoolmgr_utils
 
     // str_contains is not available for PHP 7.
     // So we write our own function wrapper.
-    function strcontains(string $haystack, string $needle): bool {
+    function strcontains(string $haystack, string $needle): bool
+    {
         return strpos($haystack, $needle) !== FALSE;
     }
 
 
-    function debug_to_console($data) {
+    function debug_to_console($data)
+    {
         // Don't print anything to js console, if DEBUG_MODE isn't 'true'.
         if ($this->DEBUG_MODE !== true) return;
 
