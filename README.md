@@ -36,7 +36,7 @@ see the AUTHORS.txt and COPYING files.
 
 ## Data protection and Performance Amendment Recommendations
 
-```
+```diff
 diff --git a/ldap/slapd-debian-edu.conf b/ldap/slapd-debian-edu.conf
 index 52ad2a8..33340aa 100644
 --- a/ldap/slapd-debian-edu.conf
