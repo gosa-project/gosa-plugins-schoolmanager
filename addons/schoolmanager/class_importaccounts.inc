@@ -2048,8 +2048,6 @@ class importaccounts extends plugin
 
             $this->failure_messages[] = $usertab->check();
 
-            echo "fail<br>";
-
             /*
              * FIXME: Collect failure statistics here!
              */
