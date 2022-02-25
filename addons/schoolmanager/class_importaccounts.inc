@@ -1049,7 +1049,9 @@ class importaccounts extends plugin
                          */
                         $_updatable_attrs = array();
                         foreach (array("mail", "employeeNumber", "departmentNumber", "sn", "givenName", "gender", "dateOfBirth") as $_attr) {
-                            if (isset($row['main_account'][$_attr])) {
+                            $_value = $row['main_account'][$_attr];
+                            // Value (string) should not be empty…
+                            if (isset($_value) && !empty($_value) && !empty($_value[0])) {
                                 $_updatable_attrs[] = $_attr;
                             }
                         }
