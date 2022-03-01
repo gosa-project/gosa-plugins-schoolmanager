@@ -13,7 +13,7 @@
 		<tr>
 			<td style="width: 1em;">&nbsp;</td>
 			<td style="vertical-align: top;">
-				{t}Flush all members from the listed course, class and subject (POSIX) groups now? After you have clicked this button, the process cannot be reverted!. Emptying all groups may take some time, so please be patient while waiting...{/t}
+				{t}Flush all members from the listed course, class and subject (POSIX) groups now? After you have clicked this button, the process cannot be reverted!. Emptying all groups may take some time, so please be patient while waiting…{/t}
 			</td>
 			<td style="width: 1em;">&nbsp;</td>
 			<td style="vertical-align: bottom;">
@@ -68,7 +68,7 @@
 		<tr>
 			<td style="width: 1em;">&nbsp;</td>
 			<td style="vertical-align: top;">
-				{t}Flush all members from the listed parent (object) groups now? After you have clicked this button, the process cannot be reverted!Emptying all groups may take some time, so please be patient while waiting...{/t}
+				{t}Flush all members from the listed parent (object) groups now? After you have clicked this button, the process cannot be reverted! Emptying all groups may take some time, so please be patient while waiting…{/t}
 			</td>
 			<td style="width: 1em;">&nbsp;</td>
 			<td style="vertical-align: bottom;">
