@@ -110,7 +110,7 @@
 <br><h3>{t 1="3/11"}STEP %1: Configure archive options{/t}</h3>
 
 <p>
-{t}School Manager's import functionality is very flexible and can be adapted to your needs. Please configure options of this archiving below.{/t}
+{t}School Manager's archive functionality is very flexible and can be adapted to your needs. Please configure options of this archiving below.{/t}
 </p>
 
 <table summary="{t}Configure archive options{/t}">
