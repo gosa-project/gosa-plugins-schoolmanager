@@ -354,9 +354,12 @@ class schoolmanagerintro extends plugin
             $new_template = $this->execute_empty_schoolmgr_groups_now_phase1($smarty);
             return $new_template;
         } else if (isset($_POST["empty_schoolmgr_groups_now_phase2"])) {
+            $smarty->assign("empty_schoolmgr_groups_now_phase1_done", TRUE);
             $new_template = $this->execute_empty_schoolmgr_groups_now_phase2($smarty);
             return $new_template;
         } else if (isset($_POST["empty_schoolmgr_groups_now_phase3"])) {
+            $smarty->assign("empty_schoolmgr_groups_now_phase1_done", TRUE);
+            $smarty->assign("empty_schoolmgr_groups_now_phase2_done", TRUE);
             $new_template = $this->execute_empty_schoolmgr_groups_now_phase3($smarty);
         } else {
             // Provide pre-set values for account template forms
