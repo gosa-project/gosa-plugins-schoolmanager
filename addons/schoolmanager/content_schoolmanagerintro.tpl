@@ -94,7 +94,7 @@
 		</td>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: bottom;">
-		<button name="empty_schoolmanager_groups_now" type="submit">{t}Empty all SchoolManager groups now!{/t}</button>
+		<button name="empty_schoolmgr_groups_now_phase1" type="submit">{t}Empty all SchoolManager groups now!{/t}</button>
 		</td>
 	</tr>
 </table>

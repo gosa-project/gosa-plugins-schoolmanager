@@ -48,7 +48,7 @@
 		</td>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: bottom;">
-			<button name="really_empty_schoolmanager_groups_now" type="submit">{t}Really empty all POSIX groups listed below, now!{/t}</button>
+			<button name="empty_schoolmgr_groups_now_phase2" type="submit">{t}Really empty all POSIX groups listed below, now!{/t}</button>
 		</td>
 	</tr>
 </table>
@@ -105,7 +105,7 @@
 		</td>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: bottom;">
-			<button name="really_empty_schoolmanager_ogroups_now" type="submit">{t}Really empty all parent (object) groups listed below, now!{/t}</button>
+			<button name="empty_schoolmgr_groups_now_phase3" type="submit">{t}Really empty all parent (object) groups listed below, now!{/t}</button>
 		</td>
 	</tr>
 </table>

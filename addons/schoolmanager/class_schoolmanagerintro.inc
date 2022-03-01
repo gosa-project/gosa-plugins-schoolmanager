@@ -85,7 +85,7 @@ class schoolmanagerintro extends plugin
     }
 
 
-    function execute_phase1($smarty): string
+    function execute_empty_schoolmgr_groups_now_phase1($smarty): string
     {
         // User requested group member flushing on our "Introduction" page…
 
@@ -124,7 +124,7 @@ class schoolmanagerintro extends plugin
     }
 
 
-    function execute_phase2($smarty): string
+    function execute_empty_schoolmgr_groups_now_phase2($smarty): string
     {
         $this->ldapinfo['cleanup_stats']['classes']                = 0;
         $this->ldapinfo['cleanup_stats']['courses']                = 0;
@@ -230,7 +230,7 @@ class schoolmanagerintro extends plugin
     }
 
 
-    function execute_phase3($smarty): string
+    function execute_empty_schoolmgr_groups_now_phase3($smarty): string
     {
         $this->ldapinfo['cleanup_stats']['parents']                 = 0;
         $this->ldapinfo['cleanup_stats']['unmanaged_ogroups']       = 0;
@@ -350,14 +350,14 @@ class schoolmanagerintro extends plugin
         // Showing this template next…
         $new_template = NULL;
 
-        if (isset($_POST["empty_schoolmanager_groups_now"])) {
-            $new_template = $this->execute_phase1($smarty);
+        if (isset($_POST["empty_schoolmgr_groups_now_phase1"])) {
+            $new_template = $this->execute_empty_schoolmgr_groups_now_phase1($smarty);
             return $new_template;
-        } else if (isset($_POST["really_empty_schoolmanager_groups_now"])) {
-            $new_template = $this->execute_phase2($smarty);
+        } else if (isset($_POST["empty_schoolmgr_groups_now_phase2"])) {
+            $new_template = $this->execute_empty_schoolmgr_groups_now_phase2($smarty);
             return $new_template;
-        } else if (isset($_POST["really_empty_schoolmanager_ogroups_now"])) {
-            $new_template = $this->execute_phase3($smarty);
+        } else if (isset($_POST["empty_schoolmgr_groups_now_phase3"])) {
+            $new_template = $this->execute_empty_schoolmgr_groups_now_phase3($smarty);
         } else {
             // Provide pre-set values for account template forms
             $smarty->assign("ous_available",$this->ldapinfo['ou_tree']['formfields']);
