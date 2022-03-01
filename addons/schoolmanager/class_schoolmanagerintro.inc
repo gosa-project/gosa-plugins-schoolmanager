@@ -202,7 +202,11 @@ class schoolmanagerintro extends plugin
         $this->ldapinfo['ogroups'] = [];
         $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
 
-        $ldapsearch = $this->_ldap->search("(&(objectClass=gosaGroupOfNames)(cn=parents_*))", array("objectClass", "cn", "description", "member"));
+        $ldapsearch = $this->_ldap->search(
+            "(&(objectClass=gosaGroupOfNames)(cn=parents_*))",
+            array("objectClass", "cn", "description", "member")
+        );
+
         while ($result = $this->_ldap->fetch($ldapsearch)) {
             if (in_array('gosaGroupOfNames', $result['objectClass'])) {
                 $this->ldapinfo['ogroups'][] = $result;
@@ -313,7 +317,10 @@ class schoolmanagerintro extends plugin
             $this->_ldap->cd($this->config->current['BASE']);
 
             /* Read OU tree from LDAP */
-            $ldapsearch = $this->_ldap->search("(objectClass=gosaDepartment)", array("ou","description"));
+            $ldapsearch = $this->_ldap->search(
+                "(objectClass=gosaDepartment)",
+                array("ou","description")
+            );
 
             /* Create arrays for search results */
             $this->ldapinfo['ou_tree']['formfields'] = [];
@@ -328,6 +335,7 @@ class schoolmanagerintro extends plugin
                 $this->ldapinfo['ou_tree']['DNs'][]        = $result['dn'];
                 if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
                     $default_ou_groups = $i;
+                    break;
                 }
                 $i = $i + 1;
             }
