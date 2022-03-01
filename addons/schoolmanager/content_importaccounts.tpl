@@ -89,7 +89,11 @@
 	<tr>
 		<td style=vertical-align: middle;">
 			<LABEL for="csv_with_column_headers">{t}First line in CSV file contains column headers (so ignore that first line):{/t}</LABEL>
-			<input type="checkbox" id="csv_with_column_headers" name="csv_with_column_headers" checked>
+			{if $preset_csv_with_column_headers}
+				<input type="checkbox" id="csv_with_column_headers" name="csv_with_column_headers" checked>
+			{else}
+				<input type="checkbox" id="csv_with_column_headers" name="csv_with_column_headers">
+			{/if}
 		</td>
 	</tr>
 	<tr>
@@ -237,11 +241,11 @@
 		</td>
 	</tr>
 
-{if $domain_school}
+{if $preset_domain_school}
 	<tr>
 		<td style="width: 1em;">&nbsp;</td>
 		<td style="vertical-align: middle;">
-			<LABEL for="aliases_in_schooldomain">{t}Teachers shall have mail aliases in the school's mail domain ({$domain_school}):{/t}</LABEL>
+			<LABEL for="aliases_in_schooldomain">{t}Teachers shall have mail aliases in the school's mail domain ({$preset_domain_school}):{/t}</LABEL>
 		</td>
 		<td style="vertical-align: middle;">
 {if $preset_aliases_in_schooldomain}
