@@ -1049,7 +1049,9 @@ class importaccounts extends plugin
                          */
                         $_updatable_attrs = array();
                         foreach (array("mail", "employeeNumber", "departmentNumber", "sn", "givenName", "gender", "dateOfBirth") as $_attr) {
-                            if (isset($row['main_account'][$_attr])) {
+                            $_value = $row['main_account'][$_attr];
+                            // Value (string) should not be empty…
+                            if (isset($_value) && !empty($_value) && !empty($_value[0])) {
                                 $_updatable_attrs[] = $_attr;
                             }
                         }
@@ -1072,16 +1074,18 @@ class importaccounts extends plugin
                         }
 
                         /* Check if the alias LDAP attribute needs to be modified. */
+
+                        $_alias = $row['main_account']['uid'][0] . "@" . $this->csvinfo['domain_school'];
                         if ($this->csvinfo['aliases_in_schooldomain']) {
-                            if (isset($gosa_account['alias']) and (in_array($row['main_account']['uid'][0] . "@" . $this->csvinfo['domain_school'], $gosa_account['alias']))) {
+                            if (isset($gosa_account['alias']) and (in_array($_alias, $gosa_account['alias']))) {
                                 /* nothing to do */
-                            } else if (isset($gosa_account['mail']) and (in_array($row['main_account']['uid'][0] . "@" . $this->csvinfo['domain_school'], $gosa_account['mail']))) {
+                            } else if (isset($gosa_account['mail']) and (in_array($_alias, $gosa_account['mail']))) {
                                 /* nothing to do either, <uid>@<domain_school> is primary mail address */
                             } else {
                                 $_actions[] = 'add-uid-at-domain-to-aliases';
                             }
                         } else {
-                            if (isset($gosa_account['alias']) and (in_array($row['main_account']['uid'][0] . "@" . $this->csvinfo['domain_school'], $gosa_account['alias']))) {
+                            if (isset($gosa_account['alias']) and (in_array($_alias, $gosa_account['alias']))) {
                                 $_actions[] = 'drop-uid-at-domain-from-aliases';
                             }
                         }
@@ -2047,8 +2051,6 @@ class importaccounts extends plugin
         if (count($usertab->check())) {
 
             $this->failure_messages[] = $usertab->check();
-
-            echo "fail<br>";
 
             /*
              * FIXME: Collect failure statistics here!
