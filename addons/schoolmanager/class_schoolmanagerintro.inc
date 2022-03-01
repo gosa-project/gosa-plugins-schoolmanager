@@ -22,7 +22,8 @@
  */
 
 
-function reduce_group($group_obj) {
+function reduce_group($group_obj)
+{
 
     $_reduced_group = $group_obj;
 
@@ -41,26 +42,29 @@ function reduce_group($group_obj) {
     return $_reduced_group;
 }
 
+
 function startswith($haystack, $needle)
 {
     $length = strlen($needle);
     return (substr($haystack, 0, $length) === $needle);
 }
 
+
 class schoolmanagerintro extends plugin
 {
     /* Definitions */
-    var $plHeadline= "Introduction";
-    var $plDescription= "GOsa2 School Manager Module: Introduction";
-    var $access= "";
+    var $plHeadline    = "Introduction";
+    var $plDescription = "GOsa2 School Manager Module: Introduction";
+    var $access        = "";
 
-    /* attribute list for save action */
-    var $attributes= array();
-    var $objectclasses= array();
-    var $view_logged = FALSE;
+    /* Attribute list for save action */
+    var $attributes    = [];
+    var $objectclasses = [];
+    var $view_logged   = FALSE;
 
     /* SchoolManager specific properties */
-    var $ldapinfo= array();
+    var $ldapinfo = [];
+
 
     function __construct(&$config, $dn= NULL)
     {
@@ -70,9 +74,216 @@ class schoolmanagerintro extends plugin
         $this->config= &$config;
 
         $this->ui = get_userinfo();
-        stats::log('plugin', $class = get_class($this), $category = array($this->acl_category),  $action = 'open',
-                   $amount = 1, $duration = (microtime(TRUE) - $this->initTime));
+        stats::log(
+            'plugin',
+            $class = get_class($this),
+            $category = array($this-> acl_category),
+            $action = 'open',
+            $amount = 1,
+            $duration = (microtime(TRUE) - $this->initTime),
+        );
     }
+
+
+    function execute_phase1($smarty): string
+    {
+        // User requested group member flushing on our "Introduction" page…
+
+        $this->ldapinfo['cleanup_stats'] = [];
+        $this->ldapinfo['groups']        = [];
+
+        // Search LDAP tree for SchoolManager maintained POSIX groups
+        $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
+
+        // Read groups from SchoolManager OU
+        $ldapsearch = $this->_ldap->search(
+            "(&(objectClass=posixGroup)(|(cn=class_*)(cn=course_*)(cn=subject_*)))",
+            array("objectClass", "cn", "description", "memberUid")
+        );
+
+        while ($result = $this->_ldap->fetch($ldapsearch)) {
+            if (in_array('posixGroup', $result['objectClass'])) {
+                $this->ldapinfo['groups'][] = $result;
+            }
+        }
+
+        // Remove some information from the search result
+        // (ease displaying stuff in the .tpl file)
+        $_reduced_groups = [];
+        foreach ($this->ldapinfo['groups'] as $group) {
+            $_reduced_groups[] = reduce_group($group);
+        }
+
+        $smarty->assign("data_groups", $_reduced_groups);
+        $smarty->assign("data_ogroups", []);
+
+        // Return main page…
+        return $smarty->fetch(
+            get_template_path('content_smflushgroupmembers.tpl', TRUE)
+        );
+    }
+
+
+    function execute_phase2($smarty): string
+    {
+        $this->ldapinfo['cleanup_stats']['classes']                = 0;
+        $this->ldapinfo['cleanup_stats']['courses']                = 0;
+        $this->ldapinfo['cleanup_stats']['subjects']               = 0;
+        $this->ldapinfo['cleanup_stats']['unmanaged_groups']       = 0;
+        $this->ldapinfo['cleanup_stats']['classes_empty']          = 0;
+        $this->ldapinfo['cleanup_stats']['courses_empty']          = 0;
+        $this->ldapinfo['cleanup_stats']['subjects_empty']         = 0;
+        $this->ldapinfo['cleanup_stats']['unmanaged_groups_empty'] = 0;
+
+        /*
+         * User confirmed flushing members from SchoolManager
+         * maintained POSIX groups.
+         * Doing this now (classes, courses, subjects)…
+         */
+
+        // Drop all group members (from POSIX goups)
+        foreach ($this->ldapinfo['groups'] as $group) {
+            $group_name = $group['cn'][0];
+
+            if (isset($group['memberUid']) && count($group['memberUid']) > 0) {
+                $group_dn = $group['dn'];
+                $grouptab = new grouptabs(
+                    $this->config,
+                    $this->config->data['TABS']['GROUPTABS'],
+                    $group_dn,
+                    "groups"
+                );
+
+                // Remove all members.
+                $group_members = $grouptab->by_object['group']->memberUid;
+                foreach ($group_members as $group_member) {
+                    $grouptab->by_object['group']->removeUser($group_member);
+                }
+
+                // Run GOsa²'s groups/group checks
+                if (count($grouptab->check())) {
+                    msg_dialog::displayChecks($grouptab->check());
+
+                    /*
+                     * FIXME: collect failure statistics here!!!
+                     */
+                } else {
+                    if (startswith($group_name, 'class_')) {
+                        $this->ldapinfo['cleanup_stats']['classes']++;
+                    } else if (startswith($group_name, 'subject_')) {
+                        $this->ldapinfo['cleanup_stats']['subjects']++;
+                    } else if (startswith($group_name, 'course_')) {
+                        $this->ldapinfo['cleanup_stats']['courses']++;
+                    } else {
+                        $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
+                    }
+
+                    // Save group object to LDAP…
+                    $grouptab->save();
+                }
+            } else {
+                if (startswith($group_name, 'class_')) {
+                    $this->ldapinfo['cleanup_stats']['classes_empty']++;
+                } else if (startswith($group_name, 'subject_')) {
+                    $this->ldapinfo['cleanup_stats']['subjects_empty']++;
+                } else if (startswith($group_name, 'course_')) {
+                    $this->ldapinfo['cleanup_stats']['courses_empty']++;
+                } else {
+                    $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
+                }
+            }
+        }
+
+        /*
+         * Prepare for next step…
+         * Search LDAP tree for SchoolManager maintained
+         * object groups (gosaGroupOfNames)
+         */
+        $this->ldapinfo['ogroups'] = [];
+        $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
+
+        $ldapsearch = $this->_ldap->search("(&(objectClass=gosaGroupOfNames)(cn=parents_*))", array("objectClass", "cn", "description", "member"));
+        while ($result = $this->_ldap->fetch($ldapsearch)) {
+            if (in_array('gosaGroupOfNames', $result['objectClass'])) {
+                $this->ldapinfo['ogroups'][] = $result;
+            }
+        }
+
+        // Remove some information from the search result
+        // (ease displaying stuff in the .tpl file)
+        $_reduced_ogroups = [];
+        foreach ($this->ldapinfo['ogroups'] as $ogroup) {
+            $_reduced_ogroups[] = reduce_group($ogroup);
+        }
+
+        $smarty->assign("data_groups",  []);
+        $smarty->assign("data_ogroups", $_reduced_ogroups);
+
+        // Return main page…
+        return $smarty->fetch(
+            get_template_path('content_smflushgroupmembers.tpl', TRUE)
+        );
+    }
+
+
+    function execute_phase3($smarty): string
+    {
+        $this->ldapinfo['cleanup_stats']['parents']                 = 0;
+        $this->ldapinfo['cleanup_stats']['unmanaged_ogroups']       = 0;
+        $this->ldapinfo['cleanup_stats']['parents_empty']           = 0;
+        $this->ldapinfo['cleanup_stats']['unmanaged_ogroups_empty'] = 0;
+
+        /*
+         * User confirmed flushing members from SchoolManager maintained object groups
+         * Doing this now (parents)…
+         */
+
+        /* Drop all group members (object goups) */
+        foreach ($this->ldapinfo['ogroups'] as $ogroup) {
+
+            $ogroup_name = $ogroup['cn'][0];
+            if (isset($ogroup['member']) && count($ogroup['member']) > 0) {
+                $ogroup_dn = $ogroup['dn'];
+                $ogrouptab = new ogrouptabs($this->config, $this->config->data['TABS']['OGROUPTABS'], $ogroup_dn, "ogroups");
+
+                $ogrouptab->by_object['ogroup']->member = [];
+
+                /* Run GOsa²'s ogroups/ogroup checks */
+                if (count($ogrouptab->check())) {
+                    msg_dialog::displayChecks($ogrouptab->check());
+
+                    /*
+                     * FIXME: collect failure statistics here!!!
+                    */
+                } else {
+                    if (startswith($ogroup_name, 'parents_')) {
+                        $this->ldapinfo['cleanup_stats']['parents']++;
+                    } else {
+                        $this->ldapinfo['cleanup_stats']['unmanaged']++;
+                    }
+
+                    // Save group object to LDAP…
+                    $ogrouptab->save();
+                }
+            } else {
+                if (startswith($ogroup_name, 'parents_')) {
+                    $this->ldapinfo['cleanup_stats']['parents_empty']++;
+                } else {
+                    $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
+                }
+            }
+        }
+
+        $smarty->assign("cleanup_stats", $this->ldapinfo['cleanup_stats']);
+        $smarty->assign("data_groups",  []);
+        $smarty->assign("data_ogroups", []);
+
+        // Return main page…
+        return $smarty->fetch(
+            get_template_path('content_smflushgroupmembers.tpl', TRUE)
+        );
+    }
+
 
     function execute()
     {
@@ -85,35 +296,36 @@ class schoolmanagerintro extends plugin
             new log("view","all/".get_class($this),$this->dn);
         }
 
-        /* initialize smarty */
+        /* Initialize smarty */
         $smarty= get_smarty();
 
-        /* initialize LDAP */
+        /* Initialize LDAP */
         $this->_ldap = $this->config->get_ldap_link ();
         if(!is_array($this->ldapinfo)) {
-            $this->ldapinfo = array();
+            $this->ldapinfo = [];
         }
 
-        /* Scan LDAP for ou tree when "Introduction" page is loaded and remember that information... */
+        // Scan LDAP for ou tree when "Introduction" page is loaded and
+        // remember that information…
         if(!isset($this->ldapinfo['ou_tree'])) {
-            $this->ldapinfo['ou_tree'] = array();
+            $this->ldapinfo['ou_tree'] = [];
 
             $this->_ldap->cd($this->config->current['BASE']);
 
-            /* read OU tree from LDAP */
-            $ldapsearch = $this->_ldap->search("(objectClass=gosaDepartment)",array("ou","description"));
+            /* Read OU tree from LDAP */
+            $ldapsearch = $this->_ldap->search("(objectClass=gosaDepartment)", array("ou","description"));
 
-            /* create arrays for search results */
-            $this->ldapinfo['ou_tree']['formfields'] = array();
-            $this->ldapinfo['ou_tree']['OUs'] = array();
+            /* Create arrays for search results */
+            $this->ldapinfo['ou_tree']['formfields'] = [];
+            $this->ldapinfo['ou_tree']['OUs']        = [];
 
             /* Collect all gosaDepartment objects in ldapinfo['ou_tree'] */
             $i = 0;
             $default_ou_groups = 0;
             while($result = $this->_ldap->fetch($ldapsearch)) {
-                $this->ldapinfo['ou_tree']['OUs'][] = $result['ou'][0];
+                $this->ldapinfo['ou_tree']['OUs'][]        = $result['ou'][0];
                 $this->ldapinfo['ou_tree']['formfields'][] = $result['ou'][0]." - ".$result['description'][0];
-                $this->ldapinfo['ou_tree']['DNs'][] = $result['dn'];
+                $this->ldapinfo['ou_tree']['DNs'][]        = $result['dn'];
                 if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
                     $default_ou_groups = $i;
                 }
@@ -127,209 +339,29 @@ class schoolmanagerintro extends plugin
             $this->ldapinfo['ou_groups'] = $_POST["ou_groups"];
         }
 
+        // Showing this template next…
+        $new_template = NULL;
+
         if (isset($_POST["empty_schoolmanager_groups_now"])) {
-
-            $this->ldapinfo['cleanup_stats'] = array();
-
-            /* User requested group member flushing on our "Introduction" page... */
-
-            $this->ldapinfo['groups'] = array();
-
-            /* Search LDAP tree for SchoolManager maintained POSIX groups */
-            $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
-            /* read groups from SchoolManager OU */
-            $ldapsearch = $this->_ldap->search("(&(objectClass=posixGroup)(|(cn=class_*)(cn=course_*)(cn=subject_*)))",array("objectClass","cn","description","memberUid"));
-            while($result = $this->_ldap->fetch($ldapsearch)) {
-                if(in_array('posixGroup', $result['objectClass'])) {
-                    $this->ldapinfo['groups'][] = $result;
-                }
-            }
-
-            /* Remove some information from the search result (ease displaying stuff in the .tpl file) */
-            $_reduced_groups = array();
-            foreach($this->ldapinfo['groups'] as $group) {
-                $_reduced_groups[] = reduce_group($group);
-            }
-
-            $smarty->assign("data_groups", $_reduced_groups );
-            $smarty->assign("data_ogroups", array() );
-
-            /* Show main page */
-            return ($smarty->fetch (get_template_path('content_smflushgroupmembers.tpl', TRUE)));
-
-        }
-        else if (isset($_POST["really_empty_schoolmanager_groups_now"])) {
-
-            $this->ldapinfo['cleanup_stats']['classes'] = 0;
-            $this->ldapinfo['cleanup_stats']['courses'] = 0;
-            $this->ldapinfo['cleanup_stats']['subjects'] = 0;
-            $this->ldapinfo['cleanup_stats']['unmanaged_groups'] = 0;
-            $this->ldapinfo['cleanup_stats']['classes_empty'] = 0;
-            $this->ldapinfo['cleanup_stats']['courses_empty'] = 0;
-            $this->ldapinfo['cleanup_stats']['subjects_empty'] = 0;
-            $this->ldapinfo['cleanup_stats']['unmanaged_groups_empty'] = 0;
-
-            /* User confirmed flushing members from SchoolManager maintained POSIX groups
-             * Doing this now (classes, courses, subjects) ...
-             */
-
-            /* Drop all group members (from POSIX goups) */
-            foreach ($this->ldapinfo['groups'] as $group) {
-
-                $group_name = $group['cn'][0];
-                if(isset($group['memberUid']) && count($group['memberUid']) > 0)
-                {
-                    $group_dn = $group['dn'];
-                    $grouptab= new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'],$group_dn, "groups" );
-
-                    $group_members=$grouptab->by_object['group']->memberUid;
-                    foreach($group_members as $group_member)
-                    {
-                        $grouptab->by_object['group']->removeUser($group_member);
-                    }
-
-                    /* Run GOsa²'s groups/group checks */
-                    if(count($grouptab->check()))
-                    {
-                        msg_dialog::displayChecks($grouptab->check());
-
-                        /*
-                         * FIXME: collect failure statistics here!!!
-                         */
-
-                    } else
-                    {
-                        if(startswith($group_name, 'class_'))
-                        {
-                            $this->ldapinfo['cleanup_stats']['classes']++;
-                        } else if (startswith($group_name, 'subject_'))
-                        {
-                            $this->ldapinfo['cleanup_stats']['subjects']++;
-                        } else if (startswith($group_name, 'course_'))
-                        {
-                            $this->ldapinfo['cleanup_stats']['courses']++;
-                        } else {
-                            $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
-                        }
-
-                        /* Save group object to LDAP */
-                        $grouptab->save();
-                    }
-                } else {
-
-                    if(startswith($group_name, 'class_'))
-                    {
-                        $this->ldapinfo['cleanup_stats']['classes_empty']++;
-                    } else if (startswith($group_name, 'subject_'))
-                    {
-                        $this->ldapinfo['cleanup_stats']['subjects_empty']++;
-                    } else if (startswith($group_name, 'course_'))
-                    {
-                        $this->ldapinfo['cleanup_stats']['courses_empty']++;
-                    } else {
-                        $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
-                    }
-                }
-            }
-
-            /* Prepare for next step...
-             * Search LDAP tree for SchoolManager maintained object groups (gosaGroupOfNames)
-             */
-            $this->ldapinfo['ogroups'] = array();
-            $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
-
-            $ldapsearch = $this->_ldap->search("(&(objectClass=gosaGroupOfNames)(cn=parents_*))",array("objectClass","cn","description","member"));
-            while($result = $this->_ldap->fetch($ldapsearch)) {
-                if(in_array('gosaGroupOfNames', $result['objectClass'])) {
-                    $this->ldapinfo['ogroups'][] = $result;
-                }
-            }
-
-            $_reduced_ogroups = array();
-            foreach($this->ldapinfo['ogroups'] as $ogroup) {
-                $_reduced_ogroups[] = reduce_group($ogroup);
-            }
-
-            $smarty->assign("data_groups", array() );
-            $smarty->assign("data_ogroups", $_reduced_ogroups );
-
-            /* Show main page */
-            return ($smarty->fetch (get_template_path('content_smflushgroupmembers.tpl', TRUE)));
-
-        }
-        else if (isset($_POST["really_empty_schoolmanager_ogroups_now"])) {
-
-            $this->ldapinfo['cleanup_stats']['parents'] = 0;
-            $this->ldapinfo['cleanup_stats']['unmanaged_ogroups'] = 0;
-            $this->ldapinfo['cleanup_stats']['parents_empty'] = 0;
-            $this->ldapinfo['cleanup_stats']['unmanaged_ogroups_empty'] = 0;
-
-            /* User confirmed flushing members from SchoolManager maintained object groups
-             * Doing this now (parents) ...
-             */
-
-            /* Drop all group members (object goups) */
-            foreach ($this->ldapinfo['ogroups'] as $ogroup) {
-
-                $ogroup_name = $ogroup['cn'][0];
-                if(isset($ogroup['member']) && count($ogroup['member']) > 0)
-                {
-                    $ogroup_dn = $ogroup['dn'];
-                    $ogrouptab= new ogrouptabs($this->config, $this->config->data['TABS']['OGROUPTABS'], $ogroup_dn, "ogroups" );
-
-                    $ogrouptab->by_object['ogroup']->member= array();
-
-                    /* Run GOsa²'s ogroups/ogroup checks */
-                    if(count($ogrouptab->check()))
-                    {
-                        msg_dialog::displayChecks($ogrouptab->check());
-
-                        /*
-                         * FIXME: collect failure statistics here!!!
-                        */
-
-                    } else
-                    {
-                        if(startswith($ogroup_name, 'parents_'))
-                        {
-                            $this->ldapinfo['cleanup_stats']['parents']++;
-                        } else {
-                            $this->ldapinfo['cleanup_stats']['unmanaged']++;
-                        }
-
-                        /* Save group object to LDAP */
-                        $ogrouptab->save();
-                    }
-                } else {
-
-                    if(startswith($ogroup_name, 'parents_'))
-                    {
-                        $this->ldapinfo['cleanup_stats']['parents_empty']++;
-                    } else {
-                        $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
-                    }
-
-                }
-            }
-
-            $smarty->assign("cleanup_stats", $this->ldapinfo['cleanup_stats']);
-            $smarty->assign("data_groups", array() );
-            $smarty->assign("data_ogroups", array() );
-
-            /* Show main page */
-            return ($smarty->fetch (get_template_path('content_smflushgroupmembers.tpl', TRUE)));
-
-        }
-        else {
-
-            /* provide pre-set values for account template forms */
+            $new_template = $this->execute_phase1($smarty);
+            return $new_template;
+        } else if (isset($_POST["really_empty_schoolmanager_groups_now"])) {
+            $new_template = $this->execute_phase2($smarty);
+            return $new_template;
+        } else if (isset($_POST["really_empty_schoolmanager_ogroups_now"])) {
+            $new_template = $this->execute_phase3($smarty);
+        } else {
+            // Provide pre-set values for account template forms
             $smarty->assign("ous_available",$this->ldapinfo['ou_tree']['formfields']);
             $smarty->assign("preset_ou_groups", $this->ldapinfo['ou_groups']);
 
-            /* Show introduction page */
-            return ($smarty->fetch (get_template_path('content_schoolmanagerintro.tpl', TRUE)));
-
+            // Show introduction page…
+            $new_template = $smarty->fetch(
+                get_template_path('content_schoolmanagerintro.tpl', TRUE)
+            );
         }
+
+        return $new_template;
     }
 }
 
