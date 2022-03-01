@@ -164,7 +164,8 @@ class importaccounts extends plugin
 
             return;
         } else {
-            $this->csvinfo = $parser_ret;
+            // Copy each element from $parser_ret into $this->csvinfo…
+            $this->csvinfo = array_merge($this->csvinfo, $parser_ret);
         }
 
         /* --- Populate the Template Selectors for PHASE 2 --- */
