@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-schoolmanager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-01 18:38+0100\n"
+"POT-Creation-Date: 2022-03-02 13:16+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: DanielsLPecke <daniel.letsplay007@gmail.com>\n"
 "Language-Team: \n"
@@ -1259,7 +1259,7 @@ msgstr "Set import configuration option (Step %1)"
 
 #: addons/schoolmanager/content_importaccounts.tpl:796
 #, fuzzy
-msgid "Do <b>Quick-Import</b> (Step %1)"
+msgid "Do <b>Quick-Import</b>"
 msgstr "Finish LDAP import (Step %1)"
 
 #: addons/schoolmanager/content_importaccounts.tpl:800

@@ -792,6 +792,10 @@ FIXME: Todo.
 	{if $file_uploaded != TRUE}
 	{t}Continue here, when ready{/t}: <button type='submit' name='file_uploaded'>{t 1="2/11"}Set import configuration option (Step %1){/t}</button>
 
+	<p style="float:left; margin: 0px; padding: 0px;">
+		<button type='submit' name='file_uploaded_do_quickimport'>{t escape='no'}Do <b>Quick-Import</b>{/t}</button>
+	</p>
+
 	{elseif $import_configured != TRUE}
 	{t}Continue here, when ready{/t}: <button type="submit" name="import_configured">{t 1="3/11"}Check and Sort CSV Data (Step %1){/t}</button>
 
