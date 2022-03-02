@@ -840,7 +840,7 @@ class importaccounts extends plugin
             case ";":
                 $delimiter_index = 1;
                 break;
-            case "\t":
+            case "\\t": // Not the actual tab char but literally '\t'
                 $delimiter_index = 2;
                 break;
             case " ":
