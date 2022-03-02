@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-schoolmanager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-01 18:38+0100\n"
+"POT-Creation-Date: 2022-03-02 13:16+0100\n"
 "PO-Revision-Date: \n"
-"Last-Translator: DanielsLPecke <daniel.letsplay007@gmail.com>\n"
+"Last-Translator: Daniel Teichmann <daniel.teichmann@das-netzwerkteam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -1297,8 +1297,8 @@ msgid "Set import configuration option (Step %1)"
 msgstr "Import konfigurieren (Schritt %1)"
 
 #: addons/schoolmanager/content_importaccounts.tpl:796
-msgid "Do <b>Quick-Import</b> (Step %1)"
-msgstr "<b>Quick-Import</b> durchführen (Schritt %1)"
+msgid "Do <b>Quick-Import</b>"
+msgstr "<b>Quick-Import</b> durchführen"
 
 #: addons/schoolmanager/content_importaccounts.tpl:800
 #: addons/schoolmanager/content_archiveaccounts.tpl:451
@@ -1675,7 +1675,7 @@ msgstr ""
 msgid "First, finish up reading all information provided by this introduction."
 msgstr ""
 "Als erstes lesen Sie bitte alle Informationen, die in dieser Einführung "
-"bereitgestellt werden. "
+"bereitgestellt werden."
 
 #: addons/schoolmanager/content_schoolmanagerintro.tpl:61
 msgid "Then, change to the Directory Structure Management view of GOsa2."
