@@ -25,7 +25,7 @@
 class schoolmgr_utils
 {
     // Enables/Disables debug prints to js console.
-    var bool $DEBUG_MODE = true;
+    var $DEBUG_MODE = true;
 
 
     function __construct(&$config)
