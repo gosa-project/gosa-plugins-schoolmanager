@@ -25,7 +25,7 @@
 class schoolmgr_utils
 {
     // Enables/Disables debug prints to js console.
-    var $DEBUG_MODE = true;
+    var $ENABLE_DEBUG_JS_CONSOLE = true;
 
 
     function __construct(&$config)
@@ -44,8 +44,8 @@ class schoolmgr_utils
 
     function debug_to_console($data)
     {
-        // Don't print anything to js console, if DEBUG_MODE isn't 'true'.
-        if ($this->DEBUG_MODE !== true) return;
+        // Don't print anything to js console, if ENABLE_DEBUG_JS_CONSOLE isn't 'true'.
+        if ($this->ENABLE_DEBUG_JS_CONSOLE !== true) return;
 
         if (is_array($data))
             $output = implode('', $data);
@@ -74,10 +74,10 @@ class schoolmgr_utils
     function getConfigBoolValue(string $key): bool
     {
         // Get config value, but pause debugging output.
-        $debug_mode_then = $this->DEBUG_MODE;
-        $this->DEBUG_MODE = FALSE;
+        $ENABLE_DEBUG_JS_CONSOLE_then = $this->ENABLE_DEBUG_JS_CONSOLE;
+        $this->ENABLE_DEBUG_JS_CONSOLE = FALSE;
         $conf_value = strtolower($this->getConfigStrValue($key));
-        $this->DEBUG_MODE = $debug_mode_then;
+        $this->ENABLE_DEBUG_JS_CONSOLE = $ENABLE_DEBUG_JS_CONSOLE_then;
 
         $ret = FALSE;
 
