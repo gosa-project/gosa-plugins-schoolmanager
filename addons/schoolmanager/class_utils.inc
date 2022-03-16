@@ -50,8 +50,19 @@ class schoolmgr_utils
 
     // str_contains is not available for PHP 7 (but in PHP 8).
     // So we write our own function wrapper.
-    function strcontains(string $haystack, string $needle): bool
+    function strcontains($haystack, $needle): bool
     {
+        // Fail silently rather than crash.
+        if (!is_string($haystack) or !is_string($needle)) {
+            $this->debug_to_console(
+                _("❌ schoolmgr_utils->strcontains() was called with broken data: ") .
+                (is_string($haystack) ? "" : _("\$haystack isn't a string! ")) .
+                (is_string($needle)   ? "" : _("\$needle isn't a string! "))
+            );
+
+            return FALSE;
+        }
+
         $version = explode('.', PHP_VERSION);
         if ($version[0] > 7) {
             return str_contains($haystack, $needle);
