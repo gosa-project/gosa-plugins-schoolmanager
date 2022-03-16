@@ -52,13 +52,6 @@ class smflushgroupmembers
     }
 
 
-    private function startswith($haystack, $needle)
-    {
-        $length = strlen($needle);
-        return (substr($haystack, 0, $length) === $needle);
-    }
-
-
     public function execute(&$smarty, &$_ldap): string
     {
         $this->smarty = $smarty;
@@ -166,11 +159,11 @@ class smflushgroupmembers
                      * FIXME: collect failure statistics here!!!
                      */
                 } else {
-                    if ($this->startswith($group_name, 'class_')) {
+                    if ($this->utils->strstartswith($group_name, 'class_')) {
                         $this->ldapinfo['cleanup_stats']['classes']++;
-                    } else if ($this->startswith($group_name, 'subject_')) {
+                    } else if ($this->utils->strstartswith($group_name, 'subject_')) {
                         $this->ldapinfo['cleanup_stats']['subjects']++;
-                    } else if ($this->startswith($group_name, 'course_')) {
+                    } else if ($this->utils->strstartswith($group_name, 'course_')) {
                         $this->ldapinfo['cleanup_stats']['courses']++;
                     } else {
                         $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
@@ -180,11 +173,11 @@ class smflushgroupmembers
                     $grouptab->save();
                 }
             } else {
-                if ($this->startswith($group_name, 'class_')) {
+                if ($this->utils->strstartswith($group_name, 'class_')) {
                     $this->ldapinfo['cleanup_stats']['classes_empty']++;
-                } else if ($this->startswith($group_name, 'subject_')) {
+                } else if ($this->utils->strstartswith($group_name, 'subject_')) {
                     $this->ldapinfo['cleanup_stats']['subjects_empty']++;
-                } else if ($this->startswith($group_name, 'course_')) {
+                } else if ($this->utils->strstartswith($group_name, 'course_')) {
                     $this->ldapinfo['cleanup_stats']['courses_empty']++;
                 } else {
                     $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
@@ -258,7 +251,7 @@ class smflushgroupmembers
                      * FIXME: collect failure statistics here!!!
                     */
                 } else {
-                    if ($this->startswith($ogroup_name, 'parents_')) {
+                    if ($this->utils->strstartswith($ogroup_name, 'parents_')) {
                         $this->ldapinfo['cleanup_stats']['parents']++;
                     } else {
                         $this->ldapinfo['cleanup_stats']['unmanaged']++;
@@ -268,7 +261,7 @@ class smflushgroupmembers
                     $ogrouptab->save();
                 }
             } else {
-                if ($this->startswith($ogroup_name, 'parents_')) {
+                if ($this->utils->strstartswith($ogroup_name, 'parents_')) {
                     $this->ldapinfo['cleanup_stats']['parents_empty']++;
                 } else {
                     $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
