@@ -34,11 +34,31 @@ class schoolmgr_utils
     }
 
 
-    // str_contains is not available for PHP 7.
+    // str_contains is not available for PHP 7 (but in PHP 8).
+    // So we write our own function wrapper.
+    function strstartswith(string $haystack, string $needle): bool
+    {
+        $version = explode('.', PHP_VERSION);
+        if ($version[0] > 7) {
+            return str_starts_with($haystack, $needle);
+        } else {
+            $length = strlen($needle);
+            return (substr($haystack, 0, $length) === $needle);
+        }
+    }
+
+
+    // str_contains is not available for PHP 7 (but in PHP 8).
     // So we write our own function wrapper.
     function strcontains(string $haystack, string $needle): bool
     {
-        return strpos($haystack, $needle) !== FALSE;
+        $version = explode('.', PHP_VERSION);
+        if ($version[0] > 7) {
+            return str_contains($haystack, $needle);
+        } else {
+            $length = strlen($needle);
+            return strpos($haystack, $needle) !== FALSE;
+        }
     }
 
 
