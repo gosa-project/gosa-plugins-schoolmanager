@@ -474,10 +474,9 @@ class archiveaccounts extends plugin
             }
 
             if ($return === true) {
-                /* Now we're going to lock the User account. */
-                $this->lockEntry($user_data ['main_account'] ['_dn']);
-                $user = new userManagement();
-                $user->lockEntry();
+                // *Lock* the User account.
+                $this->utils->lockUser($user_data['main_account']['_dn'][0]);
+
                 /* Setting _status of user to 'archived,acc-locked' */
                 $this->csvinfo ['data_preldap'] [$idx] ['main_account'] ['_status'] [0] = "archived,acc-locked";
                 $this->csvinfo ['data_preldap'] [$idx] ['main_account'] ['_actions'] [0] = "none";
@@ -1058,70 +1057,6 @@ class archiveaccounts extends plugin
             $template_base = $_class_group . $template_base;
         }
         return $template_base;
-    }
-
-
-    /*
-     * Locks/unlocks the given user(s).
-     */
-    function lockEntry($entry, $type = "lock")
-    {
-        // Filter out entries we are not allowed to modify
-        $disallowed = array ();
-        $dns = array ();
-        foreach ($entry as $dn) {
-            if (! preg_match("/w/", $this->ui->get_permissions($dn, "users/password"))) {
-                $disallowed [] = $dn;
-            } else {
-                $allowed [] = $dn;
-            }
-        }
-        if (count($disallowed)) {
-            msg_dialog::display(_("Permission"), msgPool::permDelete($disallowed), INFO_DIALOG);
-        }
-
-        // Try to lock/unlock the rest of the entries.
-        foreach ($allowed as $dn) {
-            $this->_ldap->cat($dn, array (
-                    'userPassword'
-            ));
-            if ($this->_ldap->count() == 1) {
-                // We can't lock empty passwords.
-                $val = $this->_ldap->fetch();
-                if (! isset($val ['userPassword'])) {
-                    continue;
-                }
-
-                // Detect the password method and try to lock/unlock.
-                $pwd = $val ['userPassword'] [0];
-                $method = passwordMethod::get_method($pwd, $val ['dn']);
-                $success = true;
-                if ($method instanceof passwordMethod) {
-                    if ($type == "toggle") {
-                        if ($method->is_locked($this->config, $val ['dn'])) {
-                            $success = $method->unlock_account($this->config, $val ['dn']);
-                        } else {
-                            $success = $method->lock_account($this->config, $val ['dn']);
-                        }
-                    } elseif ($type == "lock" && ! $method->is_locked($this->config, $val ['dn'])) {
-                        $success = $method->lock_account($this->config, $val ['dn']);
-                    } elseif ($type == "unlock" && $method->is_locked($this->config, $val ['dn'])) {
-                        $success = $method->unlock_account($this->config, $val ['dn']);
-                    }
-
-                    // Check if everything went fine.
-                    if (! $success) {
-                        $hn = $method->get_hash_name();
-                        if (is_array($hn)) {
-                            $hn = $hn [0];
-                        }
-                        msg_dialog::display(_("Account locking"), sprintf(_("Password method '%s' does not support locking. Account (%s) has not been locked!"), $hn, $dn), WARNING_DIALOG);
-                    }
-                } else {
-                    // Can't lock unknown methods.
-                }
-            }
-        }
     }
 }
 
