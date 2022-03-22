@@ -1,0 +1,4 @@
+uses: overtrue/phplint@7.4
+with:
+  path: ../addons
+  options: --extensions=inc
