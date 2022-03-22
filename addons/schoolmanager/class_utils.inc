@@ -408,6 +408,109 @@ class schoolmgr_utils
     }
 
 
+    /**
+     * getLockStatusUsers() wrapper for a single user.
+     *
+     * @return string Which can be:
+     *                - "LOCKED"
+     *                - "UNLOCKED"
+     *                - "UNACCESSIBLE"
+     */
+    function getLockStatusUser(string $account_dn): string
+    {
+        return $this->getLockStatusUsers(array($account_dn))[$account_dn];
+    }
+
+
+    /**
+     * Gets lock status of the given user(s).
+     *
+     * @param array $account_dns Array of user DN's
+     * @return array with '$dn => $state' pairs.
+     *              $state can be:
+     *                - "LOCKED"
+     *                - "UNLOCKED"
+     *                - "UNACCESSIBLE"
+     */
+    function getLockStatusUsers(array $account_dns): array
+    {
+        $return_array = array();
+
+        // Filter out entries we are not allowed to modify
+        $allowed      = array();
+        $disallowed   = array();
+
+        // String constants
+        $_LOCKED       = "LOCKED";
+        $_UNLOCKED     = "UNLOCKED";
+        $_UNACCESSIBLE = "UNACCESSIBLE";
+
+        // Get LDAP link from config.
+        $_ldap = $this->config->get_ldap_link();
+
+        foreach ($account_dns as $dn) {
+            if (!preg_match("/w/", $this->ui->get_permissions($dn, "users/password"))) {
+                $disallowed[] = $dn;
+                $return_array[$dn] = $_UNACCESSIBLE;
+            } else {
+                $allowed[] = $dn;
+            }
+        }
+
+        if (count($disallowed)) {
+            msg_dialog::display(_("Permission"), msgPool::permDelete($disallowed), INFO_DIALOG);
+        }
+
+        // Try to lock/unlock/toggle the rest of the entries.
+        foreach ($allowed as $dn) {
+            $_ldap->cat($dn, array('userPassword'));
+
+            if ($_ldap->count() == 1) {
+                // We can't lock users with empty passwords.
+                $val = $_ldap->fetch();
+                if (!isset($val['userPassword'])) {
+                    continue;
+                }
+
+                // Detect the password method and try to lock/unlock/toggle.
+                $pwd = $val['userPassword'][0];
+                $method = passwordMethod::get_method($pwd, $val['dn']);
+
+                if ($method instanceof passwordMethod) {
+                    if ($method->is_locked($this->config, $val['dn'])) {
+                        $return_array[$dn] = $_LOCKED;
+                        $this->debug_to_console(sprintf(_("🔒 Account is locked: '%s'"), $dn));
+                    } else {
+                        $return_array[$dn] = $_UNLOCKED;
+                        $this->debug_to_console(sprintf(_("🔓 Account is unlocked: '%s'."), $dn));
+                    }
+                } else {
+                    // Can't check unknown methods.
+                    $return_array[$dn] = $_UNACCESSIBLE;
+                }
+            } elseif ($_ldap->count() > 1) {
+                msg_dialog::display(
+                    _("Account locking"),
+                    sprintf(_("Found multiple accounts in LDAP-tree for DN: '%s'"), $dn),
+                    ERROR_DIALOG
+                );
+
+                $return_array[$dn] = $_UNACCESSIBLE;
+            } elseif ($_ldap->count() <= 0) {
+                msg_dialog::display(
+                    _("Account locking"),
+                    sprintf(_("Found no account in LDAP-tree for DN: '%s'"), $dn),
+                    ERROR_DIALOG
+                );
+
+                $return_array[$dn] = $_UNACCESSIBLE;
+            }
+        }
+
+        return $return_array;
+    }
+
+
     function compareObjects($object_a, $object_b, $attrs = array("sn", "givenName"), $prefix = "", $ci = false): ?array
     {
         $unequal = array();
