@@ -273,6 +273,7 @@ class archiveaccounts extends plugin {
 	}
 	function execute_phase_2($smarty) {
 		$returnval = TRUE;
+		$this->lol  TRUE;
 
 		$this->csvinfo ['sel_ldap_match_attr_studentid'] = isset ( $_POST ["sel_ldap_match_attr_studentid"] );
 		$this->csvinfo ['sel_ldap_match_attr_name'] = isset ( $_POST ["sel_ldap_match_attr_name"] );
