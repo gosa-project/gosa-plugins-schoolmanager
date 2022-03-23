@@ -224,19 +224,49 @@ class archiveaccounts extends plugin
         $this->archive_type = $archive_type;
         $smarty->assign("archive_type", $this->archive_type);
 
-        // Declare delimiters for next phase UI only if phase_0 is successful
-        $smarty->assign(
-            'available_delimiters',
-            array(
-            0 => '","  - ' . _("comma separated values"),
-            1 => '";"  - ' . _("semicolon separated values"),
-            2 => '"\t" - ' . _("tabstop separated values"),
-            3 => '" "  - ' . _("blank separated values")
-            )
+        // Get setting's default.
+        $delim_char = $this->utils->getConfigStrValue("csv_column_delimiter");
+
+        switch ($delim_char) {
+            case ",":
+                $delimiter_index = 0;
+                break;
+            case ";":
+                $delimiter_index = 1;
+                break;
+            case "\\t": // Not the actual tab char but literally '\t'
+                $delimiter_index = 2;
+                break;
+            case " ":
+                $delimiter_index = 3;
+                break;
+            default:
+                // Custom character…
+                $delimiter_index = 4;
+                break;
+        }
+
+        $smarty->assign('preset_delimiter_id', $delimiter_index);
+        $available_delims = array(
+            0 => '","'  . " - " . _("comma separated values"),
+            1 => '";"'  . " - " . _("semicolon separated values"),
+            2 => '"\t"' . " - " . _("tabstop separated values"),
+            3 => '" "'  . " - " . _("blank separated values"),
         );
         $smarty->assign('preset_delimiter_id', 0);
 
-        return $returnval; // See parent execute() func. for error code meaning.
+        // Add custom character radio button only if it should appear.
+        if ($delimiter_index === 4) {
+            $available_delims[4] = '"' . $delim_char . '" - ' . _("values seperated by custom character");
+        }
+
+        $smarty->assign('available_delimiters', $available_delims);
+
+        // Get setting's default.
+        $value = $this->utils->getConfigBoolValue("ignore_first_row_of_csv_file");
+        $smarty->assign('preset_csv_with_column_headers', $value);
+
+        return 1; // See parent execute() func. for error code meaning.
     }
 
 
