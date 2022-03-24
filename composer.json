@@ -1,0 +1,10 @@
+{
+    "config": {
+		"platform": {
+			"php": "7.0"
+		}
+	},
+    "scripts": {
+        "lint": "find . -name '*.inc' -not -path './gosa-lib/*' -not -path './.git/*' -print0 | xargs -0 -n1 php -l"
+    }
+}
