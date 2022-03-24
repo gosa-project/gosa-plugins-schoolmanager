@@ -43,6 +43,9 @@ class importstudentsandparents extends importaccounts
         $this->ui = get_userinfo();
         stats::log('plugin', $class = get_class($this), $category = array ($this->acl_category), $action = 'open', $amount = 1, $duration = (microtime(true) - $this->initTime));
 
+        /* Initialize utils class */
+        $this->utils = new schoolmgr_utils($config);
+
         parent::__construct($config, $dn = null);
     }
 
@@ -134,7 +137,7 @@ class importstudentsandparents extends importaccounts
                     $student['dateOfBirth'] = array ($_dateOfBirth);
                 }
                 if (isset($row_sorted['gender']) and $row_sorted['gender']) {
-                    $student['gender'] = array ($this->normalizeGenderString(trim($row_sorted['gender'])));
+                    $student['gender'] = array ($this->utils->normalizeGenderString(trim($row_sorted['gender'])));
                 }
                 if (isset($row_sorted['employeeNumber']) and $row_sorted['employeeNumber']) {
                     $student['employeeNumber'] = array($row_sorted['employeeNumber']);

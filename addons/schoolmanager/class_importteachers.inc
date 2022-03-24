@@ -42,6 +42,9 @@ class importteachers extends importaccounts
         $this->ui = get_userinfo();
         stats::log('plugin', $class = get_class($this), $category = array ($this->acl_category), $action = 'open', $amount = 1, $duration = (microtime(true) - $this->initTime));
 
+        /* Initialize utils class */
+        $this->utils = new schoolmgr_utils($config);
+
         parent::__construct($config, $dn = null);
     }
 
@@ -113,10 +116,11 @@ class importteachers extends importaccounts
                     $_subjects = str_replace(";", "_", $_subjects);
                     $teacher['departmentNumber'] = array($_subjects);
                 }
-                $teacher['sn'] = array (trim($row_sorted['sn']));
+                $teacher['sn']        = array (trim($row_sorted['sn']));
                 $teacher['givenName'] = array (trim($row_sorted['givenName']));
-                $teacher['gender'] = array ($this->normalizeGenderString(trim($row_sorted['gender'])));
+                $teacher['gender']    = array ($this->utils->normalizeGenderString(trim($row_sorted['gender'])));
                 $_dateOfBirth = trim($row_sorted['dateOfBirth']);
+
                 if (isset($row_sorted['mail']) and trim($row_sorted['mail']) != "") {
                     /* FIXME: Check for valid e-Mail format here */
                     $teacher['mail'] = array(trim($row_sorted['mail']));

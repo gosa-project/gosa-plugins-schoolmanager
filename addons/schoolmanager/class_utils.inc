@@ -538,6 +538,39 @@ class schoolmgr_utils
     }
 
 
+    /**
+     * @param  string $gender Gender of this user. In following format:
+     *                        First letter (translated) of Female, Male, Diverse
+     *                        or whole word (translated) Female, Male, Diverse.
+     *                        * 'f', 'm' or 'd'
+     *                        * 'female', 'male', 'diverse'
+     *                        * _('f'), _('m'), _('d')
+     *                        * _('female'), _('male'), _('diverse')
+     *
+     * @return string Normalized gender string (F => Female, M => Male, D => Diverse)
+     *                can be **empty** if unsuccessful.
+     */
+    function normalizeGenderString(string $gender): string
+    {
+        // Gender should be case-insenstive.
+        $gender = strtolower($gender);
+
+        $gender_mapping = array(
+            "F" => array("f", "female", _("female")),
+            "M" => array("m", "male", _("male")),
+            "D" => array("d", "diverse", _("diverse")),
+        );
+
+        foreach ($gender_mapping as $key => $map) {
+            if (in_array_strict($gender, $map)) {
+                return $key;
+            }
+        }
+
+        return "";
+    }
+
+
     function parseCSV(
         string $raw_csv_data,
         string $delimiter_str,

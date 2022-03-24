@@ -1005,7 +1005,7 @@ class archiveaccounts extends plugin
                 $person['dateOfBirth'] = array($_dateOfBirth);
 
                 $person['gender'] = array(
-                 $this->normalizeGenderString(trim($row_sorted['gender']))
+                    $this->utils->normalizeGenderString(trim($row_sorted['gender']))
                 );
 
                 if (
@@ -1045,26 +1045,6 @@ class archiveaccounts extends plugin
             );
         }
         return $data_preldap;
-    }
-
-
-    function normalizeGenderString($gender)
-    {
-        switch (strtolower($gender)) {
-            case "male":
-                $gender = "M";
-                break;
-            case _("male"):
-                $gender = "M";
-                break;
-            case "female":
-                $gender = "F";
-                break;
-            case _("female"):
-                $gender = "F";
-                break;
-        }
-        return $gender;
     }
 
 
