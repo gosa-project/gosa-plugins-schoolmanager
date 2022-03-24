@@ -21,6 +21,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+// Make Account objects available.
+require_once "SchoolManager/Objects/Account.inc";
+require_once "SchoolManager/Objects/Guardian.inc";
+require_once "SchoolManager/Objects/Student.inc";
+require_once "SchoolManager/Objects/Teacher.inc";
 
 class schoolmgr extends plugin
 {
