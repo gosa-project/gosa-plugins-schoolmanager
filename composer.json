@@ -1,10 +1,14 @@
 {
     "config": {
 		"platform": {
-			"php": "7.0"
+			"php": "7.3"
 		}
 	},
+    "require-dev": {
+        "squizlabs/php_codesniffer": "3.*"
+    },
     "scripts": {
-        "lint": "find . -name '*.inc' -not -path './gosa-lib/*' -not -path './.git/*' -print0 | xargs -0 -n1 php -l"
+        "lint": "find . -name '*.inc' -not -path './gosa-lib/*' -not -path './.git/*' -print0 | xargs -0 -n1 php -l",
+        "sniff": "phpcs addons/ --extensions=inc --standard=PSR12"
     }
 }
