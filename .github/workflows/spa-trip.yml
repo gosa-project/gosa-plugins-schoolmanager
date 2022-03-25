@@ -1,0 +1,41 @@
+name: PHP Code Spa-Trip
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  php-code-spa-trip:
+    runs-on: ubuntu-latest
+    strategy:
+      # Don't abort other jobs if one failed.
+      fail-fast: false
+      # Our supported PHP Versions:
+      matrix:
+        php-versions: ['7.3', '7.4', '8.0', '8.1']
+
+    name: php${{ matrix.php-versions }} spa-trip
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Set up php${{ matrix.php-versions }}
+      uses: shivammathur/setup-php@master
+      with:
+        php-version: ${{ matrix.php-versions }}
+        #extensions: xml,zip
+        coverage: none
+
+    - name: Install packages
+      run: composer install
+
+    - name: Beautify code files
+      run: composer spa-trip

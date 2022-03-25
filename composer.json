@@ -1,10 +1,15 @@
 {
     "config": {
 		"platform": {
-			"php": "7.0"
+			"php": "7.3"
 		}
 	},
+    "require-dev": {
+        "squizlabs/php_codesniffer": "3.5.8"
+    },
     "scripts": {
-        "lint": "find addons/ -name '*.inc' -print0 | xargs -0 -n1 php -l"
+        "lint":     "find addons/ -name '*.inc' -print0 | xargs -0 -n1 php -l",
+        "sniff":    "./vendor/bin/phpcs addons/ --extensions=inc --standard=PSR12",
+        "spa-trip": "./vendor/bin/phpcbf addons/ --extensions=inc --standard=PSR12"
     }
 }
