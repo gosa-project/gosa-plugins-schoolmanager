@@ -35,13 +35,12 @@ class smflushgroupmembers
     {
         $_reduced_group = $group_obj;
 
-        foreach($group_obj as $key => $attr) {
-            if(!is_array($attr)) {
+        foreach ($group_obj as $key => $attr) {
+            if (!is_array($attr)) {
                 unset($_reduced_group[$key]);
-            }
-            else {
-                foreach($attr as $idx => $values) {
-                    if($idx === "count") {
+            } else {
+                foreach ($attr as $idx => $values) {
+                    if ($idx === "count") {
                         unset($_reduced_group[$key][$idx]);
                     }
                 }
@@ -61,13 +60,13 @@ class smflushgroupmembers
 
         if (isset($_POST["empty_schoolmgr_groups_now_phase1"])) {
             $new_template = $this->execute_empty_schoolmgr_groups_now_phase1($smarty);
-        } else if (isset($_POST["empty_schoolmgr_groups_now_phase2"])) {
-            $smarty->assign("empty_schoolmgr_groups_now_phase1_done", TRUE);
+        } elseif (isset($_POST["empty_schoolmgr_groups_now_phase2"])) {
+            $smarty->assign("empty_schoolmgr_groups_now_phase1_done", true);
 
             $new_template = $this->execute_empty_schoolmgr_groups_now_phase2($smarty);
-        } else if (isset($_POST["empty_schoolmgr_groups_now_phase3"])) {
-            $smarty->assign("empty_schoolmgr_groups_now_phase1_done", TRUE);
-            $smarty->assign("empty_schoolmgr_groups_now_phase2_done", TRUE);
+        } elseif (isset($_POST["empty_schoolmgr_groups_now_phase3"])) {
+            $smarty->assign("empty_schoolmgr_groups_now_phase1_done", true);
+            $smarty->assign("empty_schoolmgr_groups_now_phase2_done", true);
 
             $new_template = $this->execute_empty_schoolmgr_groups_now_phase3($smarty);
         }
@@ -110,7 +109,7 @@ class smflushgroupmembers
 
         // Return main page…
         return $smarty->fetch(
-            get_template_path('content_smflushgroupmembers.tpl', TRUE)
+            get_template_path('content_smflushgroupmembers.tpl', true)
         );
     }
 
@@ -161,9 +160,9 @@ class smflushgroupmembers
                 } else {
                     if ($this->utils->strstartswith($group_name, 'class_')) {
                         $this->ldapinfo['cleanup_stats']['classes']++;
-                    } else if ($this->utils->strstartswith($group_name, 'subject_')) {
+                    } elseif ($this->utils->strstartswith($group_name, 'subject_')) {
                         $this->ldapinfo['cleanup_stats']['subjects']++;
-                    } else if ($this->utils->strstartswith($group_name, 'course_')) {
+                    } elseif ($this->utils->strstartswith($group_name, 'course_')) {
                         $this->ldapinfo['cleanup_stats']['courses']++;
                     } else {
                         $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
@@ -175,9 +174,9 @@ class smflushgroupmembers
             } else {
                 if ($this->utils->strstartswith($group_name, 'class_')) {
                     $this->ldapinfo['cleanup_stats']['classes_empty']++;
-                } else if ($this->utils->strstartswith($group_name, 'subject_')) {
+                } elseif ($this->utils->strstartswith($group_name, 'subject_')) {
                     $this->ldapinfo['cleanup_stats']['subjects_empty']++;
-                } else if ($this->utils->strstartswith($group_name, 'course_')) {
+                } elseif ($this->utils->strstartswith($group_name, 'course_')) {
                     $this->ldapinfo['cleanup_stats']['courses_empty']++;
                 } else {
                     $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
@@ -211,12 +210,12 @@ class smflushgroupmembers
             $_reduced_ogroups[] = $this->reduce_group($ogroup);
         }
 
-        $smarty->assign("data_groups",  []);
+        $smarty->assign("data_groups", []);
         $smarty->assign("data_ogroups", $_reduced_ogroups);
 
         // Return main page…
         return $smarty->fetch(
-            get_template_path('content_smflushgroupmembers.tpl', TRUE)
+            get_template_path('content_smflushgroupmembers.tpl', true)
         );
     }
 
@@ -235,7 +234,6 @@ class smflushgroupmembers
 
         /* Drop all group members (object goups) */
         foreach ($this->ldapinfo['ogroups'] as $ogroup) {
-
             $ogroup_name = $ogroup['cn'][0];
             if (isset($ogroup['member']) && count($ogroup['member']) > 0) {
                 $ogroup_dn = $ogroup['dn'];
@@ -270,12 +268,12 @@ class smflushgroupmembers
         }
 
         $smarty->assign("cleanup_stats", $this->ldapinfo['cleanup_stats']);
-        $smarty->assign("data_groups",  []);
+        $smarty->assign("data_groups", []);
         $smarty->assign("data_ogroups", []);
 
         // Return main page…
         return $smarty->fetch(
-            get_template_path('content_smflushgroupmembers.tpl', TRUE)
+            get_template_path('content_smflushgroupmembers.tpl', true)
         );
     }
 }

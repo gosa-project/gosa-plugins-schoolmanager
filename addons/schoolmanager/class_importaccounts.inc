@@ -35,10 +35,10 @@ class importaccounts extends plugin
     // Attribute list for save action
     var $attributes = array();
     var $objectclasses = array();
-    var $view_logged = FALSE;
+    var $view_logged = false;
 
     // Indicates if a phase failed for whatever reason
-    var $failure_in_this_phase = FALSE;
+    var $failure_in_this_phase = false;
 
     // Class name without 'import' at the beginning
     var $import_account_type = "";
@@ -49,10 +49,10 @@ class importaccounts extends plugin
 
 
     // importaccounts class constructor
-    function __construct(&$config, $dn = NULL)
+    function __construct(&$config, $dn = null)
     {
 
-        $this->initTime = microtime(TRUE);
+        $this->initTime = microtime(true);
 
         /* Include config object */
         $this->config = &$config;
@@ -67,7 +67,7 @@ class importaccounts extends plugin
             $category = array($this->acl_category),
             $action   = 'open',
             $amount   = 1,
-            $duration = (microtime(TRUE) - $this->initTime)
+            $duration = (microtime(true) - $this->initTime)
         );
     }
 
@@ -90,9 +90,18 @@ class importaccounts extends plugin
      * The next few functions should be overriden by it's sub-classes
      * like class_importstudents, class_archiveaccounts, etc…
      */
-    function prepareLdapImport($csv_data_sorted) { return array(); }
-    function getMultiAttributes()                { return array(); }
-    function getAttrsPreSelection($size)         { return array(); }
+    function prepareLdapImport($csv_data_sorted)
+    {
+        return array();
+    }
+    function getMultiAttributes()
+    {
+        return array();
+    }
+    function getAttrsPreSelection($size)
+    {
+        return array();
+    }
 
 
     /*
@@ -102,17 +111,19 @@ class importaccounts extends plugin
      *   - Prepare '$this->csvinfo' with templates
      *   - Set form presets
      */
-    function execute_phase1($smarty, $quick_import = FALSE)
+    function execute_phase1($smarty, $quick_import = false)
     {
         /* Load defaults, if we run in quick import mode */
-        if ($quick_import === FALSE) {
+        if ($quick_import === false) {
             $_delim_id                = $_POST['delimiter_id'];
             $_csv_with_column_headers = $_POST['csv_with_column_headers'];
         } else {
             $_delim_id                = -1; // Will load default char later.
 
             $_csv_with_column_headers = $this->utils->getConfigBoolValue("ignore_first_row_of_csv_file");
-            if ($_csv_with_column_headers === FALSE) unset($_csv_with_column_headers);
+            if ($_csv_with_column_headers === false) {
+                unset($_csv_with_column_headers);
+            }
         }
 
         $ret_array = $this->utils->checkUploadedFile();
@@ -120,10 +131,10 @@ class importaccounts extends plugin
         // If successful.
         if ($ret_array[0]) {
             $raw_csv_data = $ret_array[1];
-            $smarty->assign("file_uploaded", TRUE);
+            $smarty->assign("file_uploaded", true);
         } else {
-            $this->failure_in_this_phase = TRUE;
-            $smarty->assign("LDIFError", TRUE);
+            $this->failure_in_this_phase = true;
+            $smarty->assign("LDIFError", true);
 
             msg_dialog::display(_("Error"), $ret_array[1], ERROR_DIALOG);
             return;
@@ -155,9 +166,9 @@ class importaccounts extends plugin
         }
 
         if (isset($_csv_with_column_headers)) {
-            $this->csvinfo['skip_first_line'] = TRUE;
+            $this->csvinfo['skip_first_line'] = true;
         } else {
-            $this->csvinfo['skip_first_line'] = FALSE;
+            $this->csvinfo['skip_first_line'] = false;
         }
 
         // Parse CSV file using utils class.
@@ -168,9 +179,9 @@ class importaccounts extends plugin
         );
 
         if (empty($parser_ret)) {
-            $smarty->assign("LDIFError", TRUE);
-            $smarty->assign("file_uploaded", FALSE);
-            $this->failure_in_this_phase = TRUE;
+            $smarty->assign("LDIFError", true);
+            $smarty->assign("file_uploaded", false);
+            $this->failure_in_this_phase = true;
 
             msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);
 
@@ -217,10 +228,12 @@ class importaccounts extends plugin
 
             $i = $i + 1;
 
-            if (($this->default_template_main != "") and (preg_match(
-                "/" . $this->default_template_main . "/i",
-                $result['sn'][0]
-            ))) {
+            if (
+                ($this->default_template_main != "") and (preg_match(
+                    "/" . $this->default_template_main . "/i",
+                    $result['sn'][0]
+                ))
+            ) {
                 $this->csvinfo["template_main"] = $i;
 
                 // User mail domain
@@ -234,18 +247,16 @@ class importaccounts extends plugin
 
                 // Obtain mail domain from group template object of pre-selected main user template, if available
                 if (isset($result['uid'])) {
-
                     $_ldapsearch = "(&(objectClass=gosaMailAccount)(objectClass=posixGroup)(" .
                                         "gidNumber=" . $result['gidNumber'][0] .
                                     "))";
                     $_ldap_group_search = $this->_ldap->search($_ldapsearch);
                     while ($_template_group = $this->_ldap->fetch($_ldap_group_search)) {
-
                         if (
                             isset($_template_group['mail']) and
                             $this->utils->strcontains($_template_group['mail'][0], '@')
                         ) {
-                            // Split mail of template and extract domain… 
+                            // Split mail of template and extract domain…
                             $domain_for_group = preg_split('/@/', $_template_group['mail'][0], 2)[1];
                             $this->csvinfo["domain_groups"] = trim($domain_for_group);
                         }
@@ -259,7 +270,7 @@ class importaccounts extends plugin
                 }
 
                 // Otherwise use $this->csvinfo["domain_users"] as detected above
-                else if (isset($this->csvinfo["domain_users"])) {
+                elseif (isset($this->csvinfo["domain_users"])) {
                     $this->csvinfo["domain_groups"] = $this->csvinfo["domain_users"];
                 }
             }
@@ -312,21 +323,21 @@ class importaccounts extends plugin
         $this->csvinfo['sel_ldap_match_attr_gender']    = $this->utils->getConfigBoolValue("ldap_match_attr_gender");
 
         // Provide pre-set values for account template forms
-        $smarty->assign("preset_template_" . $this->import_account_type,          $this->csvinfo['template_main']);
+        $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
         $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
-        $smarty->assign("preset_ou_groups",                                       $this->csvinfo['ou_groups']);
-        $smarty->assign("preset_domain_school",                                   $this->csvinfo['domain_school']);
-        $smarty->assign("preset_domain_users",                                    $this->csvinfo['domain_users']);
-        $smarty->assign("preset_domain_groups",                                   $this->csvinfo['domain_groups']);
-        $smarty->assign("preset_accounts_in_class_ou",                            $this->csvinfo['accounts_in_class_ou']);
-        $smarty->assign("preset_aliases_in_schooldomain",                         $this->csvinfo['aliases_in_schooldomain']);
-        $smarty->assign("preset_try_mail_as_uid",                                 $this->csvinfo['try_mail_as_uid']);
-        $smarty->assign("preset_add_course_members_to_class_group",               $this->csvinfo['add_course_members_to_class_group']);
-        $smarty->assign("preset_sel_ldap_match_attr_studentid",                   $this->csvinfo['sel_ldap_match_attr_studentid']);
-        $smarty->assign("preset_sel_ldap_match_attr_givenname",                   $this->csvinfo['sel_ldap_match_attr_givenname']);
-        $smarty->assign("preset_sel_ldap_match_attr_snname",                      $this->csvinfo['sel_ldap_match_attr_snname']);
-        $smarty->assign("preset_sel_ldap_match_attr_birthday",                    $this->csvinfo['sel_ldap_match_attr_birthday']);
-        $smarty->assign("preset_sel_ldap_match_attr_gender",                      $this->csvinfo['sel_ldap_match_attr_gender']);
+        $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+        $smarty->assign("preset_domain_school", $this->csvinfo['domain_school']);
+        $smarty->assign("preset_domain_users", $this->csvinfo['domain_users']);
+        $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
+        $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+        $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
+        $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
+        $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
+        $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
+        $smarty->assign("preset_sel_ldap_match_attr_givenname", $this->csvinfo['sel_ldap_match_attr_givenname']);
+        $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
+        $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
+        $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
     }
 
 
@@ -335,10 +346,10 @@ class importaccounts extends plugin
      *   - Set import options which the user configured.
      *     - Checkboxes, OU's for new groups & users, etc…
      */
-    function execute_phase2($smarty, $quick_import = FALSE)
+    function execute_phase2($smarty, $quick_import = false)
     {
         /* Load the properties we need in this phase */
-        if ($quick_import === FALSE) {
+        if ($quick_import === false) {
             $_template      = $_POST["template_" . $this->import_account_type];
             $_template_aux  = $_POST["template_" . $this->import_account_type . "_aux"];
             $_ou_groups     = $_POST["ou_groups"];
@@ -374,9 +385,9 @@ class importaccounts extends plugin
             if (isset($_domain_users)) {
                 if (empty($_domain_users)) {
                     $this->csvinfo['domain_users'] = "";
-                    $smarty->assign("LDIFError", TRUE);
+                    $smarty->assign("LDIFError", true);
                     msg_dialog::display(_("Error"), _("Domain for new users is empty!"), ERROR_DIALOG);
-                    $this->failure_in_this_phase = TRUE;
+                    $this->failure_in_this_phase = true;
                 } elseif (substr($_domain_users, 0, 1) == "@") {
                     // $_domain_users begins with '@'.
                     // Get the part after '@', trim and save in $this->csvinfo['domain_users'].
@@ -393,9 +404,9 @@ class importaccounts extends plugin
 
             if (empty($_domain_groups)) {
                 $this->csvinfo['domain_groups'] = "";
-                $smarty->assign("LDIFError", TRUE);
+                $smarty->assign("LDIFError", true);
                 msg_dialog::display(_("Error"), _("Domain for new groups is empty!"), ERROR_DIALOG);
-                $this->failure_in_this_phase = TRUE;
+                $this->failure_in_this_phase = true;
             } elseif (substr($_domain_groups, 0, 1) == "@") {
                 // $_domain_groups begins with '@'.
                 // Get the part after '@', trim and save in $this->csvinfo['domain_groups'].
@@ -404,10 +415,12 @@ class importaccounts extends plugin
                 $this->csvinfo['domain_groups'] = trim($_domain_groups);
             }
 
-            if (isset($_template_aux)) $this->csvinfo['template_aux'] = $_template_aux;
+            if (isset($_template_aux)) {
+                $this->csvinfo['template_aux'] = $_template_aux;
+            }
 
-            if ($this->failure_in_this_phase === FALSE) {
-                $smarty->assign("import_configured", TRUE);
+            if ($this->failure_in_this_phase === false) {
+                $smarty->assign("import_configured", true);
 
                 $this->csvinfo['attrs'] = $this->getAttributes();
                 $this->csvinfo['attrs'][] = "---";
@@ -430,7 +443,7 @@ class importaccounts extends plugin
             }
         } else {
             /* Something is not right! */
-            $this->failure_in_this_phase = TRUE;
+            $this->failure_in_this_phase = true;
             msg_dialog::display(
                 _("Error"),
                 _("Something went wrong! Something from the form went missing! Please try again."),
@@ -438,22 +451,22 @@ class importaccounts extends plugin
             );
         }
 
-        if ($this->failure_in_this_phase === TRUE) {
+        if ($this->failure_in_this_phase === true) {
             // Prepare for reloading this phase's web page again…
-            $smarty->assign("templates",                                $this->csvinfo['templates']['formfields']);
-            $smarty->assign("ous_available",                            $this->csvinfo['ou_tree']['formfields']);
-            $smarty->assign("preset_template_" . $this->import_account_type,          $this->csvinfo['template_main']);
+            $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
+            $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
+            $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
             $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
-            $smarty->assign("preset_ou_groups",                         $this->csvinfo['ou_groups']);
-            $smarty->assign("preset_domain_groups",                     $this->csvinfo['domain_groups']);
-            $smarty->assign("preset_accounts_in_class_ou",              $this->csvinfo['accounts_in_class_ou']);
-            $smarty->assign("preset_aliases_in_schooldomain",           $this->csvinfo['aliases_in_schooldomain']);
-            $smarty->assign("preset_try_mail_as_uid",                   $this->csvinfo['try_mail_as_uid']);
-            $smarty->assign("preset_sel_ldap_match_attr_studentid",     $this->csvinfo['sel_ldap_match_attr_studentid']);
-            $smarty->assign("preset_sel_ldap_match_attr_name",          $this->csvinfo['sel_ldap_match_attr_name']);
-            $smarty->assign("preset_sel_ldap_match_attr_snname",        $this->csvinfo['sel_ldap_match_attr_snname']);
-            $smarty->assign("preset_sel_ldap_match_attr_birthday",      $this->csvinfo['sel_ldap_match_attr_birthday']);
-            $smarty->assign("preset_sel_ldap_match_attr_gender",        $this->csvinfo['sel_ldap_match_attr_gender']);
+            $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
+            $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
+            $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
+            $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
+            $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
+            $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
+            $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
+            $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
+            $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
+            $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
             $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
         }
     }
@@ -463,11 +476,11 @@ class importaccounts extends plugin
      * PHASE 03:
      *   - Sort data using user-selected attributes.
      */
-    function execute_phase3($smarty, $quick_import = FALSE)
+    function execute_phase3($smarty, $quick_import = false)
     {
         /* Sanity checks on LDAP attributes assignments */
 
-        if ($quick_import === TRUE) {
+        if ($quick_import === true) {
             // Just use already set $this->csvinfo['attrs_selected'].
         } else {
             // Read attributes assignments from $_POST
@@ -496,7 +509,9 @@ class importaccounts extends plugin
                 $value_of_selection = $this->csvinfo['attrs'][$selection_in_cell];
 
                 // Skip every '---'
-                if ($value_of_selection == "---") continue;
+                if ($value_of_selection == "---") {
+                    continue;
+                }
 
                 if (in_array($value_of_selection, $multi_attrs)) {
                     if (isset($attrs_counter[$value_of_selection])) {
@@ -510,8 +525,8 @@ class importaccounts extends plugin
                     $data_row_sorted[$value_of_selection] = $data_in_cell;
                     $attrs_counter[$value_of_selection] = 1;
                 } else {
-                    $this->failure_in_this_phase = TRUE;
-                    $smarty->assign("LDIFError", TRUE);
+                    $this->failure_in_this_phase = true;
+                    $smarty->assign("LDIFError", true);
                     msg_dialog::display(
                         _("Error"),
                         sprintf(
@@ -531,19 +546,19 @@ class importaccounts extends plugin
         $this->csvinfo['data_preldap'] = $this->prepareLdapImport($this->csvinfo['data_sorted']);
 
         // $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport()…
-        if ($this->failure_in_this_phase === FALSE) {
+        if ($this->failure_in_this_phase === false) {
             // Free old & now unused memory
             unset($this->csvinfo['data_sorted']);
 
             $this->accountStatusCheck();
 
-            $smarty->assign("data_sorted", TRUE);
+            $smarty->assign("data_sorted", true);
             $smarty->assign("data", $this->csvinfo['data_preldap']);
         } else {
             // Prepare for reloading this phase's web page again…
-            $smarty->assign("attrs",            $this->csvinfo['attrs']);
-            $smarty->assign("attrs_selected",   $this->csvinfo['attrs_selected']);
-            $smarty->assign("num_rows",         $this->csvinfo['num_cols']);
+            $smarty->assign("attrs", $this->csvinfo['attrs']);
+            $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
+            $smarty->assign("num_rows", $this->csvinfo['num_cols']);
             $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
         }
     }
@@ -572,7 +587,7 @@ class importaccounts extends plugin
             }
         }
 
-        if ($this->failure_in_this_phase === FALSE) {
+        if ($this->failure_in_this_phase === false) {
             /*
              * FIXME: Present a message dialog box that informs on the statistics of
              *        the LDAP group import. (How many groups got created? How many
@@ -580,7 +595,7 @@ class importaccounts extends plugin
              *        required dropping of all members? Etc…)
              */
 
-            $smarty->assign("accounts_reviewed", TRUE);
+            $smarty->assign("accounts_reviewed", true);
 
             $this->accountStatusCheck();
             $smarty->assign("data", $this->csvinfo['data_preldap']);
@@ -602,7 +617,7 @@ class importaccounts extends plugin
      */
     function execute_phase5($smarty)
     {
-        if ($this->failure_in_this_phase !== FALSE) {
+        if ($this->failure_in_this_phase !== false) {
             // Prepare for reloading this phase's web page again…
             $this->accountStatusCheck();
             $smarty->assign("data", $this->csvinfo['data_preldap']);
@@ -610,7 +625,7 @@ class importaccounts extends plugin
             return;
         }
 
-        $smarty->assign("accounts_imported", TRUE);
+        $smarty->assign("accounts_imported", true);
 
         foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
             if ((isset($user_data['main_account']) and (!empty($user_data['main_account'])))) {
@@ -625,7 +640,6 @@ class importaccounts extends plugin
                 }
 
                 foreach ($_all_groups as $group_key => $group_data) {
-
                     if (isset($group_data['_key'][0])) {
                         $_group_type_key = $group_data['_key'][0];
                     } else {
@@ -647,7 +661,7 @@ class importaccounts extends plugin
 
         $this->groupStatusCheck();
 
-        $smarty->assign("data_groups",  $this->csvinfo['data_preldap_posixgroups']);
+        $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
         $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
     }
 
@@ -661,8 +675,8 @@ class importaccounts extends plugin
         foreach ($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data) {
             // Only perform on this group if _actions is not "none" or "ignore"
             if (
-                $this->utils->strcontains($group_data['_actions'][0], 'none')   === FALSE or
-                $this->utils->strcontains($group_data['_actions'][0], 'ignore') === FALSE
+                $this->utils->strcontains($group_data['_actions'][0], 'none')   === false or
+                $this->utils->strcontains($group_data['_actions'][0], 'ignore') === false
             ) {
                 $this->importLDAPGroupObject($group_name, $group_data);
             }
@@ -672,8 +686,8 @@ class importaccounts extends plugin
         foreach ($this->csvinfo['data_preldap_ogroups'] as $group_name => $group_data) {
             // Only perform on this group if _actions is not "none" or "ignore"
             if (
-                $this->utils->strcontains($group_data['_actions'][0], 'none')   === FALSE or
-                $this->utils->strcontains($group_data['_actions'][0], 'ignore') === FALSE
+                $this->utils->strcontains($group_data['_actions'][0], 'none')   === false or
+                $this->utils->strcontains($group_data['_actions'][0], 'ignore') === false
             ) {
                 $this->importLDAPGroupObject($group_name, $group_data);
             }
@@ -681,11 +695,11 @@ class importaccounts extends plugin
 
         $this->groupStatusCheck();
 
-        $smarty->assign("data_groups",  $this->csvinfo['data_preldap_posixgroups']);
+        $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
         $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
 
-        if ($this->failure_in_this_phase === FALSE) {
-            $smarty->assign("groups_reviewed", TRUE);
+        if ($this->failure_in_this_phase === false) {
+            $smarty->assign("groups_reviewed", true);
         } else {
             // Prepare for reloading this phase's web page again…
         }
@@ -702,12 +716,12 @@ class importaccounts extends plugin
         $this->prepareGroupMemberships();
         $smarty->assign("data", $this->csvinfo['data_preldap']);
 
-        if ($this->failure_in_this_phase === FALSE) {
-            $smarty->assign("groups_imported", TRUE);
+        if ($this->failure_in_this_phase === false) {
+            $smarty->assign("groups_imported", true);
         } else {
             // Prepare for reloading this phase's web page again…
             $this->groupStatusCheck();
-            $smarty->assign("data_groups",  $this->csvinfo['data_preldap_posixgroups']);
+            $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
             $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
         }
     }
@@ -730,8 +744,8 @@ class importaccounts extends plugin
         $this->accountStatusCheck();
         $this->groupStatusCheck();
         $smarty->assign("data", $this->csvinfo['data_preldap']);
-        if ($this->failure_in_this_phase === FALSE) {
-            $smarty->assign("accounts_groupmembers_reviewed", TRUE);
+        if ($this->failure_in_this_phase === false) {
+            $smarty->assign("accounts_groupmembers_reviewed", true);
         } else {
             // Prepare for reloading this phase's web page again…
             $this->prepareGroupMemberships();
@@ -744,8 +758,8 @@ class importaccounts extends plugin
      */
     function execute_phase9($smarty)
     {
-        if ($this->failure_in_this_phase === FALSE) {
-            $smarty->assign("accounts_groupmembers_updated", TRUE);
+        if ($this->failure_in_this_phase === false) {
+            $smarty->assign("accounts_groupmembers_updated", true);
         } else {
             // Prepare for reloading this phase's web page again…
         }
@@ -757,14 +771,14 @@ class importaccounts extends plugin
      */
     function execute_phase10($smarty)
     {
-        if ($this->failure_in_this_phase === FALSE) {
+        if ($this->failure_in_this_phase === false) {
             /*
              * FIXME: If automatic password generation is used, present a download link
              *        for a generated credentials sheet of paper.
              */
 
             /* Render the final SUCCESS page */
-            $smarty->assign("cleanup_completed", TRUE);
+            $smarty->assign("cleanup_completed", true);
         } else {
             /* FIXME: no clue what to do on failures here… We will see. */
         }
@@ -780,7 +794,7 @@ class importaccounts extends plugin
 
         // Log current view
         if (!$this->view_logged) {
-            $this->view_logged = TRUE;
+            $this->view_logged = true;
             new log("view", "all/" . get_class($this), $this->dn);
         }
 
@@ -889,7 +903,7 @@ class importaccounts extends plugin
             ) {
                 msg_dialog::display(_("Permission error"), _("You've no permission to import user data!"), ERROR_DIALOG);
             }
-            return ($smarty->fetch(get_template_path('content_importaccounts.tpl', TRUE)));
+            return ($smarty->fetch(get_template_path('content_importaccounts.tpl', true)));
         }
 
         /*
@@ -897,7 +911,7 @@ class importaccounts extends plugin
          */
 
         // Reset the failure status from last template view…
-        $this->failure_in_this_phase = FALSE;
+        $this->failure_in_this_phase = false;
 
         // Execute next phase, if user didn't abort.
         if (!isset($_POST['cancel_import'])) {
@@ -923,9 +937,9 @@ class importaccounts extends plugin
                 // Call each function defined above and check if there was an error.
                 foreach ($functions as $key => $value) {
                     $this->utils->debug_to_console("Executing " . $key . "…");
-                    call_user_func(array($this, $value), $smarty, TRUE);
+                    call_user_func(array($this, $value), $smarty, true);
 
-                    if ($this->failure_in_this_phase === TRUE) {
+                    if ($this->failure_in_this_phase === true) {
                         // Phase failed.
                         $this->utils->debug_to_console("Failed executing " . $key . "…");
                         break;
@@ -939,75 +953,75 @@ class importaccounts extends plugin
                 $this->execute_phase1($smarty);
             } elseif (isset($_POST['phase_02']) and isset($_POST['import_configured'])) {
                 $this->utils->debug_to_console("Executing normal Phase2…");
-                $smarty->assign("file_uploaded",                  TRUE);
+                $smarty->assign("file_uploaded", true);
                 $this->execute_phase2($smarty);
             } elseif (isset($_POST['phase_03']) and isset($_POST['data_sorted'])) {
                 $this->utils->debug_to_console("Executing normal Phase3…");
-                $smarty->assign("file_uploaded",                  TRUE);
-                $smarty->assign("import_configured",              TRUE);
+                $smarty->assign("file_uploaded", true);
+                $smarty->assign("import_configured", true);
                 $this->execute_phase3($smarty);
             } elseif (isset($_POST['phase_04']) and isset($_POST['accounts_reviewed'])) {
                 $this->utils->debug_to_console("Executing normal Phase4…");
-                $smarty->assign("file_uploaded",                  TRUE);
-                $smarty->assign("import_configured",              TRUE);
-                $smarty->assign("data_sorted",                    TRUE);
+                $smarty->assign("file_uploaded", true);
+                $smarty->assign("import_configured", true);
+                $smarty->assign("data_sorted", true);
                 $this->execute_phase4($smarty);
             } elseif (isset($_POST['phase_05']) and isset($_POST['accounts_imported'])) {
-                $smarty->assign("file_uploaded",                  TRUE);
-                $smarty->assign("import_configured",              TRUE);
-                $smarty->assign("data_sorted",                    TRUE);
-                $smarty->assign("accounts_reviewed",              TRUE);
+                $smarty->assign("file_uploaded", true);
+                $smarty->assign("import_configured", true);
+                $smarty->assign("data_sorted", true);
+                $smarty->assign("accounts_reviewed", true);
                 $this->execute_phase5($smarty);
             } elseif (isset($_POST['phase_06']) and isset($_POST['groups_reviewed'])) {
-                $smarty->assign("file_uploaded",                  TRUE);
-                $smarty->assign("import_configured",              TRUE);
-                $smarty->assign("data_sorted",                    TRUE);
-                $smarty->assign("accounts_reviewed",              TRUE);
-                $smarty->assign("accounts_imported",              TRUE);
+                $smarty->assign("file_uploaded", true);
+                $smarty->assign("import_configured", true);
+                $smarty->assign("data_sorted", true);
+                $smarty->assign("accounts_reviewed", true);
+                $smarty->assign("accounts_imported", true);
                 $this->execute_phase6($smarty);
             } elseif (isset($_POST['phase_07']) and isset($_POST['groups_imported'])) {
-                $smarty->assign("file_uploaded",                  TRUE);
-                $smarty->assign("import_configured",              TRUE);
-                $smarty->assign("data_sorted",                    TRUE);
-                $smarty->assign("accounts_reviewed",              TRUE);
-                $smarty->assign("accounts_imported",              TRUE);
-                $smarty->assign("groups_reviewed",                TRUE);
+                $smarty->assign("file_uploaded", true);
+                $smarty->assign("import_configured", true);
+                $smarty->assign("data_sorted", true);
+                $smarty->assign("accounts_reviewed", true);
+                $smarty->assign("accounts_imported", true);
+                $smarty->assign("groups_reviewed", true);
                 $this->execute_phase7($smarty);
             } elseif (isset($_POST['phase_08']) and isset($_POST['accounts_groupmembers_reviewed'])) {
-                $smarty->assign("file_uploaded",                  TRUE);
-                $smarty->assign("import_configured",              TRUE);
-                $smarty->assign("data_sorted",                    TRUE);
-                $smarty->assign("accounts_reviewed",              TRUE);
-                $smarty->assign("accounts_imported",              TRUE);
-                $smarty->assign("groups_reviewed",                TRUE);
-                $smarty->assign("groups_imported",                TRUE);
+                $smarty->assign("file_uploaded", true);
+                $smarty->assign("import_configured", true);
+                $smarty->assign("data_sorted", true);
+                $smarty->assign("accounts_reviewed", true);
+                $smarty->assign("accounts_imported", true);
+                $smarty->assign("groups_reviewed", true);
+                $smarty->assign("groups_imported", true);
                 $this->execute_phase8($smarty);
             } elseif (isset($_POST['phase_09']) and isset($_POST['accounts_groupmembers_updated'])) {
-                $smarty->assign("file_uploaded",                  TRUE);
-                $smarty->assign("import_configured",              TRUE);
-                $smarty->assign("data_sorted",                    TRUE);
-                $smarty->assign("accounts_reviewed",              TRUE);
-                $smarty->assign("accounts_imported",              TRUE);
-                $smarty->assign("groups_reviewed",                TRUE);
-                $smarty->assign("groups_imported",                TRUE);
-                $smarty->assign("accounts_groupmembers_reviewed", TRUE);
+                $smarty->assign("file_uploaded", true);
+                $smarty->assign("import_configured", true);
+                $smarty->assign("data_sorted", true);
+                $smarty->assign("accounts_reviewed", true);
+                $smarty->assign("accounts_imported", true);
+                $smarty->assign("groups_reviewed", true);
+                $smarty->assign("groups_imported", true);
+                $smarty->assign("accounts_groupmembers_reviewed", true);
                 $this->execute_phase9($smarty);
             } elseif (isset($_POST['phase_10']) and isset($_POST['cleanup_completed'])) {
-                $smarty->assign("file_uploaded",                  TRUE);
-                $smarty->assign("import_configured",              TRUE);
-                $smarty->assign("data_sorted",                    TRUE);
-                $smarty->assign("accounts_reviewed",              TRUE);
-                $smarty->assign("accounts_imported",              TRUE);
-                $smarty->assign("groups_reviewed",                TRUE);
-                $smarty->assign("groups_imported",                TRUE);
-                $smarty->assign("accounts_groupmembers_reviewed", TRUE);
-                $smarty->assign("accounts_groupmembers_updated",  TRUE);
+                $smarty->assign("file_uploaded", true);
+                $smarty->assign("import_configured", true);
+                $smarty->assign("data_sorted", true);
+                $smarty->assign("accounts_reviewed", true);
+                $smarty->assign("accounts_imported", true);
+                $smarty->assign("groups_reviewed", true);
+                $smarty->assign("groups_imported", true);
+                $smarty->assign("accounts_groupmembers_reviewed", true);
+                $smarty->assign("accounts_groupmembers_updated", true);
                 $this->execute_phase10($smarty);
             }
         }
 
         // Show main page…
-        return ($smarty->fetch(get_template_path('content_importaccounts.tpl', TRUE)));
+        return ($smarty->fetch(get_template_path('content_importaccounts.tpl', true)));
     }
 
 
@@ -1015,7 +1029,7 @@ class importaccounts extends plugin
     {
         /* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail… */
         if (!is_array($this->csvinfo['data_preldap']) or (empty($this->csvinfo['data_preldap']))) {
-            $this->failure_in_this_phase = TRUE;
+            $this->failure_in_this_phase = true;
             return;
         }
 
@@ -1025,16 +1039,21 @@ class importaccounts extends plugin
         foreach ($this->csvinfo['data_preldap'] as $key => $row) {
             if (isset($row['main_account'])) {
                 $test_attrs = array();
-                if ($this->csvinfo['sel_ldap_match_attr_studentid'])
+                if ($this->csvinfo['sel_ldap_match_attr_studentid']) {
                     $test_attrs[] = "employeeNumber";
-                if ($this->csvinfo['sel_ldap_match_attr_snname'])
+                }
+                if ($this->csvinfo['sel_ldap_match_attr_snname']) {
                     $test_attrs[] = "sn";
-                if ($this->csvinfo['sel_ldap_match_attr_givenname'])
+                }
+                if ($this->csvinfo['sel_ldap_match_attr_givenname']) {
                     $test_attrs[] = "givenName";
-                if ($this->csvinfo['sel_ldap_match_attr_gender'])
+                }
+                if ($this->csvinfo['sel_ldap_match_attr_gender']) {
                     $test_attrs[] = "gender";
-                if ($this->csvinfo['sel_ldap_match_attr_birthday'])
+                }
+                if ($this->csvinfo['sel_ldap_match_attr_birthday']) {
                     $test_attrs[] = "dateOfBirth";
+                }
 
                 $_ldapfilter = "(objectClass=gosaAccount)";
 
@@ -1060,7 +1079,6 @@ class importaccounts extends plugin
                 }
 
                 if ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) == 0)) {
-
                     /* let's try "fuzzy" search (only look for givenName and sn) */
                     $_ldapfilter = "(&(objectClass=gosaAccount)(sn=" . $row['main_account']['sn'][0] . ")(givenName=" . $row['main_account']['givenName'][0] . "))";
                     $ldapsearch = $this->_ldap->search($_ldapfilter, array("uid", "sn", "givenName", "gender", "dateOfBirth", "mail", "alias", "departmentNumber", "employeeNumber"));
@@ -1076,11 +1094,10 @@ class importaccounts extends plugin
                         $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'similar-objects-found,ignore,check-manually';
                     }
                 } elseif ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) == 1)) {
-
                     $gosa_account = $gosa_main_accounts[0];
 
                     // Detect status of account.
-                    if ($this->utils->compareObjects($row['main_account'], $gosa_account, $test_attrs, "", TRUE) === NULL) {
+                    if ($this->utils->compareObjects($row['main_account'], $gosa_account, $test_attrs, "", true) === null) {
                         if ((!isset($row['main_account']['uid'][0])) or ($row['main_account']['uid'][0] === "{%uid}")) {
                             $this->csvinfo['data_preldap'][$key]['main_account']['uid'] = array($gosa_account['uid'][0]);
                             $row['main_account']['uid'] = $this->csvinfo['data_preldap'][$key]['main_account']['uid'];
@@ -1099,7 +1116,7 @@ class importaccounts extends plugin
                         if (strtolower($gosa_account_dn) == strtolower($expected_account_dn)) {
                             $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'exists';
                         }
-                        /* Test if UID needs to be renamed otherwise it exists somewhere else */ else if (strtolower($gosa_account_uid) == strtolower($expected_account_uid)) {
+                        /* Test if UID needs to be renamed otherwise it exists somewhere else */ elseif (strtolower($gosa_account_uid) == strtolower($expected_account_uid)) {
                             $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'exists-elsewhere';
                         } else {
                             $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'needs-renaming';
@@ -1109,7 +1126,7 @@ class importaccounts extends plugin
                         $_actions = array();
                         if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] === 'exists-elsewhere') {
                             $_actions[] = "move";
-                        } else if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] === 'needs-renaming') {
+                        } elseif ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] === 'needs-renaming') {
                             $_actions[] = "rename-uid";
                         }
 
@@ -1127,7 +1144,7 @@ class importaccounts extends plugin
                         }
 
                         $_check_attrs = $this->utils->compareObjects($row['main_account'], $gosa_account, $_updatable_attrs, "update-");
-                        if ($_check_attrs === NULL) {
+                        if ($_check_attrs === null) {
                             // Nothing to do
                         } else {
                             $_actions = array_merge($_actions, $_check_attrs);
@@ -1149,7 +1166,7 @@ class importaccounts extends plugin
                         if ($this->csvinfo['aliases_in_schooldomain']) {
                             if (isset($gosa_account['alias']) and (in_array($_alias, $gosa_account['alias']))) {
                                 /* nothing to do */
-                            } else if (isset($gosa_account['mail']) and (in_array($_alias, $gosa_account['mail']))) {
+                            } elseif (isset($gosa_account['mail']) and (in_array($_alias, $gosa_account['mail']))) {
                                 /* nothing to do either, <uid>@<domain_school> is primary mail address */
                             } else {
                                 $_actions[] = 'add-uid-at-domain-to-aliases';
@@ -1174,7 +1191,7 @@ class importaccounts extends plugin
                         $this->csvinfo['data_preldap'][$key]['main_account']['_dn_ldap'] = array($gosa_account_dn);
                         $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array($expected_account_dn);
                         $this->csvinfo['data_preldap'][$key]['main_account']['_base'] = array($expected_base);
-                    } elseif ($this->utils->compareObjects($row['main_account'], $gosa_account, array("uid"), "", TRUE) === NULL) {
+                    } elseif ($this->utils->compareObjects($row['main_account'], $gosa_account, array("uid"), "", true) === null) {
                         // The LDAP tree already has an account with this UID, this requires manual introspection
 
                         $expected_base = $this->genAccountBase($row['main_account'], $row['groups']);
@@ -1227,7 +1244,6 @@ class importaccounts extends plugin
                         if ((is_countable($gosa_aux_accounts)) and (count($gosa_aux_accounts) == 0)) {
                             // No account was found using this email address. So just create the account.
                         } elseif ((is_countable($gosa_aux_accounts)) and (count($gosa_aux_accounts) == 1)) {
-
                             // We only found one account, assume it's at 0th place.
                             $gosa_account = $gosa_aux_accounts[0];
 
@@ -1258,7 +1274,7 @@ class importaccounts extends plugin
                             }
 
                             $_check_attrs = $this->utils->compareObjects($aux_account, $gosa_account, $_updatable_attrs, "update-");
-                            if ($_check_attrs === NULL) {
+                            if ($_check_attrs === null) {
                                 // Nothing to do
                             } else {
                                 $_actions = array_merge($_actions, $_check_attrs);
@@ -1295,7 +1311,8 @@ class importaccounts extends plugin
                     $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'create,set-password';
 
                     // Generate passwords for main accounts (if not provided)
-                    if ((!isset($row['main_account']['userPassword'][0])) or
+                    if (
+                        (!isset($row['main_account']['userPassword'][0])) or
                         ($row['main_account']['userPassword'][0] === "")  or
                         ($row['main_account']['userPassword'][0] === '{%userPassword}')
                     ) {
@@ -1328,7 +1345,8 @@ class importaccounts extends plugin
                             }
 
                             // generate passwords for aux accounts (if not provided)
-                            if ((!isset($aux_account['userPassword'][0])) or
+                            if (
+                                (!isset($aux_account['userPassword'][0])) or
                                 ($aux_account['userPassword'][0] === "") or
                                 ($aux_account['userPassword'][0] === '{%userPassword}')
                             ) {
@@ -1434,7 +1452,6 @@ class importaccounts extends plugin
             }
 
             foreach ($_all_groups as $group_key => $group) {
-
                 $_cn = "";
                 if (isset($group['cn'][0])) {
                     $_cn = $group['cn'][0];
@@ -1464,7 +1481,7 @@ class importaccounts extends plugin
 
                 if ($gosa_group = $this->_ldap->fetch($ldapsearch)) {
                     // Detect status of group
-                    if ($this->utils->compareObjects($group, $gosa_group, array("cn")) === NULL) {
+                    if ($this->utils->compareObjects($group, $gosa_group, array("cn")) === null) {
                         if (in_array('posixGroup', $group['objectClass'])) {
                             $expected_group_dn = 'cn=' . $group['cn'][0] . ',' . get_groups_ou() . $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
                         } elseif (in_array('gosaGroupOfNames', $group['objectClass'])) {
@@ -1493,10 +1510,10 @@ class importaccounts extends plugin
                 if ($this->csvinfo['data_preldap'][$key][$_group_type_key][$group_key]['_status'][0] === 'exists-elsewhere') {
                     $_actions[] = "move";
                 }
-                if ($this->utils->compareObjects($group, $gosa_group, array("cn")) === NULL) {
+                if ($this->utils->compareObjects($group, $gosa_group, array("cn")) === null) {
                     if ($_group_type_key !== 'optional_groups') {
                         $_check_attrs = $this->utils->compareObjects($group, $gosa_group, array("mail", "description"), "update-");
-                        if ($_check_attrs === NULL) {
+                        if ($_check_attrs === null) {
                             // Nothing to do
                         } else {
                             $_actions = array_merge($_actions, $_check_attrs);
@@ -1504,7 +1521,6 @@ class importaccounts extends plugin
                     }
 
                     if ($_group_type_key !== "aux_accounts_groups") {
-
                         $_g_actions = explode(",", $this->csvinfo['data_preldap'][$key]['main_account']['_' . $group_type . '_actions'][0]);
                         if ($_g_actions[0] === "none") {
                             $_g_actions = array();
@@ -1539,10 +1555,11 @@ class importaccounts extends plugin
                         // Check if the aux accounts are in this group
                         if (isset($row['aux_accounts']) and (!empty($row['aux_accounts']))) {
                             foreach ($row['aux_accounts'] as $idx_aux => $aux_account) {
-
                                 // If the object's DN is not known by now,
                                 // let's just skip this object
-                                if (!isset($aux_account['_dn_ldap'])) continue;
+                                if (!isset($aux_account['_dn_ldap'])) {
+                                    continue;
+                                }
 
                                 $_group_name = $group['cn'][0];
                                 $_dn = $aux_account['_dn_ldap'][0];
@@ -1582,7 +1599,6 @@ class importaccounts extends plugin
 
         // Finally add optional groups, if not already explicitly listed above
         foreach ($this->csvinfo['data_preldap'] as $key => $row) {
-
             if ($this->utils->strcontains($row['main_account']['_actions'][0], 'ignore')) {
                 continue;
             }
@@ -1620,12 +1636,13 @@ class importaccounts extends plugin
 
     function CSVRowSanityChecksOk($csv_row, $idx)
     {
-        $ret_ok = FALSE;
+        $ret_ok = false;
 
         // Check for most basic columns.
-        if (empty($csv_row['sn']) or  empty($csv_row['givenName']) or
-           !isset($csv_row['sn']) or !isset($csv_row['givenName']))
-        {
+        if (
+            empty($csv_row['sn']) or  empty($csv_row['givenName']) or
+            !isset($csv_row['sn']) or !isset($csv_row['givenName'])
+        ) {
             // Output error about missing the least set of attributes…
             msg_dialog::display(
                 _("Error"),
@@ -1638,7 +1655,7 @@ class importaccounts extends plugin
                 ERROR_DIALOG
             );
         } else {
-            $ret_ok = TRUE;
+            $ret_ok = true;
         }
 
         /*
@@ -1648,7 +1665,7 @@ class importaccounts extends plugin
          */
 
         if (!$ret_ok) {
-            $this->failure_in_this_phase = TRUE;
+            $this->failure_in_this_phase = true;
         }
 
         return $ret_ok;
@@ -1666,8 +1683,8 @@ class importaccounts extends plugin
             $user_data = $row['main_account'];
 
             if (
-                $this->utils->strcontains($user_data['_group_actions'][0], 'create-primgroup') === FALSE and
-                $this->utils->strcontains($user_data['_group_actions'][0], 'move-primgroup')   === FALSE
+                $this->utils->strcontains($user_data['_group_actions'][0], 'create-primgroup') === false and
+                $this->utils->strcontains($user_data['_group_actions'][0], 'move-primgroup')   === false
             ) {
                 // Neither 'create-primgroup' nor 'move-primgroup' given,
                 // so nothing to do for this user account…
@@ -1711,7 +1728,8 @@ class importaccounts extends plugin
     function importLDAPGroupObject($group_name, $group_data)
     {
         // Only perform on this user dataset if _actions does not contain "none"…
-        if (($this->utils->strcontains($group_data['_actions'][0], 'none')) or
+        if (
+            ($this->utils->strcontains($group_data['_actions'][0], 'none')) or
             ($this->utils->strcontains($group_data['_actions'][0], 'ignore'))
         ) {
             return;
@@ -1731,7 +1749,8 @@ class importaccounts extends plugin
             $_group_obj        = "ogroup";
         }
 
-        if ($this->utils->strcontains($group_data['_actions'][0], 'create') or
+        if (
+            $this->utils->strcontains($group_data['_actions'][0], 'create') or
             $this->utils->strcontains($group_data['_actions'][0], 'move')
         ) {
             /* Instantiate a new group object via GOsa²'s API */
@@ -1780,16 +1799,18 @@ class importaccounts extends plugin
         );
 
         // Update 'description' if appropriate.
-        if (isset($group_data['description'][0]) and
-           ($this->utils->strcontains($group_data['_actions'][0], 'update-description') or
+        if (
+            isset($group_data['description'][0]) and
+            ($this->utils->strcontains($group_data['_actions'][0], 'update-description') or
             $this->utils->strcontains($group_data['_actions'][0], 'create'))
         ) {
             $_group_properties["description"] = $group_data['description'][0];
         }
 
         // Update 'mail' if appropriate.
-        if (isset($group_data['mail'][0]) and
-           ($this->utils->strcontains($group_data['_actions'][0], 'update-mail') or
+        if (
+            isset($group_data['mail'][0]) and
+            ($this->utils->strcontains($group_data['_actions'][0], 'update-mail') or
             $this->utils->strcontains($group_data['_actions'][0], 'create'))
         ) {
             $_group_properties["mail"] = $group_data['mail'][0];
@@ -1813,7 +1834,7 @@ class importaccounts extends plugin
 
         // If we do import mail properties, make sure the mailgroup object is activated
         if (isset($_group_properties['mail']) and isset($grouptab->by_object['mailgroup'])) {
-            $grouptab->by_object['mailgroup']->is_account = TRUE;
+            $grouptab->by_object['mailgroup']->is_account = true;
         }
 
         /* Run GOsa²'s groups/group | ogroups/ogroup checks */
@@ -1824,9 +1845,8 @@ class importaccounts extends plugin
              * FIXME: collect failure statistics here!!!
              */
 
-            $this->failure_in_this_phase = TRUE;
+            $this->failure_in_this_phase = true;
         } else {
-
             if (isset($remove_later_grouptab)) {
                 $remove_later_grouptab->delete();
             }
@@ -1836,14 +1856,16 @@ class importaccounts extends plugin
 
         // Present a status update in GOsa²'s logging system (/var/log/syslog mostly)
         if ($this->utils->strcontains($group_data['_actions'][0], 'create')) {
-            new log("create",
+            new log(
+                "create",
                 "groups/group",
                 $grouptab->dn,
                 array(),
                 "New group created via SchoolManager add-on."
             );
         } elseif ($this->utils->strcontains($group_data['_actions'][0], 'none')) {
-            new log("modify",
+            new log(
+                "modify",
                 "groups/group",
                 $grouptab->dn,
                 array(),
@@ -1861,8 +1883,9 @@ class importaccounts extends plugin
         if (
             $this->utils->strcontains($user_data['_actions'][0], 'none')  or
             $this->utils->strcontains($user_data['_actions'][0], 'ignore')
-        )
-        return;
+        ) {
+            return;
+        }
 
         // Only perform on this user dataset, if a valid action was found:
         if (
@@ -1872,8 +1895,9 @@ class importaccounts extends plugin
             $this->utils->strcontains($user_data['_actions'][0], 'create') and
             $this->utils->strcontains($user_data['_actions'][0], 'move') and
             $this->utils->strcontains($user_data['_actions'][0], 'rename-uid')
-        )
-        return;
+        ) {
+            return;
+        }
 
         // These should contain the right data
         $_user_properties_base   = array();
@@ -1936,7 +1960,8 @@ class importaccounts extends plugin
                             ERROR_DIALOG
                         );
                     }
-                } elseif (($this->csvinfo['try_mail_as_uid'] === TRUE) and
+                } elseif (
+                    ($this->csvinfo['try_mail_as_uid'] === true) and
                     (isset($user_data['mail'][0]) and $user_data['mail'][0])
                 ) {
                     $_user_properties_base['uid'] = strtolower($user_data['mail'][0]);
@@ -1996,7 +2021,7 @@ class importaccounts extends plugin
         foreach ($properties_which_are_allowed_to_be_updated as $update_property) {
             if (
                 isset($user_data[$update_property][0]) and
-                ($this->utils->strcontains($user_data['_actions'][0],  'create') or
+                ($this->utils->strcontains($user_data['_actions'][0], 'create') or
                 $this->utils->strcontains($user_data['_actions'][0], ('update-' . $update_property)))
             ) {
                 // Special case for 'mail' property.
@@ -2044,7 +2069,6 @@ class importaccounts extends plugin
                 $this->utils->strcontains($user_data['_actions'][0], 'add-uid-at-domain-to-aliases') or
                 $this->utils->strcontains($user_data['_actions'][0], 'create')
             ) {
-
                 // Include $uid_at_domain in $_user_properties_extras["alias"]
                 // if it isn't already.
                 if (!in_array($uid_at_domain, $_user_properties_extras["alias"])) {
@@ -2101,12 +2125,14 @@ class importaccounts extends plugin
             /*
              * FIXME: check if a mailAccount plugin is available at all!!!
              */
-            $usertab->by_object['mailAccount']->is_account = TRUE;
+            $usertab->by_object['mailAccount']->is_account = true;
         }
 
         /* Populate sub-object attributes for $usertab with same values */
         foreach ($_user_properties_extras as $attr => $val) {
-            if (is_array($val)) $val = $val[0];
+            if (is_array($val)) {
+                $val = $val[0];
+            }
 
             $usertab->$attr = $val;
             foreach ($usertab->by_object as $pname => $plugin) {
@@ -2119,14 +2145,13 @@ class importaccounts extends plugin
         /* Insert into the LDAP tree */
         $this->failure_messages = array();
         if (count($usertab->check())) {
-
             $this->failure_messages[] = $usertab->check();
 
             /*
              * FIXME: Collect failure statistics here!
              */
 
-            $this->failure_in_this_phase = TRUE;
+            $this->failure_in_this_phase = true;
         } else {
             $usertab->save();
 
@@ -2138,7 +2163,7 @@ class importaccounts extends plugin
             }
 
             if ($this->utils->strcontains($user_data['_actions'][0], 'set-password')) {
-                if (!change_password($usertab->dn, $user_data['userPassword'][0], FALSE, '', '', $message)) {
+                if (!change_password($usertab->dn, $user_data['userPassword'][0], false, '', '', $message)) {
                     msg_dialog::displayChecks(array($message));
                 }
             }
@@ -2180,7 +2205,7 @@ class importaccounts extends plugin
                      * FIXME: collect failure statistics here!!!
                      */
 
-                    $this->failure_in_this_phase = TRUE;
+                    $this->failure_in_this_phase = true;
                 } else {
                     /* Save group object to LDAP */
                     $grouptab->save();
@@ -2193,7 +2218,6 @@ class importaccounts extends plugin
     function addLDAPUserObjectsToOGroups($ogroup_members_data)
     {
         foreach ($ogroup_members_data as $ogroup_name => $new_members) {
-
             if (empty($new_members)) {
                 continue;
             } else {
@@ -2202,28 +2226,26 @@ class importaccounts extends plugin
                 $current_members = $ogrouptab->by_object['ogroup']->member;
                 foreach ($new_members as $new_member) {
                     if (!in_array($new_member, $current_members)) {
-
                         $ogrouptab->by_object['ogroup']->member[$new_member] = $new_member;
                     }
                 }
 
                 // Update the object type in gosaGroupObjects at the end of adding new members
                 $obj_types = preg_replace('/[\[\]]/', '', $ogrouptab->by_object['ogroup']->gosaGroupObjects);
-                if ($this->utils->strcontains($obj_types, 'U') === FALSE) {
+                if ($this->utils->strcontains($obj_types, 'U') === false) {
                     $obj_types .= 'U';
                     $ogrouptab->by_object['ogroup']->gosaGroupObjects = '[' . $obj_types . ']';
                 }
 
                 // Run GOsa²'s ogroups/ogroup checks
                 if (count($ogrouptab->check())) {
-
                     msg_dialog::displayChecks($ogrouptab->check());
 
                     /*
                      * FIXME: collect failure statistics here!!!
                      */
 
-                    $this->failure_in_this_phase = TRUE;
+                    $this->failure_in_this_phase = true;
                 } else {
                     /* Save group object to LDAP */
                     $ogrouptab->save();
@@ -2243,10 +2265,9 @@ class importaccounts extends plugin
         }
 
         /* Put accounts into a sub-OU of the template's base DN if requested */
-        if ($this->csvinfo['accounts_in_class_ou'] === TRUE) {
+        if ($this->csvinfo['accounts_in_class_ou'] === true) {
             $_class_group = "";
             foreach ($groups_data as $group_key => $group_data) {
-
                 if ($this->utils->strcontains($group_data['cn'][0], 'class_')) {
                     $_class_group = 'ou=' . str_replace('class_', '', $group_data['cn'][0]) . ',';
                     /*
@@ -2313,7 +2334,8 @@ class importaccounts extends plugin
                 }
             }
 
-            if ((isset($user_data['aux_accounts']))        and (!empty($user_data['aux_accounts'])) and
+            if (
+                (isset($user_data['aux_accounts']))        and (!empty($user_data['aux_accounts'])) and
                 (isset($user_data['aux_accounts_groups'])) and (!empty($user_data['aux_accounts_groups']))
             ) {
                 foreach ($user_data['aux_accounts_groups'] as $group_key => $group_data) {
@@ -2338,7 +2360,6 @@ class importaccounts extends plugin
                                 $this->groupofnames_members[$group_key] = array();
                             }
                             if (isset($aux_account['_dn_ldap'])) {
-
                                 /*
                                  * FIXME: DN memberships are case insensitive, we need to convert
                                  *        $groupofnames_members[$group_key] items into lower case and then
@@ -2370,11 +2391,11 @@ class importaccounts extends plugin
         $_grp = str_replace('ö', 'oe', $_grp);
         $_grp = str_replace('ü', 'ue', $_grp);
         $_grp = str_replace('ß', 'ss', $_grp);
-        $_grp = str_replace('.', '',   $_grp);
-        $_grp = str_replace(':', '-',  $_grp);
-        $_grp = str_replace('(', '_',  $_grp);
-        $_grp = str_replace(')', '',   $_grp);
-        $_grp = str_replace(' ', '_',  $_grp);
+        $_grp = str_replace('.', '', $_grp);
+        $_grp = str_replace(':', '-', $_grp);
+        $_grp = str_replace('(', '_', $_grp);
+        $_grp = str_replace(')', '', $_grp);
+        $_grp = str_replace(' ', '_', $_grp);
 
         if (preg_match('/^[a-z][-a-z0-9_]*[a-z0-9]$/', $_grp)) {
             return $_grp;
@@ -2404,4 +2425,3 @@ class importaccounts extends plugin
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
-?>

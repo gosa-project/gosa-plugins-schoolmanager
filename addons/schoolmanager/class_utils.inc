@@ -60,7 +60,7 @@ class schoolmgr_utils
                 (is_string($needle)   ? "" : _("\$needle isn't a string! "))
             );
 
-            return FALSE;
+            return false;
         }
 
         $version = explode('.', PHP_VERSION);
@@ -68,7 +68,7 @@ class schoolmgr_utils
             return str_contains($haystack, $needle);
         } else {
             $length = strlen($needle);
-            return strpos($haystack, $needle) !== FALSE;
+            return strpos($haystack, $needle) !== false;
         }
     }
 
@@ -76,10 +76,13 @@ class schoolmgr_utils
     function debug_to_console($data)
     {
         // Don't print anything to js console, if ENABLE_DEBUG_JS_CONSOLE isn't 'true'.
-        if ($this->ENABLE_DEBUG_JS_CONSOLE !== true) return;
+        if ($this->ENABLE_DEBUG_JS_CONSOLE !== true) {
+            return;
+        }
 
-        if (is_array($data))
+        if (is_array($data)) {
             $output = implode('', $data);
+        }
 
         echo "<script>console.log('" . addslashes($data) . "');</script>";
     }
@@ -106,15 +109,15 @@ class schoolmgr_utils
     {
         // Get config value, but pause debugging output.
         $ENABLE_DEBUG_JS_CONSOLE_then = $this->ENABLE_DEBUG_JS_CONSOLE;
-        $this->ENABLE_DEBUG_JS_CONSOLE = FALSE;
+        $this->ENABLE_DEBUG_JS_CONSOLE = false;
         $conf_value = strtolower($this->getConfigStrValue($key));
         $this->ENABLE_DEBUG_JS_CONSOLE = $ENABLE_DEBUG_JS_CONSOLE_then;
 
-        $ret = FALSE;
+        $ret = false;
 
         // Only return TRUE if value is literally "true"…
         if ($conf_value === "true") {
-            $ret = TRUE;
+            $ret = true;
         }
 
         // Debug property to js console (if debugging is enabled!).
@@ -134,30 +137,30 @@ class schoolmgr_utils
 
         // Make sure there is a file uploaded…
         if (empty($_FILES['userfile']['name'])) {
-            $ret_array[0] = FALSE; // Not successful.
+            $ret_array[0] = false; // Not successful.
             $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file not found"));
             return $ret_array;
         }
 
-        $handle = NULL;
+        $handle = null;
         $filename = gosa_file_name($_FILES['userfile']['tmp_name']);
 
         // TODO: FIXME: Check if file does actually end with '.csv'…
 
         if (!isset($_FILES['userfile']['name'])) {
-            $ret_array[0] = FALSE; // Not successful.
+            $ret_array[0] = false; // Not successful.
             $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file not found"));
             return $ret_array;
         } elseif (!$_FILES['userfile']['size'] > 0) {
-            $ret_array[0] = FALSE; // Not successful.
+            $ret_array[0] = false; // Not successful.
             $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file is empty"));
             return $ret_array;
         } elseif (!file_exists($filename)) { // Is there a tmp file which we can use?
-            $ret_array[0] = FALSE; // Not successful.
+            $ret_array[0] = false; // Not successful.
             $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file not found"));
             return $ret_array;
         } elseif (!$handle = @fopen($filename, "r")) {
-            $ret_array[0] = FALSE; // Not successful.
+            $ret_array[0] = false; // Not successful.
             $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file not readable"));
             return $ret_array;
         }
@@ -175,7 +178,7 @@ class schoolmgr_utils
             if (mb_check_encoding($raw_csv_data, "iso-8859-1")) {
                 $raw_csv_data = utf8_encode($raw_csv_data);
             } else {
-                $ret_array[0] = FALSE; // Not successful.
+                $ret_array[0] = false; // Not successful.
                 $ret_array[1] = sprintf(
                     _("Cannot read uploaded file: %s"),
                     _("file encoding not supported")
@@ -184,23 +187,22 @@ class schoolmgr_utils
             }
         }
 
-        $ret_array[0] = TRUE; // Successful!
+        $ret_array[0] = true; // Successful!
         $ret_array[1] = $raw_csv_data;
         return $ret_array;
     }
 
 
-    function compareObjects($object_a, $object_b, $attrs = array("sn", "givenName"), $prefix = "", $ci = FALSE): ?array
+    function compareObjects($object_a, $object_b, $attrs = array("sn", "givenName"), $prefix = "", $ci = false): ?array
     {
         $unequal = array();
         foreach ($attrs as $key => $attr) {
-
-            $val_a = $val_b = NULL;
+            $val_a = $val_b = null;
             if (isset($object_a[$attr][0])) {
-                $val_a = ($ci === TRUE) ? strtolower($object_a[$attr][0]) : $object_a[$attr][0];
+                $val_a = ($ci === true) ? strtolower($object_a[$attr][0]) : $object_a[$attr][0];
             }
             if (isset($object_b[$attr][0])) {
-                $val_b = ($ci === TRUE) ? strtolower($object_b[$attr][0]) : $object_b[$attr][0];
+                $val_b = ($ci === true) ? strtolower($object_b[$attr][0]) : $object_b[$attr][0];
             }
 
             if ($val_a !== $val_b) {
@@ -211,18 +213,18 @@ class schoolmgr_utils
         if (empty($unequal)) {
             // If 'null' is returned, objects regarding the given attributes are identical
             return null;
-        }
-        else {
+        } else {
             // Otherwise return those attribute names that did not give a match
             return $unequal;
         }
     }
 
 
-    function parseCSV(string $raw_csv_data,
-                      string $delimiter_str,
-                      bool $skip_first_line): array
-    {
+    function parseCSV(
+        string $raw_csv_data,
+        string $delimiter_str,
+        bool $skip_first_line
+    ): array {
         // Delete all '\r' occurences.
         $raw_csv_data = str_replace('\r', '', $raw_csv_data);
 
@@ -237,7 +239,9 @@ class schoolmgr_utils
         }
 
         // $lines should be an array at this point…
-        if (!is_array($lines)) return array();
+        if (!is_array($lines)) {
+            return array();
+        }
 
         // Check column count, if it stays zero,
         // we probably don't have a *comma* separated CSV file.
@@ -245,8 +249,12 @@ class schoolmgr_utils
             $line = trim($line);
 
             // Ignore empty lines and comments.
-            if (!is_string($line) || !$line) continue;
-            if (substr($line, 0, 1) == "#") continue;
+            if (!is_string($line) || !$line) {
+                continue;
+            }
+            if (substr($line, 0, 1) == "#") {
+                continue;
+            }
 
             $cells = array();
             $raw_cells = explode($delimiter_str, $line);
@@ -260,23 +268,19 @@ class schoolmgr_utils
                     $concat_cell = substr($cell, 1);
                     $concatenating = true;
                     $concat_quote = '"';
-                }
-                elseif ((!$concatenating) && (substr($cell, 0, 1) == "'")) {
+                } elseif ((!$concatenating) && (substr($cell, 0, 1) == "'")) {
                     $concat_cell = substr($cell, 1);
                     $concatenating = true;
                     $concat_quote = '"';
-                }
-                elseif (($concatenating) && (substr($cell, -1) == $concat_quote)) {
+                } elseif (($concatenating) && (substr($cell, -1) == $concat_quote)) {
                     $concat_cell = $concat_cell . $delimiter_str . substr($cell, 0, -1);
                     $cells[] = $concat_cell;
                     $concatenating = false;
                     $concat_cell = "";
                     $concat_quote = "";
-                }
-                elseif ($concatenating) {
+                } elseif ($concatenating) {
                     $concat_cell = $concat_cell . $delimiter_str . $cell;
-                }
-                else {
+                } else {
                     $cells[] = $cell;
                 }
             }
@@ -290,7 +294,9 @@ class schoolmgr_utils
         }
 
         // We surely want more than 0 columns…
-        if ($num_max_columns < 1) return array();
+        if ($num_max_columns < 1) {
+            return array();
+        }
 
         // Generate array with output info
         foreach ($data as $row) {
@@ -306,9 +312,7 @@ class schoolmgr_utils
                         $row[] = "";
                     }
                 }
-
             }
-
         }
 
         $csvinfo['data']     = $data;
@@ -320,4 +324,3 @@ class schoolmgr_utils
 
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
-?>

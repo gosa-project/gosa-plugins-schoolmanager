@@ -32,18 +32,18 @@ class schoolmanagerintro extends plugin
     /* Attribute list for save action */
     var $attributes    = [];
     var $objectclasses = [];
-    var $view_logged   = FALSE;
+    var $view_logged   = false;
 
     /* SchoolManager specific properties */
     var $ldapinfo = [];
 
 
-    function __construct(&$config, $dn= NULL)
+    function __construct(&$config, $dn = null)
     {
-        $this->initTime = microtime(TRUE);
+        $this->initTime = microtime(true);
 
         /* Include config object */
-        $this->config= &$config;
+        $this->config = &$config;
 
         // Initialize utils class
         $this->utils = new schoolmgr_utils($config);
@@ -58,7 +58,7 @@ class schoolmanagerintro extends plugin
             $category = array($this-> acl_category),
             $action = 'open',
             $amount = 1,
-            $duration = (microtime(TRUE) - $this->initTime),
+            $duration = (microtime(true) - $this->initTime),
         );
     }
 
@@ -69,23 +69,23 @@ class schoolmanagerintro extends plugin
         plugin::execute();
 
         /* Log view */
-        if(!$this->view_logged){
-            $this->view_logged = TRUE;
-            new log("view","all/".get_class($this),$this->dn);
+        if (!$this->view_logged) {
+            $this->view_logged = true;
+            new log("view", "all/" . get_class($this), $this->dn);
         }
 
         /* Initialize smarty */
-        $smarty= get_smarty();
+        $smarty = get_smarty();
 
         /* Initialize LDAP */
-        $this->_ldap = $this->config->get_ldap_link ();
-        if(!is_array($this->ldapinfo)) {
+        $this->_ldap = $this->config->get_ldap_link();
+        if (!is_array($this->ldapinfo)) {
             $this->ldapinfo = [];
         }
 
         // Scan LDAP for ou tree when "Introduction" page is loaded and
         // remember that information…
-        if(!isset($this->ldapinfo['ou_tree'])) {
+        if (!isset($this->ldapinfo['ou_tree'])) {
             $this->ldapinfo['ou_tree'] = [];
 
             $this->_ldap->cd($this->config->current['BASE']);
@@ -103,9 +103,9 @@ class schoolmanagerintro extends plugin
             /* Collect all gosaDepartment objects in ldapinfo['ou_tree'] */
             $i = 0;
             $default_ou_groups = 0;
-            while($result = $this->_ldap->fetch($ldapsearch)) {
+            while ($result = $this->_ldap->fetch($ldapsearch)) {
                 $this->ldapinfo['ou_tree']['OUs'][]        = $result['ou'][0];
-                $this->ldapinfo['ou_tree']['formfields'][] = $result['ou'][0]." - ".$result['description'][0];
+                $this->ldapinfo['ou_tree']['formfields'][] = $result['ou'][0] . " - " . $result['description'][0];
                 $this->ldapinfo['ou_tree']['DNs'][]        = $result['dn'];
                 if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
                     $default_ou_groups = $i;
@@ -114,7 +114,7 @@ class schoolmanagerintro extends plugin
                 $i = $i + 1;
             }
 
-            $this->ldapinfo['ou_groups']= $default_ou_groups;
+            $this->ldapinfo['ou_groups'] = $default_ou_groups;
         }
 
         if (isset($_POST["ou_groups"])) {
@@ -122,21 +122,22 @@ class schoolmanagerintro extends plugin
         }
 
         // Showing this template next…
-        $new_template = NULL;
+        $new_template = null;
 
-        if (isset($_POST["empty_schoolmgr_groups_now_phase1"]) ||
+        if (
+            isset($_POST["empty_schoolmgr_groups_now_phase1"]) ||
             isset($_POST["empty_schoolmgr_groups_now_phase2"]) ||
-            isset($_POST["empty_schoolmgr_groups_now_phase3"]))
-        {
+            isset($_POST["empty_schoolmgr_groups_now_phase3"])
+        ) {
             $new_template = $this->smflushgroupmembers->execute($smarty, $this->_ldap);
         } else {
             // Provide pre-set values for account template forms
-            $smarty->assign("ous_available",$this->ldapinfo['ou_tree']['formfields']);
+            $smarty->assign("ous_available", $this->ldapinfo['ou_tree']['formfields']);
             $smarty->assign("preset_ou_groups", $this->ldapinfo['ou_groups']);
 
             // Show introduction page…
             $new_template = $smarty->fetch(
-                get_template_path('content_schoolmanagerintro.tpl', TRUE)
+                get_template_path('content_schoolmanagerintro.tpl', true)
             );
         }
 
@@ -145,4 +146,3 @@ class schoolmanagerintro extends plugin
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
-?>
