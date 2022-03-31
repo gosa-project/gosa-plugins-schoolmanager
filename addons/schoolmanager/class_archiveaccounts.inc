@@ -223,22 +223,80 @@ class archiveaccounts extends plugin
         $smarty->assign("preset_sel_ldap_match_attr_birthday", false);
         $smarty->assign("preset_sel_ldap_match_attr_gender", true);
 
-        $file_ok = $this->check_if_file_uploaded($smarty);
-        if ($file_ok !== true) {
-            /* Error msg was already been shown */
-            $returnval = 1;
-            $smarty->assign('available_delimiters', array (
-                    0 => '"," - ' . _("comma separated values"),
-                    1 => '";" - ' . _("semicolon separated values"),
-                    2 => '<-> - ' . _("tabstop separated values"),
-                    3 => '" " - ' . _("blank separated values")
+        $ret_array = $this->utils->checkUploadedFile();
+
+        // If successful.
+        if ($ret_array[0]) {
+            $raw_csv_data = $ret_array[1];
+            $smarty->assign("file_uploaded", true);
+        } else {
+            $this->failure_in_this_phase = true;
+            $smarty->assign("LDIFError", true);
+
+            $smarty->assign('available_delimiters', array(
+                0 => '"," - ' . _("comma separated values"),
+                1 => '";" - ' . _("semicolon separated values"),
+                2 => '<-> - ' . _("tabstop separated values"),
+                3 => '" " - ' . _("blank separated values")
             ));
             $smarty->assign('preset_delimiter_id', 0);
-            return $returnval;
-        } else {
-            $smarty->assign("file_uploaded", true);
+
+            msg_dialog::display(_("Error"), $ret_array[1], ERROR_DIALOG);
+            return 1; /* Error msg was already shown -> error code 1 */
         }
 
+        // Parse user settings…
+        switch ($_POST['delimiter_id']) {
+            case 0:
+                // Comma separated values
+                $delimiter_char = ",";
+                break;
+            case 1:
+                // Semicolon separated values
+                $delimiter_char = ";";
+                break;
+            case 2:
+                // Tabstop separated values
+                $delimiter_char = "\t";
+                break;
+            case 3:
+                // Blank separated values
+                $delimiter_char = " ";
+                break;
+            default:
+                // Default CSV delimiter.
+                $delimiter_char = $this->utils->getConfigStrValue("csv_column_delimiter");
+                break;
+        }
+
+        if (isset($_POST['csv_with_column_headers'])) {
+            $this->csvinfo['skip_first_line'] = true;
+        } else {
+            $this->csvinfo['skip_first_line'] = false;
+        }
+
+        // Parse CSV file using utils class.
+        $parser_ret = $this->utils->parseCSV(
+            $raw_csv_data,
+            $delimiter_char,
+            $this->csvinfo['skip_first_line']
+        );
+
+        if (empty($parser_ret)) {
+            $smarty->assign("LDIFError", true);
+            $smarty->assign("file_uploaded", false);
+            $this->failure_in_this_phase = true;
+
+            msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);
+
+            return 1; /* Error msg was already shown -> error code 1 */
+        } else {
+            // Copy each element from $parser_ret into $this->csvinfo…
+            $this->csvinfo = array_merge($this->csvinfo, $parser_ret);
+
+            // We don't need it anymore. Keep memory footprint low.
+            unset($parser_ret);
+        }
 
         /* Search OUs with objectClass gosaDepartment */
         $this->csvinfo ['ou_tree'] = array ();
@@ -709,106 +767,6 @@ class archiveaccounts extends plugin
         }
 
         return $returnval;
-    }
-    function check_if_file_uploaded($smarty)
-    {
-        /* Check if theres a file uploaded */
-        if (! empty($_FILES ['userfile'] ['name'])) {
-            $handle = null;
-            $filename = gosa_file_name($_FILES ['userfile'] ['tmp_name']);
-            if (! isset($_FILES ['userfile'] ['name'])) {
-                msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file not found")), ERROR_DIALOG);
-                $smarty->assign("LDIFError", true);
-                return false;
-            } elseif (! $_FILES ['userfile'] ['size'] > 0) {
-                msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file is empty")), ERROR_DIALOG);
-                $smarty->assign("LDIFError", true);
-                return false;
-            } /* Is there a tmp file, which we can use ? */
-            elseif (! file_exists($filename)) {
-                msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file not found")), ERROR_DIALOG);
-                $smarty->assign("LDIFError", true);
-                return false;
-            } elseif (! $handle = @fopen($filename, "r")) {
-                msg_dialog::display(_("Error"), sprintf(_("Cannot read uploaded file: %s"), _("file not readable")), ERROR_DIALOG);
-                $smarty->assign("LDIFError", true);
-                return false;
-            } else {
-                $smarty->assign("file_uploaded", true);
-                $raw_csv_data = "";
-
-                /* Reading content */
-                while (! feof($handle)) {
-                    $raw_csv_data .= fread($handle, 1024);
-                }
-
-                @fclose($handle);
-
-                if (! mb_check_encoding($raw_csv_data, "UTF-8")) {
-                    if (mb_check_encoding($raw_csv_data, "iso-8859-1")) {
-                        $raw_csv_data = utf8_encode($raw_csv_data);
-                    } else {
-                        $smarty->assign("LDIFError", true);
-                        $smarty->assign("file_uploaded", false);
-                        msg_dialog::display(_("Error"), _("File has an unsupported encoding!"), ERROR_DIALOG);
-                        return false;
-                    }
-                }
-
-                // Parse user settings…
-                switch ($_POST['delimiter_id']) {
-                    case 0:
-                        // Comma separated values
-                        $delimiter_char = ",";
-                        break;
-                    case 1:
-                        // Semicolon separated values
-                        $delimiter_char = ";";
-                        break;
-                    case 2:
-                        // Tabstop separated values
-                        $delimiter_char = "\t";
-                        break;
-                    case 3:
-                        // Blank separated values
-                        $delimiter_char = " ";
-                        break;
-                    default:
-                        // Default CSV delimiter.
-                        $delimiter_char = $this->getConfigValue("csv_column_delimiter");
-                        break;
-                }
-
-                if (isset($_POST['csv_with_column_headers'])) {
-                    $this->csvinfo['skip_first_line'] = true;
-                } else {
-                    $this->csvinfo['skip_first_line'] = false;
-                }
-
-                // Parse CSV file using utils class.
-                $parser_ret = $this->utils->parseCSV(
-                    $raw_csv_data,
-                    $delimiter_char,
-                    $this->csvinfo['skip_first_line']
-                );
-
-                if (empty($parser_ret)) {
-                    $smarty->assign("LDIFError", true);
-                    $smarty->assign("file_uploaded", false);
-
-                    msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);
-
-                    return;
-                } else {
-                    $this->csvinfo = $parser_ret;
-                }
-            }
-        } else {
-            $smarty->assign("LDIFError", true);
-            $smarty->assign("file_uploaded", false);
-            msg_dialog::display(_("Error"), _("You need to select a file."), ERROR_DIALOG);
-            return false;
-        }
     }
 
     function getAttributes()
