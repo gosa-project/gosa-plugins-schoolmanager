@@ -508,7 +508,8 @@ class archiveaccounts extends plugin
                 );
 
                 $new_primgroup_base = $user_data ['main_account'] ['_base'] [0];
-                $this->check_ou_exists($new_primgroup_base);
+                $this->utils->checkOUExists($new_primgroup_base, array("description" => _("Archived accounts")));
+                // TODO: Check return code.
 
                 $new_primgroup_dn = "cn=archived-" . date("Ymd") . "-" . $user_data ['main_account'] ['uid'] [0] . ',' . get_groups_ou() . $new_primgroup_base;
 
@@ -926,8 +927,9 @@ class archiveaccounts extends plugin
             return 1; /* We showed an Error box so value '1' (We dont want more boxes) */
         }
 
-        $new_base = "ou=archived-" . date("Ymd") . "," . $this->csvinfo ['ou_tree'] ['DNs'] [$this->csvinfo ['ou_users']];
-        $this->check_ou_exists($new_base);
+        $new_base = "ou=archived-" . date("Y-m-d") . "," . $this->csvinfo ['ou_tree'] ['DNs'] [$this->csvinfo ['ou_users']];
+        $this->utils->checkOUExists($new_base, array("description" => sprintf(_("Archived accounts - %s"), date('Y-m-d'))));
+        // TODO: Check return code.
 
         $ldapsearch = array (
                 "uid",
@@ -1057,81 +1059,7 @@ class archiveaccounts extends plugin
         }
         return $template_base;
     }
-    function check_ou_exists($base = null)
-    {
-        if ($base == null) {
-            return 2904;
-        }
 
-        $this->_ldap->cat($base);
-        if (! $this->_ldap->fetch()) {
-            msg_dialog::display(_("Info"), sprintf(_("%s doesn't exist! Creating it..."), $base), INFO_DIALOG);
-
-            /* change UI "dir" in LDAP to the place where we want to create sub-OUs... */
-            $_ui = get_userinfo();
-            $old_ui_dn = $_ui->dn;
-
-            $old_current_main_base = session::global_is_set("CurrentMainBase") ? session::global_get("CurrentMainBase") : $_ui->dn;
-
-            /*
-             * if ($user_data ['_template'] [0] != 0) {
-             * change_ui_dn ( $old_ui_dn, dn2base ( $template_dn ) );
-             * session::global_set ( "CurrentMainBase", dn2base ( $template_dn ) );
-             * } else {
-             */
-
-            $_pre_ou = explode(",", $base, 2);
-            $_pre_ou = $_pre_ou [1];
-
-            $this->_ldap->cat($_pre_ou);
-            if (! $this->_ldap->fetch()) {
-                msg_dialog::display(_("Info"), sprintf(_("%s doesn't exist! Creating it..."), $_pre_ou), INFO_DIALOG);
-                if (true !== $this->check_ou_exists($_pre_ou)) {
-                    msg_dialog::display(_("Error"), sprintf(_("Couldn't create %s"), $base), ERROR_DIALOG);
-                    /* Errocode 2904 */
-                    $returnval = 2904;
-                    return $returnval;
-                }
-            }
-
-            change_ui_dn($old_ui_dn, $_pre_ou);
-            session::global_set("CurrentMainBase", $_pre_ou);
-
-
-
-            /*
-             * If _pre_ou is part of the current base then DON'T put _pre_ou infront of current base
-             * $_pre_ou_tmp = explode ( ",", $_pre_ou, 2 );
-             * $_pre_ou_tmp = $_pre_ou_tmp [0];
-             *
-             * if (substr ( $this->config->current ['BASE'], 0, strlen ( $_pre_ou_tmp ) ) !== $_pre_ou_tmp) {
-             * }else {
-             * change_ui_dn ( $old_ui_dn, $_pre_ou . $this->config->current ['BASE']);
-             * session::global_set ( "CurrentMainBase", $_pre_ou . "," . $this->config->current ['BASE'] );
-             * }
-             */
-
-            /* create _base DN as a GOsa² department */
-            $_ou = preg_replace("/^ou=([^,]+),.*/", "$1", $base);
-
-
-            $deptab = new deptabs($this->config, $this->config->data ['TABS'] ['DEPTABS'], 'new', "deptabs");
-            $deptab->by_object ['department']->ou = $_ou;
-            $deptab->by_object ['department']->description = sprintf(_("Archived: %s"), $_ou);
-            $deptab->save();
-
-            /* Reload departments */
-            $this->config->get_departments();
-            $this->config->make_idepartments();
-
-            /* change UI dir back to where we came from */
-            change_ui_dn(dn2base($_pre_ou . "," . $this->config->current ['BASE']), $old_ui_dn);
-            session::global_set("CurrentMainBase", $old_current_main_base);
-        } else {
-            msg_dialog::display(_("Info"), sprintf(_("%s already exists. Using it."), $base), INFO_DIALOG);
-        }
-        return true;
-    }
 
     /*
      * Locks/unlocks the given user(s).
