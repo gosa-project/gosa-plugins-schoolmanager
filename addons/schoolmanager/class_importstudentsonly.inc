@@ -37,7 +37,7 @@ class importstudentsonly extends importaccounts
         $this->initTime = microtime(true);
 
         /* Include config object */
-        $this->config=&$config;
+        $this->config = &$config;
         $this->ui = get_userinfo();
         stats::log('plugin', $class = get_class($this), $category = array ($this->acl_category), $action = 'open', $amount = 1, $duration = (microtime(true) - $this->initTime));
 
