@@ -51,7 +51,7 @@ class schoolmgr_utils
     // So we write our own function wrapper.
     function strcontains($haystack, $needle): bool
     {
-        // Fail silently rather than crash.
+        // Fail with an error message rather than crashing.
         if (!is_string($haystack) or !is_string($needle)) {
             $this->debug_to_console(
                 _("❌ schoolmgr_utils->strcontains() was called with broken data: ") .
@@ -137,7 +137,7 @@ class schoolmgr_utils
         // Make sure there is a file uploaded…
         if (empty($_FILES['userfile']['name'])) {
             $ret_array[0] = false; // Not successful.
-            $ret_array[1] = sprintf(_("Cannot read uploaded file: %s"), _("file not found"));
+            $ret_array[1] = _("No file selected for upload.");
             return $ret_array;
         }
 
@@ -509,16 +509,33 @@ class schoolmgr_utils
     }
 
 
-    function compareObjects($object_a, $object_b, $attrs = array("sn", "givenName"), $prefix = "", $ci = false): ?array
-    {
+    function compareObjects(
+        $object_a,
+        $object_b,
+        $attrs = array("sn", "givenName"),
+        $prefix = "",
+        $case_insensitive = false
+    ): ?array {
         $unequal = array();
+
         foreach ($attrs as $key => $attr) {
-            $val_a = $val_b = null;
+            $val_a = null;
+            $val_b = null;
+
             if (isset($object_a[$attr][0])) {
-                $val_a = ($ci === true) ? strtolower($object_a[$attr][0]) : $object_a[$attr][0];
+                $val_a = $object_a[$attr][0];
+
+                if ($case_insensitive) {
+                    $val_a = strtolower($val_a);
+                }
             }
+
             if (isset($object_b[$attr][0])) {
-                $val_b = ($ci === true) ? strtolower($object_b[$attr][0]) : $object_b[$attr][0];
+                $val_b = $object_b[$attr][0];
+
+                if ($case_insensitive) {
+                    $val_b = strtolower($val_b);
+                }
             }
 
             if ($val_a !== $val_b) {
@@ -527,7 +544,8 @@ class schoolmgr_utils
         }
 
         if (empty($unequal)) {
-            // If 'null' is returned, objects regarding the given attributes are identical
+            // If null is returned, objects regarding
+            // the given attributes are identical
             return null;
         } else {
             // Otherwise return those attribute names that did not give a match
@@ -664,10 +682,11 @@ class schoolmgr_utils
             }
         }
 
-        $csvinfo['data']     = $data;
-        $csvinfo['num_cols'] = $num_max_columns;
-        $csvinfo['num_rows'] = count($csvinfo['data']);
-        return $csvinfo;
+        $return_struct = [];
+        $return_struct['data']     = $data;
+        $return_struct['num_cols'] = $num_max_columns;
+        $return_struct['num_rows'] = count($return_struct['data']);
+        return $return_struct;
     }
 }
 
