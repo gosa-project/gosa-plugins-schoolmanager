@@ -31,6 +31,9 @@ require_once "Traits/trait_birthday.inc";
  */
 abstract class Account
 {
+    /** @var Utils Utils class. */
+    public $utils;
+
     /** @var string GOsa² account UID. */
     public $uid;
 
@@ -46,8 +49,11 @@ abstract class Account
     /** @var string Last name of user. */
     public $secondName;
 
-    /** @var Utils Utils class. */
-    public $utils;
+    /** @var Array Status string-array. Shows import/archive/… status of account. */
+    public $status;
+
+    /** @var Array Actions string-array. Shows import/archive/… actions of account. */
+    public $actions;
 
     /**
      * Interceptor for non-accessible properties.
