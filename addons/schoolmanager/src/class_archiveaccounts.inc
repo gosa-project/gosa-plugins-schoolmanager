@@ -27,22 +27,19 @@ class archiveaccounts extends plugin
     /** Template URI (.tpl file) */
     public const TEMPLATE_URI = "../templates/archiveaccounts/content_archiveaccounts_base.tpl";
 
-    /* Definitions */
-    var $plHeadline = "Archive Accounts";
-    var $plDescription = "GOsa2 School Manager Module: Archive Accounts";
-    var $access = "";
+    /* GOsa² specifics */
+    public $plHeadline = "Archive Accounts";
+    public $plDescription = "GOsa2 School Manager Module: Archive Accounts";
+    public $access = "";
 
-    /* Array with csv informations */
-    var $csvinfo = array ();
-    var $archive_type = "";
-
-    /* Attribute list for save action */
-    var $attributes    = array ();
-    var $objectclasses = array ();
-    var $view_logged   = false;
+    /** Array with csv informations. Contains all user CSV data too. */
+    private $csvinfo = [];
+    /** Archive type. Should be either 'students' or 'teachers' */
+    private $archive_type = "";
+    private $view_logged  = false;
 
 
-    function __construct(&$config, $dn = null)
+    public function __construct(&$config, $dn = null)
     {
         $this->initTime = microtime(true);
 
@@ -56,7 +53,7 @@ class archiveaccounts extends plugin
         stats::log(
             'plugin',
             $class = get_class($this),
-            $category = array($this-> acl_category),
+            $category = [$this-> acl_category],
             $action = 'open',
             $amount = 1,
             $duration = (microtime(true) - $this->initTime),
@@ -64,7 +61,29 @@ class archiveaccounts extends plugin
     }
 
 
-    function execute()
+    private function getAttributes()
+    {
+        $attrs = [];
+
+        $attrs[] = "no";
+        $attrs[] = "uid";
+        $attrs[] = "userPassword";
+
+        /* Only Students have a Student ID */
+        if ($this->archive_type === "students") {
+            $attrs[] = "employeeNumber";
+        }
+
+        $attrs[] = "sn";
+        $attrs[] = "givenName";
+        $attrs[] = "dateOfBirth";
+        $attrs[] = "gender";
+
+        return $attrs;
+    }
+
+
+    public function execute()
     {
         /* Call parent execute */
         plugin::execute();
@@ -83,18 +102,18 @@ class archiveaccounts extends plugin
 
         /* Initialize CSV Info array */
         if (!is_array($this->csvinfo)) {
-            $this->csvinfo = array();
+            $this->csvinfo = [];
         }
 
         /* Setup default states for phases */
         /* If PHASE is done, set variable to TRUE */
         $smarty->assign("chosen_archivetype", false); // PHASE 0
-        $smarty->assign("file_uploaded", false); // PHASE 1
+        $smarty->assign("file_uploaded", false);      // PHASE 1
         $smarty->assign("archive_configured", false); // PHASE 2
-        $smarty->assign("data_sorted", false); // PHASE 3
-        $smarty->assign("accounts_reviewed", false); // PHASE 4
-        $smarty->assign("accounts_archived", false); // PHASE 5
-        $smarty->assign("primgroups_moved", false); // PHASE 6
+        $smarty->assign("data_sorted", false);        // PHASE 3
+        $smarty->assign("accounts_reviewed", false);  // PHASE 4
+        $smarty->assign("accounts_archived", false);  // PHASE 5
+        $smarty->assign("primgroups_moved", false);   // PHASE 6
 
         /* Reset our failure status from last template view… */
         $this->failure_in_this_phase = false;
@@ -102,10 +121,7 @@ class archiveaccounts extends plugin
         /* Archive types */
         $smarty->assign(
             'available_archive_types',
-            array(
-            0 => _("Students"),
-            1 => _("Teachers")
-            )
+            [0 => _("Students"), 1 => _("Teachers")]
         );
         $smarty->assign('preset_archive_type_id', 0);
 
@@ -190,7 +206,7 @@ class archiveaccounts extends plugin
     }
 
 
-    function execute_phase_0($smarty)
+    private function execute_phase_0($smarty)
     {
         $returnval = true;
 
@@ -255,12 +271,12 @@ class archiveaccounts extends plugin
         }
 
         $smarty->assign('preset_delimiter_id', $delimiter_index);
-        $available_delims = array(
+        $available_delims = [
             0 => '","'  . " - " . _("comma separated values"),
             1 => '";"'  . " - " . _("semicolon separated values"),
             2 => '"\t"' . " - " . _("tabstop separated values"),
             3 => '" "'  . " - " . _("blank separated values"),
-        );
+        ];
 
         // Add custom character radio button only if it should appear.
         if ($delimiter_index === 4) {
@@ -277,11 +293,12 @@ class archiveaccounts extends plugin
     }
 
 
-    function execute_phase_1($smarty)
+    private function execute_phase_1($smarty)
     {
+        $smarty->assign("chosen_archivetype", true); // PHASE 0
+
         $returnval = true;
 
-        $smarty->assign("chosen_archivetype", true);
         $smarty->assign("archive_type", $this->archive_type);
 
         // Only set default options if phase_1 was successful
@@ -303,12 +320,12 @@ class archiveaccounts extends plugin
             $this->failure_in_this_phase = true;
             $smarty->assign("LDIFError", true);
 
-            $smarty->assign('available_delimiters', array(
-            0 => '","  - ' . _("comma separated values"),
-            1 => '";"  - ' . _("semicolon separated values"),
-            2 => '"\t" - ' . _("tabstop separated values"),
-            3 => '" "  - ' . _("blank separated values")
-            ));
+            $smarty->assign('available_delimiters', [
+                0 => '","  - ' . _("comma separated values"),
+                1 => '";"  - ' . _("semicolon separated values"),
+                2 => '"\t" - ' . _("tabstop separated values"),
+                3 => '" "  - ' . _("blank separated values")
+            ]);
             $smarty->assign('preset_delimiter_id', 0);
 
             msg_dialog::display(_("Error"), $ret_array[1], ERROR_DIALOG);
@@ -369,15 +386,15 @@ class archiveaccounts extends plugin
         }
 
         // Search OUs with objectClass gosaDepartment
-        $this->csvinfo['ou_tree'] = array();
+        $this->csvinfo['ou_tree'] = [];
         $this->csvinfo['ou_tree']['ldapsearch'] = $this->_ldap->search(
             "(objectClass=gosaDepartment)",
-            array("ou", "description")
+            ["ou", "description"]
         );
 
         // Create arrays for search results
-        $this->csvinfo['ou_tree']['formfields'] = array();
-        $this->csvinfo['ou_tree']['OUs'] = array();
+        $this->csvinfo['ou_tree']['formfields'] = [];
+        $this->csvinfo['ou_tree']['OUs']        = [];
 
         $i = 0;
         $default_ou_users = 0;
@@ -408,11 +425,14 @@ class archiveaccounts extends plugin
     }
 
 
-    function execute_phase_2($smarty)
+    private function execute_phase_2($smarty)
     {
+        $smarty->assign("file_uploaded", true);      // PHASE 1
+        $smarty->assign("chosen_archivetype", true); // PHASE 0
+
         $returnval = true;
 
-        $this->csvinfo['sel_ldap_match_attr_studentid'] = isset($_POST ["sel_ldap_match_attr_studentid"]);
+        $this->csvinfo['sel_ldap_match_attr_studentid'] = isset($_POST["sel_ldap_match_attr_studentid"]);
         $this->csvinfo['sel_ldap_match_attr_name']      = isset($_POST["sel_ldap_match_attr_name"]);
         $this->csvinfo['sel_ldap_match_attr_snname']    = isset($_POST["sel_ldap_match_attr_snname"]);
         $this->csvinfo['sel_ldap_match_attr_birthday']  = isset($_POST["sel_ldap_match_attr_birthday"]);
@@ -426,9 +446,7 @@ class archiveaccounts extends plugin
         }
 
         if ($this->failure_in_this_phase === false) {
-            $smarty->assign("archive_configured", true);
-            $smarty->assign("file_uploaded", true);
-            $smarty->assign("chosen_archivetype", true);
+            $smarty->assign("archive_configured", true); // PHASE 2
 
             // Initialize $this->csvinfo['attrs_selected'], only do this here and once
             $this->csvinfo['attrs_selected'] = $this->getAttrsPreSelection($this->csvinfo['num_cols']);
@@ -451,17 +469,18 @@ class archiveaccounts extends plugin
     }
 
 
-    function execute_phase_3($smarty)
+    private function execute_phase_3($smarty)
     {
+        $smarty->assign("archive_configured", true); // PHASE 2
+        $smarty->assign("file_uploaded", true);      // PHASE 1
+        $smarty->assign("chosen_archivetype", true); // PHASE 0
+
         $returnval = true;
-        $smarty->assign("archive_configured", true);
-        $smarty->assign("file_uploaded", true);
-        $smarty->assign("chosen_archivetype", true);
 
         /* Sanity checks on LDAP attributes assignments */
 
         // Read attributes assignments from $_POST
-        $new_attrs_selected = array();
+        $new_attrs_selected = [];
         for ($i = 0; $i < count($this->csvinfo['attrs_selected']); $i++) {
             if (isset($_POST["column_head_$i"])) {
                 $new_attrs_selected[] = $_POST["column_head_$i"];
@@ -472,11 +491,11 @@ class archiveaccounts extends plugin
         $this->csvinfo['attrs_selected'] = $new_attrs_selected;
 
         /* Sort the CSV date table according to how it got re-ordered by the webUI admin user */
-        $this->csvinfo['data_sorted'] = array();
+        $this->csvinfo['data_sorted'] = [];
         $multi_attrs = $this->getMultiAttributes();
         foreach ($this->csvinfo['data'] as $data_row) {
-            $attrs_counter = array();
-            $data_row_sorted = array();
+            $attrs_counter   = [];
+            $data_row_sorted = [];
 
             for ($i = 0; $i < count($data_row); $i++) {
                 $data_in_cell = $data_row[$i];
@@ -546,13 +565,14 @@ class archiveaccounts extends plugin
     }
 
 
-    function execute_phase_4($smarty)
+    private function execute_phase_4($smarty)
     {
+        $smarty->assign("data_sorted", true);        // PHASE 3
+        $smarty->assign("archive_configured", true); // PHASE 2
+        $smarty->assign("file_uploaded", true);      // PHASE 1
+        $smarty->assign("chosen_archivetype", true); // PHASE 0
+
         $returnval = true;
-        $smarty->assign("data_sorted", true);
-        $smarty->assign("archive_configured", true);
-        $smarty->assign("file_uploaded", true);
-        $smarty->assign("chosen_archivetype", true);
 
         foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
             $return = false;
@@ -571,36 +591,27 @@ class archiveaccounts extends plugin
                 $expected_primgroup_dn = "cn=" . $this->csvinfo['data_preldap'][$idx]['main_account']['uid'][0] . "," .
                 get_groups_ou() . dn2base($this->csvinfo['data_preldap'][$idx]['main_account']['_dn_ldap'][0]);
 
-                $this->_ldap->cat(
-                    $expected_primgroup_dn,
-                    array('dn')
-                );
+                $this->_ldap->cat($expected_primgroup_dn, ['dn']);
 
                 $primgroup = $this->_ldap->fetch();
                 if (!$primgroup) {
                         $this->_ldap->search(
                             "(&(objectClass=posixGroup)(cn=" . $this->csvinfo['data_preldap'][$idx]['main_account']['uid'][0] . "))",
-                            array("dn")
+                            ["dn"]
                         );
 
                           $primgroup = $this->_ldap->fetch();
                     if ($primgroup) {
-                            $this->csvinfo['data_preldap'][$idx]['main_account']['_group_actions'] = array(
-                            'move-primgroup'
-                            );
+                            $this->csvinfo['data_preldap'][$idx]['main_account']['_group_actions'] = ['move-primgroup'];
                     }
                 } else {
-                    $this->csvinfo['data_preldap'][$idx]['main_account']['_group_actions'] = array(
-                     'move-primgroup'
-                    );
+                    $this->csvinfo['data_preldap'][$idx]['main_account']['_group_actions'] = ['move-primgroup'];
                 }
 
-                $this->csvinfo['data_preldap'][$idx]['main_account']['_ogroup_actions'] = array(
-                'none'
-                );
+                $this->csvinfo['data_preldap'][$idx]['main_account']['_ogroup_actions'] = ['none'];
 
                 $new_primgroup_base = $user_data['main_account']['_base'][0];
-                $this->utils->checkOUExists($new_primgroup_base, array("description" => _("Archived accounts")));
+                $this->utils->checkOUExists($new_primgroup_base, ["description" => _("Archived accounts")]);
                 // TODO: Check return code.
 
                 $new_primgroup_dn = "cn=archived-" . date("Y-m-d") . "-" .
@@ -638,15 +649,15 @@ class archiveaccounts extends plugin
     }
 
 
-    function execute_phase_5($smarty)
+    private function execute_phase_5($smarty)
     {
-        $returnval = true;
-
-        $smarty->assign("accounts_reviewed", true); // PHASE 4
+        $smarty->assign("accounts_reviewed", true);    // PHASE 4
         $smarty->assign("data_sorted", true); // PHASE 3
-        $smarty->assign("archive_configured", true); // PHASE 2
-        $smarty->assign("file_uploaded", true); // PHASE 1
-        $smarty->assign("chosen_archivetype", true); // PHASE 0
+        $smarty->assign("archive_configured", true);   // PHASE 2
+        $smarty->assign("file_uploaded", true);        // PHASE 1
+        $smarty->assign("chosen_archivetype", true);   // PHASE 0
+
+        $returnval = true;
 
         foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
             // Skip invalid accounts.
@@ -658,20 +669,20 @@ class archiveaccounts extends plugin
                 /* Old UID == Groupname (Hopefully) */
                 $group_name = $user_data['main_account']['uid'][0];
                 $new_group_name = ('archived-' . date("Y-m-d") . '-' . $group_name);
-                $group_data = array(
-                 'objectClass' => array(
-                  'posixGroup'
-                 ),
-                 'cn' => array(
-                  $new_group_name
-                 ),
-                 '_dn' => array(
-                  'cn=' . $new_group_name . ',' . get_groups_ou() . $user_data['main_account']['_base_ldap'][0]
-                 ),
-                 '_actions' => array(
-                  'move'
-                 )
-                );
+                $group_data = [
+                    'objectClass' => [
+                        'posixGroup'
+                    ],
+                    'cn' => [
+                        $new_group_name
+                    ],
+                    '_dn' => [
+                        'cn=' . $new_group_name . ',' . get_groups_ou() . $user_data['main_account']['_base_ldap'][0]
+                    ],
+                    '_actions' => [
+                        'move'
+                    ]
+                ];
 
                 $returnval = $this->archiveLDAPGroupObject($group_name, $group_data);
             }
@@ -684,16 +695,16 @@ class archiveaccounts extends plugin
     }
 
 
-    function execute_phase_6($smarty)
+    private function execute_phase_6($smarty)
     {
-        $returnval = true;
-
-        $smarty->assign("accounts_archived", true); // PHASE 5
-        $smarty->assign("accounts_reviewed", true); // PHASE 4
+        $smarty->assign("accounts_archived", true);    // PHASE 5
+        $smarty->assign("accounts_reviewed", true);    // PHASE 4
         $smarty->assign("data_sorted", true); // PHASE 3
-        $smarty->assign("archive_configured", true); // PHASE 2
-        $smarty->assign("file_uploaded", true); // PHASE 1
-        $smarty->assign("chosen_archivetype", true); // PHASE 0
+        $smarty->assign("archive_configured", true);   // PHASE 2
+        $smarty->assign("file_uploaded", true);        // PHASE 1
+        $smarty->assign("chosen_archivetype", true);   // PHASE 0
+
+        $returnval = true;
 
         $smarty->assign("data", $this->csvinfo['data_preldap']);
 
@@ -703,7 +714,7 @@ class archiveaccounts extends plugin
     }
 
 
-    function archiveLDAPUserObject($user_data)
+    private function archiveLDAPUserObject($user_data)
     {
         // only perform on this user dataset if _actions does contain a valid action…
         if (
@@ -723,7 +734,7 @@ class archiveaccounts extends plugin
         $_base = dn2base($user_data['_dn_ldap'][0]);
         $usertab->by_object['user']->base = $_base;
 
-        $this->failure_messages = array();
+        $this->failure_messages = [];
         if (count($usertab->check())) {
             $this->failure_messages[] = $usertab->check();
 
@@ -753,19 +764,21 @@ class archiveaccounts extends plugin
                     $usertab->by_object[$pname]->$attr = $new_user_uid;
                 }
             }
+
             /* Saving changes made to the user */
             $usertab->save();
+
             /* Present a status update in GOsa²'s logging system (/var/log/syslog mostly) */
             new log(
                 "modify",
                 "users/user",
                 $old_user_dn,
-                array(),
-                "Existing user (" . $usertab->sn . ", " . $usertab->givenName . ", " . $user_data['uid'][0] .
-                ") archived via SchoolManager add-on."
+                [],
+                "Existing user '" . $usertab->givenName . "' '" . $usertab->sn .
+                "' (" . $user_data['uid'][0] . ") archived via SchoolManager add-on."
             );
 
-            // Commiting changes to GOsa²
+            // Move account to new dn.
             $usertab->by_object['user']->rename($usertab->dn, $new_user_dn);
         }
 
@@ -773,7 +786,7 @@ class archiveaccounts extends plugin
     }
 
 
-    function archiveLDAPGroupObject($group_name, $group_data)
+    private function archiveLDAPGroupObject($group_name, $group_data)
     {
         $returnval = "TRUE";
 
@@ -824,7 +837,7 @@ class archiveaccounts extends plugin
 
             $_ldapsearch = $this->_ldap->search(
                 "(&(objectClass=" . $_group_obclass . ")(cn=" . $group_name . "))",
-                array("*")
+                ["*"]
             );
 
             /*
@@ -847,9 +860,7 @@ class archiveaccounts extends plugin
         }
 
         /* Collect group properties from $group_data */
-        $_group_properties = array(
-        "cn" => $group_data['cn'][0]
-        );
+        $_group_properties = ["cn" => $group_data['cn'][0]];
 
         if (
             isset($group_data['description'][0])
@@ -915,7 +926,7 @@ class archiveaccounts extends plugin
                 "create",
                 "groups/group",
                 $grouptab->dn,
-                array(),
+                [],
                 "New group created via SchoolManager add-on."
             );
         } elseif ($this->utils->strcontains($group_data['_actions'][0], 'none')) {
@@ -923,7 +934,7 @@ class archiveaccounts extends plugin
                 "modify",
                 "groups/group",
                 $grouptab->dn,
-                array(),
+                [],
                 "Existing group modified via SchoolManager add-on."
             );
         }
@@ -932,31 +943,10 @@ class archiveaccounts extends plugin
     }
 
 
-    function getAttributes()
-    {
-        $attrs = array();
-        $attrs[] = "no";
-        $attrs[] = "uid";
-        $attrs[] = "userPassword";
-
-        /* Only Students have a Student ID */
-        if ($this->archive_type === "students") {
-            $attrs[] = "employeeNumber";
-        }
-
-        $attrs[] = "sn";
-        $attrs[] = "givenName";
-        $attrs[] = "dateOfBirth";
-        $attrs[] = "gender";
-
-        return $attrs;
-    }
-
-
-    function getAttrsPreSelection($size)
+    private function getAttrsPreSelection($size)
     {
         $attrs_count = count($this->getAttributes());
-        $selection = array();
+        $selection = [];
         for ($i = 0; $i < $attrs_count; $i++) {
             $selection[] = $i;
         }
@@ -969,37 +959,40 @@ class archiveaccounts extends plugin
     }
 
 
-    function getMultiAttributes()
+    private function getMultiAttributes()
     {
-        $multiAttrs = array();
+        $multiAttrs = [];
         return $multiAttrs;
     }
 
 
-    function prepareLdapImport($csv_data_sorted)
+    private function prepareLdapImport($csv_data_sorted)
     {
-        $data_preldap = array();
+        $data_preldap = [];
 
         foreach ($csv_data_sorted as $idx => $row_sorted) {
             if ($this->CSVRowSanityChecksOk($row_sorted, $idx)) {
-                /* main account */
-                $person = array();
+                /* Main account */
+                $person = [];
+
                 if (
-                    isset($row_sorted['uid'])
-                    && $row_sorted['uid']
-                    && (($row_sorted['uid'] != "%auto%")
-                    && ($row_sorted['uid'] != "%uid%")
-                    && ($row_sorted['uid'] != "%{uid}"))
+                    isset($row_sorted['uid']) &&
+                    $row_sorted['uid'] &&
+                    (($row_sorted['uid'] != "%auto%") &&
+                     ($row_sorted['uid'] != "%uid%") &&
+                     ($row_sorted['uid'] != "%{uid}"))
                 ) {
-                    $person['uid'] = array(
-                    strtolower(iconv('UTF-8', 'US-ASCII//TRANSLIT', trim($row_sorted['uid'])))
-                    );
+                    $person['uid'] = [strtolower(iconv(
+                        'UTF-8',
+                        'US-ASCII//TRANSLIT',
+                        trim($row_sorted['uid'])
+                    ))];
                 } else {
-                    $person['uid'] = array('{%uid}');
+                    $person['uid'] = ['{%uid}'];
                 }
 
-                $person['sn']        = array(trim($row_sorted['sn']));
-                $person['givenName'] = array(trim($row_sorted['givenName']));
+                $person['sn']        = [trim($row_sorted['sn'])];
+                $person['givenName'] = [trim($row_sorted['givenName'])];
 
                 $_dateOfBirth = trim($row_sorted['dateOfBirth']);
                 /*
@@ -1011,53 +1004,53 @@ class archiveaccounts extends plugin
                     $_dateOfBirth = $year . "-" . $month . "-" . $day;
                     // $_dateOfBirth = $day.".".$month.".20".$year;
                 }
-                $person['dateOfBirth'] = array($_dateOfBirth);
+                $person['dateOfBirth'] = [$_dateOfBirth];
 
-                $person['gender'] = array(
+                $person['gender'] = [
                     $this->utils->normalizeGenderString(trim($row_sorted['gender']))
-                );
+                ];
 
                 if (
-                    isset($row_sorted['employeeNumber'])
-                    && $row_sorted['employeeNumber']
-                ) {
-                    $person['employeeNumber'] = array(
+                    isset($row_sorted['employeeNumber']) &&
                     $row_sorted['employeeNumber']
-                    );
+                ) {
+                    $person['employeeNumber'] = [
+                        $row_sorted['employeeNumber']
+                    ];
                 }
 
-                // /*
-                // * Keeping the memory footprint low:
-                // *
-                // * $person['_template']
-                // * is only an int value.
-                // *
-                // * Retrieve the actual template DN string later like this
-                // * $template_dn = $this->csvinfo['templates']['DNs'][$student['_template']];
-                // */
+                /*
+                 * Keeping the memory footprint low:
+                 *
+                 * $person['_template']
+                 * is only an int value.
+                 *
+                 * Retrieve the actual template DN string later like this
+                 * $template_dn = $this->csvinfo['templates']['DNs'][$student['_template']];
+                 */
                 // $person ['_template'] = array (
-                // $this->csvinfo ['template_main']
+                //     $this->csvinfo ['template_main']
                 // );
-                $person['_status'] = array(
+                $person['_status'] = [
                  'unchecked'
-                );
-                $person['_actions'] = array(
+                ];
+                $person['_actions'] = [
                  'none'
-                );
-                $person['_group_actions'] = array(
+                ];
+                $person['_group_actions'] = [
                  'none'
-                );
+                ];
             }
 
-            $data_preldap[] = array(
-            'main_account' => $person
-            );
+            $data_preldap[] = [
+                'main_account' => $person
+            ];
         }
         return $data_preldap;
     }
 
 
-    function CSVRowSanityChecksOk($csv_row, $idx)
+    private function CSVRowSanityChecksOk($csv_row, $idx)
     {
         $ok = false;
         if (
@@ -1094,12 +1087,12 @@ class archiveaccounts extends plugin
     }
 
 
-    function accountStatusCheck()
+    private function accountStatusCheck()
     {
         // If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail…
         if (
-            !is_array($this->csvinfo['data_preldap'])
-                    or empty($this->csvinfo['data_preldap'])
+            !is_array($this->csvinfo['data_preldap']) ||
+            empty($this->csvinfo['data_preldap'])
         ) {
             $this->failure_in_this_phase = true;
             msg_dialog::display(
@@ -1118,10 +1111,10 @@ class archiveaccounts extends plugin
         // TODO: Check return code of checkOUExists
         $this->utils->checkOUExists(
             $new_base_ou,
-            array("description" => sprintf(_("Archived accounts - %s"), date('Y-m-d')))
+            ["description" => sprintf(_("Archived accounts - %s"), date('Y-m-d'))]
         );
 
-        $search_attr = array(
+        $search_attr = [
             "uid",
             "sn",
             "givenName",
@@ -1130,7 +1123,7 @@ class archiveaccounts extends plugin
             "mail",
             "departmentNumber",
             "employeeNumber"
-        );
+        ];
 
         if (isset($this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_matching_users']])) {
             $this->_ldap->cd($this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_matching_users']]);
@@ -1152,7 +1145,7 @@ class archiveaccounts extends plugin
 
             foreach ($this->csvinfo['data_preldap'] as $key => $row) {
                 if (isset($row['main_account'])) {
-                    $test_attrs = array();
+                    $test_attrs = [];
                     if ($this->csvinfo['sel_ldap_match_attr_studentid']) {
                         $test_attrs[] = "employeeNumber";
                     }
@@ -1176,9 +1169,9 @@ class archiveaccounts extends plugin
                             ($row['main_account']['uid'][0] === "{%uid}") ||
                             ($row['main_account']['uid'][0] === "%uid")
                         ) {
-                            $this->csvinfo['data_preldap'][$key]['main_account']['uid'] = array(
-                             $gosa_account['uid'][0]
-                            );
+                            $this->csvinfo['data_preldap'][$key]['main_account']['uid'] = [
+                                $gosa_account['uid'][0]
+                            ];
 
                             $row['main_account']['uid'] = $this->csvinfo['data_preldap'][$key]['main_account']['uid'];
                         }
@@ -1201,7 +1194,7 @@ class archiveaccounts extends plugin
                         $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'exists';
 
                         /* Set actions */
-                        $_actions = array();
+                        $_actions = [];
                         if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] === 'exists') {
                             $_actions[] = "archive";
                         }
@@ -1214,8 +1207,8 @@ class archiveaccounts extends plugin
                            // actions array -> comma seperated string
                            $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = implode(",", $_actions);
 
-                           $this->csvinfo['data_preldap'][$key]['main_account']['_dn']      = array($new_dn);
-                           $this->csvinfo['data_preldap'][$key]['main_account']['_dn_ldap'] = array($gosa_account_dn);
+                           $this->csvinfo['data_preldap'][$key]['main_account']['_dn']      = [$new_dn];
+                           $this->csvinfo['data_preldap'][$key]['main_account']['_dn_ldap'] = [$gosa_account_dn];
                     }
                 }
             }
@@ -1233,7 +1226,7 @@ class archiveaccounts extends plugin
     }
 
 
-    function genAccountBase($user_data, $groups_data = array())
+    private function genAccountBase($user_data, $groups_data = [])
     {
         if ($user_data['_template'][0] != 0) {
             $template_dn = $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
