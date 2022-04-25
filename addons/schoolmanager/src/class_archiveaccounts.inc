@@ -32,11 +32,24 @@ class archiveaccounts extends plugin
     public $plDescription = "GOsa2 School Manager Module: Archive Accounts";
     public $access = "";
 
-    /** Array with csv informations. Contains all user CSV data too. */
+    /**
+     * @var Array String array with csv informations.
+     *            Contains all user CSV data too.
+     */
     private $csvinfo = [];
-    /** Archive type. Should be either 'students' or 'teachers' */
+
+    /** @var string Archive type. Should be either 'students' or 'teachers' */
     private $archive_type = "";
     private $view_logged  = false;
+
+    /** @var Array Raw unsorted account array structures. */
+    private $accounts_raw = [];
+
+    /** @var Array Sorted account array structures. */
+    private $accounts_sorted = [];
+
+    /** @var Array Array of prepped Account objects. */
+    private $accounts_prepped = [];
 
 
     public function __construct(&$config, $dn = null)
@@ -462,7 +475,7 @@ class archiveaccounts extends plugin
 
             // CSV data
             $smarty->assign("data_size", $this->csvinfo['num_rows']);
-            $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
+            $smarty->assign("data", array_slice($this->accounts_raw, 0, 5));
         }
 
         return $returnval; // See parent execute() func. for error code meaning.
@@ -491,9 +504,9 @@ class archiveaccounts extends plugin
         $this->csvinfo['attrs_selected'] = $new_attrs_selected;
 
         /* Sort the CSV date table according to how it got re-ordered by the webUI admin user */
-        $this->csvinfo['data_sorted'] = [];
+        $this->accounts_sorted = [];
         $multi_attrs = $this->getMultiAttributes();
-        foreach ($this->csvinfo['data'] as $data_row) {
+        foreach ($this->accounts_raw as $data_row) {
             $attrs_counter   = [];
             $data_row_sorted = [];
 
@@ -525,11 +538,11 @@ class archiveaccounts extends plugin
                 }
             }
 
-            $this->csvinfo['data_sorted'][] = $data_row_sorted;
+            $this->accounts_sorted[] = $data_row_sorted;
         }
 
-        // Transform data_sorted to data_preldap array
-        $this->csvinfo['data_preldap'] = $this->prepareLdapImport($this->csvinfo['data_sorted']);
+        // Transform data_sorted_accounts to data_prepped_accounts array
+        $this->accounts_prepped = $this->prepareLdapImport($this->accounts_sorted);
 
         // $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport…
         if ($this->failure_in_this_phase !== false) {
@@ -538,12 +551,13 @@ class archiveaccounts extends plugin
             $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
             $smarty->assign("num_rows", $this->csvinfo['num_cols']);
             $smarty->assign("data_size", $this->csvinfo['num_rows']);
-            $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
+            $smarty->assign("data", array_slice($this->accounts_raw, 0, 5));
             msg_dialog::display("Error", "Something went terribly wrong. You shouldn't see this message.", INFO_DIALOG);
         }
 
         // Free some memory…
-        unset($this->csvinfo['data_sorted']);
+        $this->accounts_raw    = [];
+        $this->accounts_sorted = [];
 
         $retval = $this->accountStatusCheck();
         if ($this->failure_in_this_phase === true) {
@@ -559,7 +573,7 @@ class archiveaccounts extends plugin
 
         // Assign data for webpage
         $smarty->assign("data_sorted", true);
-        $smarty->assign("data", $this->csvinfo['data_preldap']);
+        $smarty->assign("data", $this->accounts_prepped);
 
         return $returnval;
     }
@@ -574,7 +588,7 @@ class archiveaccounts extends plugin
 
         $returnval = true;
 
-        foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
+        foreach ($this->accounts_prepped as $idx => $user_data) {
             $return = false;
             if (isset($user_data['main_account']) && !empty($user_data['main_account'])) {
                 $return = $this->archiveLDAPUserObject($user_data['main_account']);
@@ -585,30 +599,30 @@ class archiveaccounts extends plugin
                 $this->utils->lockUser($user_data['main_account']['_dn'][0]);
 
                 /* Setting _status of user to 'archived,acc-locked' */
-                $this->csvinfo['data_preldap'][$idx]['main_account']['_status'][0] = "archived,acc-locked";
-                $this->csvinfo['data_preldap'][$idx]['main_account']['_actions'][0] = "none";
+                $this->accounts_prepped[$idx]['main_account']['_status'][0] = "archived,acc-locked";
+                $this->accounts_prepped[$idx]['main_account']['_actions'][0] = "none";
 
-                $expected_primgroup_dn = "cn=" . $this->csvinfo['data_preldap'][$idx]['main_account']['uid'][0] . "," .
-                get_groups_ou() . dn2base($this->csvinfo['data_preldap'][$idx]['main_account']['_dn_ldap'][0]);
+                $expected_primgroup_dn = "cn=" . $this->accounts_prepped[$idx]['main_account']['uid'][0] . "," .
+                get_groups_ou() . dn2base($this->accounts_prepped[$idx]['main_account']['_dn_ldap'][0]);
 
                 $this->_ldap->cat($expected_primgroup_dn, ['dn']);
 
                 $primgroup = $this->_ldap->fetch();
                 if (!$primgroup) {
                         $this->_ldap->search(
-                            "(&(objectClass=posixGroup)(cn=" . $this->csvinfo['data_preldap'][$idx]['main_account']['uid'][0] . "))",
+                            "(&(objectClass=posixGroup)(cn=" . $this->accounts_prepped[$idx]['main_account']['uid'][0] . "))",
                             ["dn"]
                         );
 
                           $primgroup = $this->_ldap->fetch();
                     if ($primgroup) {
-                            $this->csvinfo['data_preldap'][$idx]['main_account']['_group_actions'] = ['move-primgroup'];
+                            $this->accounts_prepped[$idx]['main_account']['_group_actions'] = ['move-primgroup'];
                     }
                 } else {
-                    $this->csvinfo['data_preldap'][$idx]['main_account']['_group_actions'] = ['move-primgroup'];
+                    $this->accounts_prepped[$idx]['main_account']['_group_actions'] = ['move-primgroup'];
                 }
 
-                $this->csvinfo['data_preldap'][$idx]['main_account']['_ogroup_actions'] = ['none'];
+                $this->accounts_prepped[$idx]['main_account']['_ogroup_actions'] = ['none'];
 
                 $new_primgroup_base = $user_data['main_account']['_base'][0];
                 $this->utils->checkOUExists($new_primgroup_base, ["description" => _("Archived accounts")]);
@@ -618,8 +632,8 @@ class archiveaccounts extends plugin
                                 $user_data['main_account']['uid'][0] . ',' .
                                 get_groups_ou() . $new_primgroup_base;
 
-                $this->csvinfo['data_preldap'][$idx]['main_account']['_primgroup_dn'][0] = $new_primgroup_dn;
-                $this->csvinfo['data_preldap'][$idx]['main_account']['_primgroup_dn_ldap'][0] = var_export($primgroup['dn'], true);
+                $this->accounts_prepped[$idx]['main_account']['_primgroup_dn'][0] = $new_primgroup_dn;
+                $this->accounts_prepped[$idx]['main_account']['_primgroup_dn_ldap'][0] = var_export($primgroup['dn'], true);
             } elseif ($return !== 1) {
                 // return val 1 -> error msg. was already shown.
                 $failed_accs[] = sprintf(
@@ -642,7 +656,7 @@ class archiveaccounts extends plugin
             );
         }
 
-        $smarty->assign("data", $this->csvinfo['data_preldap']);
+        $smarty->assign("data", $this->accounts_prepped);
         $smarty->assign("accounts_reviewed", true); // PHASE 4
 
         return $returnval;
@@ -659,7 +673,7 @@ class archiveaccounts extends plugin
 
         $returnval = true;
 
-        foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
+        foreach ($this->accounts_prepped as $idx => $user_data) {
             // Skip invalid accounts.
             if (!isset($user_data['main_account']) || (empty($user_data['main_account']))) {
                 continue;
@@ -688,7 +702,7 @@ class archiveaccounts extends plugin
             }
         }
 
-        $smarty->assign("data", $this->csvinfo['data_preldap']);
+        $smarty->assign("data", $this->accounts_prepped);
         $smarty->assign("accounts_archived", true); // PHASE 5 (this phase)
 
         return $returnval;
@@ -706,7 +720,7 @@ class archiveaccounts extends plugin
 
         $returnval = true;
 
-        $smarty->assign("data", $this->csvinfo['data_preldap']);
+        $smarty->assign("data", $this->accounts_prepped);
 
         $smarty->assign("primgroups_moved", true); // PHASE 6 (this phase)
 
@@ -966,14 +980,13 @@ class archiveaccounts extends plugin
     }
 
 
-    private function prepareLdapImport($csv_data_sorted)
+    private function prepareLdapImport(array $sorted_accounts)
     {
-        $data_preldap = [];
+        $accounts_to_archive = [];
 
-        foreach ($csv_data_sorted as $idx => $row_sorted) {
+        foreach ($sorted_accounts as $idx => $row_sorted) {
             if ($this->CSVRowSanityChecksOk($row_sorted, $idx)) {
                 /* Main account */
-                $person = [];
 
                 if (
                     isset($row_sorted['uid']) &&
@@ -1042,11 +1055,10 @@ class archiveaccounts extends plugin
                 ];
             }
 
-            $data_preldap[] = [
-                'main_account' => $person
-            ];
+            $accounts_to_archive[] = ['main_account' => $person];
         }
-        return $data_preldap;
+
+        return $accounts_to_archive;
     }
 
 
@@ -1089,15 +1101,15 @@ class archiveaccounts extends plugin
 
     private function accountStatusCheck()
     {
-        // If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail…
+        // If we don't have the $this->accounts_prepped dataset, we are doomed to fail…
         if (
-            !is_array($this->csvinfo['data_preldap']) ||
-            empty($this->csvinfo['data_preldap'])
+            !is_array($this->accounts_prepped) ||
+            empty($this->accounts_prepped)
         ) {
             $this->failure_in_this_phase = true;
             msg_dialog::display(
                 _("Error"),
-                _("csvinfo['data_preldap'] is empty or not an array! Can't complete accountStatusCheck(). Please try again."),
+                _("csvinfo['data_prepped_accounts'] is empty or not an array! Can't complete accountStatusCheck(). Please try again."),
                 ERROR_DIALOG
             );
 
@@ -1143,7 +1155,7 @@ class archiveaccounts extends plugin
                 continue;
             }
 
-            foreach ($this->csvinfo['data_preldap'] as $key => $row) {
+            foreach ($this->accounts_prepped as $key => $row) {
                 if (isset($row['main_account'])) {
                     $test_attrs = [];
                     if ($this->csvinfo['sel_ldap_match_attr_studentid']) {
@@ -1169,11 +1181,11 @@ class archiveaccounts extends plugin
                             ($row['main_account']['uid'][0] === "{%uid}") ||
                             ($row['main_account']['uid'][0] === "%uid")
                         ) {
-                            $this->csvinfo['data_preldap'][$key]['main_account']['uid'] = [
+                            $this->accounts_prepped[$key]['main_account']['uid'] = [
                                 $gosa_account['uid'][0]
                             ];
 
-                            $row['main_account']['uid'] = $this->csvinfo['data_preldap'][$key]['main_account']['uid'];
+                            $row['main_account']['uid'] = $this->accounts_prepped[$key]['main_account']['uid'];
                         }
 
                         // $expected_base = $this->genAccountBase($row['main_account'], $row['groups']);
@@ -1191,11 +1203,11 @@ class archiveaccounts extends plugin
                         $new_uid = "uid=" . $row['main_account']['uid'][0] . "_archived-" . date("Y-m-d");
                         $new_dn = $new_uid . ',' . get_people_ou() . $new_base_ou;
 
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'exists';
+                        $this->accounts_prepped[$key]['main_account']['_status'][0] = 'exists';
 
                         /* Set actions */
                         $_actions = [];
-                        if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] === 'exists') {
+                        if ($this->accounts_prepped[$key]['main_account']['_status'][0] === 'exists') {
                             $_actions[] = "archive";
                         }
 
@@ -1205,17 +1217,17 @@ class archiveaccounts extends plugin
                            /* ----- */
 
                            // actions array -> comma seperated string
-                           $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = implode(",", $_actions);
+                           $this->accounts_prepped[$key]['main_account']['_actions'][0] = implode(",", $_actions);
 
-                           $this->csvinfo['data_preldap'][$key]['main_account']['_dn']      = [$new_dn];
-                           $this->csvinfo['data_preldap'][$key]['main_account']['_dn_ldap'] = [$gosa_account_dn];
+                           $this->accounts_prepped[$key]['main_account']['_dn']      = [$new_dn];
+                           $this->accounts_prepped[$key]['main_account']['_dn_ldap'] = [$gosa_account_dn];
                     }
                 }
             }
         }
 
         // Mark unhandled accounts accordingly.
-        foreach ($this->csvinfo['data_preldap'] as $key => $row) {
+        foreach ($this->accounts_prepped as $key => $account) {
             if (isset($row['main_account'])) {
                 if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] == 'unchecked') {
                     $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'not-found';
