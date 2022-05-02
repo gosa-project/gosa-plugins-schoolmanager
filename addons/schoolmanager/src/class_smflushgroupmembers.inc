@@ -24,6 +24,9 @@
 
 class smflushgroupmembers
 {
+    /** Template URI (.tpl file) */
+    const TEMPLATE_URI = "../templates/smflushgroupmembers/content_smflushgroupmembers.tpl";
+
     function __construct(&$config, schoolmgr_utils &$utils)
     {
         $this->config = $config;
@@ -109,7 +112,7 @@ class smflushgroupmembers
 
         // Return main page…
         return $smarty->fetch(
-            get_template_path('content_smflushgroupmembers.tpl', true)
+            get_template_path(self::TEMPLATE_URI, true)
         );
     }
 
@@ -215,7 +218,7 @@ class smflushgroupmembers
 
         // Return main page…
         return $smarty->fetch(
-            get_template_path('content_smflushgroupmembers.tpl', true)
+            get_template_path(self::TEMPLATE_URI, true)
         );
     }
 
@@ -273,7 +276,7 @@ class smflushgroupmembers
 
         // Return main page…
         return $smarty->fetch(
-            get_template_path('content_smflushgroupmembers.tpl', true)
+            get_template_path(self::TEMPLATE_URI, true)
         );
     }
 }

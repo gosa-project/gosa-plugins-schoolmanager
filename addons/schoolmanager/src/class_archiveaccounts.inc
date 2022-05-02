@@ -24,6 +24,9 @@
 
 class archiveaccounts extends plugin
 {
+    /** Template URI (.tpl file) */
+    const TEMPLATE_URI = "../templates/archiveaccounts/content_archiveaccounts.tpl";
+
     /* Definitions */
     var $plHeadline = "Archive Accounts";
     var $plDescription = "GOsa2 School Manager Module: Archive Accounts";
@@ -178,7 +181,7 @@ class archiveaccounts extends plugin
         $this->failure_in_this_phase = false;
 
         /* Show main page */
-        return $smarty->fetch(get_template_path('content_archiveaccounts.tpl', true));
+        return $smarty->fetch(get_template_path(self::TEMPLATE_URI, true));
     }
 
 

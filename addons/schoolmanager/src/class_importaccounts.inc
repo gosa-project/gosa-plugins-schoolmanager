@@ -24,6 +24,9 @@
 
 class importaccounts extends plugin
 {
+    /** Template URI (.tpl file) */
+    const TEMPLATE_URI = "../templates/importaccounts/content_importaccounts.tpl";
+
     // GOsa² definitions
     var $plHeadline = "Manage Accounts";
     var $plDescription = "GOsa2 School Manager super-class for managing accounts";
@@ -899,7 +902,7 @@ class importaccounts extends plugin
             ) {
                 msg_dialog::display(_("Permission error"), _("You've no permission to import user data!"), ERROR_DIALOG);
             }
-            return ($smarty->fetch(get_template_path('content_importaccounts.tpl', true)));
+            return ($smarty->fetch(get_template_path(self::TEMPLATE_URI, true)));
         }
 
         /*
@@ -1017,7 +1020,7 @@ class importaccounts extends plugin
         }
 
         // Show main page…
-        return ($smarty->fetch(get_template_path('content_importaccounts.tpl', true)));
+        return ($smarty->fetch(get_template_path(self::TEMPLATE_URI, true)));
     }
 
 
