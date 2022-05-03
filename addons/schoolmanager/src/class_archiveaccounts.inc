@@ -25,7 +25,7 @@
 class archiveaccounts extends plugin
 {
     /** Template URI (.tpl file) */
-    const TEMPLATE_URI = "../templates/archiveaccounts/content_archiveaccounts.tpl";
+    public const TEMPLATE_URI = "../templates/archiveaccounts/content_archiveaccounts_base.tpl";
 
     /* Definitions */
     var $plHeadline = "Archive Accounts";
@@ -111,6 +111,11 @@ class archiveaccounts extends plugin
 
         $this->csvinfo['attrs'] = $this->getAttributes();
         $this->csvinfo['attrs'][] = "---";
+
+        // Give the base template the directory path where all phases are located.
+        $_phases_path = $smarty->getTemplateDir()[0];
+        $_phases_path .= get_template_path("../templates/archiveaccounts/", true);
+        $smarty->assign("phases_path", $_phases_path);
 
         /*
         * PHASES
