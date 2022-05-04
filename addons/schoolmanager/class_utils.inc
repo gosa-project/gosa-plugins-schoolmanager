@@ -2,9 +2,7 @@
 
 /*
  * This code is an addon for GOsa² (https://gosa.gonicus.de)
- * Copyright (C) 2018-2022 Daniel Teichmann
- * Copyright (C) 2015-2022 Mike Gabriel
- * Copyright (C) 2015 Marius Rasch
+ * Copyright (C) 2022 Daniel Teichmann
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -535,6 +533,39 @@ class schoolmgr_utils
             // Otherwise return those attribute names that did not give a match
             return $unequal;
         }
+    }
+
+
+    /**
+     * @param  string $gender Gender of this user. In following format:
+     *                        First letter (translated) of Female, Male, Diverse
+     *                        or whole word (translated) Female, Male, Diverse.
+     *                        * 'f', 'm' or 'd'
+     *                        * 'female', 'male', 'diverse'
+     *                        * _('f'), _('m'), _('d')
+     *                        * _('female'), _('male'), _('diverse')
+     *
+     * @return string Normalized gender string (F => Female, M => Male, D => Diverse)
+     *                can be **empty** if unsuccessful.
+     */
+    function normalizeGenderString(string $gender): string
+    {
+        // Gender should be case-insenstive.
+        $gender = strtolower($gender);
+
+        $gender_mapping = array(
+            "F" => array("f", "female", _("female")),
+            "M" => array("m", "male", _("male")),
+            "D" => array("d", "diverse", _("diverse")),
+        );
+
+        foreach ($gender_mapping as $key => $map) {
+            if (in_array_strict($gender, $map)) {
+                return $key;
+            }
+        }
+
+        return "";
     }
 
 

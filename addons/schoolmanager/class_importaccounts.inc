@@ -1356,26 +1356,6 @@ class importaccounts extends plugin
     }
 
 
-    function normalizeGenderString($gender)
-    {
-        switch (strtolower($gender)) {
-            case "male":
-                $gender = "M";
-                break;
-            case _("male"):
-                $gender = "M";
-                break;
-            case "female":
-                $gender = "F";
-                break;
-            case _("female"):
-                $gender = "F";
-                break;
-        }
-        return $gender;
-    }
-
-
     function groupStatusCheck()
     {
         // Initialize group actions for each main account and each aux account

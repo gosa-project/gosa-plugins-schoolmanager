@@ -253,7 +253,6 @@ class archiveaccounts extends plugin
             2 => '"\t"' . " - " . _("tabstop separated values"),
             3 => '" "'  . " - " . _("blank separated values"),
         );
-        $smarty->assign('preset_delimiter_id', 0);
 
         // Add custom character radio button only if it should appear.
         if ($delimiter_index === 4) {
@@ -713,7 +712,8 @@ class archiveaccounts extends plugin
             $this->config->data['TABS']['USERTABS'],
             $user_data['_dn_ldap'][0]
         );
-        $usertab->by_object['user']->base = $user_data['_base'][0];
+        $_base = dn2base($user_data['_dn_ldap'][0]);
+        $usertab->by_object['user']->base = $_base;
 
         $this->failure_messages = array();
         if (count($usertab->check())) {
@@ -730,7 +730,7 @@ class archiveaccounts extends plugin
         } else {
             /* Moving and renaming user */
             $attr = "uid";
-            $old_user_dn = $user_data['_dn_ldap'];
+            $old_user_dn = $user_data['_dn_ldap'][0];
             /* Extracting new UID from new DN */
             $new_user_dn = $user_data['_dn'][0];
             $new_user_uid = explode(",", $new_user_dn, 2)[0];
@@ -929,6 +929,7 @@ class archiveaccounts extends plugin
         $attrs = array();
         $attrs[] = "no";
         $attrs[] = "uid";
+        $attrs[] = "userPassword";
 
         /* Only Students have a Student ID */
         if ($this->archive_type === "students") {
@@ -1005,7 +1006,7 @@ class archiveaccounts extends plugin
                 $person['dateOfBirth'] = array($_dateOfBirth);
 
                 $person['gender'] = array(
-                 $this->normalizeGenderString(trim($row_sorted['gender']))
+                    $this->utils->normalizeGenderString(trim($row_sorted['gender']))
                 );
 
                 if (
@@ -1045,26 +1046,6 @@ class archiveaccounts extends plugin
             );
         }
         return $data_preldap;
-    }
-
-
-    function normalizeGenderString($gender)
-    {
-        switch (strtolower($gender)) {
-            case "male":
-                $gender = "M";
-                break;
-            case _("male"):
-                $gender = "M";
-                break;
-            case "female":
-                $gender = "F";
-                break;
-            case _("female"):
-                $gender = "F";
-                break;
-        }
-        return $gender;
     }
 
 
@@ -1156,6 +1137,11 @@ class archiveaccounts extends plugin
 
         // This will probably scale very very badly… Improvement needed. Suggestions?
         while ($gosa_account = $this->_ldap->fetch($ldapsearch)) {
+            // Skip newstudent template.
+            if (strtolower($gosa_account['uid'][0]) === "newstudent") {
+                continue;
+            }
+
             foreach ($this->csvinfo['data_preldap'] as $key => $row) {
                 if (isset($row['main_account'])) {
                     $test_attrs = array();
