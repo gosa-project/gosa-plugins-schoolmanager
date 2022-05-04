@@ -25,18 +25,18 @@
 class schoolmgr extends plugin
 {
     /* Definitions */
-    var $plHeadline= "School Manager";
-    var $plDescription= "Administration Utility for Schools";
+    var $plHeadline = "School Manager";
+    var $plDescription = "Administration Utility for Schools";
     var $plIcon = "plugins/schoolmanager/images/schoolmgr.png";
 
     /* attribute list for save action */
-    var $attributes= array();
-    var $objectclasses= array();
+    var $attributes = array();
+    var $objectclasses = array();
     var $schoolmgr;
 
     function __construct(&$config)
     {
-        $this->initTime = microtime(TRUE);
+        $this->initTime = microtime(true);
 
         stats::log(
             'plugin',
@@ -44,7 +44,7 @@ class schoolmgr extends plugin
             $category = array($this->acl_category),
             $action   = 'open',
             $amount   = 1,
-            $duration = (microtime(TRUE) - $this->initTime)
+            $duration = (microtime(true) - $this->initTime)
         );
 
 
@@ -72,7 +72,7 @@ class schoolmgr extends plugin
         return (array(
                 "plShortName"    => _("School Manager"),
                 "plDescription"  => _("Administration Utility for Schools"),
-                "plSelfModify"   => FALSE,
+                "plSelfModify"   => false,
                 "plDepends"      => array(),
                 "plPriority"     => 1,
                 "plSection"      => array("addon"),
@@ -83,7 +83,8 @@ class schoolmgr extends plugin
         );
     }
 
-    static function getProperties() {
+    static function getProperties()
+    {
         $matching_attr_arr = array(
             array(
                 "name"        => "ldap_match_attr_studentid",
@@ -92,7 +93,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "false",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Should this attribute be used to identify users " .
                                    "from the CSV file as existing users in the LDAP-tree?"),
             ),
@@ -103,7 +104,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "true",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Should this attribute be used to identify users " .
                                    "from the CSV file as existing users in the LDAP-tree?"),
             ),
@@ -114,7 +115,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "true",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Should this attribute be used to identify users " .
                                    "from the CSV file as existing users in the LDAP-tree?"),
             ),
@@ -125,7 +126,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "false",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Should this attribute be used to identify users " .
                                    "from the CSV file as existing users in the LDAP-tree?"),
             ),
@@ -136,7 +137,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "true",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Should this attribute be used to identify users " .
                                    "from the CSV file as existing users in the LDAP-tree?"),
             ),
@@ -151,7 +152,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => ";",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("The default delimiter for CSV file columns."),
             ),
             array(
@@ -161,7 +162,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "true",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("The first row of the CSV file contains column heads."),
             ),
             // Gets loaded as defaults for phase 2…
@@ -172,7 +173,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "true",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Should aliases be created for teachers using the school domain? " .
                                    "For example: <uid>@<domain_school>"),
             ),
@@ -183,7 +184,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "true",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Should teachers be included as class members for courses they teach in a class?"),
             ),
             array(
@@ -193,7 +194,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "true",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Create a sub-OU for each class and place student " .
                                    "accounts belonging to the same class into their " .
                                    "corresponding class OU?"),
@@ -205,7 +206,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "intern", // Without leading '@'
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("The groups domain. Example: 'lists.john-doe-school.edu'"),
             ),
             array(
@@ -215,7 +216,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "intern", // Without leading '@'
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("The users (pupil) domain. Example: 'pupils.john-doe-school.edu'"),
             ),
             array(
@@ -225,7 +226,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "intern", // Without leading '@'
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("The school domain. Example: 'john-doe-school.edu'"),
             ),
             array(
@@ -235,7 +236,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "true",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("If CSV data does not contain a user ID (uid) " .
                                    "column, use the mail address as user ID instead?"),
             ),
@@ -246,7 +247,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "ou=SchoolManager,dc=skole,dc=skolelinux,dc=no",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("The OU for new groups."),
             ),
             array(
@@ -256,7 +257,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "uid=newstudent,ou=people,ou=Students,dc=skole,dc=skolelinux,dc=no",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Import students only: Select a template for student accounts."),
             ),
             array(
@@ -266,7 +267,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "migrate"     => "",
                 "default"     => "uid=newstudent,ou=people,ou=Students,dc=skole,dc=skolelinux,dc=no",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Import students and parents: Select a template for student accounts."),
             ),
             array(
@@ -276,7 +277,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "uid=newparent,ou=people,ou=Parents,dc=skole,dc=skolelinux,dc=no",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Import students and parents: Select a template for parents accounts."),
             ),
             array(
@@ -286,7 +287,7 @@ class schoolmgr extends plugin
                 "group"       => "schoolmgr",
                 "default"     => "uid=newteacher,ou=people,ou=Teacher,dc=skole,dc=skolelinux,dc=no",
                 "migrate"     => "",
-                "mandatory"   => TRUE,
+                "mandatory"   => true,
                 "description" => _("Import teachers: Select a template for teacher accounts."),
             ),
         );
@@ -297,4 +298,3 @@ class schoolmgr extends plugin
 
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
-?>

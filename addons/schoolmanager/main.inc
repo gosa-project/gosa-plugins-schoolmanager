@@ -34,8 +34,7 @@ if ($remove_lock) {
 // Remove this plugin from session
 if ($cleanup) {
     session::un_set('schoolmgr');
-}
-else {
+} else {
     /* Create schoolmgr object on demand */
     if (!session::is_set('schoolmgr')) {
         $schoolmgr = new schoolmgr($config);
@@ -51,4 +50,3 @@ else {
     // Store changes in session
     session::set('schoolmgr', $schoolmgr);
 }
-?>
