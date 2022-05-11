@@ -313,6 +313,11 @@ class importaccounts extends plugin
         $this->csvinfo['sel_ldap_match_attr_birthday']  = $this->utils->getConfigBoolValue("ldap_match_attr_birthday");
         $this->csvinfo['sel_ldap_match_attr_gender']    = $this->utils->getConfigBoolValue("ldap_match_attr_gender");
 
+        if ($this->import_account_type === "teachers") {
+            // Generally speaking, we don't want that feature for teachers.
+            $this->csvinfo['accounts_in_class_ou'] = false;
+        }
+
         // Provide pre-set values for account template forms
         $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
         $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
