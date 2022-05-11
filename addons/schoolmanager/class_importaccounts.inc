@@ -2101,10 +2101,6 @@ class importaccounts extends plugin
 
         /* Populate sub-object attributes for $usertab with same values */
         foreach ($_user_properties_extras as $attr => $val) {
-            if (is_array($val)) {
-                $val = $val[0];
-            }
-
             $usertab->$attr = $val;
             foreach ($usertab->by_object as $pname => $plugin) {
                 if (isset($usertab->by_object[$pname]->$attr)) {
