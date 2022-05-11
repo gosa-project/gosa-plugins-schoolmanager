@@ -1132,11 +1132,17 @@ class importaccounts extends plugin
                          */
                         $_updatable_attrs = array();
                         foreach (array("mail", "employeeNumber", "departmentNumber", "sn", "givenName", "gender", "dateOfBirth") as $_attr) {
-                            $_value = $row['main_account'][$_attr];
-                            // Value (string) should not be empty…
-                            if (isset($_value) && !empty($_value) && !empty($_value[0])) {
-                                $_updatable_attrs[] = $_attr;
+                            if (!in_array($_attr, $row['main_account'])) {
+                                continue;
                             }
+
+                            $_value = $row['main_account'][$_attr];
+
+                            if (!isset($_value) || empty($_value) || empty($_value[0])) {
+                                continue;
+                            }
+
+                            $_updatable_attrs[] = $_attr;
                         }
 
                         $_check_attrs = $this->utils->compareObjects($row['main_account'], $gosa_account, $_updatable_attrs, "update-");
