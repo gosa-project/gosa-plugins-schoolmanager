@@ -24,6 +24,9 @@
 
 class schoolmanagerintro extends plugin
 {
+    /** Template URI (.tpl file) */
+    const TEMPLATE_URI = "../templates/schoolmanagerintro/content_schoolmanagerintro.tpl";
+
     /* Definitions */
     var $plHeadline    = "Introduction";
     var $plDescription = "GOsa2 School Manager Module: Introduction";
@@ -137,7 +140,7 @@ class schoolmanagerintro extends plugin
 
             // Show introduction page…
             $new_template = $smarty->fetch(
-                get_template_path('content_schoolmanagerintro.tpl', true)
+                get_template_path(self::TEMPLATE_URI, true)
             );
         }
 

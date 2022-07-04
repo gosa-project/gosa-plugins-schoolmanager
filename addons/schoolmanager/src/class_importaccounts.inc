@@ -24,6 +24,9 @@
 
 class importaccounts extends plugin
 {
+    /** Template URI (.tpl file) */
+    public const TEMPLATE_URI = "../templates/importaccounts/content_importaccounts_base.tpl";
+
     // GOsa² definitions
     var $plHeadline = "Manage Accounts";
     var $plDescription = "GOsa2 School Manager super-class for managing accounts";
@@ -312,6 +315,11 @@ class importaccounts extends plugin
         $this->csvinfo['sel_ldap_match_attr_snname']    = $this->utils->getConfigBoolValue("ldap_match_attr_snname");
         $this->csvinfo['sel_ldap_match_attr_birthday']  = $this->utils->getConfigBoolValue("ldap_match_attr_birthday");
         $this->csvinfo['sel_ldap_match_attr_gender']    = $this->utils->getConfigBoolValue("ldap_match_attr_gender");
+
+        if ($this->import_account_type === "teachers") {
+            // Generally speaking, we don't want that feature for teachers.
+            $this->csvinfo['accounts_in_class_ou'] = false;
+        }
 
         // Provide pre-set values for account template forms
         $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
@@ -894,8 +902,13 @@ class importaccounts extends plugin
             ) {
                 msg_dialog::display(_("Permission error"), _("You've no permission to import user data!"), ERROR_DIALOG);
             }
-            return ($smarty->fetch(get_template_path('content_importaccounts.tpl', true)));
+            return ($smarty->fetch(get_template_path(self::TEMPLATE_URI, true)));
         }
+
+        // Give the base template the directory path where all phases are located.
+        $_phases_path = $smarty->getTemplateDir()[0];
+        $_phases_path .= get_template_path("../templates/importaccounts/", true);
+        $smarty->assign("phases_path", $_phases_path);
 
         /*
          * PHASES
@@ -1012,7 +1025,7 @@ class importaccounts extends plugin
         }
 
         // Show main page…
-        return ($smarty->fetch(get_template_path('content_importaccounts.tpl', true)));
+        return ($smarty->fetch(get_template_path(self::TEMPLATE_URI, true)));
     }
 
 
@@ -1127,11 +1140,17 @@ class importaccounts extends plugin
                          */
                         $_updatable_attrs = array();
                         foreach (array("mail", "employeeNumber", "departmentNumber", "sn", "givenName", "gender", "dateOfBirth") as $_attr) {
-                            $_value = $row['main_account'][$_attr];
-                            // Value (string) should not be empty…
-                            if (isset($_value) && !empty($_value) && !empty($_value[0])) {
-                                $_updatable_attrs[] = $_attr;
+                            if (!in_array($_attr, $row['main_account'])) {
+                                continue;
                             }
+
+                            $_value = $row['main_account'][$_attr];
+
+                            if (!isset($_value) || empty($_value) || empty($_value[0])) {
+                                continue;
+                            }
+
+                            $_updatable_attrs[] = $_attr;
                         }
 
                         $_check_attrs = $this->utils->compareObjects($row['main_account'], $gosa_account, $_updatable_attrs, "update-");
@@ -2101,10 +2120,6 @@ class importaccounts extends plugin
 
         /* Populate sub-object attributes for $usertab with same values */
         foreach ($_user_properties_extras as $attr => $val) {
-            if (is_array($val)) {
-                $val = $val[0];
-            }
-
             $usertab->$attr = $val;
             foreach ($usertab->by_object as $pname => $plugin) {
                 if (isset($usertab->by_object[$pname]->$attr)) {
