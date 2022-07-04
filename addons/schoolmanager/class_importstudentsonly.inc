@@ -45,6 +45,10 @@ class importstudentsonly extends importaccounts
         $this->utils = new schoolmgr_utils($config);
 
         parent::__construct($config, $dn = null);
+
+        // Overrides parent class default.
+        // Indicates if the import type has the feature 'accounts_in_class_ou' enabled.
+        $this->feature_accounts_in_class_ou = true;
     }
 
     function getAttributes()

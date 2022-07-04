@@ -47,6 +47,9 @@ class importaccounts extends plugin
     var $default_template_main = "";
     var $default_template_aux = "";
 
+    // To be overriden by sub-classes.
+    // Indicates if the import type has the feature 'accounts_in_class_ou' enabled.
+    var $feature_accounts_in_class_ou = false;
 
     // importaccounts class constructor
     function __construct(&$config, $dn = null)
@@ -303,7 +306,7 @@ class importaccounts extends plugin
 
         // Set import configuration defaults for next phase.
         $this->csvinfo['ou_groups']                         = $default_ou_for_groups;
-        $this->csvinfo['accounts_in_class_ou']              = $this->utils->getConfigBoolValue("accounts_in_class_ou");
+        $this->csvinfo['accounts_in_class_ou'] = $this->feature_accounts_in_class_ou ? $this->utils->getConfigBoolValue("accounts_in_class_ou") : false;
         $this->csvinfo['add_course_members_to_class_group'] = $this->utils->getConfigBoolValue("add_course_members_to_class_group");
         $this->csvinfo['aliases_in_schooldomain']           = $this->utils->getConfigBoolValue("aliases_in_schooldomain");
         $this->csvinfo['try_mail_as_uid']                   = $this->utils->getConfigBoolValue("try_mail_as_uid");
@@ -346,7 +349,7 @@ class importaccounts extends plugin
             $_ou_groups     = $_POST["ou_groups"];
             $_domain_users  = $_POST["domain_users"];
             $_domain_groups = $_POST["domain_groups"];
-            $this->csvinfo['accounts_in_class_ou']              = isset($_POST["accounts_in_class_ou"]);
+            $this->csvinfo['accounts_in_class_ou'] = $this->feature_accounts_in_class_ou ? isset($_POST["accounts_in_class_ou"]) : false;
             $this->csvinfo['aliases_in_schooldomain']           = isset($_POST["aliases_in_schooldomain"]);
             $this->csvinfo['try_mail_as_uid']                   = isset($_POST["try_mail_as_uid"]);
             $this->csvinfo['add_course_members_to_class_group'] = isset($_POST["add_course_members_to_class_group"]);
@@ -1127,11 +1130,17 @@ class importaccounts extends plugin
                          */
                         $_updatable_attrs = array();
                         foreach (array("mail", "employeeNumber", "departmentNumber", "sn", "givenName", "gender", "dateOfBirth") as $_attr) {
-                            $_value = $row['main_account'][$_attr];
-                            // Value (string) should not be empty…
-                            if (isset($_value) && !empty($_value) && !empty($_value[0])) {
-                                $_updatable_attrs[] = $_attr;
+                            if (!in_array($_attr, $row['main_account'])) {
+                                continue;
                             }
+
+                            $_value = $row['main_account'][$_attr];
+
+                            if (!isset($_value) || empty($_value) || empty($_value[0])) {
+                                continue;
+                            }
+
+                            $_updatable_attrs[] = $_attr;
                         }
 
                         $_check_attrs = $this->utils->compareObjects($row['main_account'], $gosa_account, $_updatable_attrs, "update-");
@@ -2101,10 +2110,6 @@ class importaccounts extends plugin
 
         /* Populate sub-object attributes for $usertab with same values */
         foreach ($_user_properties_extras as $attr => $val) {
-            if (is_array($val)) {
-                $val = $val[0];
-            }
-
             $usertab->$attr = $val;
             foreach ($usertab->by_object as $pname => $plugin) {
                 if (isset($usertab->by_object[$pname]->$attr)) {
