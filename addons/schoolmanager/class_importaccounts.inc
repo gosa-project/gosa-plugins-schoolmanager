@@ -1178,7 +1178,9 @@ class importaccounts extends plugin
                         }
 
                         /* Don't allow primary mail address ending up in 'alias' attribute description */
-                        if (isset($gosa_account['mail'][0]) and isset($gosa_account['alias']) and (in_array($row['main_account']['mail'][0], $gosa_account['alias']))) {
+                        if (isset($gosa_account['mail'][0]) and isset($gosa_account['alias']) and
+                            isset($row['main_account']['mail'][0]) and
+                            (in_array($row['main_account']['mail'][0], $gosa_account['alias']))) {
                             $_actions[] = 'drop-uid-at-domain-from-aliases';
                         }
 
@@ -2329,6 +2331,8 @@ class importaccounts extends plugin
                         }
                         if (
                             in_array('gosaGroupOfNames', $group_data['objectClass']) and
+                            isset($aux_account['_ogroup_actions'][0]) and
+                            isset($aux_account['_ogroup_actions'][$group_key]) and
                             ($this->utils->strcontains($aux_account['_ogroup_actions'][0], 'update-memberships')) and
                             ($aux_account['_ogroup_actions'][$group_key] === "add")
                         ) {
