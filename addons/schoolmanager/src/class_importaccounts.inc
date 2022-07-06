@@ -2047,10 +2047,15 @@ class importaccounts extends plugin
         }
 
         // Prepare $uid_at_domain with <UID>@<domain>
-        $uid_at_domain = $user_data['uid'][0] . "@" . $this->csvinfo['domain_school'];
+        if (isset($user_data['uid'][0])) {
+            $uid_at_domain = $user_data['uid'][0] . "@" . $this->csvinfo['domain_school'];
+        }
 
         // Drop $uid_at_domain from alias field, if this is supposed to happen
-        if ($this->utils->strcontains($user_data['_actions'][0], 'drop-uid-at-domain-from-aliases')) {
+        if (
+            isset($user_data['_actions'][0]) and
+            $this->utils->strcontains($user_data['_actions'][0], 'drop-uid-at-domain-from-aliases')
+        ) {
             // Drop $uid_at_domain from $_user_properties_extras["alias"].
             $_user_properties_extras["alias"] = array_values(
                 array_diff($_user_properties_extras["alias"], array($uid_at_domain))
