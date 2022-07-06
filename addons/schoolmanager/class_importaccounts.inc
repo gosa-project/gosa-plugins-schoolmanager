@@ -2027,6 +2027,7 @@ class importaccounts extends plugin
 
         // Prepare 'alias' field.
         if (
+            isset($user_data['alias']) and
             is_countable($user_data['alias']) and
             count($user_data['alias']) > 0
         ) {
