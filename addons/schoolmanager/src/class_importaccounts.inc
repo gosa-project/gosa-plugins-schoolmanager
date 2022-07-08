@@ -54,6 +54,9 @@ class importaccounts extends plugin
     // Indicates if the import type has the feature 'accounts_in_class_ou' enabled.
     var $feature_accounts_in_class_ou = false;
 
+    // Collection container for failure messages
+    var $failure_messages = array();
+
     // importaccounts class constructor
     function __construct(&$config, $dn = null)
     {
@@ -599,7 +602,7 @@ class importaccounts extends plugin
         } else {
             // Show failure messages
             foreach ($this->failure_messages as $msg) {
-                msg_dialog::displayChecks($msg);
+                msg_dialog::displayChecks(array($msg));
             }
 
             // Prepare for reloading this phase's web page again…
@@ -2145,15 +2148,17 @@ class importaccounts extends plugin
         }
 
         /* Insert into the LDAP tree */
-        $this->failure_messages = array();
-        if (count($usertab->check())) {
-            $this->failure_messages[] = $usertab->check();
+        $usertab_check = $usertab->check();
+        if (count($usertab_check)) {
+            $this->failure_messages += $usertab_check;
 
             /*
              * FIXME: Collect failure statistics here!
              */
 
             $this->failure_in_this_phase = true;
+
+            return;
         } else {
             $usertab->save();
 
