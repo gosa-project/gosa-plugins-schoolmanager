@@ -698,6 +698,11 @@ class importaccounts extends plugin
         if ($this->failure_in_this_phase === false) {
             $smarty->assign("groups_reviewed", true);
         } else {
+            // Show failure messages
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks(array($msg));
+            }
+
             // Prepare for reloading this phase's web page again…
         }
     }
@@ -1832,14 +1837,18 @@ class importaccounts extends plugin
         }
 
         /* Run GOsa²'s groups/group | ogroups/ogroup checks */
-        if (count($grouptab->check())) {
-            msg_dialog::displayChecks($grouptab->check());
+        $grouptab_check = $grouptab->check();
+        if (count($grouptab_check)) {
+            $this->failure_messages += $grouptab_check;
 
             /*
              * FIXME: collect failure statistics here!!!
              */
 
             $this->failure_in_this_phase = true;
+
+            return;
+
         } else {
             if (isset($remove_later_grouptab)) {
                 $remove_later_grouptab->delete();
