@@ -1528,7 +1528,10 @@ class importaccounts extends plugin
                             $_group_name = $group['cn'][0];
                             $_uid = $row['main_account']['uid'][0];
                             $_members = isset($gosa_group['memberUid']) ? $gosa_group['memberUid'] : array();
-                            if (!in_array($_uid, $_members)) {
+                            if (
+                                !$this->utils->strcontains($row['main_account']['_actions'][0], 'ignore') &&
+                                !in_array($_uid, $_members)
+                            ) {
                                 if (!in_array('update-memberships', $_g_actions)) {
                                     $_g_actions[] = 'update-memberships';
                                 }
