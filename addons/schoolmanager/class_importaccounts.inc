@@ -1032,6 +1032,10 @@ class importaccounts extends plugin
         /* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail… */
         if (!is_array($this->csvinfo['data_preldap']) or (empty($this->csvinfo['data_preldap']))) {
             $this->failure_in_this_phase = true;
+
+            /* FIXME: Show a proper error message here... */
+            echo "FIXME: BOOM";
+
             return;
         }
 
