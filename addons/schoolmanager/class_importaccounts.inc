@@ -1231,10 +1231,12 @@ class importaccounts extends plugin
                     foreach ($row['aux_accounts'] as $idx_aux => $aux_account) {
                         /*
                          * Don't perform on this aux-user dataset if:
-                         *   - parent1 and parent2 have the same email AND
-                         *   - aux-user is parent2
+                         *   * _actions has been set to something containing 'ignore' which can mean:
+                         *     - parent1 and parent2 have the same email AND
+                         *     - aux-user is parent2
                          */
                         if ($this->utils->strcontains($aux_account['_status'][0], 'same-mail-as-parent1')) {
+                            $aux_account['_actions'] = array('ignore,combine-with-parent1');
                             continue;
                         }
 

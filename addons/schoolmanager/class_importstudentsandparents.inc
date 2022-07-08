@@ -216,7 +216,6 @@ class importstudentsandparents extends importaccounts
                     if (strtolower(trim($row_sorted['parent1_mail'])) === strtolower(trim($row_sorted['parent2_mail']))) {
                         // Do not import second parent account.
                         $parent2['_status']      = array('same-mail-as-parent1');
-                        $parent2['_actions']     = array('ignore,combined-with-parent1');
 
                         // givenName: Jon & Jane
                         // second name: Doe & Smith  OR (if both have same the name):
