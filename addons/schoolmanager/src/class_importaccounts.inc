@@ -54,6 +54,9 @@ class importaccounts extends plugin
     // Indicates if the import type has the feature 'accounts_in_class_ou' enabled.
     var $feature_accounts_in_class_ou = false;
 
+    // Indicates if the import type has the feature 'aliases_in_schooldomain' enabled.
+    var $feature_aliases_in_schooldomain = false;
+
     // Collection container for failure messages
     var $failure_messages = array();
 
@@ -314,7 +317,7 @@ class importaccounts extends plugin
         $this->csvinfo['ou_groups']                         = $default_ou_for_groups;
         $this->csvinfo['accounts_in_class_ou'] = $this->feature_accounts_in_class_ou ? $this->utils->getConfigBoolValue("accounts_in_class_ou") : false;
         $this->csvinfo['add_course_members_to_class_group'] = $this->utils->getConfigBoolValue("add_course_members_to_class_group");
-        $this->csvinfo['aliases_in_schooldomain']           = $this->utils->getConfigBoolValue("aliases_in_schooldomain");
+        $this->csvinfo['aliases_in_schooldomain'] = $this->feature_aliases_in_schooldomain ? $this->utils->getConfigBoolValue("aliases_in_schooldomain") : false;
         $this->csvinfo['try_mail_as_uid']                   = $this->utils->getConfigBoolValue("try_mail_as_uid");
         $this->csvinfo['sel_ldap_match_attr_studentid'] = $this->utils->getConfigBoolValue("ldap_match_attr_studentid");
         $this->csvinfo['sel_ldap_match_attr_givenname'] = $this->utils->getConfigBoolValue("ldap_match_attr_givenname");
@@ -356,7 +359,7 @@ class importaccounts extends plugin
             $_domain_users  = $_POST["domain_users"];
             $_domain_groups = $_POST["domain_groups"];
             $this->csvinfo['accounts_in_class_ou'] = $this->feature_accounts_in_class_ou ? isset($_POST["accounts_in_class_ou"]) : false;
-            $this->csvinfo['aliases_in_schooldomain']           = isset($_POST["aliases_in_schooldomain"]);
+            $this->csvinfo['aliases_in_schooldomain'] = $this->feature_aliases_in_schooldomain ? isset($_POST["aliases_in_schooldomain"]) : false;
             $this->csvinfo['try_mail_as_uid']                   = isset($_POST["try_mail_as_uid"]);
             $this->csvinfo['add_course_members_to_class_group'] = isset($_POST["add_course_members_to_class_group"]);
             $this->csvinfo['sel_ldap_match_attr_studentid']     = isset($_POST["sel_ldap_match_attr_studentid"]);

@@ -50,6 +50,9 @@ class importteachers extends importaccounts
         // Overrides parent class default.
         // Indicates if the import type has the feature 'accounts_in_class_ou' enabled.
         $this->feature_accounts_in_class_ou = false;
+
+        // Indicates if the import type has the feature 'aliases_in_schooldomain' enabled.
+        $this->feature_aliases_in_schooldomain = true;
     }
 
     function getAttributes()
