@@ -2069,22 +2069,24 @@ class importaccounts extends plugin
             $_user_properties_extras["alias"] = $user_data['alias'];
         }
 
-        // Prepare $uid_at_domain with <UID>@<domain>
+        // Prepare $uid_at_school_domain with <UID>@<domain>
         if (isset($user_data['uid'][0])) {
-            $uid_at_domain = $user_data['uid'][0] . "@" . $this->csvinfo['domain_school'];
+            $uid_at_school_domain = $user_data['uid'][0] . "@" . $this->csvinfo['domain_school'];
         }
 
-        // Drop $uid_at_domain from alias field, if this is supposed to happen
+        // Drop $uid_at_school_domain from alias field, if this is supposed to happen
         if (
+            isset($_user_properties_extras["alias"]) and
+            is_array($_user_properties_extras["alias"]) and
             isset($user_data['_actions'][0]) and
             $this->utils->strcontains($user_data['_actions'][0], 'drop-uid-at-domain-from-aliases')
         ) {
-            // Drop $uid_at_domain from $_user_properties_extras["alias"].
+            // Drop $uid_at_school_domain from $_user_properties_extras["alias"].
             $_user_properties_extras["alias"] = array_values(
-                array_diff($_user_properties_extras["alias"], array($uid_at_domain))
+                array_diff($_user_properties_extras["alias"], array($uid_at_school_domain))
             );
         }
-        // Add $uid_at_domain to alias field, if this is supposed to happen
+        // Add $uid_at_school_domain to alias field, if this is supposed to happen
         elseif ($this->csvinfo['aliases_in_schooldomain']) {
             if (
                 $this->utils->strcontains($user_data['_actions'][0], 'add-uid-at-domain-to-aliases') or
@@ -2096,10 +2098,10 @@ class importaccounts extends plugin
                 if (!isset($_user_properties_extras["alias"])) {
                     $_user_properties_extras["alias"] = array();
                 }
-                // Include $uid_at_domain in $_user_properties_extras["alias"]
+                // Include $uid_at_school_domain in $_user_properties_extras["alias"]
                 // if it isn't already.
-                if (!in_array($uid_at_domain, $_user_properties_extras["alias"])) {
-                    $_user_properties_extras["alias"][] = $uid_at_domain;
+                if (!in_array($uid_at_school_domain, $_user_properties_extras["alias"])) {
+                    $_user_properties_extras["alias"][] = $uid_at_school_domain;
                 }
             }
         }
