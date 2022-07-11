@@ -2062,7 +2062,18 @@ class importaccounts extends plugin
             }
         }
 
-        // Prepare 'alias' field.
+        // We'll need the 'mail' extra property further down...
+        if (!isset($_user_properties_extras["mail"])) {
+            if (
+                isset($user_data['mail']) and
+                is_countable($user_data['mail']) and
+                count($user_data['mail']) > 0
+            ) {
+                $_user_properties_extras["mail"] = $user_data['mail'];
+            }
+        }
+
+        // Use existing 'alias' field (if any) and modify that if needed.
         if (
             isset($user_data['alias']) and
             is_countable($user_data['alias']) and
@@ -2108,7 +2119,15 @@ class importaccounts extends plugin
                 }
                 // Include $uid_at_school_domain in $_user_properties_extras["alias"]
                 // if it isn't already.
-                if (!in_array($uid_at_school_domain, $_user_properties_extras["alias"])) {
+                if (
+                    (
+                        is_array($_user_properties_extras["alias"]) and
+                        !in_array($uid_at_school_domain, $_user_properties_extras["alias"])
+                    ) and (
+                        is_array($_user_properties_extras["mail"]) and
+                        !in_array($uid_at_school_domain, $_user_properties_extras["mail"])
+                    )
+                ) {
                     $_user_properties_extras["alias"][] = $uid_at_school_domain;
                 }
             }
