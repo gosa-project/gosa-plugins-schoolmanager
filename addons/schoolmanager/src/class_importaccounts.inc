@@ -1177,8 +1177,6 @@ class importaccounts extends plugin
                          */
                         if (isset($gosa_account['alias'])) {
                             $this->csvinfo['data_preldap'][$key]['main_account']['alias'] = $gosa_account['alias'];
-                        } else {
-                            $this->csvinfo['data_preldap'][$key]['main_account']['alias'] = array();
                         }
 
                         /* Check if the alias LDAP attribute needs to be modified. */
@@ -2114,9 +2112,6 @@ class importaccounts extends plugin
                     !$this->utils->strcontains($user_data['_actions'][0], 'skip-aliases')
                 )
             ) {
-                if (!isset($_user_properties_extras["alias"])) {
-                    $_user_properties_extras["alias"] = array();
-                }
                 // Include $uid_at_school_domain in $_user_properties_extras["alias"]
                 // if it isn't already.
                 if (
@@ -2128,6 +2123,9 @@ class importaccounts extends plugin
                         !in_array($uid_at_school_domain, $_user_properties_extras["mail"])
                     )
                 ) {
+                    if (!isset($_user_properties_extras["alias"])) {
+                        $_user_properties_extras["alias"] = array();
+                    }
                     $_user_properties_extras["alias"][] = $uid_at_school_domain;
                 }
             }
