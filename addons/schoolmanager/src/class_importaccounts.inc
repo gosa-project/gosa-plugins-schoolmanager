@@ -2071,7 +2071,12 @@ class importaccounts extends plugin
 
         // Prepare $uid_at_school_domain with <UID>@<domain>
         if (isset($user_data['uid'][0])) {
-            $uid_at_school_domain = $user_data['uid'][0] . "@" . $this->csvinfo['domain_school'];
+            if ($user_data['uid'][0] === "{%uid}") {
+                $_uid = $_user_properties_base['uid'];
+            } else {
+                $_uid = $user_data['uid'][0];
+            }
+            $uid_at_school_domain = $_uid . "@" . $this->csvinfo['domain_school'];
         }
 
         // Drop $uid_at_school_domain from alias field, if this is supposed to happen
