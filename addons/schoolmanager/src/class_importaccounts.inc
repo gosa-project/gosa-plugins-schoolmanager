@@ -1362,7 +1362,7 @@ class importaccounts extends plugin
                         if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] == 'unchecked') {
                             if (isset($aux_account['sn']) and isset($aux_account['mail']) and isset($aux_account['givenName'])) {
                                 $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'not-found';
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'create,set-password';
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'create,set-password,skip-aliases';
                                 /* set the main account's base for object creation */
                                 $expected_base = $this->genAccountBase($aux_account);
                                 $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base'] = array($expected_base);
@@ -2067,8 +2067,6 @@ class importaccounts extends plugin
             count($user_data['alias']) > 0
         ) {
             $_user_properties_extras["alias"] = $user_data['alias'];
-        } else {
-            $_user_properties_extras["alias"] = array();
         }
 
         // Prepare $uid_at_domain with <UID>@<domain>
@@ -2090,8 +2088,14 @@ class importaccounts extends plugin
         elseif ($this->csvinfo['aliases_in_schooldomain']) {
             if (
                 $this->utils->strcontains($user_data['_actions'][0], 'add-uid-at-domain-to-aliases') or
-                $this->utils->strcontains($user_data['_actions'][0], 'create')
+                (
+                    $this->utils->strcontains($user_data['_actions'][0], 'create') and
+                    !$this->utils->strcontains($user_data['_actions'][0], 'skip-aliases')
+                )
             ) {
+                if (!isset($_user_properties_extras["alias"])) {
+                    $_user_properties_extras["alias"] = array();
+                }
                 // Include $uid_at_domain in $_user_properties_extras["alias"]
                 // if it isn't already.
                 if (!in_array($uid_at_domain, $_user_properties_extras["alias"])) {
