@@ -2091,8 +2091,9 @@ class importaccounts extends plugin
                 array_diff($_user_properties_extras["alias"], array($uid_at_school_domain))
             );
         }
-        // Add $uid_at_school_domain to alias field, if this is supposed to happen
-        elseif ($this->csvinfo['aliases_in_schooldomain']) {
+
+        // Add $uid_at_school_domain to alias field, if this is supposed to happen.
+        if ($this->csvinfo['aliases_in_schooldomain']) {
             if (
                 $this->utils->strcontains($user_data['_actions'][0], 'add-uid-at-domain-to-aliases') or
                 (
