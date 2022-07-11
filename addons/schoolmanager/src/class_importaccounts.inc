@@ -2041,19 +2041,21 @@ class importaccounts extends plugin
                 ($this->utils->strcontains($user_data['_actions'][0], 'create') or
                 $this->utils->strcontains($user_data['_actions'][0], ('update-' . $update_property)))
             ) {
-                // Special case for 'mail' property.
+                // Special cases for 'mail' property:
                 if ($update_property === "mail") {
                     /*
                      * FIXME: We need to dearly improve this bit and make this more configurable
                      *        I.e. allow for more patterns, such as {%uid}@{%domain_teachers}, etc.
                      */
-                    if ($user_data['mail'][0] == "{%uid}@{%domain_school}") {
+                    if ($user_data['mail'][0] == "{%uid}@{%domain_users}") {
+                        $_user_properties_extras["mail"]    = array();
+                        $_user_properties_extras["mail"][0] = $user_data['uid'][0] . "@" . $this->csvinfo['domain_users'];
+                        continue;
+                    } elseif ($user_data['mail'][0] == "{%uid}@{%domain_school}") {
                         $_user_properties_extras["mail"]    = array();
                         $_user_properties_extras["mail"][0] = $user_data['uid'][0] . "@" . $this->csvinfo['domain_school'];
-                    } else {
-                        $_user_properties_extras["mail"] = $user_data['mail'][0];
+                        continue;
                     }
-                    continue;
                 }
 
                 $_user_properties_extras[$update_property] = $user_data[$update_property][0];
