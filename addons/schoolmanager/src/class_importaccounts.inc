@@ -2119,9 +2119,11 @@ class importaccounts extends plugin
                 // if it isn't already.
                 if (
                     (
+                        isset($_user_properties_extras["alias"]) and
                         is_array($_user_properties_extras["alias"]) and
                         !in_array($uid_at_school_domain, $_user_properties_extras["alias"])
                     ) and (
+                        isset($_user_properties_extras["mail"]) and
                         is_array($_user_properties_extras["mail"]) and
                         !in_array($uid_at_school_domain, $_user_properties_extras["mail"])
                     )
