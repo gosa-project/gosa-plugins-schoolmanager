@@ -34,6 +34,44 @@ class smflushgroupmembers
         $this->ldapinfo = [];
     }
 
+    private function populate_groups()
+    {
+        $this->ldapinfo['groups']        = [];
+
+        // Search LDAP tree for SchoolManager maintained POSIX groups
+        $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
+
+        // Read groups from SchoolManager OU
+        $ldapsearch = $this->_ldap->search(
+            "(&(objectClass=posixGroup)(|(cn=class_*)(cn=course_*)(cn=subject_*)))",
+            array("objectClass", "cn", "description", "memberUid")
+        );
+
+        while ($result = $this->_ldap->fetch($ldapsearch)) {
+            if (in_array('posixGroup', $result['objectClass'])) {
+                $this->ldapinfo['groups'][] = $result;
+            }
+        }
+    }
+
+    private function populate_ogroups()
+    {
+        $this->ldapinfo['ogroups'] = [];
+
+        // Search LDAP tree for SchoolManager maintained groupOfNames objects
+        $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
+
+        $ldapsearch = $this->_ldap->search(
+            "(&(objectClass=gosaGroupOfNames)(cn=parents_*))",
+            array("objectClass", "cn", "description", "member")
+        );
+
+        while ($result = $this->_ldap->fetch($ldapsearch)) {
+            if (in_array('gosaGroupOfNames', $result['objectClass'])) {
+                $this->ldapinfo['ogroups'][] = $result;
+            }
+        }
+    }
 
     private function reduce_group($group_obj)
     {
@@ -64,15 +102,19 @@ class smflushgroupmembers
         $new_template = null;
 
         if (isset($_POST["empty_schoolmgr_groups_now_phase1"])) {
+            $this->populate_groups();
             $new_template = $this->execute_empty_schoolmgr_groups_now_phase1($smarty);
         } elseif (isset($_POST["empty_schoolmgr_groups_now_phase2"])) {
             $smarty->assign("empty_schoolmgr_groups_now_phase1_done", true);
 
+            $this->populate_groups();
+            $this->populate_ogroups();
             $new_template = $this->execute_empty_schoolmgr_groups_now_phase2($smarty);
         } elseif (isset($_POST["empty_schoolmgr_groups_now_phase3"])) {
             $smarty->assign("empty_schoolmgr_groups_now_phase1_done", true);
             $smarty->assign("empty_schoolmgr_groups_now_phase2_done", true);
 
+            $this->populate_ogroups();
             $new_template = $this->execute_empty_schoolmgr_groups_now_phase3($smarty);
         }
 
@@ -85,22 +127,6 @@ class smflushgroupmembers
         // User requested group member flushing on our "Introduction" page…
 
         $this->ldapinfo['cleanup_stats'] = [];
-        $this->ldapinfo['groups']        = [];
-
-        // Search LDAP tree for SchoolManager maintained POSIX groups
-        $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
-
-        // Read groups from SchoolManager OU
-        $ldapsearch = $this->_ldap->search(
-            "(&(objectClass=posixGroup)(|(cn=class_*)(cn=course_*)(cn=subject_*)))",
-            array("objectClass", "cn", "description", "memberUid")
-        );
-
-        while ($result = $this->_ldap->fetch($ldapsearch)) {
-            if (in_array('posixGroup', $result['objectClass'])) {
-                $this->ldapinfo['groups'][] = $result;
-            }
-        }
 
         // Remove some information from the search result
         // (ease displaying stuff in the .tpl file)
@@ -186,25 +212,6 @@ class smflushgroupmembers
                 } else {
                     $this->ldapinfo['cleanup_stats']['unmanaged_empty']++;
                 }
-            }
-        }
-
-        /*
-         * Prepare for next step…
-         * Search LDAP tree for SchoolManager maintained
-         * object groups (gosaGroupOfNames)
-         */
-        $this->ldapinfo['ogroups'] = [];
-        $this->_ldap->cd($this->ldapinfo['ou_tree']['DNs'][$this->ldapinfo['ou_groups']]);
-
-        $ldapsearch = $this->_ldap->search(
-            "(&(objectClass=gosaGroupOfNames)(cn=parents_*))",
-            array("objectClass", "cn", "description", "member")
-        );
-
-        while ($result = $this->_ldap->fetch($ldapsearch)) {
-            if (in_array('gosaGroupOfNames', $result['objectClass'])) {
-                $this->ldapinfo['ogroups'][] = $result;
             }
         }
 
