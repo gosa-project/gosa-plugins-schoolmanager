@@ -132,7 +132,7 @@ class schoolmanagerintro extends plugin
             isset($_POST["empty_schoolmgr_groups_now_phase2"]) ||
             isset($_POST["empty_schoolmgr_groups_now_phase3"])
         ) {
-            $new_template = $this->smflushgroupmembers->execute($smarty, $this->_ldap);
+            $new_template = $this->smflushgroupmembers->execute($smarty, $this->_ldap, $this->ldapinfo);
         } else {
             // Provide pre-set values for account template forms
             $smarty->assign("ous_available", $this->ldapinfo['ou_tree']['formfields']);

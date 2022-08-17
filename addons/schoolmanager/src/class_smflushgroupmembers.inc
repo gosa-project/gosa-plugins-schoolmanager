@@ -31,6 +31,7 @@ class smflushgroupmembers
     {
         $this->config = $config;
         $this->utils  = $utils;
+        $this->ldapinfo = [];
     }
 
 
@@ -54,10 +55,11 @@ class smflushgroupmembers
     }
 
 
-    public function execute(&$smarty, &$_ldap): string
+    public function execute(&$smarty, &$_ldap, &$ldapinfo): string
     {
         $this->smarty = $smarty;
         $this->_ldap = $_ldap;
+        $this->ldapinfo = $ldapinfo;
 
         $new_template = null;
 
