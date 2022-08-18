@@ -1091,10 +1091,11 @@ class importaccounts extends plugin
                     }
 
                     if ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) == 1)) {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'similar-object-found,ignore,check-manually';
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'similar-object-found';
                     } elseif ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) > 1)) {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'similar-objects-found,ignore,check-manually';
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'similar-objects-found';
                     }
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
                 } elseif ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) == 1)) {
                     $gosa_account = $gosa_main_accounts[0];
 
@@ -1383,7 +1384,8 @@ class importaccounts extends plugin
         foreach ($this->csvinfo['data_preldap'] as $key => $row) {
             if (
                 $this->utils->strcontains($row['main_account']['_actions'][0], 'none') or
-                $this->utils->strcontains($row['main_account']['_actions'][0], 'ignore')
+                $this->utils->strcontains($row['main_account']['_actions'][0], 'ignore') or
+                $this->utils->strcontains($row['main_account']['_actions'][0], 'ignore,check-manually')
             ) {
                 continue;
             }
@@ -1421,7 +1423,10 @@ class importaccounts extends plugin
 
         /* this will probably scale very very badly… Improvement needed. Suggestions? */
         foreach ($this->csvinfo['data_preldap'] as $key => $row) {
-            if ($this->utils->strcontains($row['main_account']['_actions'][0], 'ignore')) {
+            if (
+                $this->utils->strcontains($row['main_account']['_actions'][0], 'ignore') or
+                $this->utils->strcontains($row['main_account']['_actions'][0], 'ignore,check-manually')
+            ) {
                 continue;
             }
 
@@ -1523,7 +1528,10 @@ class importaccounts extends plugin
                             $_group_name = $group['cn'][0];
                             $_uid = $row['main_account']['uid'][0];
                             $_members = isset($gosa_group['memberUid']) ? $gosa_group['memberUid'] : array();
-                            if (!in_array($_uid, $_members)) {
+                            if (
+                                !$this->utils->strcontains($row['main_account']['_actions'][0], 'ignore') &&
+                                !in_array($_uid, $_members)
+                            ) {
                                 if (!in_array('update-memberships', $_g_actions)) {
                                     $_g_actions[] = 'update-memberships';
                                 }
