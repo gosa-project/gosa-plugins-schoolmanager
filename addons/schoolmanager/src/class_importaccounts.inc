@@ -54,6 +54,9 @@ class importaccounts extends plugin
     // Indicates if the import type has the feature 'accounts_in_class_ou' enabled.
     var $feature_accounts_in_class_ou = false;
 
+    // Collection container for failure messages
+    var $failure_messages = array();
+
     // importaccounts class constructor
     function __construct(&$config, $dn = null)
     {
@@ -599,7 +602,7 @@ class importaccounts extends plugin
         } else {
             // Show failure messages
             foreach ($this->failure_messages as $msg) {
-                msg_dialog::displayChecks($msg);
+                msg_dialog::displayChecks(array($msg));
             }
 
             // Prepare for reloading this phase's web page again…
@@ -698,6 +701,11 @@ class importaccounts extends plugin
         if ($this->failure_in_this_phase === false) {
             $smarty->assign("groups_reviewed", true);
         } else {
+            // Show failure messages
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks(array($msg));
+            }
+
             // Prepare for reloading this phase's web page again…
         }
     }
@@ -1032,6 +1040,10 @@ class importaccounts extends plugin
         /* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail… */
         if (!is_array($this->csvinfo['data_preldap']) or (empty($this->csvinfo['data_preldap']))) {
             $this->failure_in_this_phase = true;
+
+            /* FIXME: Show a proper error message here... */
+            echo "FIXME: BOOM";
+
             return;
         }
 
@@ -1838,14 +1850,17 @@ class importaccounts extends plugin
         }
 
         /* Run GOsa²'s groups/group | ogroups/ogroup checks */
-        if (count($grouptab->check())) {
-            msg_dialog::displayChecks($grouptab->check());
+        $grouptab_check = $grouptab->check();
+        if (count($grouptab_check)) {
+            $this->failure_messages += $grouptab_check;
 
             /*
              * FIXME: collect failure statistics here!!!
              */
 
             $this->failure_in_this_phase = true;
+
+            return;
         } else {
             if (isset($remove_later_grouptab)) {
                 $remove_later_grouptab->delete();
@@ -2145,15 +2160,17 @@ class importaccounts extends plugin
         }
 
         /* Insert into the LDAP tree */
-        $this->failure_messages = array();
-        if (count($usertab->check())) {
-            $this->failure_messages[] = $usertab->check();
+        $usertab_check = $usertab->check();
+        if (count($usertab_check)) {
+            $this->failure_messages += $usertab_check;
 
             /*
              * FIXME: Collect failure statistics here!
              */
 
             $this->failure_in_this_phase = true;
+
+            return;
         } else {
             $usertab->save();
 
