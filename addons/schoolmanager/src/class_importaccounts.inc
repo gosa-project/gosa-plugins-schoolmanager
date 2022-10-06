@@ -2049,12 +2049,10 @@ class importaccounts extends plugin
                      *        I.e. allow for more patterns, such as {%uid}@{%domain_teachers}, etc.
                      */
                     if ($user_data['mail'][0] == "{%uid}@{%domain_users}") {
-                        $_user_properties_extras["mail"]    = array();
-                        $_user_properties_extras["mail"][0] = $user_data['uid'][0] . "@" . $this->csvinfo['domain_users'];
+                        $_user_properties_extras["mail"] = $user_data['uid'][0] . "@" . $this->csvinfo['domain_users'];
                         continue;
                     } elseif ($user_data['mail'][0] == "{%uid}@{%domain_school}") {
-                        $_user_properties_extras["mail"]    = array();
-                        $_user_properties_extras["mail"][0] = $user_data['uid'][0] . "@" . $this->csvinfo['domain_school'];
+                        $_user_properties_extras["mail"] = $user_data['uid'][0] . "@" . $this->csvinfo['domain_school'];
                         continue;
                     }
                 }
@@ -2070,7 +2068,8 @@ class importaccounts extends plugin
                 is_countable($user_data['mail']) and
                 count($user_data['mail']) > 0
             ) {
-                $_user_properties_extras["mail"] = $user_data['mail'];
+                /* the mail attribute of userTab is a string(!!!), not an array */
+                $_user_properties_extras["mail"] = $user_data['mail'][0];
             }
         }
 
@@ -2124,8 +2123,7 @@ class importaccounts extends plugin
                         !in_array($uid_at_school_domain, $_user_properties_extras["alias"])
                     ) and (
                         isset($_user_properties_extras["mail"]) and
-                        is_array($_user_properties_extras["mail"]) and
-                        !in_array($uid_at_school_domain, $_user_properties_extras["mail"])
+                        ($_user_properties_extras["mail"] === $uid_at_school_domain)
                     )
                 ) {
                     if (!isset($_user_properties_extras["alias"])) {
