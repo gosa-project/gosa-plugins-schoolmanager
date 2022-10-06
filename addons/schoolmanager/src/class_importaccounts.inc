@@ -1177,8 +1177,6 @@ class importaccounts extends plugin
                          */
                         if (isset($gosa_account['alias'])) {
                             $this->csvinfo['data_preldap'][$key]['main_account']['alias'] = $gosa_account['alias'];
-                        } else {
-                            $this->csvinfo['data_preldap'][$key]['main_account']['alias'] = array();
                         }
 
                         /* Check if the alias LDAP attribute needs to be modified. */
@@ -1362,7 +1360,7 @@ class importaccounts extends plugin
                         if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] == 'unchecked') {
                             if (isset($aux_account['sn']) and isset($aux_account['mail']) and isset($aux_account['givenName'])) {
                                 $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'not-found';
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'create,set-password';
+                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'create,set-password,skip-aliases';
                                 /* set the main account's base for object creation */
                                 $expected_base = $this->genAccountBase($aux_account);
                                 $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base'] = array($expected_base);
@@ -2041,61 +2039,94 @@ class importaccounts extends plugin
                 ($this->utils->strcontains($user_data['_actions'][0], 'create') or
                 $this->utils->strcontains($user_data['_actions'][0], ('update-' . $update_property)))
             ) {
-                // Special case for 'mail' property.
+                // Special cases for 'mail' property:
                 if ($update_property === "mail") {
                     /*
                      * FIXME: We need to dearly improve this bit and make this more configurable
                      *        I.e. allow for more patterns, such as {%uid}@{%domain_teachers}, etc.
                      */
-                    if ($user_data['mail'][0] == "{%uid}@{%domain_school}") {
+                    if ($user_data['mail'][0] == "{%uid}@{%domain_users}") {
+                        $_user_properties_extras["mail"]    = array();
+                        $_user_properties_extras["mail"][0] = $user_data['uid'][0] . "@" . $this->csvinfo['domain_users'];
+                        continue;
+                    } elseif ($user_data['mail'][0] == "{%uid}@{%domain_school}") {
                         $_user_properties_extras["mail"]    = array();
                         $_user_properties_extras["mail"][0] = $user_data['uid'][0] . "@" . $this->csvinfo['domain_school'];
-                    } else {
-                        $_user_properties_extras["mail"] = $user_data['mail'][0];
+                        continue;
                     }
-                    continue;
                 }
 
                 $_user_properties_extras[$update_property] = $user_data[$update_property][0];
             }
         }
 
-        // Prepare 'alias' field.
+        // We'll need the 'mail' extra property further down...
+        if (!isset($_user_properties_extras["mail"])) {
+            if (
+                isset($user_data['mail']) and
+                is_countable($user_data['mail']) and
+                count($user_data['mail']) > 0
+            ) {
+                $_user_properties_extras["mail"] = $user_data['mail'];
+            }
+        }
+
+        // Use existing 'alias' field (if any) and modify that if needed.
         if (
             isset($user_data['alias']) and
             is_countable($user_data['alias']) and
             count($user_data['alias']) > 0
         ) {
             $_user_properties_extras["alias"] = $user_data['alias'];
-        } else {
-            $_user_properties_extras["alias"] = array();
         }
 
-        // Prepare $uid_at_domain with <UID>@<domain>
+        // Prepare $uid_at_school_domain with <UID>@<domain>
         if (isset($user_data['uid'][0])) {
-            $uid_at_domain = $user_data['uid'][0] . "@" . $this->csvinfo['domain_school'];
+            if ($user_data['uid'][0] === "{%uid}") {
+                $_uid = $_user_properties_base['uid'];
+            } else {
+                $_uid = $user_data['uid'][0];
+            }
+            $uid_at_school_domain = $_uid . "@" . $this->csvinfo['domain_school'];
         }
 
-        // Drop $uid_at_domain from alias field, if this is supposed to happen
+        // Drop $uid_at_school_domain from alias field, if this is supposed to happen
         if (
+            isset($_user_properties_extras["alias"]) and
+            is_array($_user_properties_extras["alias"]) and
             isset($user_data['_actions'][0]) and
             $this->utils->strcontains($user_data['_actions'][0], 'drop-uid-at-domain-from-aliases')
         ) {
-            // Drop $uid_at_domain from $_user_properties_extras["alias"].
+            // Drop $uid_at_school_domain from $_user_properties_extras["alias"].
             $_user_properties_extras["alias"] = array_values(
-                array_diff($_user_properties_extras["alias"], array($uid_at_domain))
+                array_diff($_user_properties_extras["alias"], array($uid_at_school_domain))
             );
         }
-        // Add $uid_at_domain to alias field, if this is supposed to happen
-        elseif ($this->csvinfo['aliases_in_schooldomain']) {
+
+        // Add $uid_at_school_domain to alias field, if this is supposed to happen.
+        if ($this->csvinfo['aliases_in_schooldomain']) {
             if (
                 $this->utils->strcontains($user_data['_actions'][0], 'add-uid-at-domain-to-aliases') or
-                $this->utils->strcontains($user_data['_actions'][0], 'create')
+                (
+                    $this->utils->strcontains($user_data['_actions'][0], 'create') and
+                    !$this->utils->strcontains($user_data['_actions'][0], 'skip-aliases')
+                )
             ) {
-                // Include $uid_at_domain in $_user_properties_extras["alias"]
+                // Include $uid_at_school_domain in $_user_properties_extras["alias"]
                 // if it isn't already.
-                if (!in_array($uid_at_domain, $_user_properties_extras["alias"])) {
-                    $_user_properties_extras["alias"][] = $uid_at_domain;
+                if (
+                    (
+                        is_array($_user_properties_extras["alias"]) and
+                        !in_array($uid_at_school_domain, $_user_properties_extras["alias"])
+                    ) and (
+                        is_array($_user_properties_extras["mail"]) and
+                        !in_array($uid_at_school_domain, $_user_properties_extras["mail"])
+                    )
+                ) {
+                    if (!isset($_user_properties_extras["alias"])) {
+                        $_user_properties_extras["alias"] = array();
+                    }
+                    $_user_properties_extras["alias"][] = $uid_at_school_domain;
                 }
             }
         }
