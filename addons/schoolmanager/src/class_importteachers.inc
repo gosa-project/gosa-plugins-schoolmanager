@@ -293,6 +293,12 @@ class importteachers extends importaccounts
                     $groups = array_merge($groups, $subject_groups);
                 }
 
+                foreach ($groups as $cn => $group) {
+                    if (isset($_extra_classes[$cn])) {
+                        unset ($_extra_classes[$cn]);
+                    }
+                }
+
                 $data_preldap[] = array(
                     'main_account' => $teacher,
                     'groups' => $groups,
