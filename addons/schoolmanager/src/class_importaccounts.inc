@@ -1453,14 +1453,7 @@ class importaccounts extends plugin
                 $_all_groups = array_merge($_all_groups, $row['aux_accounts_groups']);
             }
             if (isset($row['optional_groups'])) {
-                foreach ($row['optional_groups'] as $opt_group) {
-                    if (
-                        isset($opt_group['cn'][0]) and
-                        (!in_array($opt_group['cn'][0], array_keys($_all_groups)))
-                    ) {
-                        $_all_groups[$opt_group['cn'][0]] = $opt_group;
-                    }
-                }
+                $_all_groups = array_merge($_all_groups, $row['optional_groups']);
             }
 
             foreach ($_all_groups as $group_key => $group) {
