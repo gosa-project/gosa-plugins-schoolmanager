@@ -123,6 +123,12 @@ class importteachers extends importaccounts
                     $_subjects = str_replace(";", "_", $_subjects);
                     $teacher['departmentNumber'] = array($_subjects);
                 }
+                if (isset($row_sorted['class'])) {
+                    $_class = trim($row_sorted['class']);
+                    $_class = str_replace(",", "_", $_class);
+                    $_class = str_replace(";", "_", $_class);
+                    $row_sorted['class'] = $_class;
+                }
                 $teacher['sn']        = array (trim($row_sorted['sn']));
                 $teacher['givenName'] = array (trim($row_sorted['givenName']));
                 $teacher['gender']    = array ($this->utils->normalizeGenderString(trim($row_sorted['gender'])));
@@ -153,23 +159,17 @@ class importteachers extends importaccounts
 
                 /* class group(s) */
                 if (isset($row_sorted['class']) && $row_sorted['class']) {
-                    /* parse value for attribute "class", requires later work to make it more generic */
-                    $tmpclassparts = explode(".", strtolower($row_sorted['class']));
-                    $tmpclassparts[0] = trim($tmpclassparts[0]);
-                    if (isset($tmpclassparts[1])) {
-                        $tmpclassparts[1] = trim($tmpclassparts[1]);
-                        $tmpclassparts[1] = substr($tmpclassparts[1], 1);
-                    }
-                    $row_sorted['class'] = $tmpclassparts[0];
-                    if (isset($tmpclassparts[1])) {
-                        $row_sorted['class'] += $row_sorted['class'] . $tmpclassparts[1];
-                    }
 
                     $class_groups = array();
-                    $_classes = str_replace(";", "_", trim($row_sorted['class']));
-                    foreach (explode("_", $_classes) as $class) {
-                        $_class = $this->validGroupName('class_' . $class);
-                        if ($_class) {
+
+                    foreach (explode("_", $row_sorted['class']) as $class) {
+
+                        /* parse value for each "class", we need to strip of '.1' or '.2' for some school administration data exports */
+                        $tmpclassparts = explode(".", strtolower($class));
+                        $class = $tmpclassparts[0];
+
+                        if ($class) {
+                            $_class = $this->validGroupName('class_' . $class);
                             $_cn = $_class;
                             $class_groups[$_cn] = array(
                                 'objectClass' => array(
