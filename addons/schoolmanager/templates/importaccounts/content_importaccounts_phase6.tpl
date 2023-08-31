@@ -13,7 +13,7 @@
     <br>
 
     {foreach from=$data_groups item=group key=key}
-    <div style="float:left; width:24em; height:30ex;">
+    <div style="float:left; width:24em;">
     <table summary="{t 1=$group['cn'][0]}Group object: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
             <tr>
             <td bgcolor="#BBBBBB" colspan="2">
