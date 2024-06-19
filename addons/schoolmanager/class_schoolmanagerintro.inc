@@ -25,7 +25,7 @@
 class schoolmanagerintro extends plugin
 {
     /** Template URI (.tpl file) */
-    const TEMPLATE_URI = "../templates/schoolmanagerintro/content_schoolmanagerintro.tpl";
+    const TEMPLATE_URI = "schoolmanagerintro/content_schoolmanagerintro.tpl";
 
     /* Definitions */
     var $plHeadline    = "Introduction";

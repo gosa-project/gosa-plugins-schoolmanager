@@ -25,7 +25,7 @@
 class importaccounts extends plugin
 {
     /** Template URI (.tpl file) */
-    public const TEMPLATE_URI = "../templates/importaccounts/content_importaccounts_base.tpl";
+    public const TEMPLATE_URI = "importaccounts/content_importaccounts_base.tpl";
 
     // GOsa² definitions
     var $plHeadline = "Manage Accounts";
@@ -916,7 +916,7 @@ class importaccounts extends plugin
 
         // Give the base template the directory path where all phases are located.
         $_phases_path = $smarty->getTemplateDir()[0];
-        $_phases_path .= get_template_path("../templates/importaccounts/", true);
+        $_phases_path .= get_template_path("importaccounts/", true);
         $smarty->assign("phases_path", $_phases_path);
 
         /*
