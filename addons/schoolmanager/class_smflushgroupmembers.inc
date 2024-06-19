@@ -25,7 +25,7 @@
 class smflushgroupmembers
 {
     /** Template URI (.tpl file) */
-    const TEMPLATE_URI = "../templates/smflushgroupmembers/content_smflushgroupmembers.tpl";
+    const TEMPLATE_URI = "smflushgroupmembers/content_smflushgroupmembers.tpl";
 
     function __construct(&$config, schoolmgr_utils &$utils)
     {
