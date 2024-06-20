@@ -7,7 +7,7 @@
     your needs. Please configure options of this import below.{/t}
 </p>
 
-<table summary="{t}Configure import options{/t}">
+<table summary="{t}Configure import options{/t}" style="width: 100%;">
     {if $import_account_type == 'studentsandparents'}
         <tr>
             <td colspan="3">
