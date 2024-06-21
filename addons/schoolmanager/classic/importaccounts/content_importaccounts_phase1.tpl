@@ -123,20 +123,25 @@
             <tr>
                 <td>{t}Column{/t} 07</td>
                 <td><b>{t}Gender{/t}</b></td>
-                <td>{t}The student's gender (male / female / ...).{/t}</td>
+                <td>{t}The teacher's gender (male / female / ...).{/t}</td>
             </tr>
             <tr>
                 <td>{t}Column{/t} 08</td>
+                <td><b>{t}Mail Address{/t}</b></td>
+                <td>{t}The teacher's mail address.{/t}</td>
+            </tr>
+            <tr>
+                <td>{t}Column{/t} 09</td>
                 <td><b>{t}Subjects{/t}</b></td>
                 <td>{t}The subjects a teacher can teach / is trained for.{/t}</td>
             </tr>
             <tr>
-                <td>{t}Column{/t} 09</td>
+                <td>{t}Column{/t} 10</td>
                 <td><b>{t}Class{/t}</b></td>
                 <td>{t}The primary class a teacher is assigned to. If the teacher is not a class teacher, then leave empty.{/t}</td>
             </tr>
             <tr>
-                <td>{t}Column{/t} 10&ndash;XX</td>
+                <td>{t}Column{/t} 11&ndash;XX</td>
                 <td><b>{t}Courses{/t}</b></td>
                 <td>{t}Courses a teacher teaches (one per column, use as many columns as needed).{/t}</td>
             </tr>
