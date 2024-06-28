@@ -22,6 +22,7 @@
  */
 
 
+#[\AllowDynamicProperties]
 class smflushgroupmembers
 {
     /** Template URI (.tpl file) */
