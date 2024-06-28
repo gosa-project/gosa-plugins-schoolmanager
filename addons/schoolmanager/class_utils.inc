@@ -20,6 +20,7 @@
  */
 
 
+#[\AllowDynamicProperties]
 class schoolmgr_utils
 {
     // Enables/Disables debug prints to js console.
