@@ -354,7 +354,7 @@ class importaccounts extends plugin
         /* Load the properties we need in this phase */
         if ($quick_import === false) {
             $_template      = $_POST["template_" . $this->import_account_type];
-            $_template_aux  = $_POST["template_" . $this->import_account_type . "_aux"];
+            $_template_aux  = $_POST["template_" . $this->import_account_type . "_aux"] ?? null;
             $_ou_groups     = $_POST["ou_groups"];
             $_domain_users  = $_POST["domain_users"];
             $_domain_groups = $_POST["domain_groups"];
