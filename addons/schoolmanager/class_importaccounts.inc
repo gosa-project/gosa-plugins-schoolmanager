@@ -291,7 +291,7 @@ class importaccounts extends plugin
          * Search OUs with objectClass gosaDepartment
          */
         $this->csvinfo['ou_tree'] = array();
-        $this->csvinfo['ou_tree']['ldapsearch'] = $this->_ldap->search("(objectClass=gosaDepartment)", array("ou", "description"));
+        $_ldapsearch = $this->_ldap->search("(objectClass=gosaDepartment)", array("ou", "description"));
 
         // Create arrays for search results
         $this->csvinfo['ou_tree']['formfields'] = array();
@@ -300,7 +300,7 @@ class importaccounts extends plugin
         // Add found gosaDepartment objects
         $i = 0;
         $default_ou_for_groups = 0;
-        while ($result = $this->_ldap->fetch($this->csvinfo['ou_tree']['ldapsearch'])) {
+        while ($result = $this->_ldap->fetch($_ldapsearch)) {
             $this->csvinfo['ou_tree']['OUs'][]        = $result['ou'][0];
             $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0] . " - " . $result['description'][0];
             $this->csvinfo['ou_tree']['DNs'][]        = $result['dn'];
