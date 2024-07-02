@@ -8,7 +8,7 @@
 
 
 <p>
-    {if $error == FALSE}
+    {if not isset($error) or not $error}
         <b>{t}All entries have been written to the LDAP database successfully.{/t}</b>
     {else}
         <b style="color:red">{t}There has been at least one error during the import of your data.{/t}</b>
