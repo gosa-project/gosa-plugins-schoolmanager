@@ -7,4 +7,4 @@
     {/t}
 </h3>
 
-{include file="`$phases_path`../common/accounts-table.tpl" inline}
+{include file="`$phases_path`../common/accounts_table.tpl" inline}

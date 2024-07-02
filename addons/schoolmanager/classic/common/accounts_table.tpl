@@ -1,4 +1,4 @@
-{block name=accounts-table}
+{block name=accounts_table}
     {foreach from=$data item=row key=key}
         <table summary="{t 1=$data[$key]['main_account']['sn'][0] 2=$data[$key]['main_account']['givenName'][0]}User account: %1, %2{/t}"
                cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
