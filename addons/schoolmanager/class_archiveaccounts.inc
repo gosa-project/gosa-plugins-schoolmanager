@@ -370,7 +370,7 @@ class archiveaccounts extends plugin
 
         // Search OUs with objectClass gosaDepartment
         $this->csvinfo['ou_tree'] = array();
-        $this->csvinfo['ou_tree']['ldapsearch'] = $this->_ldap->search(
+        $_ldapsearch = $this->_ldap->search(
             "(objectClass=gosaDepartment)",
             array("ou", "description")
         );
@@ -383,7 +383,7 @@ class archiveaccounts extends plugin
         $default_ou_users = 0;
         $default_ou_matching_users = 0;
         // Scan LDAP tree and set default OU's while we're at it
-        while ($result = $this->_ldap->fetch($this->csvinfo['ou_tree']['ldapsearch'])) {
+        while ($result = $this->_ldap->fetch($_ldapsearch)) {
             $this->csvinfo['ou_tree']['OUs'][]        = $result['ou'][0];
             $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0] . " - " . $result['description'][0];
             $this->csvinfo['ou_tree']['DNs'][]        = $result['dn'];
