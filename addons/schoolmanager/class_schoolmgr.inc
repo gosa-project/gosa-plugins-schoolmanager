@@ -33,6 +33,7 @@ class schoolmgr extends plugin
     var $plHeadline = "School Manager";
     var $plDescription = "Administration Utility for Schools";
     var $plIcon = "plugins/schoolmanager/images/schoolmgr.png";
+    var $matIcon = "school";
 
     /* attribute list for save action */
     var $attributes = array();
