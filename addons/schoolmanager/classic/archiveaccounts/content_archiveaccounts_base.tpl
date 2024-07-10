@@ -78,7 +78,7 @@
 
     {/if}
 
-    {if $file_uploaded == TRUE && $cleanup_completed != TRUE}
+    {if $file_uploaded == TRUE}
         <button type="submit" name="cancel_archiving">{t}Cancel archiving{/t}</button>
     {/if}
 </div>
