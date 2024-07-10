@@ -548,6 +548,7 @@ class archiveaccounts extends plugin
 
     function execute_phase_4($smarty)
     {
+        $failed_accs = array();
         $returnval = true;
         $smarty->assign("data_sorted", true);
         $smarty->assign("archive_configured", true);
