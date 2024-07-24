@@ -2457,20 +2457,13 @@ class importaccounts extends plugin
 
     function randomAlphaNumPassword(int $length): string
     {
-        $alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
-
-        // Remember to declare $pass as an array
-        $pass = array();
-
-        $alphaLength = strlen($alphabet) - 1;
-
+        $chars = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
+        $chars_max = strlen($chars) - 1;
+        $pass = "";
         for ($i = 0; $i < $length; $i++) {
-            $n = rand(0, $alphaLength);
-            $pass[] = $alphabet[$n];
+            $pass .= $chars[random_int(0, $chars_max)];
         }
-
-        // Turn the $pass array into a string
-        return implode($pass);
+        return $pass;
     }
 }
 
