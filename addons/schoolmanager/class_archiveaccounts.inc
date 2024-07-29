@@ -725,8 +725,9 @@ class archiveaccounts extends plugin
         $usertab->by_object['user']->base = $_base;
 
         $this->failure_messages = array();
-        if (count($usertab->check())) {
-            $this->failure_messages[] = $usertab->check();
+        $usertab_check = $usertab->check();
+        if (count($usertab_check)) {
+            $this->failure_messages[] = $usertab_check;
 
             /*
              * FIXME: collect failure statistics here!!!
@@ -891,9 +892,9 @@ class archiveaccounts extends plugin
         }
 
         /* Run GOsa²'s groups/group | ogroups/ogroup checks */
-
-        if (count($grouptab->check())) {
-            msg_dialog::displayChecks($grouptab->check());
+        $grouptab_check = $grouptab->check();
+        if (count($grouptab_check)) {
+            msg_dialog::displayChecks($grouptab_check);
 
             /*
             * FIXME: collect failure statistics here!!!
