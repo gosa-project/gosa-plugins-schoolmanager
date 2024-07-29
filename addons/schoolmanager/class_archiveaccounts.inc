@@ -600,7 +600,7 @@ class archiveaccounts extends plugin
                 'none'
                 );
 
-                $new_primgroup_base = $user_data['main_account']['_base'][0];
+                $new_primgroup_base = $user_data['main_account']['_dn'][0];
                 $this->utils->checkOUExists($new_primgroup_base, array("description" => _("Archived accounts")));
                 // TODO: Check return code.
 
@@ -667,7 +667,7 @@ class archiveaccounts extends plugin
                   $new_group_name
                  ),
                  '_dn' => array(
-                  'cn=' . $new_group_name . ',' . get_groups_ou() . $user_data['main_account']['_base_ldap'][0]
+                  'cn=' . $new_group_name . ',' . get_groups_ou() . $user_data['main_account']['_dn_ldap'][0]
                  ),
                  '_actions' => array(
                   'move'
