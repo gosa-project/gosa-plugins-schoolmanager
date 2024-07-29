@@ -667,7 +667,7 @@ class archiveaccounts extends plugin
                   $new_group_name
                  ),
                  '_dn' => array(
-                  'cn=' . $new_group_name . ',' . get_groups_ou() . $user_data['main_account']['_dn_ldap'][0]
+                  'cn=' . $new_group_name . ',' . get_groups_ou() . dn2base($user_data['main_account']['_dn_ldap'][0])
                  ),
                  '_actions' => array(
                   'move'
