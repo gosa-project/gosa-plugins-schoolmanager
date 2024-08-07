@@ -74,11 +74,11 @@
     {t}Continue here, when ready{/t}: <button type="submit" name="accounts_archived">{t 1="7/11"}Move primary group (Step %1){/t}</button>
 
     {elseif $primgroups_moved != TRUE}
-    {t}Continue here, when ready{/t}: <button type="submit" name="primgroups_moved">{t 1="8/11"}stuff (Step %1){/t}</button>
+    <!-- {t}Continue here, when ready{/t}: <button type="submit" name="primgroups_moved">{t 1="8/11"}stuff (Step %1){/t}</button> -->
 
     {/if}
 
-    {if $file_uploaded == TRUE}
+    {if $file_uploaded == TRUE && $primgroups_moved != TRUE}
         <button type="submit" name="cancel_archiving">{t}Cancel archiving{/t}</button>
     {/if}
 </div>
