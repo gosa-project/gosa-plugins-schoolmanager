@@ -777,7 +777,7 @@ class archiveaccounts extends plugin
 
     function archiveLDAPGroupObject($group_name, $group_data)
     {
-        $returnval = "TRUE";
+        $returnval = true;
 
         // Only perform on this user dataset if _actions does contain a valid action…
         if (
