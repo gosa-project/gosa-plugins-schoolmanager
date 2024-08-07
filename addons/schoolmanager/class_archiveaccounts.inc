@@ -391,7 +391,7 @@ class archiveaccounts extends plugin
             // Use schoolmanager OU if it exists.
             if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
                 $default_ou_users = $i;
-            } elseif (strcasecmp($result['ou'][0], "students") == 0) {
+            } elseif (strcasecmp($result['ou'][0], $this->archive_type) == 0) {
                 $default_ou_matching_users = $i;
             }
 
