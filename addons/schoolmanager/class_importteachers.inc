@@ -159,11 +159,9 @@ class importteachers extends importaccounts
 
                 /* class group(s) */
                 if (isset($row_sorted['class']) && $row_sorted['class']) {
-
                     $class_groups = array();
 
                     foreach (explode("_", $row_sorted['class']) as $class) {
-
                         /* parse value for each "class", we need to strip of '.1' or '.2' for some school administration data exports */
                         $tmpclassparts = explode(".", strtolower($class));
                         $class = $tmpclassparts[0];
@@ -295,7 +293,7 @@ class importteachers extends importaccounts
 
                 foreach ($groups as $cn => $group) {
                     if (isset($_extra_classes[$cn])) {
-                        unset ($_extra_classes[$cn]);
+                        unset($_extra_classes[$cn]);
                     }
                 }
 
