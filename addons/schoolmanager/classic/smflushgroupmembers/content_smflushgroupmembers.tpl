@@ -25,8 +25,8 @@
     <hr>
     <br>
 
-    <table summary="{t 1=$group['cn'][0]}POSIX Group: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
     {foreach from=$data_groups item=group key=key}
+    <table summary="{t 1=$group['cn'][0]}POSIX Group: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE" style="width: 100%;">
         <tr>
         <th width="20%" bgcolor="#BBBBBB">
             {t}Group Name{/t}
@@ -51,8 +51,8 @@
             {/if}
             </td>
         </tr>
-    {/foreach}
     </table>
+    {/foreach}
 {elseif !isset($empty_schoolmgr_groups_now_phase2_done)} <!-- Phase2 flow control -->
     <b>{t}Step 2:{/t} {t}Empty SchoolManager administered object groups{/t}:</b>
 
@@ -80,13 +80,13 @@
     <hr>
     <br>
 
-    <table summary="{t 1=$group['cn'][0]}Group object: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
     {foreach from=$data_ogroups item=group key=key}
+    <table summary="{t 1=$group['cn'][0]}Group object: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE" style="width: 100%;">
         <tr>
-        <th bgcolor="#BBBBBB">
+        <th width="20%" bgcolor="#BBBBBB">
             {t}Group Name{/t}
         </th>
-        <th bgcolor="#BBBBBB">
+        <th width="30%" bgcolor="#BBBBBB">
             {t}Description{/t}
         </th>
         <th bgcolor="#BBBBBB">
@@ -106,8 +106,8 @@
             {/if}
             </td>
         </tr>
-    {/foreach}
     </table>
+    {/foreach}
 {elseif !isset($empty_schoolmgr_groups_now_phase3_done)} <!-- Phase3 flow control -->
     <br>
     <b>{t}Step 3:{/t} {t}Statistics{/t}:</b>
