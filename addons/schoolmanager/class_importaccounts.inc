@@ -554,6 +554,7 @@ class importaccounts extends plugin
             unset($this->csvinfo['data_sorted']);
 
             $this->accountStatusCheck();
+            $this->groupStatusCheck();
 
             $smarty->assign("data_sorted", true);
             $smarty->assign("data", $this->csvinfo['data_preldap']);
@@ -601,6 +602,8 @@ class importaccounts extends plugin
             $smarty->assign("accounts_reviewed", true);
 
             $this->accountStatusCheck();
+            $this->groupStatusCheck();
+
             $smarty->assign("data", $this->csvinfo['data_preldap']);
         } else {
             // Show failure messages
@@ -610,6 +613,8 @@ class importaccounts extends plugin
 
             // Prepare for reloading this phase's web page again…
             $this->accountStatusCheck();
+            $this->groupStatusCheck();
+
             $smarty->assign("data", $this->csvinfo['data_preldap']);
         }
     }
@@ -622,7 +627,10 @@ class importaccounts extends plugin
     {
         if ($this->failure_in_this_phase !== false) {
             // Prepare for reloading this phase's web page again…
+
             $this->accountStatusCheck();
+            $this->groupStatusCheck();
+
             $smarty->assign("data", $this->csvinfo['data_preldap']);
 
             return;
