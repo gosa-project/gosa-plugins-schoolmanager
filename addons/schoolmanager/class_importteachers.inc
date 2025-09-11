@@ -158,8 +158,8 @@ class importteachers extends importaccounts
                  /* groups for this account */
 
                 /* class group(s) */
+                $class_groups = array();
                 if (isset($row_sorted['class']) && $row_sorted['class']) {
-                    $class_groups = array();
 
                     foreach (explode("_", $row_sorted['class']) as $class) {
                         /* parse value for each "class", we need to strip of '.1' or '.2' for some school administration data exports */
