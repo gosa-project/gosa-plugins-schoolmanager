@@ -1246,7 +1246,7 @@ class importaccounts extends plugin
                          *     - aux-user is parent2
                          */
                         if ($this->utils->strcontains($aux_account['_status'][0], 'same-mail-as-parent1')) {
-                            $aux_account['_actions'] = array('ignore,combine-with-parent1');
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'] = array('ignore,combine-with-parent1');
                             continue;
                         }
 
