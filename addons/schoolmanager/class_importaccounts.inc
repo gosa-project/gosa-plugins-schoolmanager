@@ -1398,7 +1398,6 @@ class importaccounts extends plugin
         // Initialize group actions for each main account and each aux account
         foreach ($this->csvinfo['data_preldap'] as $key => $row) {
             if (
-                $this->utils->strcontains($row['main_account']['_actions'][0], 'none') or
                 $this->utils->strcontains($row['main_account']['_actions'][0], 'ignore') or
                 $this->utils->strcontains($row['main_account']['_actions'][0], 'ignore,check-manually')
             ) {
