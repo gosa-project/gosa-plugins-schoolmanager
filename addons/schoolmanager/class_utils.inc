@@ -176,7 +176,7 @@ class schoolmgr_utils
         // Most of the time the files are encoded in 'UTF-8' or 'ISO-8859-1'.
         if (!mb_check_encoding($raw_csv_data, "UTF-8")) {
             if (mb_check_encoding($raw_csv_data, "iso-8859-1")) {
-                $raw_csv_data = utf8_encode($raw_csv_data);
+                $raw_csv_data = mb_convert_encoding($raw_csv_data, 'UTF-8', 'ISO-8859-1');
             } else {
                 $ret_array[0] = false; // Not successful.
                 $ret_array[1] = sprintf(
