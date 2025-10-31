@@ -1052,32 +1052,29 @@ class importaccounts extends plugin
 
         $this->_ldap->cd($this->config->current['BASE']);
 
+        // Build list of LDAP attributes to test for matching existing accounts
+        // The user previously selected these attributes via the form.
+        $test_attrs = array();
+        $match_attrs = array(
+            'sel_ldap_match_attr_studentid' => 'employeeNumber',
+            'sel_ldap_match_attr_snname'    => 'sn',
+            'sel_ldap_match_attr_givenname' => 'givenName',
+            'sel_ldap_match_attr_gender'    => 'gender',
+            'sel_ldap_match_attr_birthday'  => 'dateOfBirth',
+        );
+        foreach ($match_attrs as $config_key => $ldap_attr) {
+            if ($this->csvinfo[$config_key]) {
+                $test_attrs[] = $ldap_attr;
+            }
+        }
+
         /* this will probably scale very very badly… Improvement needed. Suggestions? */
         foreach ($this->csvinfo['data_preldap'] as $key => $row) {
             if (!isset($row['main_account'])) {
                 continue;
             }
 
-            $test_attrs = array();
-            if ($this->csvinfo['sel_ldap_match_attr_studentid']) {
-                $test_attrs[] = "employeeNumber";
-            }
-            if ($this->csvinfo['sel_ldap_match_attr_snname']) {
-                $test_attrs[] = "sn";
-            }
-            if ($this->csvinfo['sel_ldap_match_attr_givenname']) {
-                $test_attrs[] = "givenName";
-            }
-            if ($this->csvinfo['sel_ldap_match_attr_gender']) {
-                $test_attrs[] = "gender";
-            }
-            if ($this->csvinfo['sel_ldap_match_attr_birthday']) {
-                $test_attrs[] = "dateOfBirth";
-            }
-
             $_ldapfilter = "(objectClass=gosaAccount)";
-
-            $this->utils->debug_to_console("accountStatusCheck: Count \$test_attrs: " . count($test_attrs));
             if (count($test_attrs) > 0) {
                 $_ldapfilter = "(&" . $_ldapfilter;
                 foreach ($test_attrs as $attr) {
