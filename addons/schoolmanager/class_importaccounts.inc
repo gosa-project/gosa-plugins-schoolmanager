@@ -60,11 +60,20 @@ class importaccounts extends plugin
     // Collection container for failure messages
     var $failure_messages = array();
 
+    // Timeout protection instance
+    var $timeout_protection = null;
+
     // importaccounts class constructor
     function __construct(&$config, $dn = null)
     {
 
         $this->initTime = microtime(true);
+
+        $this->timeout_protection = new timeoutProtection(
+            'import_' . get_class($this),
+            10*60, // Time limit
+            $this,
+        );
 
         /* Include config object */
         $this->config = &$config;
@@ -341,6 +350,12 @@ class importaccounts extends plugin
         $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
         $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
         $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
+
+        // Log phase execution time (timer started in parent execute())
+        if ($this->timeout_protection) {
+            $elapsed = $this->timeout_protection->getElapsedTime();
+            $this->utils->debug_to_console("Phase 1 completed in {$elapsed}s");
+        }
     }
 
 
@@ -472,6 +487,12 @@ class importaccounts extends plugin
             $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
             $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
         }
+
+        // Log phase execution time (timer started in parent execute())
+        if ($this->timeout_protection) {
+            $elapsed = $this->timeout_protection->getElapsedTime();
+            $this->utils->debug_to_console("Phase 2 completed in {$elapsed}s");
+        }
     }
 
 
@@ -564,6 +585,12 @@ class importaccounts extends plugin
             $smarty->assign("num_rows", $this->csvinfo['num_cols']);
             $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
         }
+
+        // Log phase execution time (timer started in parent execute())
+        if ($this->timeout_protection) {
+            $elapsed = $this->timeout_protection->getElapsedTime();
+            $this->utils->debug_to_console("Phase 3 completed in {$elapsed}s");
+        }
     }
 
 
@@ -611,6 +638,12 @@ class importaccounts extends plugin
             // Prepare for reloading this phase's web page again…
             $this->accountStatusCheck();
             $smarty->assign("data", $this->csvinfo['data_preldap']);
+        }
+
+        // Log phase execution time (timer started in parent execute())
+        if ($this->timeout_protection) {
+            $elapsed = $this->timeout_protection->getElapsedTime();
+            $this->utils->debug_to_console("Phase 4 completed in {$elapsed}s");
         }
     }
 
@@ -666,6 +699,12 @@ class importaccounts extends plugin
 
         $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
         $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
+
+        // Log phase execution time (timer started in parent execute())
+        if ($this->timeout_protection) {
+            $elapsed = $this->timeout_protection->getElapsedTime();
+            $this->utils->debug_to_console("Phase 5 completed in {$elapsed}s");
+        }
     }
 
 
@@ -711,6 +750,12 @@ class importaccounts extends plugin
 
             // Prepare for reloading this phase's web page again…
         }
+
+        // Log phase execution time (timer started in parent execute())
+        if ($this->timeout_protection) {
+            $elapsed = $this->timeout_protection->getElapsedTime();
+            $this->utils->debug_to_console("Phase 6 completed in {$elapsed}s");
+        }
     }
 
 
@@ -731,6 +776,12 @@ class importaccounts extends plugin
             $this->groupStatusCheck();
             $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
             $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
+        }
+
+        // Log phase execution time (timer started in parent execute())
+        if ($this->timeout_protection) {
+            $elapsed = $this->timeout_protection->getElapsedTime();
+            $this->utils->debug_to_console("Phase 7 completed in {$elapsed}s");
         }
     }
 
@@ -758,6 +809,12 @@ class importaccounts extends plugin
             // Prepare for reloading this phase's web page again…
             $this->prepareGroupMemberships();
         }
+
+        // Log phase execution time (timer started in parent execute())
+        if ($this->timeout_protection) {
+            $elapsed = $this->timeout_protection->getElapsedTime();
+            $this->utils->debug_to_console("Phase 8 completed in {$elapsed}s");
+        }
     }
 
 
@@ -770,6 +827,12 @@ class importaccounts extends plugin
             $smarty->assign("accounts_groupmembers_updated", true);
         } else {
             // Prepare for reloading this phase's web page again…
+        }
+
+        // Log phase execution time (timer started in parent execute())
+        if ($this->timeout_protection) {
+            $elapsed = $this->timeout_protection->getElapsedTime();
+            $this->utils->debug_to_console("Phase 9 completed in {$elapsed}s");
         }
     }
 
@@ -790,6 +853,12 @@ class importaccounts extends plugin
         } else {
             /* FIXME: no clue what to do on failures here… We will see. */
         }
+
+        // Log phase execution time (timer started in parent execute())
+        if ($this->timeout_protection) {
+            $elapsed = $this->timeout_protection->getElapsedTime();
+            $this->utils->debug_to_console("Phase 10 completed in {$elapsed}s");
+        }
     }
 
 
@@ -797,6 +866,12 @@ class importaccounts extends plugin
     {
         /* Call parent execute */
         plugin::execute();
+
+        // Reset timer at the start of each execute() call
+        // This ensures phase timing is accurate (not from object construction)
+        if ($this->timeout_protection) {
+            $this->timeout_protection->resetTimer();
+        }
 
         $this->import_account_type = substr(get_class($this), 6, strlen(get_class($this)));
 
