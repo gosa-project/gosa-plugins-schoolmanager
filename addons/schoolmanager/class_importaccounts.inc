@@ -873,6 +873,23 @@ class importaccounts extends plugin
             $this->timeout_protection->resetTimer();
         }
 
+        // Check for timeout from previous request
+        if (session::is_set('importaccounts_timeout_error')) {
+            $error_info = session::get('importaccounts_timeout_error');
+            session::del('importaccounts_timeout_error');
+
+            msg_dialog::display(
+                _($error_info['type']),
+                sprintf(
+                    _("The import process failed after %s seconds. "),
+                    $error_info['elapsed']
+                ) .
+                _("Please try with a smaller CSV file or contact your administrator.") .
+                "<br><br><small>" . htmlspecialchars($error_info['message']) . "</small>",
+                ERROR_DIALOG
+            );
+        }
+
         $this->import_account_type = substr(get_class($this), 6, strlen(get_class($this)));
 
         // Log current view
