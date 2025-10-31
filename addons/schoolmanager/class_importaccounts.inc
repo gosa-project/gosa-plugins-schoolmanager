@@ -1149,9 +1149,9 @@ class importaccounts extends plugin
                     }
 
                     /*
-                        * Only update attributes that are already set in the main account dataset
-                        * People should be able to change everything. For example because of a typo or a new name.
-                        */
+                     * Only update attributes that are already set in the main account dataset
+                     * People should be able to change everything. For example because of a typo or a new name.
+                     */
                     $_updatable_attrs = array();
                     foreach (array("mail", "employeeNumber", "departmentNumber", "sn", "givenName", "gender", "dateOfBirth") as $_attr) {
                         if (!in_array($_attr, $row['main_account'])) {
