@@ -947,18 +947,6 @@ class importaccounts extends import
         // Show main page…
         return ($smarty->fetch(get_template_path(self::TEMPLATE_URI, true)));
     }
-
-
-    function randomAlphaNumPassword(int $length): string
-    {
-        $chars = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
-        $chars_max = strlen($chars) - 1;
-        $pass = "";
-        for ($i = 0; $i < $length; $i++) {
-            $pass .= $chars[random_int(0, $chars_max)];
-        }
-        return $pass;
-    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
