@@ -949,34 +949,6 @@ class importaccounts extends import
     }
 
 
-    function genAccountBase($user_data, $groups_data = array())
-    {
-        if ($user_data['_template'][0] != 0) {
-            $template_dn = $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
-            $template_base = preg_replace("/^[^,]+," . preg_quote(get_people_ou(), '/i') . "/", '', $template_dn);
-        } else {
-            $template_base = $this->config->current['BASE'];
-        }
-
-        /* Put accounts into a sub-OU of the template's base DN if requested */
-        if ($this->csvinfo['accounts_in_class_ou'] === true) {
-            $_class_group = "";
-            foreach ($groups_data as $group_key => $group_data) {
-                if ($this->utils->strcontains($group_data['cn'][0], 'class_')) {
-                    $_class_group = 'ou=' . str_replace('class_', '', $group_data['cn'][0]) . ',';
-                    /*
-                     * We take the first class group we find…
-                     * Presuming that students only have _one_ class group assigned(!)
-                     */
-                    break;
-                }
-            }
-            $template_base = $_class_group . $template_base;
-        }
-        return $template_base;
-    }
-
-
     function prepareGroupMemberships()
     {
         /*
