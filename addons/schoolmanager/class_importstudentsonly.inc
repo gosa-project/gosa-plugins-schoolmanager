@@ -22,7 +22,7 @@
  */
 
 
-class importstudentsonly extends importaccounts
+class importstudentsonly extends import_phases
 {
     /* Definitions */
     var $plHeadline = "Import Students (only)";
