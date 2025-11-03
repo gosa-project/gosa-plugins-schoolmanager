@@ -1405,6 +1405,103 @@ class import extends plugin
         }
         return $template_base;
     }
+
+
+    function prepareGroupMemberships()
+    {
+        /*
+         * Collect group memberships from user accounts and store the information
+         * in separate arrays (one for posixGroups, one for gosaGroupOfNames)
+         */
+
+        $this->posixgroup_members   = array();
+        $this->groupofnames_members = array();
+
+        foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
+            if ((isset($user_data['main_account']) and (!empty($user_data['main_account'])))) {
+                $_groups = $user_data['groups'];
+
+                // Process memberships in optional groups, only for groups that exist
+                if (isset($user_data['optional_groups'])) {
+                    foreach ($user_data['optional_groups'] as $opt_group) {
+                        if (
+                            isset($opt_group['cn'][0]) and
+                            ($this->utils->strcontains($user_data['optional_groups'][$opt_group['cn'][0]]['_status'][0], 'exists'))
+                        ) {
+                            $_groups[$opt_group['cn'][0]] = $opt_group;
+                        }
+                    }
+                }
+
+                foreach ($_groups as $group_key => $group_data) {
+                    if (
+                        in_array('posixGroup', $group_data['objectClass']) and
+                        ($this->utils->strcontains($user_data['main_account']['_group_actions'][0], 'update-memberships')) and
+                        ($user_data['main_account']['_group_actions'][$group_key] === "add")
+                    ) {
+                        $_uid = $user_data['main_account']['uid'][0];
+                        if (!in_array($group_key, array_keys($this->posixgroup_members))) {
+                            $this->posixgroup_members[$group_key] = array();
+                        }
+                        $this->posixgroup_members[$group_key][] = $_uid;
+                    }
+
+                    if (
+                        in_array('gosaGroupOfNames', $group_data['objectClass']) and
+                        ($this->utils->strcontains($user_data['main_account']['_ogroup_actions'][0], 'update-memberships')) and
+                        ($user_data['main_account']['_ogroup_actions'][$group_key] === "add")
+                    ) {
+                        if (isset($user_data['main_account']['_dn_ldap'])) {
+                            $this->groupofnames_members[$group_key][] = $user_data['main_account']['_dn_ldap'];
+                        }
+                    }
+                }
+            }
+
+            if (
+                (isset($user_data['aux_accounts']))        and (!empty($user_data['aux_accounts'])) and
+                (isset($user_data['aux_accounts_groups'])) and (!empty($user_data['aux_accounts_groups']))
+            ) {
+                foreach ($user_data['aux_accounts_groups'] as $group_key => $group_data) {
+                    foreach ($user_data['aux_accounts'] as $aux_account) {
+                        if (
+                            in_array('posixGroup', $group_data['objectClass']) and
+                            ($this->utils->strcontains($aux_account['_group_actions'][0], 'update-memberships')) and
+                            ($aux_account['_group_actions'][$group_key] === "add")
+                        ) {
+                            $_uid = $aux_account['uid'][0];
+                            if (!in_array($group_key, array_keys($this->posixgroup_members))) {
+                                $this->posixgroup_members[$group_key] = array();
+                            }
+                            $this->posixgroup_members[$group_key][] = $_uid;
+                        }
+                        if (
+                            in_array('gosaGroupOfNames', $group_data['objectClass']) and
+                            isset($aux_account['_ogroup_actions'][0]) and
+                            isset($aux_account['_ogroup_actions'][$group_key]) and
+                            ($this->utils->strcontains($aux_account['_ogroup_actions'][0], 'update-memberships')) and
+                            ($aux_account['_ogroup_actions'][$group_key] === "add")
+                        ) {
+                            if (!in_array($group_key, array_keys($this->groupofnames_members))) {
+                                $this->groupofnames_members[$group_key] = array();
+                            }
+                            if (isset($aux_account['_dn_ldap'])) {
+                                /*
+                                 * FIXME: DN memberships are case insensitive, we need to convert
+                                 *        $groupofnames_members[$group_key] items into lower case and then
+                                 *        compare with strtolower($aux_account['_dn_ldap'][0]).
+                                 *        Only if there is no case-insensitive match, we may add
+                                 *        another member DN to this group.
+                                 */
+
+                                $this->groupofnames_members[$group_key][] = $aux_account['_dn_ldap'][0];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
