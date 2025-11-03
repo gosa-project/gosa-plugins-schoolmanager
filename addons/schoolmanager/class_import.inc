@@ -93,6 +93,24 @@ class import extends plugin
 
         return $attrs;
     }
+
+
+    /*
+     * The next few functions should be overriden by it's sub-classes
+     * like class_importstudents, class_archiveaccounts, etc…
+     */
+    function prepareLdapImport($csv_data_sorted)
+    {
+        return array();
+    }
+    function getMultiAttributes()
+    {
+        return array();
+    }
+    function getAttrsPreSelection($size)
+    {
+        return array();
+    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
