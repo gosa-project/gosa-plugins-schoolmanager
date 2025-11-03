@@ -27,20 +27,6 @@ class importaccounts extends import
     /** Template URI (.tpl file) */
     public const TEMPLATE_URI = "importaccounts/content_importaccounts_base.tpl";
 
-    // To be overriden by sub-classes.
-    function getAttributes()
-    {
-        /* CSV columns required for import */
-        $attrs = array();
-
-        $attrs[0] = "uid";
-        $attrs[1] = "sn";
-        $attrs[2] = "givenName";
-
-        return $attrs;
-    }
-
-
     /*
      * The next few functions should be overriden by it's sub-classes
      * like class_importstudents, class_archiveaccounts, etc…
