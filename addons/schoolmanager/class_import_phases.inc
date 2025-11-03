@@ -22,7 +22,7 @@
  */
 
 
-class importaccounts extends import
+class import_phases extends import
 {
     /** Template URI (.tpl file) */
     public const TEMPLATE_URI = "importaccounts/content_importaccounts_base.tpl";
