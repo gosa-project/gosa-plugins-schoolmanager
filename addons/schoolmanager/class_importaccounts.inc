@@ -949,44 +949,6 @@ class importaccounts extends import
     }
 
 
-    function CSVRowSanityChecksOk($csv_row, $idx)
-    {
-        $ret_ok = false;
-
-        // Check for most basic columns.
-        if (
-            empty($csv_row['sn']) or  empty($csv_row['givenName']) or
-            !isset($csv_row['sn']) or !isset($csv_row['givenName'])
-        ) {
-            // Output error about missing the least set of attributes…
-            msg_dialog::display(
-                _("Error"),
-                sprintf(
-                    _("Need at least %s and %s to create users (Check line %d in CSV file)!"),
-                    bold("sn"),
-                    bold("givenName"),
-                    $idx + 1
-                ),
-                ERROR_DIALOG
-            );
-        } else {
-            $ret_ok = true;
-        }
-
-        /*
-         *
-         * FIXME: Add plenty of more CSV data sanity checks here!!!!
-         *
-         */
-
-        if (!$ret_ok) {
-            $this->failure_in_this_phase = true;
-        }
-
-        return $ret_ok;
-    }
-
-
     function moveLDAPPrimGroupObjects()
     {
         foreach ($this->csvinfo['data_preldap'] as $idx => $row) {
