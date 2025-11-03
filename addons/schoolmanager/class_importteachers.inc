@@ -22,7 +22,7 @@
  */
 
 
-class importteachers extends importaccounts
+class importteachers extends import_phases
 {
     /* Definitions */
     var $plHeadline = "Import Teachers";
