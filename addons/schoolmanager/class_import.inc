@@ -807,6 +807,161 @@ class import extends plugin
             $this->importLDAPGroupObject($group_data_name, $group_data);
         }
     }
+
+
+    function importLDAPGroupObject($group_name, $group_data)
+    {
+        // Only perform on this user dataset if _actions does not contain "none"…
+        if (
+            ($this->utils->strcontains($group_data['_actions'][0], 'none')) or
+            ($this->utils->strcontains($group_data['_actions'][0], 'ignore'))
+        ) {
+            return;
+        }
+
+        if (in_array('posixGroup', $group_data['objectClass'])) {
+            $_group_obclass    = "posixGroup";
+            $_group_tabs       = "GROUPTABS";
+            $_group_tabs_class = "grouptabs";
+            $_group_RDN        = get_groups_ou();
+            $_group_obj        = "group";
+        } else {
+            $_group_obclass    = "gosaGroupOfNames";
+            $_group_tabs       = "OGROUPTABS";
+            $_group_tabs_class = "ogrouptabs";
+            $_group_RDN        = get_ou("group", "ogroupRDN");
+            $_group_obj        = "ogroup";
+        }
+
+        if (
+            $this->utils->strcontains($group_data['_actions'][0], 'create') or
+            $this->utils->strcontains($group_data['_actions'][0], 'move')
+        ) {
+            /* Instantiate a new group object via GOsa²'s API */
+
+            $grouptab = new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs], 'new');
+            if (isset($group_data['_dn'][0])) {
+                $grouptab->by_object[$_group_obj]->base = dn2base($group_data['_dn'][0]);
+            } else {
+                $grouptab->by_object[$_group_obj]->base = $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
+            }
+        } else {
+            /* Retrieve group object from LDAP via GOsa²'s API */
+
+            $_dn  = 'cn=' . $group_name . ',' . $_group_RDN;
+            $_dn .= $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']];
+
+            $grouptab = new $_group_tabs_class(
+                $this->config,
+                $this->config->data['TABS'][$_group_tabs],
+                $_dn
+            );
+        }
+
+        if ($this->utils->strcontains($group_data['_actions'][0], 'move')) {
+            /* Do an ldapsearch for the source object and prepare a copy+paste action */
+
+            $_ldapsearch = $this->_ldap->search("(&(objectClass=" . $_group_obclass . ")(cn=" . $group_name . "))", array("*"));
+
+            /*
+             * There should only be *ONE* object of this CN in the given LDAP (sub)tree scope.
+             * Thus, only fetching the first object.
+             */
+            $source = $this->_ldap->fetch($_ldapsearch);
+
+            if (!empty($source)) {
+                foreach ($grouptab->by_object as $pname => $plugin) {
+                    $grouptab->by_object[$pname]->prepareForCopyPaste($source);
+                }
+                $remove_later_grouptab = new $_group_tabs_class($this->config, $this->config->data['TABS'][$_group_tabs], $source['dn']);
+            }
+        }
+
+        /* Collect group properties from $group_data */
+        $_group_properties = array(
+            "cn" => $group_data['cn'][0],
+        );
+
+        // Update 'description' if appropriate.
+        if (
+            isset($group_data['description'][0]) and
+            ($this->utils->strcontains($group_data['_actions'][0], 'update-description') or
+            $this->utils->strcontains($group_data['_actions'][0], 'create'))
+        ) {
+            $_group_properties["description"] = $group_data['description'][0];
+        }
+
+        // Update 'mail' if appropriate.
+        if (
+            isset($group_data['mail'][0]) and
+            ($this->utils->strcontains($group_data['_actions'][0], 'update-mail') or
+            $this->utils->strcontains($group_data['_actions'][0], 'create'))
+        ) {
+            $_group_properties["mail"] = $group_data['mail'][0];
+        }
+
+        /*
+         * FIXME: Make mail address creation (from CN) configurable somewhere…
+         */
+
+        /* Populate sub-object attributes for $grouptab with same values */
+        foreach ($_group_properties as $attr => $val) {
+            if (isset($grouptab->$attr)) {
+                $grouptab->$attr = $val;
+            }
+            foreach ($grouptab->by_object as $pname => $plugin) {
+                if (isset($grouptab->by_object[$pname]->$attr)) {
+                    $grouptab->by_object[$pname]->$attr = $val;
+                }
+            }
+        }
+
+        // If we do import mail properties, make sure the mailgroup object is activated
+        if (isset($_group_properties['mail']) and isset($grouptab->by_object['mailgroup'])) {
+            $grouptab->by_object['mailgroup']->is_account = true;
+        }
+
+        /* Run GOsa²'s groups/group | ogroups/ogroup checks */
+        $grouptab_check = $grouptab->check();
+        if (count($grouptab_check)) {
+            $this->failure_messages += $grouptab_check;
+
+            /*
+             * FIXME: collect failure statistics here!!!
+             */
+
+            $this->failure_in_this_phase = true;
+
+            return;
+        } else {
+            if (isset($remove_later_grouptab)) {
+                $remove_later_grouptab->delete();
+            }
+            /* Save group object to LDAP */
+            $grouptab->save();
+        }
+
+        // Present a status update in GOsa²'s logging system (/var/log/syslog mostly)
+        if ($this->utils->strcontains($group_data['_actions'][0], 'create')) {
+            new log(
+                "create",
+                "groups/group",
+                $grouptab->dn,
+                array(),
+                "New group created via SchoolManager add-on."
+            );
+        } elseif ($this->utils->strcontains($group_data['_actions'][0], 'none')) {
+            new log(
+                "modify",
+                "groups/group",
+                $grouptab->dn,
+                array(),
+                "Existing group modified via SchoolManager add-on."
+            );
+        } else {
+            // Nothing…
+        }
+    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
