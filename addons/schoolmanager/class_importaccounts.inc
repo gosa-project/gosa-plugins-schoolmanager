@@ -949,46 +949,6 @@ class importaccounts extends import
     }
 
 
-    function addLDAPUserObjectsToOGroups($ogroup_members_data)
-    {
-        foreach ($ogroup_members_data as $ogroup_name => $new_members) {
-            if (empty($new_members)) {
-                continue;
-            } else {
-                $ogrouptab = new ogrouptabs($this->config, $this->config->data['TABS']['OGROUPTABS'], 'cn=' . $ogroup_name . ',' . get_ou('group', 'ogroupRDN') . $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "ogroups");
-
-                $current_members = $ogrouptab->by_object['ogroup']->member;
-                foreach ($new_members as $new_member) {
-                    if (!in_array($new_member, $current_members)) {
-                        $ogrouptab->by_object['ogroup']->member[$new_member] = $new_member;
-                    }
-                }
-
-                // Update the object type in gosaGroupObjects at the end of adding new members
-                $obj_types = preg_replace('/[\[\]]/', '', $ogrouptab->by_object['ogroup']->gosaGroupObjects);
-                if ($this->utils->strcontains($obj_types, 'U') === false) {
-                    $obj_types .= 'U';
-                    $ogrouptab->by_object['ogroup']->gosaGroupObjects = '[' . $obj_types . ']';
-                }
-
-                // Run GOsa²'s ogroups/ogroup checks
-                if (count($ogrouptab->check())) {
-                    msg_dialog::displayChecks($ogrouptab->check());
-
-                    /*
-                     * FIXME: collect failure statistics here!!!
-                     */
-
-                    $this->failure_in_this_phase = true;
-                } else {
-                    /* Save group object to LDAP */
-                    $ogrouptab->save();
-                }
-            }
-        }
-    }
-
-
     function genAccountBase($user_data, $groups_data = array())
     {
         if ($user_data['_template'][0] != 0) {
