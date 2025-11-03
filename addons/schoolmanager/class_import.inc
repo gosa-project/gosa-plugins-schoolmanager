@@ -79,6 +79,20 @@ class import extends plugin
             $duration = (microtime(true) - $this->initTime)
         );
     }
+
+
+    // To be overriden by sub-classes.
+    function getAttributes()
+    {
+        /* CSV columns required for import */
+        $attrs = array();
+
+        $attrs[0] = "uid";
+        $attrs[1] = "sn";
+        $attrs[2] = "givenName";
+
+        return $attrs;
+    }
 }
 
 // vim:tabstop=2:expandtab:shiftwidth=2:filetype=php:syntax:ruler:
