@@ -949,39 +949,6 @@ class importaccounts extends import
     }
 
 
-    function addLDAPUserObjectsToGroups($group_members_data)
-    {
-        foreach ($group_members_data as $group_name => $new_members) {
-            if (empty($new_members)) {
-                continue;
-            } else {
-                $grouptab = new grouptabs($this->config, $this->config->data['TABS']['GROUPTABS'], 'cn=' . $group_name . ',' . get_groups_ou() . $this->csvinfo['ou_tree']['DNs'][$this->csvinfo['ou_groups']], "groups");
-
-                $current_members = $grouptab->by_object['group']->memberUid;
-                foreach ($new_members as $new_member) {
-                    if (!in_array($new_member, $current_members)) {
-                        $grouptab->by_object['group']->addUser($new_member);
-                    }
-                }
-
-                /* Run GOsa²'s groups/group checks */
-                if (count($grouptab->check())) {
-                    msg_dialog::displayChecks($grouptab->check());
-
-                    /*
-                     * FIXME: collect failure statistics here!!!
-                     */
-
-                    $this->failure_in_this_phase = true;
-                } else {
-                    /* Save group object to LDAP */
-                    $grouptab->save();
-                }
-            }
-        }
-    }
-
-
     function addLDAPUserObjectsToOGroups($ogroup_members_data)
     {
         foreach ($ogroup_members_data as $ogroup_name => $new_members) {
