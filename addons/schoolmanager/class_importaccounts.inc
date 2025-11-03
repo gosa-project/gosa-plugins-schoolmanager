@@ -949,33 +949,6 @@ class importaccounts extends import
     }
 
 
-    function validGroupName(string $group_name): string
-    {
-        /*
-         * FIXME: 1 This can be better done with regular expressions!!!
-         * FIXME: 2 The transliteration part is locale-dependent.
-         *          We tried iconv and it did not work…
-         */
-
-        $_grp = strtolower(trim($group_name));
-        $_grp = str_replace('ä', 'ae', $_grp);
-        $_grp = str_replace('ö', 'oe', $_grp);
-        $_grp = str_replace('ü', 'ue', $_grp);
-        $_grp = str_replace('ß', 'ss', $_grp);
-        $_grp = str_replace('.', '', $_grp);
-        $_grp = str_replace(':', '-', $_grp);
-        $_grp = str_replace('(', '_', $_grp);
-        $_grp = str_replace(')', '', $_grp);
-        $_grp = str_replace(' ', '_', $_grp);
-
-        if (preg_match('/^[a-z][-a-z0-9_]*[a-z0-9]$/', $_grp)) {
-            return $_grp;
-        } else {
-            return "";
-        }
-    }
-
-
     function randomAlphaNumPassword(int $length): string
     {
         $chars = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
