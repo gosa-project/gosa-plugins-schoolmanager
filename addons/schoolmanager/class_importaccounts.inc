@@ -949,59 +949,6 @@ class importaccounts extends import
     }
 
 
-    function moveLDAPPrimGroupObjects()
-    {
-        foreach ($this->csvinfo['data_preldap'] as $idx => $row) {
-            if ($this->utils->strcontains($row['main_account']['_actions'][0], 'ignore')) {
-                // We shouldn't need this, but just in case…
-                continue;
-            }
-
-            $user_data = $row['main_account'];
-
-            if (
-                $this->utils->strcontains($user_data['_group_actions'][0], 'create-primgroup') === false and
-                $this->utils->strcontains($user_data['_group_actions'][0], 'move-primgroup')   === false
-            ) {
-                // Neither 'create-primgroup' nor 'move-primgroup' given,
-                // so nothing to do for this user account…
-                continue;
-            }
-
-            // Prepare data for group_data object
-            $group_data_dn   = "cn=" . $row['main_account']['uid'][0] . "," .
-                                get_groups_ou() . dn2base($row['main_account']['_dn'][0]);
-            $group_data_name = $user_data['uid'][0];
-
-            // Create a group_data object that we can pass on to importLDAPGroupObject…
-            $group_data = array(
-                'objectClass' => array('posixGroup'),
-                'cn'          => array($group_data_name),
-                '_dn'         => array($group_data_dn),
-                '_actions'    => array(), // To be filled below.
-            );
-
-            // Set the action for group_data, derived from the account's _group_actions.
-            if ($this->utils->strcontains($user_data['_group_actions'][0], 'create-primgroup')) {
-                $group_data['_actions'][] = 'create';
-                /*
-                 * FIXME: We need to update the user accounts gidNumber attribute description here…
-                 */
-            } elseif ($this->utils->strcontains($user_data['_group_actions'][0], 'move-primgroup')) {
-                $group_data['_actions'][] = 'move';
-            } else {
-                // Arriving here means that we have a serious bug, cause
-                // a few lines above we checked if '_group_actions' has an
-                // valid action.
-                continue;
-            }
-
-            // Create or move account's primary group.
-            $this->importLDAPGroupObject($group_data_name, $group_data);
-        }
-    }
-
-
     function importLDAPGroupObject($group_name, $group_data)
     {
         // Only perform on this user dataset if _actions does not contain "none"…
