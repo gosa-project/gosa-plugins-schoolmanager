@@ -22,67 +22,10 @@
  */
 
 
-class importaccounts extends plugin
+class importaccounts extends import
 {
     /** Template URI (.tpl file) */
     public const TEMPLATE_URI = "importaccounts/content_importaccounts_base.tpl";
-
-    // GOsa² definitions
-    var $plHeadline = "Manage Accounts";
-    var $plDescription = "GOsa2 School Manager super-class for managing accounts";
-    var $access = "";
-
-    // Array with csv informations
-    var $csvinfo = array();
-
-    // Attribute list for save action
-    var $attributes = array();
-    var $objectclasses = array();
-    var $view_logged = false;
-
-    // Indicates if a phase failed for whatever reason
-    var $failure_in_this_phase = false;
-
-    // Class name without 'import' at the beginning
-    var $import_account_type = "";
-
-    // To be overriden by sub-classes.
-    var $default_template_main = "";
-    var $default_template_aux = "";
-
-    // To be overriden by sub-classes.
-    // Indicates if the import type has the feature 'accounts_in_class_ou' enabled.
-    var $feature_accounts_in_class_ou = false;
-
-    // Indicates if the import type has the feature 'aliases_in_schooldomain' enabled.
-    var $feature_aliases_in_schooldomain = false;
-
-    // Collection container for failure messages
-    var $failure_messages = array();
-
-    // importaccounts class constructor
-    function __construct(&$config, $dn = null)
-    {
-
-        $this->initTime = microtime(true);
-
-        /* Include config object */
-        $this->config = &$config;
-        $this->ui = get_userinfo();
-
-        /* Initialize utils class */
-        $this->utils = new schoolmgr_utils($config);
-
-        stats::log(
-            'plugin',
-            $class    = get_class($this),
-            $category = array($this->acl_category),
-            $action   = 'open',
-            $amount   = 1,
-            $duration = (microtime(true) - $this->initTime)
-        );
-    }
-
 
     // To be overriden by sub-classes.
     function getAttributes()
