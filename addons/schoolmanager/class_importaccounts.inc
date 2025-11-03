@@ -28,24 +28,6 @@ class importaccounts extends import
     public const TEMPLATE_URI = "importaccounts/content_importaccounts_base.tpl";
 
     /*
-     * The next few functions should be overriden by it's sub-classes
-     * like class_importstudents, class_archiveaccounts, etc…
-     */
-    function prepareLdapImport($csv_data_sorted)
-    {
-        return array();
-    }
-    function getMultiAttributes()
-    {
-        return array();
-    }
-    function getAttrsPreSelection($size)
-    {
-        return array();
-    }
-
-
-    /*
      * PHASE 01:
      *   - Check uploaded file
      *   - Parse CSV file
