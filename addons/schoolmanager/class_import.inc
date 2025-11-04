@@ -999,9 +999,8 @@ class import extends plugin
      *                - 'created' - New user account created successfully
      *                - 'updated' - Existing account modified successfully
      *                - 'skipped' - Account skipped (action was 'none' or 'ignore')
-     *                - null      - Operation failed (check $this->failure_messages)
      *
-     * @throws None Errors are logged via msg_dialog::display() and GOsa² log system
+     * @throws RuntimeException For all kinds of exceptions while importing.
      *
      * @see usertabs For GOsa² user object handling
      * @see deptabs For automatic OU creation
@@ -1074,19 +1073,17 @@ class import extends plugin
                         if (is_countable($_genUids) and (count($_genUids) >= 1)) {
                             $_user_properties_base['uid'] = $_genUids[0];
                         } else {
-                            msg_dialog::display(
-                                _("ERROR"),
-                                _("Failure during UID auto-generation for " . $user_data['givenName'][0] .
-                                    " " . $user_data['sn'][0] . "! No list of possible UIDs returned."),
-                                ERROR_DIALOG
+                            throw new RuntimeException(
+                                sprintf(
+                                    _("Failure during UID auto-generation for %s %s! No list of possible UIDs returned."),
+                                    $user_data['givenName'][0],
+                                    $user_data['sn'][0]
+                                )
                             );
                         }
                     } else {
-                        msg_dialog::display(
-                            _("ERROR"),
-                            _("We can only auto-generate UID strings if " .
-                            "the idGenerator is configured!"),
-                            ERROR_DIALOG
+                        throw new RuntimeException(
+                            _("We can only auto-generate UID strings if the idGenerator is configured!")
                         );
                     }
                 } elseif (
@@ -1095,20 +1092,14 @@ class import extends plugin
                 ) {
                     $_user_properties_base['uid'] = strtolower($user_data['mail'][0]);
                 } else {
-                    $error_msg = _("No exact UIDs given, no UID column in the CSV sheet, " .
-                    "no permission to use the MAIL attribute as UID…");
+                    $error_msg = _("No exact UIDs given, no UID column in the CSV sheet, no permission to use the MAIL attribute as UID…");
                     new log(_("ERROR"), $error_msg, $this->dn);
-                    msg_dialog::display(_("ERROR"), $error_msg, ERROR_DIALOG);
+                    throw new RuntimeException($error_msg);
                 }
             } else {
-                $error_msg = _("If UID is not provided and sn+givenName is not " .
-                "provided either or incomplete, we cannot go on…");
-                new log(
-                    _("ERROR"),
-                    $error_msg,
-                    $this->dn
-                );
-                msg_dialog::display(_("ERROR"), $error_msg, ERROR_DIALOG);
+                $error_msg = _("If UID is not provided and sn+givenName is not provided either or incomplete, we cannot go on…");
+                new log(_("ERROR"), $error_msg, $this->dn);
+                throw new RuntimeException($error_msg);
             }
 
             // Update $usertab with $_user_properties_base
@@ -1309,15 +1300,13 @@ class import extends plugin
         /* Insert into the LDAP tree */
         $usertab_check = $usertab->check();
         if (count($usertab_check)) {
-            $this->failure_messages += $usertab_check;
-
-            /*
-             * FIXME: Collect failure statistics here!
-             */
-
-            $this->failure_in_this_phase = true;
-
-            return null;
+            // Throw exception with all validation errors
+            throw new RuntimeException(
+                sprintf(
+                    _("User account validation failed: %s"),
+                    implode(', ', $usertab_check)
+                )
+            );
         } else {
             $usertab->save();
 
@@ -1334,8 +1323,11 @@ class import extends plugin
             }
 
             if ($this->utils->strcontains($user_data['_actions'][0], 'set-password')) {
-                if (!change_password($usertab->dn, $user_data['userPassword'][0], false, '', '', $message)) {
-                    msg_dialog::displayChecks(array($message));
+                $password = $user_data['userPassword'][0];
+                if (!change_password($usertab->dn, $password, false, '', '', $message)) {
+                    throw new RuntimeException(
+                        sprintf(_("Password change failed: %s"), $message)
+                    );
                 }
             }
 
