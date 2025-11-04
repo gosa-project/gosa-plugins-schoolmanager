@@ -296,6 +296,27 @@ class schoolmgr extends plugin
                 "mandatory"   => true,
                 "description" => _("Import teachers: Select a template for teacher accounts."),
             ),
+            // Async import configuration
+            array(
+                "name"        => "async_import_timeout",
+                "type"        => "integer",
+                "check"       => "gosaProperty::isInteger",
+                "group"       => "schoolmgr",
+                "default"     => "10",
+                "migrate"     => "",
+                "mandatory"   => true,
+                "description" => _("Timeout in seconds for checking if async job is idle."),
+            ),
+            array(
+                "name"        => "async_import_refresh_time",
+                "type"        => "integer",
+                "check"       => "gosaProperty::isInteger",
+                "group"       => "schoolmgr",
+                "default"     => "3",
+                "migrate"     => "",
+                "mandatory"   => true,
+                "description" => _("Page refresh interval in seconds while async job is running."),
+            ),
         );
 
         return array_merge($ret_arr, $matching_attr_arr);
