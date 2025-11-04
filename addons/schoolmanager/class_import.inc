@@ -113,6 +113,111 @@ class import extends plugin
     }
 
 
+    function prepareImportJob()
+    {
+        $job = new importjob(null); // Create a new Job.
+        $job_id = $job->getJobId();
+
+        $this->utils->debug_to_console(
+            sprintf(_("✅ Created import job: %s"), $job_id)
+        );
+
+        $job_data = array(
+            'job_id' => $job_id,
+            'status' => 'pending',
+            'created_at' => time(),
+            'last_modified' => time(),
+
+            'state' => array(
+                'csvinfo' => $this->csvinfo,
+                'import_account_type' => $this->import_account_type,
+                'session_id' => session_id(),
+                'gosakey' => isset($_SERVER['HTTP_GOSAKEY']) ? $_SERVER['HTTP_GOSAKEY'] : null,
+            ),
+
+            'progress' => array(
+                'current' => 0,
+                'total' => count($this->csvinfo['data_preldap']),
+                'percent' => 0,
+                'message' => 'Initializing import...',
+                'timestamp' => time(),
+            ),
+
+            'results' => array(
+                'stats' => array(
+                    'total' => 0,
+                    'created' => 0,
+                    'updated' => 0,
+                    'skipped' => 0,
+                    'failed' => 0,
+                ),
+                'duration' => 0,
+            ),
+
+            'metadata' => array(
+                'import_type' => $this->import_account_type,
+                'user_dn' => $this->ui->dn,
+                'started_by' => $this->ui->username ?? 'unknown',
+            ),
+        );
+
+        // Write job file using public method
+        $job->saveState($job_data);
+
+        $this->utils->debug_to_console(
+            sprintf(
+                _("✅ Saved job state to disk (%d accounts to import)"),
+                count($this->csvinfo['data_preldap'])
+            )
+        );
+
+        return array($job, $job_data);
+    }
+
+
+    /**
+     * Get only accounts that have been processed by async worker
+     *
+     * Filters csvinfo['data_preldap'] to return only accounts that have been
+     * processed (either successfully imported or failed with error).
+     * Accounts are marked with _imported flag when successfully processed,
+     * or _error flag when processing failed.
+     *
+     * This is used during AJAX status polling to show progressive import status
+     * without displaying accounts that haven't been processed yet.
+     *
+     * @return array Filtered array of processed accounts (preserves original keys)
+     */
+    function getProcessedAccounts()
+    {
+        $processed = array();
+
+        // Sanity check
+        $has_data_preldap = isset($this->csvinfo['data_preldap']) &&
+                           is_array($this->csvinfo['data_preldap']);
+        if (!$has_data_preldap) {
+            return $processed;
+        }
+
+        foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
+            // Check if main account has been imported (successfully processed)
+            $is_imported = isset($user_data['main_account']['_imported'][0]) &&
+                          $user_data['main_account']['_imported'][0] === true;
+
+            // Check if main account has error flag (failed but processed)
+            $has_error = isset($user_data['main_account']['_error'][0]) &&
+                        !empty($user_data['main_account']['_error'][0]);
+
+            // Include account if it's been processed (either success or failure)
+            if ($is_imported || $has_error) {
+                $processed[$idx] = $user_data;
+            }
+        }
+
+        return $processed;
+    }
+
+
     function accountStatusCheck()
     {
         /* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail… */
@@ -1577,6 +1682,46 @@ class import extends plugin
             $pass .= $chars[random_int(0, $chars_max)];
         }
         return $pass;
+    }
+
+
+    /**
+     * Serialize account data into a human-readable string for logging
+     *
+     * Formats account information (givenName, sn, UID) into a consistent
+     * string representation suitable for log messages and debug output.
+     *
+     * This helper function extracts key identifying information from an
+     * account data array and formats it into a readable string pattern:
+     * "givenName sn (UID: uid)"
+     *
+     * All fields use fallback values of 'unknown' if not present in the
+     * account data, ensuring the function never fails due to missing data.
+     *
+     * @param array $account_data Account data array with LDAP attributes
+     *                            Expected keys (all optional):
+     *                            - 'givenName'[0]: First name
+     *                            - 'sn'[0]: Surname/last name
+     *                            - 'uid'[0]: User ID
+     *
+     * @return string Formatted account string, e.g.:
+     *                "Max Mustermann (UID: mmustermann)"
+     *                "unknown unknown (UID: unknown)" if data missing
+     *
+     * @see worker_log() in class_cli_import_worker.inc for usage example
+     */
+    function serializeAccount($account_data)
+    {
+        $givenName = $account_data['givenName'][0] ?? 'unknown';
+        $sn = $account_data['sn'][0] ?? 'unknown';
+        $uid = $account_data['uid'][0] ?? 'unknown';
+
+        return sprintf(
+            "%s %s (UID: %s)",
+            $givenName,
+            $sn,
+            $uid
+        );
     }
 }
 
