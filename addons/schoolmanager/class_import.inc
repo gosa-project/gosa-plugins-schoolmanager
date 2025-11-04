@@ -964,6 +964,48 @@ class import extends plugin
     }
 
 
+    /**
+     * Import or update a user account object in LDAP
+     *
+     * Processes a single user account from CSV data and performs the appropriate
+     * LDAP operation (create, update, rename, move) based on the '_actions' field.
+     *
+     * This method handles:
+     * - Creating new user accounts from templates
+     * - Updating existing accounts (mail, name, employeeNumber, etc.)
+     * - UID auto-generation if not provided in CSV
+     * - Email alias management (add/drop UID@domain patterns)
+     * - Creating department OUs if they don't exist
+     * - Password setting (if action includes 'set-password')
+     * - User account moves and UID renames
+     *
+     * The method uses GOsa²'s usertabs API to ensure proper LDAP object handling,
+     * including automatic handling of objectClasses, group memberships, and
+     * validation checks.
+     *
+     * @param array $user_data User account data with CSV values and metadata
+     *                         Expected keys:
+     *                         - 'uid', 'sn', 'givenName', 'mail', etc. (LDAP attributes)
+     *                         - '_actions'[0] (string): Actions to perform (comma-separated)
+     *                           Valid actions: 'create', 'update-*', 'move', 'rename-uid',
+     *                                         'set-password', 'add-uid-at-domain-to-aliases',
+     *                                         'drop-uid-at-domain-from-aliases', 'ignore', 'none'
+     *                         - '_template'[0] (int): Template index (0 for no template)
+     *                         - '_base'[0] (string): Base DN for account
+     *                         - '_dn'[0] (string): Target DN for move/rename
+     *                         - '_dn_ldap'[0] (string): Current DN for existing accounts
+     *
+     * @return string Result of the import operation:
+     *                - 'created' - New user account created successfully
+     *                - 'updated' - Existing account modified successfully
+     *                - 'skipped' - Account skipped (action was 'none' or 'ignore')
+     *                - null      - Operation failed (check $this->failure_messages)
+     *
+     * @throws None Errors are logged via msg_dialog::display() and GOsa² log system
+     *
+     * @see usertabs For GOsa² user object handling
+     * @see deptabs For automatic OU creation
+     */
     function importLDAPUserObject($user_data)
     {
         // Only perform on this user dataset if '_actions' does NOT contain "none" or "ignore"
@@ -971,7 +1013,7 @@ class import extends plugin
             $this->utils->strcontains($user_data['_actions'][0], 'none')  or
             $this->utils->strcontains($user_data['_actions'][0], 'ignore')
         ) {
-            return;
+            return 'skipped';
         }
 
         // Only perform on this user dataset, if a valid action was found:
@@ -983,7 +1025,7 @@ class import extends plugin
             $this->utils->strcontains($user_data['_actions'][0], 'move') and
             $this->utils->strcontains($user_data['_actions'][0], 'rename-uid')
         ) {
-            return;
+            return 'skipped';
         }
 
         // These should contain the right data
@@ -1275,15 +1317,20 @@ class import extends plugin
 
             $this->failure_in_this_phase = true;
 
-            return;
+            return null;
         } else {
             $usertab->save();
+
+            // Determine what action was taken for return value
+            $action_result = 'updated'; // Default to updated for existing accounts
 
             // Present a status update in GOsa²'s logging system (/var/log/syslog mostly)
             if ($this->utils->strcontains($user_data['_actions'][0], 'create')) {
                 new log("create", "users/user", $usertab->dn, array(), "New user (" . $usertab->sn . ", " . $usertab->givenName . ") created via SchoolManager add-on.");
+                $action_result = 'created';
             } elseif ($this->utils->strcontains($user_data['_actions'][0], 'none')) {
                 new log("modify", "users/user", $usertab->dn, array(), "Existing user  (" . $usertab->sn . ", " . $usertab->givenName . ") modified via SchoolManager add-on.");
+                $action_result = 'updated';
             }
 
             if ($this->utils->strcontains($user_data['_actions'][0], 'set-password')) {
@@ -1299,9 +1346,7 @@ class import extends plugin
                 $usertab->by_object['user']->rename($usertab->dn, $user_data['_dn'][0]);
             }
 
-            /*
-             * FIXME: Collect success statistics here!
-             */
+            return $action_result;
         }
     }
 
