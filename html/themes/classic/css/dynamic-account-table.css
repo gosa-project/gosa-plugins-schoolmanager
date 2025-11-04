@@ -1,0 +1,88 @@
+/**
+ * Dynamic Account Table - Classic Theme Styles
+ * JavaScript-driven styles for dynamic-account-table.js
+ *
+ * This file contains CSS rules that are manipulated by JavaScript during
+ * the account import process. Styles are applied dynamically based on
+ * import status and account processing results.
+ */
+
+/* ==========================================================================
+   Alert Table Dynamic States (JavaScript-driven className changes)
+   ========================================================================== */
+
+/* Alert Table Success */
+.alert-table-success {
+    background-color: #d4edda;
+    border-color: #9fc89f;
+}
+
+.alert-table-success h4 {
+    color: #155724;
+}
+
+.alert-table-success .fa {
+    color: #009900;
+}
+
+/* Alert Table Danger */
+.alert-table-danger {
+    background-color: #f8d7da;
+    border-color: #d89a9e;
+}
+
+.alert-table-danger h4 {
+    color: #721c24;
+}
+
+.alert-table-danger .fa {
+    color: #cc0000;
+}
+
+/* Alert Table Warning */
+.alert-table-warning {
+    background-color: #fff3cd;
+    border-color: #e6d89a;
+}
+
+.alert-table-warning h4 {
+    color: #856404;
+}
+
+.alert-table-warning .fa {
+    color: #856404;
+}
+
+/* ==========================================================================
+   FontAwesome Icon Styles (used in JavaScript-generated HTML)
+   ========================================================================== */
+
+/* COMMON: Icon size modifier for classic theme */
+.fa-2x {
+    font-size: 2em;
+}
+
+/* ==========================================================================
+   Visibility Control for Error/Warning Boxes (JavaScript classList.add)
+   ========================================================================== */
+
+/* COMMON: Hidden by default, shown by JavaScript */
+#error-box,
+#warning-box {
+    display: none;
+}
+
+/* COMMON: Visible state for error/warning boxes - classic theme uses table display */
+#error-box.visible,
+#warning-box.visible {
+    display: table;
+}
+
+/* ==========================================================================
+   Dynamically Rendered Account Tables (JavaScript renderAccountRow)
+   ========================================================================== */
+
+/* COMMON: Spacing for dynamically rendered account tables */
+#accounts-table-container table {
+    margin-top: 15px;
+}
