@@ -129,6 +129,29 @@ class schoolmgr_utils
     }
 
 
+    function getConfigIntValue(string $key, int $default = 0): int
+    {
+        // Get config value, but pause debugging output.
+        $ENABLE_DEBUG_JS_CONSOLE_then = $this->ENABLE_DEBUG_JS_CONSOLE;
+        $this->ENABLE_DEBUG_JS_CONSOLE = false;
+        $conf_value = $this->getConfigStrValue($key);
+        $this->ENABLE_DEBUG_JS_CONSOLE = $ENABLE_DEBUG_JS_CONSOLE_then;
+
+        // Use default if config value is empty
+        if (empty($conf_value)) {
+            $ret = $default;
+        } else {
+            $ret = intval($conf_value);
+        }
+
+        // Debug property to js console (if debugging is enabled!).
+        $debug_str = "Got int property '" . str_pad($key . "':", 61) . "'" . $ret . "'";
+        $this->debug_to_console($debug_str);
+
+        return $ret;
+    }
+
+
     function checkUploadedFile(): array
     {
         // ret_array[0] = (successful): bool
