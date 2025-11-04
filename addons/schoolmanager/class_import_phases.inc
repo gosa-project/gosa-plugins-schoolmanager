@@ -483,36 +483,109 @@ class import_phases extends import
      */
     function execute_phase4($smarty)
     {
-        /*
-         * Add users to / update users in LDAP
-         */
-        foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
-            // Import the user's main account
-            if (isset($user_data['main_account']) and !empty($user_data['main_account'])) {
-                $this->importLDAPUserObject($user_data['main_account']);
+        // Check if job immediately became idle (shouldn't happen normally)
+        $idle_status = array(
+            'is_idle' => true,
+            'reason'  => '',    // If $job = null, use default idle_status.
+            'error'   => ''
+        );
+
+        try {
+            // Create and spawn new worker
+            list($job, $job_data) = $this->prepareImportJob();
+
+            // Spawn background worker process
+            $worker_script = __DIR__ . "/class_cli_import_worker.inc";
+            $pid = $job->spawnWorker($worker_script, $this->utils);
+
+            $this->utils->debug_to_console(
+                sprintf(
+                    _("✅ Spawned worker process '%s' (PID: %d)"),
+                    $worker_script,
+                    $pid
+                )
+            );
+
+            // Store job ID in session for monitoring
+            $this->csvinfo['async_job_id'] = $job->getJobId();
+
+            // Check if job is idle (completed or died)
+            $timeout_seconds = $this->utils->getConfigIntValue('async_import_timeout', 10);
+            $idle_status = $job->isIdle($timeout_seconds);
+        } catch (Exception $e) {
+            $this->utils->debug_to_console(
+                sprintf(_("❌ Async import failed: %s"), $e->getMessage())
+            );
+
+            // Set idle_status to indicate exception/failure
+            $idle_status = array(
+                'is_idle' => true,
+                'reason'  => 'exception',
+                'error'   => sprintf(_("Failed to start async import: %s"), $e->getMessage())
+            );
+        }
+
+        if ($idle_status['is_idle']) {
+            $error_message = null;
+            $failure_message = null;
+
+            switch ($idle_status['reason']) {
+                case 'exception':
+                    // Exception occurred during job creation/spawning
+                    $error_message = $idle_status['error'];
+                    $failure_message = $idle_status['error'];
+                    break;
+                case 'failed':
+                    // Worker failed immediately
+                    $error_message = sprintf(
+                        _("Import worker failed to start: %s"),
+                        $idle_status['error']
+                    );
+                    $failure_message = $idle_status['error'];
+                    break;
+                case 'timeout':
+                    // Worker timed out (suspicious if just spawned)
+                    $error_message = sprintf(
+                        _("Import worker did not start properly: %s"),
+                        $idle_status['error']
+                    );
+                    $failure_message = $idle_status['error'];
+                    break;
+                case 'no_job_file':
+                    // Job file disappeared - serious error
+                    $error_message = _("Job file not found after spawning worker");
+                    $failure_message = _("Job file not found");
+                    break;
+                case 'completed':
+                    // Worker finished very quickly (unlikely but OK)
+                    break;
+                default:
+                    // Generic error for unknown status
+                    $error_message = sprintf(
+                        _("Unexpected import worker status: %s"),
+                        $idle_status['reason']
+                    );
+                    $failure_message = $idle_status['reason'];
+                    break;
             }
 
-            // Import the user's aux account (e.g., parent accounts)
-            if (isset($user_data['aux_accounts']) and !empty($user_data['aux_accounts'])) {
-                foreach ($user_data['aux_accounts'] as $idx_aux => $aux_account) {
-                    // Import aux account $aux_account_data
-                    $this->importLDAPUserObject($aux_account);
-                }
+            // Display error message if an error occurred
+            if ($error_message !== null) {
+                $this->failure_messages[] = $failure_message;
+                $this->failure_in_this_phase = true;
             }
         }
 
+        // Get refresh time for page auto-reload (seconds)
+        $refresh_time = $this->utils->getConfigIntValue('async_import_refresh_time', 5);
+
+        // Assign job information to template
+        $smarty->assign("data", $this->csvinfo['data_preldap']);
+        $smarty->assign("job_id", $this->csvinfo['async_job_id']);
+        $smarty->assign("import_job_refresh_time", $refresh_time);
+
         if ($this->failure_in_this_phase === false) {
-            /*
-             * FIXME: Present a message dialog box that informs on the statistics of
-             *        the LDAP group import. (How many groups got created? How many
-             *        groups have been updated? How many groups were not empty and
-             *        required dropping of all members? Etc…)
-             */
-
             $smarty->assign("accounts_reviewed", true);
-
-            $this->accountStatusCheck();
-            $smarty->assign("data", $this->csvinfo['data_preldap']);
         } else {
             // Show failure messages
             foreach ($this->failure_messages as $msg) {
@@ -531,13 +604,22 @@ class import_phases extends import
      */
     function execute_phase5($smarty)
     {
-        if ($this->failure_in_this_phase !== false) {
-            // Prepare for reloading this phase's web page again…
-            $this->accountStatusCheck();
-            $smarty->assign("data", $this->csvinfo['data_preldap']);
+        // AJAX request detection - return JSON status and exit
+        if (isset($_POST['ajax_status_check'])) {
+            $status = $this->getCurrentJobStatusJSON();
 
-            return;
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode($status);
+            exit;
         }
+
+        // Get refresh time for AJAX polling (seconds)
+        $refresh_time = $this->utils->getConfigIntValue('async_import_refresh_time', 5);
+
+        // Assign job information to template for initial page load
+        // JavaScript StatusMonitor will handle all status checking via AJAX
+        $smarty->assign("job_id", $this->csvinfo['async_job_id'] ?? '');
+        $smarty->assign("import_job_refresh_time", $refresh_time);
 
         $smarty->assign("accounts_imported", true);
 
@@ -895,6 +977,9 @@ class import_phases extends import
                 $smarty->assign("import_configured", true);
                 $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
+                $this->execute_phase5($smarty);
+            } elseif (isset($_POST['phase_05']) and isset($_POST["ajax_status_check"])) {
+                $this->utils->debug_to_console("Executing Phase5 to refresh progress…");
                 $this->execute_phase5($smarty);
             } elseif (isset($_POST['phase_06']) and isset($_POST['groups_reviewed'])) {
                 $smarty->assign("file_uploaded", true);
