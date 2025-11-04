@@ -1,0 +1,128 @@
+/**
+ * Dynamic Account Table - Default/Modern Theme Styles
+ * JavaScript-driven styles for dynamic-account-table.js
+ *
+ * This file contains CSS rules that are manipulated by JavaScript during
+ * the account import process. Styles are applied dynamically based on
+ * import status and account processing results.
+ */
+
+/* ==========================================================================
+   Alert Dynamic States (JavaScript-driven className changes)
+   ========================================================================== */
+
+/* Alert Success */
+.alert-table-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-table-success h4 {
+    color: #155724;
+}
+
+.alert-table-success code {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Alert Danger */
+.alert-table-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-table-danger h4 {
+    color: #721c24;
+}
+
+.alert-table-danger code {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Alert Warning */
+.alert-table-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+}
+
+.alert-table-warning h4 {
+    color: #856404;
+}
+
+.alert-table-warning code {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================================================================
+   FontAwesome Icon Styles (used in JavaScript-generated HTML)
+   ========================================================================== */
+
+/* COMMON: Icon styling within alerts */
+.alert .fa {
+    margin-right: 8px;
+}
+
+.alert .fa-check-circle {
+    color: #28a745;
+}
+
+/* ==========================================================================
+   Visibility Control for Error/Warning Boxes (JavaScript classList.add)
+   ========================================================================== */
+
+/* COMMON: Hidden by default, shown by JavaScript */
+#error-box,
+#warning-box {
+    display: none;
+}
+
+/* COMMON: Visible state for error/warning boxes - default theme uses block display */
+#error-box.visible,
+#warning-box.visible {
+    display: block;
+}
+
+/* ==========================================================================
+   Dynamically Rendered Account Tables (JavaScript renderAccountRow)
+   ========================================================================== */
+
+/* Responsive table styling for JavaScript-generated tables */
+.responsive-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    border: 1px solid #ddd;
+}
+
+.responsive-table thead {
+    background-color: #f5f5f5;
+}
+
+.responsive-table thead th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+}
+
+.responsive-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.responsive-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.responsive-table tbody td b {
+    font-weight: 600;
+    color: #333;
+}
+
+/* COMMON: Spacing for dynamically rendered account tables */
+#accounts-table-container .responsive-table {
+    margin-top: 20px;
+}
