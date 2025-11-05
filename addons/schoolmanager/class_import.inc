@@ -218,6 +218,137 @@ class import extends plugin
     }
 
 
+    /**
+     * Check if any accounts in the dataset have import errors
+     *
+     * Iterates through processed accounts and checks for the presence
+     * of the _error flag on main accounts and auxiliary accounts.
+     * Used to determine if a warning should be displayed during/after import.
+     *
+     * @param array $accounts Processed accounts data from getProcessedAccounts()
+     * @return bool True if any account has _error flag set, false otherwise
+     */
+    function hasFailedAccounts($accounts)
+    {
+        foreach ($accounts as $user_data) {
+            // Check main account for errors
+            $has_error = isset($user_data['main_account']['_error'][0]) &&
+                        !empty($user_data['main_account']['_error'][0]);
+
+            if ($has_error) {
+                return true;
+            }
+
+            // Check auxiliary accounts for errors
+            $has_aux_accounts = isset($user_data['aux_accounts']) &&
+                               is_array($user_data['aux_accounts']);
+            if ($has_aux_accounts) {
+                foreach ($user_data['aux_accounts'] as $aux_account) {
+                    $aux_has_error = isset($aux_account['_error'][0]) &&
+                                    !empty($aux_account['_error'][0]);
+
+                    if ($aux_has_error) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Get current async import job status as JSON
+     *
+     * Returns comprehensive status for AJAX polling during phase 5 import.
+     * Includes job state, progress metrics, processed accounts data, and
+     * failure detection. This method is called via AJAX requests from the
+     * client-side StatusMonitor class.
+     *
+     * @return array Associative array with:
+     *   - job_running (bool): Whether import job is still active
+     *   - completed (bool): Whether job finished successfully
+     *   - progress (array): current, total, percent, message, timestamp
+     *   - accounts (array): Processed accounts from getProcessedAccounts()
+     *   - has_failures (bool): Whether any accounts failed to import
+     *   - error (string|null): Error message if job failed/timeout
+     */
+    function getCurrentJobStatusJSON()
+    {
+        // Initialize default status structure
+        $status = array(
+            'job_running' => false,
+            'completed' => false,
+            'progress' => array(
+                'current' => 0,
+                'total' => 0,
+                'percent' => 0,
+                'message' => '',
+                'timestamp' => time()
+            ),
+            'accounts' => array(),
+            'has_failures' => false,
+            'error' => null
+        );
+
+        // Check if we have an async job ID
+        if (!isset($this->csvinfo['async_job_id']) || empty($this->csvinfo['async_job_id'])) {
+            return $status;
+        }
+
+        // Load job and check status
+        try {
+            $job = new importjob($this->csvinfo['async_job_id']);
+            $timeout = $this->utils->getConfigIntValue('async_import_timeout', 10);
+            $idle_status = $job->isIdle($timeout);
+
+            // Set job_running flag
+            $status['job_running'] = !$idle_status['is_idle'];
+            $status['completed'] = ($idle_status['reason'] === 'completed');
+
+            // Handle errors
+            if (
+                $idle_status['reason'] !== 'completed'
+                and isset($idle_status['error'])
+            ) {
+                $status['error'] = $idle_status['error'];
+            }
+
+            // Load job state for progress and data
+            $job_state = $job->readJob();
+
+            // Extract progress information
+            if (isset($job_state['progress'])) {
+                $status['progress'] = $job_state['progress'];
+            }
+
+            // Update our local data with latest from worker
+            if (isset($job_state['state']['csvinfo']['data_preldap'])) {
+                $this->csvinfo['data_preldap'] = $job_state['state']['csvinfo']['data_preldap'];
+            }
+        } catch (Exception $e) {
+            // Job file not found or error
+            $status['error'] = $e->getMessage();
+            $this->utils->debug_to_console(
+                sprintf(
+                    _("Warning: Could not load job state: %s"),
+                    $e->getMessage()
+                )
+            );
+        }
+
+        // Get processed accounts (only those marked as imported or failed)
+        $processed = $this->getProcessedAccounts();
+        $status['accounts'] = $processed;
+
+        // Check for failures in processed accounts
+        $status['has_failures'] = $this->hasFailedAccounts($processed);
+
+        return $status;
+    }
+
+
     function accountStatusCheck()
     {
         /* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail… */
