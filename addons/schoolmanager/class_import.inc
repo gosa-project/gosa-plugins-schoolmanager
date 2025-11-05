@@ -2,7 +2,7 @@
 
 /*
  * This code is an addon for GOsa² (https://gosa.gonicus.de)
- * Copyright (C) 2018-2022 Daniel Teichmann
+ * Copyright (C) 2018-2025 Daniel Teichmann
  * Copyright (C) 2015-2022 Mike Gabriel
  * Copyright (C) 2015 Marius Rasch
  *
