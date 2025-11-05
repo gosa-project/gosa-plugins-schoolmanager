@@ -1,6 +1,6 @@
 <input type="hidden" name="phase_01">
 
-<h3>{t 1="1/11"}STEP %1: Upload CSV File{/t}</h3>
+<h3>{t 1="1/10"}STEP %1: Upload CSV File{/t}</h3>
 
 <p>
     {t}The data provided via the uploadable CSV file needs to be of the following data format:{/t}

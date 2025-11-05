@@ -373,12 +373,11 @@ class import_phases extends import
         }
     }
 
-
     /*
-     * PHASE 03:
+     * PHASE 03 (old):
      *   - Sort data using user-selected attributes.
      */
-    function execute_phase3($smarty)
+    function execute_phase3_old($smarty)
     {
         /* Sanity checks on LDAP attributes assignments */
 
@@ -464,9 +463,9 @@ class import_phases extends import
 
 
     /*
-     * PHASE 04:
+     * PHASE 03:
      */
-    function execute_phase4($smarty)
+    function execute_phase3($smarty)
     {
         // Check if job immediately became idle (shouldn't happen normally)
         $idle_status = array(
@@ -585,9 +584,9 @@ class import_phases extends import
 
 
     /*
-     * PHASE 05:
+     * PHASE 04:
      */
-    function execute_phase5($smarty)
+    function execute_phase4($smarty)
     {
         // AJAX request detection - return JSON status and exit
         if (isset($_POST['ajax_status_check'])) {
@@ -648,9 +647,9 @@ class import_phases extends import
 
 
     /*
-     * PHASE 06:
+     * PHASE 05:
      */
-    function execute_phase6($smarty)
+    function execute_phase5($smarty)
     {
         // Import posixgroups objects into LDAP-tree.
         foreach ($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data) {
@@ -693,9 +692,9 @@ class import_phases extends import
 
 
     /*
-     * PHASE 07:
+     * PHASE 06:
      */
-    function execute_phase7($smarty)
+    function execute_phase6($smarty)
     {
         $this->accountStatusCheck();
         $this->groupStatusCheck();
@@ -714,9 +713,9 @@ class import_phases extends import
 
 
     /*
-     * PHASE 08:
+     * PHASE 07:
      */
-    function execute_phase8($smarty)
+    function execute_phase7($smarty)
     {
         $this->addLDAPUserObjectsToGroups($this->posixgroup_members);
         $this->addLDAPUserObjectsToOGroups($this->groupofnames_members);
@@ -740,9 +739,9 @@ class import_phases extends import
 
 
     /*
-     * PHASE 09:
+     * PHASE 08:
      */
-    function execute_phase9($smarty)
+    function execute_phase8($smarty)
     {
         if ($this->failure_in_this_phase === false) {
             $smarty->assign("accounts_groupmembers_updated", true);
@@ -753,9 +752,9 @@ class import_phases extends import
 
 
     /*
-     * PHASE 10:
+     * PHASE 09:
      */
-    function execute_phase10($smarty)
+    function execute_phase9($smarty)
     {
         if ($this->failure_in_this_phase === false) {
             /*
@@ -797,28 +796,25 @@ class import_phases extends import
         /* PHASE 02 done, set $import_configured to TRUE  */
         $smarty->assign("import_configured", 0);
 
-        /* PHASE 03 done, set $data_sorted to TRUE  */
-        $smarty->assign("data_sorted", 0);
-
-        /* PHASE 04 done, set $accounts_reviewed to TRUE  */
+        /* PHASE 03 done, set $accounts_reviewed to TRUE  */
         $smarty->assign("accounts_reviewed", 0);
 
-        /* PHASE 05 done, set $accounts_imported to TRUE  */
+        /* PHASE 04 done, set $accounts_imported to TRUE  */
         $smarty->assign("accounts_imported", 0);
 
-        /* PHASE 06 done, set $groups_reviewed to TRUE  */
+        /* PHASE 05 done, set $groups_reviewed to TRUE  */
         $smarty->assign("groups_reviewed", 0);
 
-        /* PHASE 07 done, set $groups_imported to TRUE  */
+        /* PHASE 06 done, set $groups_imported to TRUE  */
         $smarty->assign("groups_imported", 0);
 
-        /* PHASE 08 done, set $accounts_groupmembers_reviewed to TRUE */
+        /* PHASE 07 done, set $accounts_groupmembers_reviewed to TRUE */
         $smarty->assign("accounts_groupmembers_reviewed", 0);
 
-        /* PHASE 09 done, set $accounts_groupmembers_updated to TRUE */
+        /* PHASE 08 done, set $accounts_groupmembers_updated to TRUE */
         $smarty->assign("accounts_groupmembers_updated", 0);
 
-        /* PHASE 10 done, set $cleanup_completed to TRUE */
+        /* PHASE 09 done, set $cleanup_completed to TRUE */
         $smarty->assign("cleanup_completed", 0);
 
         /* Get the LDAP link, to generate the Export */
@@ -876,7 +872,6 @@ class import_phases extends import
             if (
                 isset($_POST['file_uploaded']) or
                 isset($_POST['import_configured']) or
-                isset($_POST['data_sorted']) or
                 isset($_POST['accounts_reviewed']) or
                 isset($_POST['accounts_imported']) or
                 isset($_POST['groups_reviewed']) or
@@ -911,69 +906,58 @@ class import_phases extends import
             } elseif (isset($_POST['phase_02']) and isset($_POST['import_configured'])) {
                 $smarty->assign("file_uploaded", true);
                 $this->execute_phase2($smarty);
-            } elseif (isset($_POST['phase_03']) and isset($_POST['data_sorted'])) {
+            } elseif (isset($_POST['phase_03']) and isset($_POST['accounts_reviewed'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
                 $this->execute_phase3($smarty);
-            } elseif (isset($_POST['phase_04']) and isset($_POST['accounts_reviewed'])) {
+            } elseif (isset($_POST['phase_04']) and isset($_POST['accounts_imported'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
-                $this->execute_phase4($smarty);
-            } elseif (isset($_POST['phase_05']) and isset($_POST['accounts_imported'])) {
-                $smarty->assign("file_uploaded", true);
-                $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
-                $this->execute_phase5($smarty);
-            } elseif (isset($_POST['phase_05']) and isset($_POST["ajax_status_check"])) {
-                $this->utils->debug_to_console("Executing Phase5 to refresh progress…");
-                $this->execute_phase5($smarty);
-            } elseif (isset($_POST['phase_06']) and isset($_POST['groups_reviewed'])) {
+                $this->execute_phase4($smarty);
+            } elseif (isset($_POST['phase_04']) and isset($_POST["ajax_status_check"])) {
+                $this->utils->debug_to_console("Executing Phase4 to refresh progress…");
+                $this->execute_phase4($smarty);
+            } elseif (isset($_POST['phase_05']) and isset($_POST['groups_reviewed'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
                 $smarty->assign("accounts_imported", true);
-                $this->execute_phase6($smarty);
-            } elseif (isset($_POST['phase_07']) and isset($_POST['groups_imported'])) {
+                $this->execute_phase5($smarty);
+            } elseif (isset($_POST['phase_06']) and isset($_POST['groups_imported'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
                 $smarty->assign("accounts_imported", true);
                 $smarty->assign("groups_reviewed", true);
-                $this->execute_phase7($smarty);
-            } elseif (isset($_POST['phase_08']) and isset($_POST['accounts_groupmembers_reviewed'])) {
+                $this->execute_phase6($smarty);
+            } elseif (isset($_POST['phase_07']) and isset($_POST['accounts_groupmembers_reviewed'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
                 $smarty->assign("accounts_imported", true);
                 $smarty->assign("groups_reviewed", true);
                 $smarty->assign("groups_imported", true);
-                $this->execute_phase8($smarty);
-            } elseif (isset($_POST['phase_09']) and isset($_POST['accounts_groupmembers_updated'])) {
+                $this->execute_phase7($smarty);
+            } elseif (isset($_POST['phase_08']) and isset($_POST['accounts_groupmembers_updated'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
                 $smarty->assign("accounts_imported", true);
                 $smarty->assign("groups_reviewed", true);
                 $smarty->assign("groups_imported", true);
                 $smarty->assign("accounts_groupmembers_reviewed", true);
-                $this->execute_phase9($smarty);
-            } elseif (isset($_POST['phase_10']) and isset($_POST['cleanup_completed'])) {
+                $this->execute_phase8($smarty);
+            } elseif (isset($_POST['phase_9']) and isset($_POST['cleanup_completed'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
                 $smarty->assign("accounts_imported", true);
                 $smarty->assign("groups_reviewed", true);
                 $smarty->assign("groups_imported", true);
                 $smarty->assign("accounts_groupmembers_reviewed", true);
                 $smarty->assign("accounts_groupmembers_updated", true);
-                $this->execute_phase10($smarty);
+                $this->execute_phase9($smarty);
             }
         }
 

@@ -270,7 +270,7 @@ class import extends plugin
     /**
      * Get current async import job status as JSON
      *
-     * Returns comprehensive status for AJAX polling during phase 5 import.
+     * Returns comprehensive status for AJAX polling.
      * Includes job state, progress metrics, processed accounts data, and
      * failure detection. This method is called via AJAX requests from the
      * client-side StatusMonitor class.
