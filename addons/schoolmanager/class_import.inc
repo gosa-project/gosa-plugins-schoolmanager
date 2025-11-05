@@ -21,6 +21,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+/**
+ * Async Import Base Class
+ *
+ * Job files: /var/spool/gosa/schoolmgr-import/import_<timestamp>_<random>.json
+ *
+ * Automatic cleanup runs after each import and weekly via systemd timer
+ * gosa-plugin-schoolmanager-cleanup-import-jobs.timer (Debian).
+ * See class_cli_import_worker.inc::perform_cleanup() for details.
+ */
 
 class import extends plugin
 {
