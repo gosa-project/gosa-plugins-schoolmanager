@@ -88,6 +88,11 @@ class schoolmgr_utils
             return;
         }
 
+        // Don't print to console if this is an AJAX status check request
+        if (isset($_POST["ajax_status_check"])) {
+            return;
+        }
+
         if (is_array($data)) {
             $output = implode('', $data);
         }
