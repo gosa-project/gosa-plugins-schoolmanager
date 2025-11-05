@@ -30,14 +30,28 @@
  * ----------------------------------------------------------------------------------
  */
 
+// Hardcoded retention policy (hours/days)
+$COMPLETED_HOURS = 24;  // Keep completed/failed jobs for 1 day
+$STALE_HOURS     = 168; // Keep stale            jobs for 7 days
+$ORPHANED_DAYS   = 30;  // Keep orphaned         jobs for 30 days
+
+$JOB_DIR = '/var/spool/gosa/schoolmgr-import';
+
 // Ensure we're running from CLI
 if (php_sapi_name() !== 'cli') {
     die("ERROR: This script must be run from the command line\n");
 }
 
+// Check for cleanup mode BEFORE any GOsa² bootstrap
+if ($argc === 2 && $argv[1] === '--cleanup') {
+    perform_cleanup();
+    exit(0);
+}
+
 // Check arguments
 if ($argc < 2) {
     fwrite(STDERR, "Usage: {$argv[0]} <job_file_path>\n");
+    fwrite(STDERR, "   OR: {$argv[0]} --cleanup\n");
     exit(1);
 }
 
@@ -524,6 +538,13 @@ try {
     worker_log("Job completed successfully");
 
     // ============================================================================
+    // STEP 8: Trigger Cleanup of Old Job Files
+    // ============================================================================
+
+    worker_log("Triggering cleanup of old job files");
+    perform_cleanup();
+
+    // ============================================================================
     // STEP 9: Exit Successfully
     // ============================================================================
     // Note: Session was already closed earlier after reading config/ui
@@ -567,6 +588,176 @@ try {
     }
 
     exit(1);
+}
+
+/**
+ * Cleanup old import job files
+ *
+ * RETENTION POLICY (based on file mtime):
+ *   - Completed/failed: 24 hours
+ *   - Stale (running):  7 days (catch zombie processes)
+ *   - Orphaned/invalid: 30 days
+ *
+ * EXECUTION:
+ *   - Automatic: After each import completion
+ *   - Scheduled: Weekly via systemd timer (Debian)
+ *
+ * MANUAL USAGE:
+ *   php class_cli_import_worker.inc --cleanup
+ *   journalctl -u gosa-plugin-schoolmanager-cleanup-import-jobs.service -n 50
+ *
+ * FILES:
+ *   /var/spool/gosa/schoolmgr-import/import_*_*.{json,log}
+ *
+ * @return none
+ */
+function perform_cleanup()
+{
+    global $JOB_DIR, $COMPLETED_HOURS, $STALE_HOURS, $ORPHANED_DAYS;
+
+    error_log(
+        sprintf(
+            "[ImportCleanup] Starting cleanup: dir=%s, completed=%dh, stale=%dh, orphaned=%dd",
+            $JOB_DIR,
+            $COMPLETED_HOURS,
+            $STALE_HOURS,
+            $ORPHANED_DAYS
+        )
+    );
+
+    // Validate directory exists
+    if (!is_dir($JOB_DIR)) {
+        error_log("[ImportCleanup] Job directory does not exist: {$JOB_DIR}");
+        exit(0); // Not an error - maybe no imports yet
+    }
+
+    // Find all job files matching pattern: import_<timestamp>_<random>.json
+    $pattern = $JOB_DIR . '/import_*_*.json';
+    $files = glob($pattern);
+
+    if ($files === false || count($files) === 0) {
+        error_log("[ImportCleanup] No job files found in {$JOB_DIR}");
+        exit(0);
+    }
+
+    error_log(sprintf("[ImportCleanup] Found %d job files", count($files)));
+
+    // Calculate time thresholds
+    $now = time();
+    $COMPLETED_THRESHOLD = $now - ($COMPLETED_HOURS * 3600);
+    $STALE_THRESHOLD     = $now - ($STALE_HOURS     * 3600);
+    $ORPHANED_THRESHOLD  = $now - ($ORPHANED_DAYS   * 86400);
+
+    $deleted_count = 0;
+    $skipped_count = 0;
+    $errors = 0;
+
+    foreach ($files as $file) {
+        // Validate file still exists (race condition with concurrent cleanup)
+        if (!file_exists($file)) {
+            continue;
+        }
+
+        $job_id = basename($file, '.json');
+        $file_mtime = filemtime($file);
+        $file_age_hours = ($now - $file_mtime) / 3600;
+
+        // Parse JSON to determine job status
+        $json_content = @file_get_contents($file);
+        if ($json_content === false) {
+            error_log("[ImportCleanup] WARNING: Cannot read file: {$file}");
+            $errors++;
+            continue;
+        }
+
+        $data = @json_decode($json_content, true);
+        if ($data === null) {
+            error_log("[ImportCleanup] WARNING: Invalid JSON in {$file}, treating as orphaned");
+            $status = 'unknown';
+        } else {
+            $status = $data['status'] ?? 'unknown';
+        }
+
+        // Apply retention policy
+        $should_delete = false;
+        $delete_reason = '';
+
+        if (in_array($status, ['completed', 'failed'], true)) {
+            if ($file_mtime <= $COMPLETED_THRESHOLD) {
+                $should_delete = true;
+                $delete_reason = sprintf(
+                    "status=%s, age=%.1fh > %dh",
+                    $status,
+                    $file_age_hours,
+                    $COMPLETED_HOURS
+                );
+            }
+        } elseif (in_array($status, ['running', 'idle'], true)) {
+            if ($file_mtime <= $STALE_THRESHOLD) {
+                $should_delete = true;
+                $delete_reason = sprintf(
+                    "STALE status=%s, age=%.1fh > %dh",
+                    $status,
+                    $file_age_hours,
+                    $STALE_HOURS
+                );
+            }
+        } else {
+            // Unknown/invalid status - use orphaned timeout
+            if ($file_mtime <= $ORPHANED_THRESHOLD) {
+                $should_delete = true;
+                $delete_reason = sprintf(
+                    "orphaned status=%s, age=%.1fd > %dd",
+                    $status,
+                    $file_age_hours / 24,
+                    $ORPHANED_DAYS
+                );
+            }
+        }
+
+        if (!$should_delete) {
+            error_log(
+                sprintf(
+                    "[ImportCleanup] Skipped %s: status=%s, age=%.1fh",
+                    $file,
+                    $status,
+                    $file_age_hours
+                )
+            );
+            $skipped_count++;
+            continue;
+        }
+
+        // Attempt deletion of JSON file
+        if (@unlink($file)) {
+            $deleted_count++;
+            error_log("[ImportCleanup] Deleted {$file}: {$delete_reason}");
+
+            // Also delete corresponding log file
+            $log_file = $JOB_DIR . '/' . $job_id . '.log';
+            if (file_exists($log_file)) {
+                if (@unlink($log_file)) {
+                    error_log("[ImportCleanup] Deleted {$log_file}");
+                } else {
+                    error_log("[ImportCleanup] WARNING: Failed to delete log file: {$log_file}");
+                    $errors++;
+                }
+            }
+        } else {
+            error_log("[ImportCleanup] WARNING: Failed to delete {$file}");
+            $errors++;
+        }
+    }
+
+    error_log(
+        sprintf(
+            "[ImportCleanup] Cleanup completed: scanned=%d, deleted=%d, skipped=%d, errors=%d",
+            count($files),
+            $deleted_count,
+            $skipped_count,
+            $errors
+        )
+    );
 }
 
 // vim:tabstop=4:expandtab:shiftwidth=4:filetype=php:syntax:ruler:
