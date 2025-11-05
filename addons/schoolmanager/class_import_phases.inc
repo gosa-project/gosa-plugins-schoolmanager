@@ -795,7 +795,7 @@ class import_phases extends import
 
         // Add custom character radio button only if it should appear.
         if ($delimiter_index === 4) {
-            $available_delims[4] = '"' . $delim_char . '" - ' . _("values seperated by custom character");
+            $available_delims[4] = '"' . $delim_char . '" - ' . _("values separated by custom character");
         }
 
         $smarty->assign('available_delimiters', $available_delims);
