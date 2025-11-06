@@ -1,3 +1,5 @@
+{include file="`$phases_path`../common/fontawesome.tpl" inline}
+
 <p>
     {if $import_account_type == "studentsandparents"}
         {t escape=no}

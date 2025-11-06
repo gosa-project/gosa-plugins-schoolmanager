@@ -1,3 +1,5 @@
+{include file="`$phases_path`../common/fontawesome.tpl" inline}
+
 <h2>{t escape=no}Introduction to GOsa2's School Manager Add-On{/t}</h2>
 
 <h3>{t}General Information{/t}</h3>
