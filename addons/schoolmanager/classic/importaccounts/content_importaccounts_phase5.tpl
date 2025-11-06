@@ -1,4 +1,5 @@
 {* Phase 5 specific CSS *}
+<link rel="stylesheet" href="plugins/schoolmanager/themes/classic/css/content_importaccounts_phase5.css">
 <link rel="stylesheet" href="plugins/schoolmanager/themes/classic/css/dynamic-account-table.css">
 
 <input type="hidden" name="phase_05">

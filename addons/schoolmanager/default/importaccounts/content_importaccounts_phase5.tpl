@@ -1,4 +1,5 @@
 {* Phase 5 specific CSS *}
+<link rel="stylesheet" href="plugins/schoolmanager/themes/default/css/content_importaccounts_phase5.css">
 <link rel="stylesheet" href="plugins/schoolmanager/themes/default/css/dynamic-account-table.css">
 
 <input type="hidden" name="phase_05">
@@ -30,7 +31,7 @@
         {t}Initializing import...{/t}
     </p>
     <div id="progress-bar-wrapper">
-        <div id="progress-bar"></div>
+        <div class="primary" id="progress-bar"></div>
     </div>
     <p id="progress-stats">
         <span id="progress-current">0</span> /
