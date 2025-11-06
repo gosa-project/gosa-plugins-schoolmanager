@@ -1017,12 +1017,12 @@ class import extends plugin
 
         // Only perform on this user dataset, if a valid action was found:
         if (
-            $this->utils->strcontains($user_data['_actions'][0], 'update-') and
-            $this->utils->strcontains($user_data['_actions'][0], 'add-uid-at-domain-to-aliases') and
-            $this->utils->strcontains($user_data['_actions'][0], 'drop-uid-at-domain-from-aliases') and
-            $this->utils->strcontains($user_data['_actions'][0], 'create') and
-            $this->utils->strcontains($user_data['_actions'][0], 'move') and
-            $this->utils->strcontains($user_data['_actions'][0], 'rename-uid')
+            !$this->utils->strcontains($user_data['_actions'][0], 'update-')
+            and !$this->utils->strcontains($user_data['_actions'][0], 'add-uid-at-domain-to-aliases')
+            and !$this->utils->strcontains($user_data['_actions'][0], 'drop-uid-at-domain-from-aliases')
+            and !$this->utils->strcontains($user_data['_actions'][0], 'create')
+            and !$this->utils->strcontains($user_data['_actions'][0], 'move')
+            and !$this->utils->strcontains($user_data['_actions'][0], 'rename-uid')
         ) {
             return 'skipped';
         }
