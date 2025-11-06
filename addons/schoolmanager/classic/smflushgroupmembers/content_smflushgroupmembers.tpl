@@ -1,3 +1,5 @@
+{include file="`$phases_path`../common/fontawesome.tpl" inline}
+
 {if !isset($empty_schoolmgr_groups_now_phase1_done)} <!-- Phase1 flow control -->
     <br>
     <b>{t}Step 1:{/t} {t}Empty SchoolManager administered standard (POSIX) groups{/t}</b>
