@@ -57,6 +57,9 @@ class import extends plugin
     // Collection container for failure messages
     var $failure_messages = array();
 
+    // Schoolmgr Utility class instance
+    var schoolmgr_utils $utils;
+
     // import class constructor
     function __construct(&$config, $dn = null)
     {

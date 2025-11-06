@@ -40,6 +40,8 @@ class schoolmanagerintro extends plugin
     /* SchoolManager specific properties */
     var $ldapinfo = [];
 
+    // Schoolmgr Utility class instance
+    var schoolmgr_utils $utils;
 
     function __construct(&$config, $dn = null)
     {
