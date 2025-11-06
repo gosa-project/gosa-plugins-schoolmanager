@@ -469,8 +469,10 @@ class import extends plugin
                     }
 
                     /*
-                     * Only update attributes that are already set in the main account dataset
-                     * People should be able to change everything. For example because of a typo or a new name.
+                     * Only update attributes that are already set in the main
+                     * account dataset.
+                     * People should be able to change everything. For example
+                     * because of a typo or a new name.
                      */
                     $_updatable_attrs = array();
                     foreach (array("mail", "employeeNumber", "departmentNumber", "sn", "givenName", "gender", "dateOfBirth") as $_attr) {
@@ -495,9 +497,10 @@ class import extends plugin
                     }
 
                     /*
-                        * Obtain the alias field from the LDAP object if present.
-                        * This is required for showing the aliases in the user property overview page.
-                        */
+                     * Obtain the alias field from the LDAP object if present.
+                     * This is required for showing the aliases in the user property
+                     * overview page.
+                     */
                     if (isset($gosa_account['alias'])) {
                         $this->csvinfo['data_preldap'][$key]['main_account']['alias'] = $gosa_account['alias'];
                     }
@@ -604,17 +607,18 @@ class import extends plugin
                     /* Detect status */
 
                     /*
-                        * FIXME: Support automatic moving of AUX accounts!!!
-                        */
+                     * FIXME: Support automatic moving of AUX accounts!!!
+                     */
 
                     $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'exists';
 
                     $_actions = array();
 
                     /*
-                        * FIXME: Hard-code a "none" action here in case we found a matching account in LDAP.
-                        *        Later, we need to make actions more configurable…
-                        */
+                     * FIXME: Hard-code a "none" action here in case we found a
+                     *        matching account in LDAP. Later, we need to make
+                     *        actions more configurable…
+                     */
 
                     // Only update attributes that are already set in the main account dataset
                     $_updatable_attrs = array();
@@ -640,9 +644,10 @@ class import extends plugin
                     $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_dn_ldap'] = array($gosa_account_dn);
 
                     /*
-                        * FIXME: We need a check that DN generation for aux accounts will actually work, probably when
-                        *        constructing $this->csvinfo['data_preldap'].
-                        */
+                     * FIXME: We need a check that DN generation for aux accounts
+                     *        will actually work, probably when constructing
+                     *        $this->csvinfo['data_preldap'].
+                     */
                     $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base'] = array($expected_base);
                 } elseif ((is_countable($gosa_aux_accounts)) and (count($gosa_aux_accounts) > 1)) {
                     msg_dialog::display(_("LDAP Tree Error"), _("The LDAP search query with filter '" . $_ldapfilter . "' returned more than one account object. There should only be one such object in the LDAP tree."), ERROR_DIALOG);
