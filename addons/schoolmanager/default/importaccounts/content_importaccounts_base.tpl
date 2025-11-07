@@ -94,10 +94,6 @@
             {/if}
 
             {if $file_uploaded != TRUE}
-                <button class="btn-small" style="margin-left: 0; margin-right: auto;" type='submit' name='file_uploaded_do_quickimport'>
-                    {t escape='no'}Do <b>Quick-Import</b>{/t}
-                </button>
-
                 <span style="margin-left: 40px;">{t}Continue here, when ready{/t}:</span>
                 <button class="btn-small primary" type='submit' name='file_uploaded'>
                     {t 1="2/11"}Set import configuration option (Step %1){/t}

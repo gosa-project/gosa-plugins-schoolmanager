@@ -34,9 +34,8 @@ class import_phases extends import
      *   - Prepare '$this->csvinfo' with templates
      *   - Set form presets
      */
-    function execute_phase1($smarty, $quick_import = false)
+    function execute_phase1($smarty)
     {
-        // This is the first phase, so no need to worry about quick-import.
         $_delim_id                = $_POST['delimiter_id'];
         $_csv_with_column_headers = $_POST['csv_with_column_headers'];
 
@@ -260,33 +259,22 @@ class import_phases extends import
      *   - Set import options which the user configured.
      *     - Checkboxes, OU's for new groups & users, etc…
      */
-    function execute_phase2($smarty, $quick_import = false)
+    function execute_phase2($smarty)
     {
-        /* Load the properties we need in this phase */
-        if ($quick_import === false) {
-            $_template      = $_POST["template_" . $this->import_account_type];
-            $_template_aux  = $_POST["template_" . $this->import_account_type . "_aux"] ?? null;
-            $_ou_groups     = $_POST["ou_groups"];
-            $_domain_users  = $_POST["domain_users"];
-            $_domain_groups = $_POST["domain_groups"];
-            $this->csvinfo['accounts_in_class_ou'] = $this->feature_accounts_in_class_ou ? isset($_POST["accounts_in_class_ou"]) : false;
-            $this->csvinfo['aliases_in_schooldomain'] = $this->feature_aliases_in_schooldomain ? isset($_POST["aliases_in_schooldomain"]) : false;
-            $this->csvinfo['try_mail_as_uid']                   = isset($_POST["try_mail_as_uid"]);
-            $this->csvinfo['add_course_members_to_class_group'] = isset($_POST["add_course_members_to_class_group"]);
-            $this->csvinfo['sel_ldap_match_attr_studentid']     = isset($_POST["sel_ldap_match_attr_studentid"]);
-            $this->csvinfo['sel_ldap_match_attr_givenname']     = isset($_POST["sel_ldap_match_attr_givenname"]);
-            $this->csvinfo['sel_ldap_match_attr_snname']        = isset($_POST["sel_ldap_match_attr_snname"]);
-            $this->csvinfo['sel_ldap_match_attr_birthday']      = isset($_POST["sel_ldap_match_attr_birthday"]);
-            $this->csvinfo['sel_ldap_match_attr_gender']        = isset($_POST["sel_ldap_match_attr_gender"]);
-        } else {
-            // A few items were already computed in phase 1!
-            // So, we just use the presets which phase 1 set.
-            $_template                          = $this->csvinfo['template_main'];
-            $_template_aux                      = $this->csvinfo['template_aux'];
-            $_ou_groups                         = $this->csvinfo['ou_groups'];
-            $_domain_users                      = $this->csvinfo["domain_users"];
-            $_domain_groups                     = $this->csvinfo["domain_groups"];
-        }
+        $_template      = $_POST["template_" . $this->import_account_type];
+        $_template_aux  = $_POST["template_" . $this->import_account_type . "_aux"] ?? null;
+        $_ou_groups     = $_POST["ou_groups"];
+        $_domain_users  = $_POST["domain_users"];
+        $_domain_groups = $_POST["domain_groups"];
+        $this->csvinfo['accounts_in_class_ou'] = $this->feature_accounts_in_class_ou ? isset($_POST["accounts_in_class_ou"]) : false;
+        $this->csvinfo['aliases_in_schooldomain'] = $this->feature_aliases_in_schooldomain ? isset($_POST["aliases_in_schooldomain"]) : false;
+        $this->csvinfo['try_mail_as_uid']                   = isset($_POST["try_mail_as_uid"]);
+        $this->csvinfo['add_course_members_to_class_group'] = isset($_POST["add_course_members_to_class_group"]);
+        $this->csvinfo['sel_ldap_match_attr_studentid']     = isset($_POST["sel_ldap_match_attr_studentid"]);
+        $this->csvinfo['sel_ldap_match_attr_givenname']     = isset($_POST["sel_ldap_match_attr_givenname"]);
+        $this->csvinfo['sel_ldap_match_attr_snname']        = isset($_POST["sel_ldap_match_attr_snname"]);
+        $this->csvinfo['sel_ldap_match_attr_birthday']      = isset($_POST["sel_ldap_match_attr_birthday"]);
+        $this->csvinfo['sel_ldap_match_attr_gender']        = isset($_POST["sel_ldap_match_attr_gender"]);
 
         // Configure import options
         if (isset($_template) and isset($_ou_groups)) {
@@ -390,24 +378,21 @@ class import_phases extends import
      * PHASE 03:
      *   - Sort data using user-selected attributes.
      */
-    function execute_phase3($smarty, $quick_import = false)
+    function execute_phase3($smarty)
     {
         /* Sanity checks on LDAP attributes assignments */
 
-        if ($quick_import === true) {
-            // Just use already set $this->csvinfo['attrs_selected'].
-        } else {
-            // Read attributes assignments from $_POST
-            $new_attrs_selected = array();
-            for ($i = 0; $i < count($this->csvinfo['attrs_selected']); $i++) {
-                if (isset($_POST["column_head_$i"])) {
-                    $new_attrs_selected[] = $_POST["column_head_$i"];
-                } else {
-                    $new_attrs_selected[] = $i;
-                }
+
+        // Read attributes assignments from $_POST
+        $new_attrs_selected = array();
+        for ($i = 0; $i < count($this->csvinfo['attrs_selected']); $i++) {
+            if (isset($_POST["column_head_$i"])) {
+                $new_attrs_selected[] = $_POST["column_head_$i"];
+            } else {
+                $new_attrs_selected[] = $i;
             }
-            $this->csvinfo['attrs_selected'] = $new_attrs_selected;
         }
+        $this->csvinfo['attrs_selected'] = $new_attrs_selected;
 
         // Transform $this->csvinfo['data'] ---> $this->csvinfo['data_sorted'] using $this->csvinfo['attrs_selected']'
         // Sort the CSV data table according to how it got re-ordered by the plugin-user
@@ -808,7 +793,6 @@ class import_phases extends import
 
         /* PHASE 01 done, set $file_uploaded to TRUE */
         $smarty->assign("file_uploaded", 0);
-        $smarty->assign("file_uploaded_do_quickimport", 0);
 
         /* PHASE 02 done, set $import_configured to TRUE  */
         $smarty->assign("import_configured", 0);
@@ -891,7 +875,6 @@ class import_phases extends import
         if (!preg_match("/w/", $acl)) {
             if (
                 isset($_POST['file_uploaded']) or
-                isset($_POST['file_uploaded_do_quickimport']) or
                 isset($_POST['import_configured']) or
                 isset($_POST['data_sorted']) or
                 isset($_POST['accounts_reviewed']) or
@@ -921,53 +904,18 @@ class import_phases extends import
 
         // Execute next phase, if user didn't abort.
         if (!isset($_POST['cancel_import'])) {
-            if (isset($_POST['phase_01']) and isset($_POST['file_uploaded_do_quickimport'])) {
+            if (isset($_POST['phase_01']) and isset($_POST['file_uploaded'])) {
                 // Delete old references…
                 $this->csvinfo = array();
-
-                $this->utils->debug_to_console("Doing a Quick-Import…");
-
-                $functions = [
-                    "Phase 1"  => "execute_phase1",
-                    "Phase 2"  => "execute_phase2",
-                    "Phase 3"  => "execute_phase3",
-                    // "Phase 4"  => "execute_phase4",
-                    // "Phase 5"  => "execute_phase5",
-                    // "Phase 6"  => "execute_phase6",
-                    // "Phase 7"  => "execute_phase7",
-                    // "Phase 8"  => "execute_phase8",
-                    // "Phase 9"  => "execute_phase9",
-                    // "Phase 10" => "execute_phase10",
-                ];
-
-                // Call each function defined above and check if there was an error.
-                foreach ($functions as $key => $value) {
-                    $this->utils->debug_to_console("Executing " . $key . "…");
-                    call_user_func(array($this, $value), $smarty, true);
-
-                    if ($this->failure_in_this_phase === true) {
-                        // Phase failed.
-                        $this->utils->debug_to_console("Failed executing " . $key . "…");
-                        break;
-                    }
-                }
-            } elseif (isset($_POST['phase_01']) and isset($_POST['file_uploaded'])) {
-                // Delete old references…
-                $this->csvinfo = array();
-
-                $this->utils->debug_to_console("Executing normal Phase1…");
                 $this->execute_phase1($smarty);
             } elseif (isset($_POST['phase_02']) and isset($_POST['import_configured'])) {
-                $this->utils->debug_to_console("Executing normal Phase2…");
                 $smarty->assign("file_uploaded", true);
                 $this->execute_phase2($smarty);
             } elseif (isset($_POST['phase_03']) and isset($_POST['data_sorted'])) {
-                $this->utils->debug_to_console("Executing normal Phase3…");
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
                 $this->execute_phase3($smarty);
             } elseif (isset($_POST['phase_04']) and isset($_POST['accounts_reviewed'])) {
-                $this->utils->debug_to_console("Executing normal Phase4…");
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
                 $smarty->assign("data_sorted", true);
