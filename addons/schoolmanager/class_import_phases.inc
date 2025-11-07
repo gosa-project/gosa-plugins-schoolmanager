@@ -82,7 +82,7 @@ class import_phases extends import
      *  - Delimiter
      *  - First CSV row is column headers
      */
-    function parse_phase1()
+    function parse_phase1($smarty)
     {
         $_delim_id                = $_POST['delimiter_id'];
         $_csv_with_column_headers = $_POST['csv_with_column_headers'];
@@ -335,11 +335,18 @@ class import_phases extends import
         $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
     }
 
+    /*
+     * Parse PHASE 02:
+     */
+    function parse_phase2($smarty)
+    {
+        // TODO: parse here…
+    }
 
     /*
      * PHASE 02:
      *   - Set import options which the user configured.
-     *     - Checkboxes, OU's for new groups & users, etc…
+     *   - Checkboxes, OU's for new groups & users, etc…
      */
     function execute_phase2($smarty)
     {
@@ -455,6 +462,7 @@ class import_phases extends import
         }
     }
 
+
     /*
      * PHASE 03 (old):
      *   - Sort data using user-selected attributes.
@@ -543,6 +551,22 @@ class import_phases extends import
         }
     }
 
+
+    /*
+     * Prepare PHASE 03:
+     */
+    function prepare_phase3($smarty)
+    {
+        // TODO: prepare here…
+    }
+
+    /*
+     * Parse PHASE 03:
+     */
+    function parse_phase3($smarty)
+    {
+        // TODO: parse here…
+    }
 
     /*
      * PHASE 03:
@@ -666,6 +690,22 @@ class import_phases extends import
 
 
     /*
+     * Prepare PHASE 04:
+     */
+    function prepare_phase4($smarty)
+    {
+        // TODO: prepare here…
+    }
+
+    /*
+     * Parse PHASE 04:
+     */
+    function parse_phase4($smarty)
+    {
+        // TODO: parse here…
+    }
+
+    /*
      * PHASE 04:
      */
     function execute_phase4($smarty)
@@ -729,6 +769,22 @@ class import_phases extends import
 
 
     /*
+     * Prepare PHASE 05:
+     */
+    function prepare_phase5($smarty)
+    {
+        // TODO: prepare here…
+    }
+
+    /*
+     * Parse PHASE 05:
+     */
+    function parse_phase5($smarty)
+    {
+        // TODO: parse here…
+    }
+
+    /*
      * PHASE 05:
      */
     function execute_phase5($smarty)
@@ -774,6 +830,22 @@ class import_phases extends import
 
 
     /*
+     * Prepare PHASE 06:
+     */
+    function prepare_phase6($smarty)
+    {
+        // TODO: prepare here…
+    }
+
+    /*
+     * Parse PHASE 06:
+     */
+    function parse_phase6($smarty)
+    {
+        // TODO: parse here…
+    }
+
+    /*
      * PHASE 06:
      */
     function execute_phase6($smarty)
@@ -793,6 +865,22 @@ class import_phases extends import
         }
     }
 
+
+    /*
+     * Prepare PHASE 07:
+     */
+    function prepare_phase7($smarty)
+    {
+        // TODO: prepare here…
+    }
+
+    /*
+     * Parse PHASE 07:
+     */
+    function parse_phase7($smarty)
+    {
+        // TODO: parse here…
+    }
 
     /*
      * PHASE 07:
@@ -821,6 +909,22 @@ class import_phases extends import
 
 
     /*
+     * Prepare PHASE 08:
+     */
+    function prepare_phase8($smarty)
+    {
+        // TODO: prepare here…
+    }
+
+    /*
+     * Parse PHASE 08:
+     */
+    function parse_phase8($smarty)
+    {
+        // TODO: parse here…
+    }
+
+    /*
      * PHASE 08:
      */
     function execute_phase8($smarty)
@@ -832,6 +936,22 @@ class import_phases extends import
         }
     }
 
+
+    /*
+     * Prepare PHASE 09:
+     */
+    function prepare_phase9($smarty)
+    {
+        // TODO: prepare here…
+    }
+
+    /*
+     * Parse PHASE 09:
+     */
+    function parse_phase9($smarty)
+    {
+        // TODO: parse here…
+    }
 
     /*
      * PHASE 09:
@@ -955,8 +1075,8 @@ class import_phases extends import
                 $smarty->assign("accounts_reviewed", true);
                 $this->execute_phase4($smarty);
             } elseif (isset($_POST['phase_04']) and isset($_POST["ajax_status_check"])) {
-                $this->utils->debug_to_console("Executing Phase4 to refresh progress…");
                 $this->execute_phase4($smarty);
+                // Will never return here, as execute_phase4() exits on AJAX requests.
             } elseif (isset($_POST['phase_05']) and isset($_POST['groups_reviewed'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
@@ -1004,6 +1124,9 @@ class import_phases extends import
         } else {
             // Prepare smarty variables and such for main page (Phase 1)
             $this->prepare_phase1($smarty);
+
+            // User aborted import, return to phase 1.
+            msg_dialog::display(_("Import cancelled"), _("The import process has been cancelled by the user."), INFO_DIALOG);
         }
 
         // Show main page…
