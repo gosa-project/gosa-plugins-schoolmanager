@@ -1,3 +1,5 @@
+<link rel="stylesheet" type="text/css" href="plugins/schoolmanager/themes/default/css/content_importaccounts_phase1.css">
+
 <input type="hidden" name="phase_01">
 
 <h3>{t 1="1/10"}STEP %1: Upload CSV File{/t}</h3>
