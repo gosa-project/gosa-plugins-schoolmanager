@@ -90,7 +90,7 @@
 
             {if $file_uploaded != TRUE}
                 <span style="margin-left: 40px;">{t}Continue here, when ready{/t}:</span>
-                <button class="btn-small primary" type='submit' name='file_uploaded'>
+                <button class="btn-small primary" type='submit' name='file_uploaded' id='btnContinue' disabled>
                     {t 1="2/10"}Set import configuration option (Step %1){/t}
                 </button>
 
