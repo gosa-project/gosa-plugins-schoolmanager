@@ -83,7 +83,7 @@
 
     {if $file_uploaded != TRUE}
         {t}Continue here, when ready{/t}:
-        <button type='submit' name='file_uploaded'>
+        <button type='submit' name='file_uploaded' id='btnContinue' disabled>
             {t 1="2/10"}Set import configuration option (Step %1){/t}
         </button>
 
