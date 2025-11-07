@@ -28,31 +28,61 @@ class import_phases extends import
     public const TEMPLATE_URI = "importaccounts/content_importaccounts_base.tpl";
 
     /*
-     * PHASE 01:
-     *   - Check uploaded file
-     *   - Parse CSV file
-     *   - Prepare '$this->csvinfo' with templates
-     *   - Set form presets
+     * Prepare PHASE 01: form presets
      */
-    function execute_phase1($smarty)
+    function prepare_phase1($smarty)
+    {
+        // Get setting's default.
+        $delim_char = $this->utils->getConfigStrValue("csv_column_delimiter");
+
+        switch ($delim_char) {
+            case ",":
+                $delimiter_index = 0;
+                break;
+            case ";":
+                $delimiter_index = 1;
+                break;
+            case "\\t": // Not the actual tab char but literally '\t'
+                $delimiter_index = 2;
+                break;
+            case " ":
+                $delimiter_index = 3;
+                break;
+            default:
+            // Custom character…
+                $delimiter_index = 4;
+                break;
+        }
+
+        $smarty->assign('preset_delimiter_id', $delimiter_index);
+        $available_delims = array(
+        0 => '","'  . " - " . _("comma separated values"),
+        1 => '";"'  . " - " . _("semicolon separated values"),
+        2 => '"\t"' . " - " . _("tabstop separated values"),
+        3 => '" "'  . " - " . _("blank separated values"),
+        );
+
+        // Add custom character radio button only if it should appear.
+        if ($delimiter_index === 4) {
+            $available_delims[4] = '"' . $delim_char . '" - ' . _("values separated by custom character");
+        }
+
+        $smarty->assign('available_delimiters', $available_delims);
+
+        // Get setting's default.
+        $value = $this->utils->getConfigBoolValue("ignore_first_row_of_csv_file");
+        $smarty->assign('preset_csv_with_column_headers', $value);
+    }
+
+    /*
+     * Parse PHASE 01:
+     *  - Delimiter
+     *  - First CSV row is column headers
+     */
+    function parse_phase1()
     {
         $_delim_id                = $_POST['delimiter_id'];
         $_csv_with_column_headers = $_POST['csv_with_column_headers'];
-
-        $ret_array = $this->utils->checkUploadedFile();
-
-        // If successful.
-        if ($ret_array[0]) {
-            $raw_csv_data = $ret_array[1];
-            $smarty->assign("file_uploaded", true);
-        } else {
-            $this->failure_in_this_phase = true;
-            $smarty->assign("LDIFError", true);
-
-            msg_dialog::display(_("Error"), $ret_array[1], ERROR_DIALOG);
-            return;
-        }
-
 
         // Parse user settings…
         switch ($_delim_id) {
@@ -78,26 +108,57 @@ class import_phases extends import
                 break;
         }
 
+        $this->csvinfo['csv_delimiter'] = $delimiter_char;
+
         if (isset($_csv_with_column_headers)) {
             $this->csvinfo['skip_first_line'] = true;
         } else {
             $this->csvinfo['skip_first_line'] = false;
         }
+    }
+
+    /*
+     * PHASE 01:
+     *   - Check uploaded file
+     *   - Parse CSV file
+     *   - Prepare '$this->csvinfo' with templates
+     */
+    function execute_phase1($smarty, $quick_import = false)
+    {
+        $this->parse_phase1($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase1($smarty);
+            return;
+        }
+
+        $ret_array = $this->utils->checkUploadedFile();
+
+        // If successful.
+        if ($ret_array[0]) {
+            $raw_csv_data = $ret_array[1];
+        } else {
+            $this->failure_in_this_phase = true;
+            $smarty->assign("LDIFError", true);
+
+            msg_dialog::display(_("Error"), $ret_array[1], ERROR_DIALOG);
+            $this->prepare_phase1($smarty);
+            return;
+        }
 
         // Parse CSV file using utils class.
         $parser_ret = $this->utils->parseCSV(
             $raw_csv_data,
-            $delimiter_char,
+            $this->csvinfo['csv_delimiter'],
             $this->csvinfo['skip_first_line']
         );
 
         if (empty($parser_ret)) {
             $smarty->assign("LDIFError", true);
-            $smarty->assign("file_uploaded", false);
             $this->failure_in_this_phase = true;
 
             msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);
 
+            $this->prepare_phase1($smarty);
             return;
         } else {
             // Copy each element from $parser_ret into $this->csvinfo…
@@ -107,6 +168,24 @@ class import_phases extends import
             unset($parser_ret);
         }
 
+        if ($this->failure_in_this_phase === true) {
+            // Prepare for reloading this phase's web page again…
+            $this->prepare_phase1($smarty);
+            return;
+        }
+
+        $this->prepare_phase2($smarty);
+    }
+
+
+    /*
+     * Prepare PHASE 02:
+     *   - Populate template selectors
+     *   - Populate OU tree selector
+     *   - Set form presets
+     */
+    function prepare_phase2($smarty)
+    {
         /* --- Populate the Template Selectors for PHASE 2 --- */
         $this->csvinfo["template_main"] = 0;
         $this->csvinfo["template_aux"]  = 0;
@@ -825,47 +904,6 @@ class import_phases extends import
             $this->csvinfo = array();
         }
 
-        // Get setting's default.
-        $delim_char = $this->utils->getConfigStrValue("csv_column_delimiter");
-
-        switch ($delim_char) {
-            case ",":
-                $delimiter_index = 0;
-                break;
-            case ";":
-                $delimiter_index = 1;
-                break;
-            case "\\t": // Not the actual tab char but literally '\t'
-                $delimiter_index = 2;
-                break;
-            case " ":
-                $delimiter_index = 3;
-                break;
-            default:
-                // Custom character…
-                $delimiter_index = 4;
-                break;
-        }
-
-        $smarty->assign('preset_delimiter_id', $delimiter_index);
-        $available_delims = array(
-            0 => '","'  . " - " . _("comma separated values"),
-            1 => '";"'  . " - " . _("semicolon separated values"),
-            2 => '"\t"' . " - " . _("tabstop separated values"),
-            3 => '" "'  . " - " . _("blank separated values"),
-        );
-
-        // Add custom character radio button only if it should appear.
-        if ($delimiter_index === 4) {
-            $available_delims[4] = '"' . $delim_char . '" - ' . _("values separated by custom character");
-        }
-
-        $smarty->assign('available_delimiters', $available_delims);
-
-        // Get setting's default.
-        $value = $this->utils->getConfigBoolValue("ignore_first_row_of_csv_file");
-        $smarty->assign('preset_csv_with_column_headers', $value);
-
         /* Check permissions for import */
         $acl = $this->ui->get_permissions($this->config->current['BASE'], "all/all");
         if (!preg_match("/w/", $acl)) {
@@ -900,8 +938,6 @@ class import_phases extends import
         // Execute next phase, if user didn't abort.
         if (!isset($_POST['cancel_import'])) {
             if (isset($_POST['phase_01']) and isset($_POST['file_uploaded'])) {
-                // Delete old references…
-                $this->csvinfo = array();
                 $this->execute_phase1($smarty);
             } elseif (isset($_POST['phase_02']) and isset($_POST['import_configured'])) {
                 $smarty->assign("file_uploaded", true);
@@ -958,6 +994,13 @@ class import_phases extends import
                 $smarty->assign("accounts_groupmembers_reviewed", true);
                 $smarty->assign("accounts_groupmembers_updated", true);
                 $this->execute_phase9($smarty);
+            } else {
+                // Initial phase, so Phase 0…
+                // Delete old references…
+                $this->csvinfo = array();
+
+                // Prepare smarty variables and such for main page (Phase 1)
+                $this->prepare_phase1($smarty);
             }
         }
 
