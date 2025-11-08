@@ -340,7 +340,22 @@ class import_phases extends import
      */
     function parse_phase2($smarty)
     {
-        // TODO: parse here…
+        /* Load the properties we need in this phase */
+        $this->csvinfo['template_main'] = $_POST["template_" . $this->import_account_type];
+        $this->csvinfo['template_aux']  = $_POST["template_" . $this->import_account_type . "_aux"] ?? null;
+        $this->csvinfo['ou_groups']     = $_POST["ou_groups"];
+        $this->csvinfo['domain_users']  = $_POST["domain_users"];
+        $this->csvinfo['domain_groups'] = $_POST["domain_groups"];
+
+        $this->csvinfo['accounts_in_class_ou']    = $this->feature_accounts_in_class_ou    ? isset($_POST["accounts_in_class_ou"])    : false;
+        $this->csvinfo['aliases_in_schooldomain'] = $this->feature_aliases_in_schooldomain ? isset($_POST["aliases_in_schooldomain"]) : false;
+        $this->csvinfo['try_mail_as_uid']                   = isset($_POST["try_mail_as_uid"]);
+        $this->csvinfo['add_course_members_to_class_group'] = isset($_POST["add_course_members_to_class_group"]);
+        $this->csvinfo['sel_ldap_match_attr_studentid']     = isset($_POST["sel_ldap_match_attr_studentid"]);
+        $this->csvinfo['sel_ldap_match_attr_givenname']     = isset($_POST["sel_ldap_match_attr_givenname"]);
+        $this->csvinfo['sel_ldap_match_attr_snname']        = isset($_POST["sel_ldap_match_attr_snname"]);
+        $this->csvinfo['sel_ldap_match_attr_birthday']      = isset($_POST["sel_ldap_match_attr_birthday"]);
+        $this->csvinfo['sel_ldap_match_attr_gender']        = isset($_POST["sel_ldap_match_attr_gender"]);
     }
 
     /*
@@ -350,20 +365,17 @@ class import_phases extends import
      */
     function execute_phase2($smarty)
     {
-        $_template      = $_POST["template_" . $this->import_account_type];
-        $_template_aux  = $_POST["template_" . $this->import_account_type . "_aux"] ?? null;
-        $_ou_groups     = $_POST["ou_groups"];
-        $_domain_users  = $_POST["domain_users"];
-        $_domain_groups = $_POST["domain_groups"];
-        $this->csvinfo['accounts_in_class_ou'] = $this->feature_accounts_in_class_ou ? isset($_POST["accounts_in_class_ou"]) : false;
-        $this->csvinfo['aliases_in_schooldomain'] = $this->feature_aliases_in_schooldomain ? isset($_POST["aliases_in_schooldomain"]) : false;
-        $this->csvinfo['try_mail_as_uid']                   = isset($_POST["try_mail_as_uid"]);
-        $this->csvinfo['add_course_members_to_class_group'] = isset($_POST["add_course_members_to_class_group"]);
-        $this->csvinfo['sel_ldap_match_attr_studentid']     = isset($_POST["sel_ldap_match_attr_studentid"]);
-        $this->csvinfo['sel_ldap_match_attr_givenname']     = isset($_POST["sel_ldap_match_attr_givenname"]);
-        $this->csvinfo['sel_ldap_match_attr_snname']        = isset($_POST["sel_ldap_match_attr_snname"]);
-        $this->csvinfo['sel_ldap_match_attr_birthday']      = isset($_POST["sel_ldap_match_attr_birthday"]);
-        $this->csvinfo['sel_ldap_match_attr_gender']        = isset($_POST["sel_ldap_match_attr_gender"]);
+        $this->parse_phase2($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase2($smarty);
+            return;
+        }
+
+        $_template      = $this->csvinfo['template_main'];
+        $_template_aux  = $this->csvinfo['template_aux'];
+        $_ou_groups     = $this->csvinfo['ou_groups'];
+        $_domain_users  = $this->csvinfo["domain_users"];
+        $_domain_groups = $this->csvinfo["domain_groups"];
 
         // Configure import options
         if (isset($_template) and isset($_ou_groups)) {
@@ -408,29 +420,6 @@ class import_phases extends import
 
             if (isset($_template_aux)) {
                 $this->csvinfo['template_aux'] = $_template_aux;
-            }
-
-            if ($this->failure_in_this_phase === false) {
-                $smarty->assign("import_configured", true);
-
-                $this->csvinfo['attrs'] = $this->getAttributes();
-                $this->csvinfo['attrs'][] = "---";
-
-                // Initialize $this->csvinfo['attrs_selected'], only do this here and once
-                $this->csvinfo['attrs_selected'] = $this->getAttrsPreSelection($this->csvinfo['num_cols']);
-
-                // User import attributes
-                $smarty->assign("attrs", $this->csvinfo['attrs']);
-
-                // Per row selected user import attributes
-                $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
-
-                // Number of CSV columns --==-> Number of rows in 90°-counter-clockwise-rotated table
-                $smarty->assign("num_rows", $this->csvinfo['num_cols']);
-
-                // CSV data
-                $smarty->assign("data_size", $this->csvinfo['num_rows']);
-                $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
             }
         } else {
             /* Something is not right! */
@@ -557,7 +546,9 @@ class import_phases extends import
      */
     function prepare_phase3($smarty)
     {
-        // TODO: prepare here…
+        $this->accountStatusCheck();
+        $smarty->assign("data", $this->csvinfo['data_preldap']);
+        $smarty->assign("import_configured", true);
     }
 
     /*
@@ -573,6 +564,12 @@ class import_phases extends import
      */
     function execute_phase3($smarty)
     {
+        $this->parse_phase3($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase3($smarty);
+            return;
+        }
+
         // Check if job immediately became idle (shouldn't happen normally)
         $idle_status = array(
             'is_idle' => true,
@@ -685,6 +682,12 @@ class import_phases extends import
             // Prepare for reloading this phase's web page again…
             $this->accountStatusCheck();
             $smarty->assign("data", $this->csvinfo['data_preldap']);
+        } else {
+            // Prepare for reloading this phase's web page again…
+            $smarty->assign("attrs", $this->csvinfo['attrs']);
+            $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
+            $smarty->assign("num_rows", $this->csvinfo['num_cols']);
+            $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
         }
     }
 
@@ -702,7 +705,11 @@ class import_phases extends import
      */
     function parse_phase4($smarty)
     {
-        // TODO: parse here…
+        if (isset($_POST['ajax_status_check'])) {
+            $this->csvinfo['ajax_status_check'] = true;
+        } else {
+            $this->csvinfo['ajax_status_check'] = false;
+        }
     }
 
     /*
@@ -710,8 +717,14 @@ class import_phases extends import
      */
     function execute_phase4($smarty)
     {
+        $this->parse_phase4($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase4($smarty);
+            return;
+        }
+
         // AJAX request detection - return JSON status and exit
-        if (isset($_POST['ajax_status_check'])) {
+        if ($this->csvinfo['ajax_status_check'] === true) {
             $status = $this->getCurrentJobStatusJSON();
 
             header('Content-Type: application/json; charset=utf-8');
@@ -719,6 +732,25 @@ class import_phases extends import
             exit;
         }
 
+        if ($this->failure_in_this_phase === true) {
+            // Show failure messages
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks(array($msg));
+            }
+
+            $this->prepare_phase4($smarty);
+            return;
+        }
+
+        $this->prepare_phase5($smarty);
+    }
+
+
+    /*
+     * Prepare PHASE 05:
+     */
+    function prepare_phase5($smarty)
+    {
         // Get refresh time for AJAX polling (seconds)
         $refresh_time = $this->utils->getConfigIntValue('async_import_refresh_time', 5);
 
@@ -767,15 +799,6 @@ class import_phases extends import
         $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
     }
 
-
-    /*
-     * Prepare PHASE 05:
-     */
-    function prepare_phase5($smarty)
-    {
-        // TODO: prepare here…
-    }
-
     /*
      * Parse PHASE 05:
      */
@@ -789,6 +812,12 @@ class import_phases extends import
      */
     function execute_phase5($smarty)
     {
+        $this->parse_phase5($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase5($smarty);
+            return;
+        }
+
         // Import posixgroups objects into LDAP-tree.
         foreach ($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data) {
             // Only perform on this group if _actions is not "none" or "ignore"
@@ -825,7 +854,11 @@ class import_phases extends import
             }
 
             // Prepare for reloading this phase's web page again…
+            $this->prepare_phase5($smarty);
+            return;
         }
+
+        $this->prepare_phase6($smarty);
     }
 
 
@@ -834,7 +867,9 @@ class import_phases extends import
      */
     function prepare_phase6($smarty)
     {
-        // TODO: prepare here…
+        $this->groupStatusCheck();
+        $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
+        $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
     }
 
     /*
@@ -850,6 +885,12 @@ class import_phases extends import
      */
     function execute_phase6($smarty)
     {
+        $this->parse_phase6($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase6($smarty);
+            return;
+        }
+
         $this->accountStatusCheck();
         $this->groupStatusCheck();
         $this->prepareGroupMemberships();
@@ -858,11 +899,11 @@ class import_phases extends import
         if ($this->failure_in_this_phase === false) {
             $smarty->assign("groups_imported", true);
         } else {
-            // Prepare for reloading this phase's web page again…
-            $this->groupStatusCheck();
-            $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
-            $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
+            $this->prepare_phase6($smarty);
+            return;
         }
+
+        $this->prepare_phase7($smarty);
     }
 
 
@@ -871,7 +912,7 @@ class import_phases extends import
      */
     function prepare_phase7($smarty)
     {
-        // TODO: prepare here…
+        $this->prepareGroupMemberships();
     }
 
     /*
@@ -887,6 +928,12 @@ class import_phases extends import
      */
     function execute_phase7($smarty)
     {
+        $this->parse_phase7($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase7($smarty);
+            return;
+        }
+
         $this->addLDAPUserObjectsToGroups($this->posixgroup_members);
         $this->addLDAPUserObjectsToOGroups($this->groupofnames_members);
         $this->moveLDAPPrimGroupObjects();
@@ -899,12 +946,15 @@ class import_phases extends import
         $this->accountStatusCheck();
         $this->groupStatusCheck();
         $smarty->assign("data", $this->csvinfo['data_preldap']);
+
         if ($this->failure_in_this_phase === false) {
             $smarty->assign("accounts_groupmembers_reviewed", true);
         } else {
-            // Prepare for reloading this phase's web page again…
-            $this->prepareGroupMemberships();
+            $this->prepare_phase7($smarty);
+            return;
         }
+
+        $this->prepare_phase8($smarty);
     }
 
 
@@ -929,11 +979,21 @@ class import_phases extends import
      */
     function execute_phase8($smarty)
     {
+        $this->parse_phase8($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase8($smarty);
+            return;
+        }
+
         if ($this->failure_in_this_phase === false) {
             $smarty->assign("accounts_groupmembers_updated", true);
         } else {
             // Prepare for reloading this phase's web page again…
+            $this->prepare_phase8($smarty);
+            return;
         }
+
+        $this->prepare_phase9($smarty);
     }
 
 
@@ -958,6 +1018,12 @@ class import_phases extends import
      */
     function execute_phase9($smarty)
     {
+        $this->parse_phase9($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase9($smarty);
+            return;
+        }
+
         if ($this->failure_in_this_phase === false) {
             /*
              * FIXME: If automatic password generation is used, present a download link
@@ -968,7 +1034,11 @@ class import_phases extends import
             $smarty->assign("cleanup_completed", true);
         } else {
             /* FIXME: no clue what to do on failures here… We will see. */
+            $this->prepare_phase9($smarty);
+            return;
         }
+
+        // $this->prepare_phaseX($smarty);
     }
 
 
