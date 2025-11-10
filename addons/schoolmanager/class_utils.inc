@@ -2,7 +2,7 @@
 
 /*
  * This code is an addon for GOsa² (https://gosa.gonicus.de)
- * Copyright (C) 2022 Daniel Teichmann
+ * Copyright (C) 2022-2025 Daniel Teichmann
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,14 @@ class schoolmgr_utils
     // Enables/Disables debug prints to js console.
     var $ENABLE_DEBUG_JS_CONSOLE = true;
 
+    // System-level process priority constraints (nice values)
+    // Lower values = higher priority, higher values = lower priority
+    // Note: Negative nice values (-20 to -1) require elevated privileges:
+    //   - Either running as root user, OR
+    //   - Having CAP_SYS_NICE capability (Linux capability for nice/scheduling)
+    // Regular users can only set nice values from 0 to 19
+    const NICE_MIN = -20;  // Highest priority (requires root or CAP_SYS_NICE)
+    const NICE_MAX = 19;   // Lowest priority (available to all users)
 
     function __construct(&$config)
     {
@@ -80,6 +88,11 @@ class schoolmgr_utils
             return;
         }
 
+        // Don't print to console if this is an AJAX status check request
+        if (isset($_POST["ajax_status_check"])) {
+            return;
+        }
+
         if (is_array($data)) {
             $output = implode('', $data);
         }
@@ -123,6 +136,29 @@ class schoolmgr_utils
         // Debug property to js console (if debugging is enabled!).
         $ret_str = $ret ? "✅" : "❌";
         $debug_str = "Got bool property '" . str_pad($key . "':", 60) . "'" . $ret_str . "'";
+        $this->debug_to_console($debug_str);
+
+        return $ret;
+    }
+
+
+    function getConfigIntValue(string $key, int $default = 0): int
+    {
+        // Get config value, but pause debugging output.
+        $ENABLE_DEBUG_JS_CONSOLE_then = $this->ENABLE_DEBUG_JS_CONSOLE;
+        $this->ENABLE_DEBUG_JS_CONSOLE = false;
+        $conf_value = $this->getConfigStrValue($key);
+        $this->ENABLE_DEBUG_JS_CONSOLE = $ENABLE_DEBUG_JS_CONSOLE_then;
+
+        // Use default if config value is empty
+        if (empty($conf_value)) {
+            $ret = $default;
+        } else {
+            $ret = intval($conf_value);
+        }
+
+        // Debug property to js console (if debugging is enabled!).
+        $debug_str = "Got int property '" . str_pad($key . "':", 61) . "'" . $ret . "'";
         $this->debug_to_console($debug_str);
 
         return $ret;
@@ -669,6 +705,142 @@ class schoolmgr_utils
         $csvinfo['num_cols'] = $num_max_columns;
         $csvinfo['num_rows'] = count($csvinfo['data']);
         return $csvinfo;
+    }
+
+
+    /**
+     * Spawns an asynchronous background process.
+     *
+     * The process is completely detached from the parent PHP process:
+     * - stdin/stdout/stderr are redirected to /dev/null
+     * - Process is run with nohup to survive parent termination
+     * - Process becomes a daemon (no terminal attached)
+     *
+     * @param string|null $command The command to execute (will be escaped).
+     *                             If empty/null, defaults to PHP binary.
+     * @param array       $args    Arguments to pass to the command
+     * @param int|null    $nice    Nice value for process priority (-20 to 19).
+     *                             Lower values = higher priority.
+     *                             Default: 10 (lower priority than normal).
+     *                             Set to null to skip nice altogether.
+     *
+     * @return int Process ID (PID) of spawned process
+     *
+     * @throws Exception If command not found, not executable, or spawn fails
+     *
+     * @example
+     *   // Use default PHP binary with default nice value (10)
+     *   $pid = $utils->spawnAsyncProcess(
+     *       null,
+     *       ['/path/to/worker.php', 'arg1', 'arg2']
+     *   );
+     *
+     *   // Use custom command with high priority
+     *   $pid = $utils->spawnAsyncProcess(
+     *       '/usr/bin/python3',
+     *       ['/path/to/script.py', '--arg', 'value'],
+     *       -5  // Higher priority
+     *   );
+     *
+     *   // Use custom command without nice
+     *   $pid = $utils->spawnAsyncProcess(
+     *       '/usr/bin/python3',
+     *       ['/path/to/script.py'],
+     *       null  // No nice adjustment
+     *   );
+     */
+    function spawnAsyncProcess($command = null, array $args = array(), $nice = 10)
+    {
+        // Default to PHP binary if command is empty or null
+        if (empty($command)) {
+            // Find PHP binary
+            $php_bin = trim(shell_exec('which php'));
+            if (empty($php_bin)) {
+                $php_bin = '/usr/bin/php';  // Fallback
+            }
+
+            if (!file_exists($php_bin) || !is_executable($php_bin)) {
+                throw new Exception(
+                    "PHP binary not found or not executable: " . $php_bin
+                );
+            }
+
+            $command = $php_bin;
+
+            // Prepend -f flag if first arg looks like a PHP script
+            $first_arg = !empty($args) ? $args[0] : null;
+            if (is_string($first_arg) && preg_match('/\.php$/i', $first_arg)) {
+                array_unshift($args, '-f');
+            }
+        }
+
+        // Validate command exists and is executable
+        if (!file_exists($command)) {
+            throw new Exception(
+                "Cannot spawn async process: command not found: " . $command
+            );
+        }
+
+        if (!is_executable($command)) {
+            throw new Exception(
+                "Cannot spawn async process: command not executable: " . $command
+            );
+        }
+
+        // Build command with escaped arguments
+        // Add working directory as first argument if specified
+        $cmd_parts = array(escapeshellcmd($command));
+        foreach ($args as $arg) {
+            $cmd_parts[] = escapeshellarg($arg);
+        }
+        $full_command = implode(' ', $cmd_parts);
+
+        // Optionally prepend nice command for process priority adjustment
+        $nice_prefix = '';
+        if ($nice !== null) {
+            // Clamp nice value to valid range (system constraints)
+            $nice_value = max(self::NICE_MIN, min(self::NICE_MAX, intval($nice)));
+            $nice_prefix = sprintf('nice -n %d ', $nice_value);
+        }
+
+        // Redirect stdin/stdout/stderr to /dev/null and run in background
+        // Use nohup to detach from terminal and make process immune to SIGHUP
+        // Use nice to adjust process priority if specified
+        $full_command = sprintf(
+            'nohup %s%s > /dev/null 2>&1 & echo $!',
+            $nice_prefix,
+            $full_command
+        );
+
+        $this->debug_to_console(
+            sprintf(_("🚀 Spawning async process: %s"), $full_command)
+        );
+
+        // Execute command and capture PID
+        $output = array();
+        $return_var = 0;
+        exec($full_command, $output, $return_var);
+
+        if ($return_var !== 0) {
+            throw new Exception(
+                "Failed to spawn async process (exit code: " . $return_var . ")"
+            );
+        }
+
+        // Parse PID from output
+        $pid = isset($output[0]) ? intval(trim($output[0])) : 0;
+
+        if ($pid <= 0) {
+            throw new Exception(
+                "Failed to spawn async process: could not determine PID"
+            );
+        }
+
+        $this->debug_to_console(
+            sprintf(_("✅ Spawned async process with PID: %d"), $pid)
+        );
+
+        return $pid;
     }
 }
 

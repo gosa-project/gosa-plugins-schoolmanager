@@ -1,3 +1,5 @@
+{include file="`$phases_path`../common/fontawesome.tpl" inline}
+
 <p>
     {t escape=no}With GOsa2 School Manager's <b>Archive Accounts Module</b> you can archive student user accounts, parent accounts, teacher from multiple CSV files.{/t}
 </p>

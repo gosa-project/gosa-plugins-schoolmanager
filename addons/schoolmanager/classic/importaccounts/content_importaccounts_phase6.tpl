@@ -1,7 +1,7 @@
 <input type="hidden" name="phase_06">
 <br>
 <h3>
-    {t 1="6/11"}
+    {t 1="6/10"}
         STEP %1  (LDAP import status): 
     {/t}
 </h3>
@@ -13,7 +13,7 @@
     <br>
 
     {foreach from=$data_groups item=group key=key}
-    <div style="float:left; width:24em;">
+    <div style="float:left; width:24em; height:30ex;">
     <table summary="{t 1=$group['cn'][0]}Group object: %1{/t}" cellspacing="1" border=0 cellpadding="4" bgcolor="#FEFEFE">
             <tr>
             <td bgcolor="#BBBBBB" colspan="2">

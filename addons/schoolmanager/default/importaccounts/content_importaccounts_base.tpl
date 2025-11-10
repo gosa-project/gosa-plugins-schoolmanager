@@ -1,3 +1,5 @@
+{include file="`$phases_path`../common/fontawesome.tpl" inline}
+
 <div class="card-content-scroll">
 <div class="row">
     <div class="col s12">
@@ -39,48 +41,43 @@
             {include file="$phase_path" inline}
 
         {* PHASE 3: *}
-        {elseif $data_sorted != true}
+        {elseif $accounts_reviewed != true}
             {$phase_path="`$phases_path`content_importaccounts_phase3.tpl"}
             {include file="$phase_path" inline}
 
         {* PHASE 4: *}
-        {elseif $accounts_reviewed != true}
+        {elseif $accounts_imported != true}
             {$phase_path="`$phases_path`content_importaccounts_phase4.tpl"}
             {include file="$phase_path" inline}
 
         {* PHASE 5: *}
-        {elseif $accounts_imported != true}
+        {elseif $groups_reviewed != true}
             {$phase_path="`$phases_path`content_importaccounts_phase5.tpl"}
             {include file="$phase_path" inline}
 
         {* PHASE 6: *}
-        {elseif $groups_reviewed != true}
+        {elseif $groups_imported != true}
             {$phase_path="`$phases_path`content_importaccounts_phase6.tpl"}
             {include file="$phase_path" inline}
 
         {* PHASE 7: *}
-        {elseif $groups_imported != true}
+        {elseif $accounts_groupmembers_reviewed != true}
             {$phase_path="`$phases_path`content_importaccounts_phase7.tpl"}
             {include file="$phase_path" inline}
 
         {* PHASE 8: *}
-        {elseif $accounts_groupmembers_reviewed != true}
+        {elseif $accounts_groupmembers_updated != true}
             {$phase_path="`$phases_path`content_importaccounts_phase8.tpl"}
             {include file="$phase_path" inline}
 
         {* PHASE 9: *}
-        {elseif $accounts_groupmembers_updated != true}
+        {elseif $cleanup_completed != TRUE}
             {$phase_path="`$phases_path`content_importaccounts_phase9.tpl"}
             {include file="$phase_path" inline}
 
         {* PHASE 10: *}
-        {elseif $cleanup_completed != TRUE}
-            {$phase_path="`$phases_path`content_importaccounts_phase10.tpl"}
-            {include file="$phase_path" inline}
-
-        {* PHASE 11: *}
         {else}
-            {$phase_path="`$phases_path`content_importaccounts_phase11.tpl"}
+            {$phase_path="`$phases_path`content_importaccounts_phase10.tpl"}
             {include file="$phase_path" inline}
 
         {/if}
@@ -92,67 +89,56 @@
             {/if}
 
             {if $file_uploaded != TRUE}
-                <button class="btn-small" style="margin-left: 0; margin-right: auto;" type='submit' name='file_uploaded_do_quickimport'>
-                    {t escape='no'}Do <b>Quick-Import</b>{/t}
-                </button>
-
                 <span style="margin-left: 40px;">{t}Continue here, when ready{/t}:</span>
-                <button class="btn-small primary" type='submit' name='file_uploaded'>
-                    {t 1="2/11"}Set import configuration option (Step %1){/t}
+                <button class="btn-small primary" type='submit' name='file_uploaded' id='btnContinue' disabled>
+                    {t 1="2/10"}Set import configuration option (Step %1){/t}
                 </button>
 
             {elseif $import_configured != TRUE}
-                {t}Continue here, when ready{/t}:
                 <button class="btn-small primary" type="submit" name="import_configured">
-                    {t 1="3/11"}Check and Sort CSV Data(Step %1){/t}
-                </button>
-
-            {elseif $data_sorted != TRUE}
-                {t}Continue here, when ready{/t}:
-                <button class="btn-small primary" type="submit" name="data_sorted">
-                    {t 1="4/11"}Review user account objects before LDAP import (Step %1){/t}
+                    {t 1="3/10"}Review user account objects before LDAP import (Step %1){/t}
                 </button>
 
             {elseif $accounts_reviewed != TRUE}
                 {t}Continue here, when ready (this can take a while...){/t}:
                 <button class="btn-small primary" type="submit" name="accounts_reviewed">
-                    {t 1="5/11"}Import user account objects into LDAP (Step %1){/t}
+                    {t 1="4/10"}Import user account objects into LDAP (Step %1){/t}
                 </button>
 
             {elseif $accounts_imported != TRUE}
                 {t}Continue here, when ready{/t}:
                 <button class="btn-small primary" type="submit" name="accounts_imported">
-                    {t 1="6/11"}Review group objects (Step %1){/t}
+                    {t 1="5/10"}Review group objects (Step %1){/t}
                 </button>
 
             {elseif $groups_reviewed != TRUE}
                 {t}Continue here, when ready (this can take a while...){/t}:
                 <button class="btn-small primary" type="submit" name="groups_reviewed">
-                    {t 1="7/11"}Import group objects into LDAP (Step %1){/t}
+                    {t 1="6/10"}Import group objects into LDAP (Step %1){/t}
                 </button>
 
             {elseif $groups_imported != TRUE}
                 {t}Continue here, when ready (this can take a while...){/t}:
                 <button class="btn-small primary" type="submit" name="groups_imported">
-                    {t 1="8/11"}Review accounts' group memberships before LDAP import (Step %1){/t}
+                    {t 1="7/10"}Review accounts' group memberships before LDAP import (Step %1){/t}
                 </button>
 
             {elseif $accounts_groupmembers_reviewed != TRUE}
                 {t}Continue here, when ready (this can take a while...){/t}:
                 <button class="btn-small primary" type="submit" name="accounts_groupmembers_reviewed">
-                    {t 1="9/11"}Update accounts' group memberships in LDAP (Step %1){/t}
+                    {t 1="8/10"}Update accounts' group memberships in LDAP (Step %1){/t}
                 </button>
 
             {elseif $accounts_groupmembers_updated != TRUE}
                 {t}Continue here, when ready{/t}:
                 <button class="btn-small primary" type="submit" name="accounts_groupmembers_updated">
-                    {t 1="10/11"}Some post-import clean-ups (Step %1){/t}
+                    {t 1="9/10"}Some post-import clean-ups (Step %1){/t}
                 </button>
 
             {elseif $cleanup_completed != TRUE}
                 {t}Continue here, when ready{/t}:
                 <button class="btn-small primary" type="submit" name="cleanup_completed">
-                    {t 1="11/11"}Finish LDAP import (Step %1){/t}
+                    {t 1="10/10"}Finish LDAP import (Step %1){/t}
                 </button>
 
             {/if}
