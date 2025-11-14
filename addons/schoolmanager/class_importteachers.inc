@@ -55,23 +55,25 @@ class importteachers extends import_phases
         $this->feature_aliases_in_schooldomain = true;
     }
 
+
     function getAttributes()
     {
-        $attrs = array();
+        $_attrs = array(
+            'no'             => _('Number'),
+            'uid'            => _('Login'),
+            'userPassword'   => _('Password'),
+            'employeeNumber' => _('Student ID'),
+            'sn'             => _('Last Name(s)'),
+            'givenName'      => _('First Name(s)'),
+            'dateOfBirth'    => _('Date of Birth'),
+            'mail'           => _('Mail Address'),
+            'gender'         => _('Gender'),
+            'subjects'       => _('Subjects'),
+            'class'          => _('Class'),
+            'course'         => _('Course')
+        );
 
-        $attrs[] = "no";
-        $attrs[] = "uid";
-        $attrs[] = "userPassword";
-        $attrs[] = "sn";
-        $attrs[] = "givenName";
-        $attrs[] = "dateOfBirth";
-        $attrs[] = "gender";
-        $attrs[] = "mail";
-        $attrs[] = "subjects";
-        $attrs[] = "class";
-        $attrs[] = "course";
-
-        return $attrs;
+        return $_attrs;
     }
 
     function getMultiAttributes()
@@ -79,22 +81,6 @@ class importteachers extends import_phases
         $multiAttrs = array();
         $multiAttrs[] = "course";
         return $multiAttrs;
-    }
-
-    function getAttrsPreSelection($size)
-    {
-        /* FIXME: Make this more generic by analyzing the return value of $this->getAttributes()
-         *        When done -> move method to parent class (importaccounts).
-         */
-
-        $selection = array();
-        for ($i = 0; $i < 10; $i++) {
-             $selection[] = $i;
-        }
-        for ($i = 10; $i < $size; $i++) {
-             $selection[] = 10;
-        }
-        return $selection;
     }
 
 
