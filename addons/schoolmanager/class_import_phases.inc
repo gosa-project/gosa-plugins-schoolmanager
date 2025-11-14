@@ -32,42 +32,44 @@ class import_phases extends import
      */
     function prepare_phase1($smarty)
     {
-        // Get setting's default.
-        $delim_char = $this->utils->getConfigStrValue("csv_column_delimiter");
+        // Get default delimiter from config
+        $delim_char_default = $this->utils->getConfigStrValue("csv_column_delimiter");
 
-        switch ($delim_char) {
-            case ",":
-                $delimiter_index = 0;
-                break;
-            case ";":
-                $delimiter_index = 1;
-                break;
-            case "\\t": // Not the actual tab char but literally '\t'
-                $delimiter_index = 2;
-                break;
-            case " ":
-                $delimiter_index = 3;
-                break;
-            default:
-            // Custom character…
-                $delimiter_index = 4;
-                break;
-        }
-
-        $smarty->assign('preset_delimiter_id', $delimiter_index);
-        $available_delims = array(
-        0 => '","'  . " - " . _("comma separated values"),
-        1 => '";"'  . " - " . _("semicolon separated values"),
-        2 => '"\t"' . " - " . _("tabstop separated values"),
-        3 => '" "'  . " - " . _("blank separated values"),
+        // Define standard delimiters (actual characters)
+        $delims_chars = array(
+            0 => ',',
+            1 => ';',
+            2 => "\t",  // Actual tab character
+            3 => ' '
         );
 
-        // Add custom character radio button only if it should appear.
-        if ($delimiter_index === 4) {
-            $available_delims[4] = '"' . $delim_char . '" - ' . _("values separated by custom character");
+        // Define delimiter display texts
+        $delims_texts = array(
+            0 => '","'  . " - " . _("comma separated values"),
+            1 => '";"'  . " - " . _("semicolon separated values"),
+            2 => '"\t"' . " - " . _("tabstop separated values"),
+            3 => '" "'  . " - " . _("blank separated values")
+        );
+
+        // Find which delimiter index matches the default
+        $delims_default_key = -1;
+        for ($i = 0; $i < 4; $i++) {
+            if ($delims_chars[$i] === $delim_char_default) {
+                $delims_default_key = $i;
+                break;
+            }
         }
 
-        $smarty->assign('available_delimiters', $available_delims);
+        // If default delimiter is not standard, add it as custom (index 4)
+        if ($delims_default_key === -1) {
+            $delims_chars[4] = $delim_char_default;
+            $delims_texts[4] = '"' . $delim_char_default . '" - ' . _("values separated by custom character");
+            $delims_default_key = 4;
+        }
+
+        $smarty->assign('delims_default_key', $delims_default_key);
+        $smarty->assign('delims_chars', $delims_chars);
+        $smarty->assign('delims_texts', $delims_texts);
 
         // Get setting's default.
         $value = $this->utils->getConfigBoolValue("ignore_first_row_of_csv_file");
