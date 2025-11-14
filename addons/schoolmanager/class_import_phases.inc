@@ -74,6 +74,12 @@ class import_phases extends import
         // Get setting's default.
         $value = $this->utils->getConfigBoolValue("ignore_first_row_of_csv_file");
         $smarty->assign('preset_csv_with_column_headers', $value);
+
+        // User import attributes
+        $this->csvinfo['attributes_all']   = $this->getAttributes();
+        $this->csvinfo['attributes_multi'] = $this->getMultiAttributes();
+        $smarty->assign("attributes_all", $this->csvinfo['attributes_all']);
+        $smarty->assign("attributes_multi", $this->csvinfo['attributes_multi']);
     }
 
     /*
@@ -117,6 +123,51 @@ class import_phases extends import
         } else {
             $this->csvinfo['skip_first_line'] = false;
         }
+
+        if (!isset($_POST['column_head_count']) or !is_numeric($_POST['column_head_count'])) {
+            $this->failure_in_this_phase = true;
+            $this->failure_messages[] = _("There is form data missing.");
+            return;
+        }
+
+        $num_columns = intval($_POST['column_head_count']);
+        if ($num_columns <= 0) {
+            $this->failure_in_this_phase = true;
+            $this->failure_messages[] = _("There is invalid form data.");
+            return;
+        }
+
+        $new_attrs_selected = array();
+        for ($i = 0; $i < $num_columns; $i++) {
+            if (!isset($_POST["column_head_$i"])) {
+                $this->failure_in_this_phase = true;
+                $this->failure_messages[] = _("There is form data missing.");
+                return;
+            }
+
+            $val = $_POST["column_head_$i"];
+
+            // Client data sanitation
+            if ($val != "---" && !array_key_exists($val, $this->csvinfo['attributes_all'])) {
+                $this->failure_in_this_phase = true;
+                $this->failure_messages[] = sprintf(_("The selected attribute '%s' is invalid."), bold($val));
+                return;
+            }
+
+            $new_attrs_selected[] = $val;
+        }
+
+        /*
+         * Maps attributes selected by the user in the web form
+         * to the actual CSV columns.
+         *
+         * Example:
+         * 0 => 'uid',       // 0'th CSV column has uid attribute
+         * 1 => 'sn',        // 1'st CSV column has sn attribute
+         * 2 => 'givenName', // 2'nd CSV column has givenName attribute
+         * ...
+         */
+        $this->csvinfo['attributes_selected'] = $new_attrs_selected;
     }
 
     /*
@@ -129,6 +180,16 @@ class import_phases extends import
     {
         $this->parse_phase1($smarty);
         if ($this->failure_in_this_phase === true) {
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::display(
+                    _("Error"),
+                    _("Error while processing selected CSV column headers.") . "<br>" .
+                    $msg . "<br>" .
+                    _("Sorry, please try again."),
+                    ERROR_DIALOG
+                );
+            }
+
             $this->prepare_phase1($smarty);
             return;
         }
@@ -154,6 +215,9 @@ class import_phases extends import
             $this->csvinfo['skip_first_line']
         );
 
+        unset($ret_array);    // Keep memory footprint low.
+        unset($raw_csv_data); // Keep memory footprint low.
+
         if (empty($parser_ret)) {
             $smarty->assign("LDIFError", true);
             $this->failure_in_this_phase = true;
@@ -162,13 +226,72 @@ class import_phases extends import
 
             $this->prepare_phase1($smarty);
             return;
-        } else {
-            // Copy each element from $parser_ret into $this->csvinfo…
-            $this->csvinfo = array_merge($this->csvinfo, $parser_ret);
-
-            // We don't need it anymore. Keep memory footprint low.
-            unset($parser_ret);
         }
+
+        // Copy each element from $parser_ret into $this->csvinfo…
+        $this->csvinfo = array_merge($this->csvinfo, $parser_ret);
+
+        // We don't need it anymore. Keep memory footprint low.
+        unset($parser_ret);
+
+        // Transform $this->csvinfo['data'] ---> $this->csvinfo['data_sorted'] using $this->csvinfo['attributes_selected']'
+        // Sort the CSV data table according to how it got re-ordered by the plugin-user
+        $this->csvinfo['data_sorted'] = array();
+        $attributes_selected = $this->csvinfo['attributes_selected'];
+        $attributes_multi    = $this->csvinfo['attributes_multi'];
+
+        // At this point we can be sure that
+        // number of columns matches the number of selected attributes
+
+        foreach ($this->csvinfo['data'] as $data_row) {
+            $attrs_counter = array();
+            $data_row_sorted = array();
+
+            for ($i = 0; $i < count($data_row); $i++) {
+                $data_in_cell = $data_row[$i];
+                $value_of_selection = $attributes_selected[$i];
+
+                // Skip every '---'
+                if ($value_of_selection == "---") {
+                    continue;
+                }
+
+                if (in_array($value_of_selection, $attributes_multi)) {
+                    if (isset($attrs_counter[$value_of_selection])) {
+                        $attrs_counter[$value_of_selection] = $attrs_counter[$value_of_selection];
+                    } else {
+                        $attrs_counter[$value_of_selection] = 0;
+                    }
+                    $data_row_sorted[$value_of_selection . $attrs_counter[$value_of_selection]] = $data_in_cell;
+                    $attrs_counter[$value_of_selection]++;
+                } elseif (empty($attrs_counter[$value_of_selection])) {
+                    $data_row_sorted[$value_of_selection] = $data_in_cell;
+                    $attrs_counter[$value_of_selection] = 1;
+                } else {
+                    $this->failure_in_this_phase = true;
+                    $smarty->assign("LDIFError", true);
+                    msg_dialog::display(
+                        _("Error"),
+                        sprintf(
+                            _("The attribute '%s' is only allowed to be selected once!"),
+                            bold($value_of_selection)
+                        ),
+                        ERROR_DIALOG
+                    );
+
+                    // Prepare for reloading this phase's web page again…
+                    $this->prepare_phase1($smarty);
+                    return;
+                }
+            }
+
+            $this->csvinfo['data_sorted'][] = $data_row_sorted;
+        }
+
+        // We don't need it anymore. Keep memory footprint low.
+        unset($this->csvinfo['data']);
+        unset($data_row);
+        unset($data_row_sorted);
 
         if ($this->failure_in_this_phase === true) {
             // Prepare for reloading this phase's web page again…
@@ -332,6 +455,7 @@ class import_phases extends import
         $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
         $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
         $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
+        $smarty->assign("file_uploaded", true);
     }
 
     /*
@@ -430,113 +554,20 @@ class import_phases extends import
             );
         }
 
-        if ($this->failure_in_this_phase === true) {
-            // Prepare for reloading this phase's web page again…
-            $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
-            $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
-            $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
-            $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
-            $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
-            $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-            $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
-            $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
-            $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
-            $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
-            $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
-            $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
-            $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
-            $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
-            $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
-        }
-    }
-
-
-    /*
-     * PHASE 03 (old):
-     *   - Sort data using user-selected attributes.
-     */
-    function execute_phase3_old($smarty)
-    {
-        /* Sanity checks on LDAP attributes assignments */
-
-
-        // Read attributes assignments from $_POST
-        $new_attrs_selected = array();
-        for ($i = 0; $i < count($this->csvinfo['attrs_selected']); $i++) {
-            if (isset($_POST["column_head_$i"])) {
-                $new_attrs_selected[] = $_POST["column_head_$i"];
-            } else {
-                $new_attrs_selected[] = $i;
-            }
-        }
-        $this->csvinfo['attrs_selected'] = $new_attrs_selected;
-
-        // Transform $this->csvinfo['data'] ---> $this->csvinfo['data_sorted'] using $this->csvinfo['attrs_selected']'
-        // Sort the CSV data table according to how it got re-ordered by the plugin-user
-        $this->csvinfo['data_sorted'] = array();
-        $multi_attrs = $this->getMultiAttributes();
-        foreach ($this->csvinfo['data'] as $data_row) {
-            $attrs_counter = array();
-            $data_row_sorted = array();
-
-            for ($i = 0; $i < count($data_row); $i++) {
-                $data_in_cell = $data_row[$i];
-                $selection_in_cell = $this->csvinfo['attrs_selected'][$i];
-                $value_of_selection = $this->csvinfo['attrs'][$selection_in_cell];
-
-                // Skip every '---'
-                if ($value_of_selection == "---") {
-                    continue;
-                }
-
-                if (in_array($value_of_selection, $multi_attrs)) {
-                    if (isset($attrs_counter[$value_of_selection])) {
-                        $attrs_counter[$value_of_selection] = $attrs_counter[$value_of_selection];
-                    } else {
-                        $attrs_counter[$value_of_selection] = 0;
-                    }
-                    $data_row_sorted[$value_of_selection . $attrs_counter[$value_of_selection]] = $data_in_cell;
-                    $attrs_counter[$value_of_selection]++;
-                } elseif (empty($attrs_counter[$value_of_selection])) {
-                    $data_row_sorted[$value_of_selection] = $data_in_cell;
-                    $attrs_counter[$value_of_selection] = 1;
-                } else {
-                    $this->failure_in_this_phase = true;
-                    $smarty->assign("LDIFError", true);
-                    msg_dialog::display(
-                        _("Error"),
-                        sprintf(
-                            _("The attribute '%s' is only allowed to be selected once!"),
-                            bold($value_of_selection)
-                        ),
-                        ERROR_DIALOG
-                    );
-                }
-            }
-
-            $this->csvinfo['data_sorted'][] = $data_row_sorted;
-        }
-
         // Transform 'data_sorted' ---> 'data_preldap' array
         // by using by sub-class overloaded prepareLdapImport()
         $this->csvinfo['data_preldap'] = $this->prepareLdapImport($this->csvinfo['data_sorted']);
 
-        // $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport()…
-        if ($this->failure_in_this_phase === false) {
-            // Free old & now unused memory
-            unset($this->csvinfo['data_sorted']);
+        // We don't need it anymore. Keep memory footprint low.
+        unset($this->csvinfo['data_sorted']);
 
-            $this->accountStatusCheck();
-
-            $smarty->assign("data_sorted", true);
-            $smarty->assign("data", $this->csvinfo['data_preldap']);
-        } else {
+        if ($this->failure_in_this_phase === true) {
             // Prepare for reloading this phase's web page again…
-            $smarty->assign("attrs", $this->csvinfo['attrs']);
-            $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
-            $smarty->assign("num_rows", $this->csvinfo['num_cols']);
-            $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
+            $this->prepare_phase2($smarty);
+            return;
         }
+
+        $this->prepare_phase3($smarty);
     }
 
 
@@ -679,15 +710,11 @@ class import_phases extends import
             }
 
             // Prepare for reloading this phase's web page again…
-            $this->accountStatusCheck();
-            $smarty->assign("data", $this->csvinfo['data_preldap']);
-        } else {
-            // Prepare for reloading this phase's web page again…
-            $smarty->assign("attrs", $this->csvinfo['attrs']);
-            $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
-            $smarty->assign("num_rows", $this->csvinfo['num_cols']);
-            $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
+            $this->prepare_phase3($smarty);
+            return;
         }
+
+        $this->prepare_phase4($smarty);
     }
 
 

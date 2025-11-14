@@ -93,14 +93,18 @@ class import extends plugin
     // To be overriden by sub-classes.
     function getAttributes()
     {
-        /* CSV columns required for import */
-        $attrs = array();
+        $_attrs = array(
+            'uid'       => _('Login'),
+            'sn'        => _('Last Name(s)'),
+            'givenName' => _('First Name(s)'),
+        );
 
-        $attrs[0] = "uid";
-        $attrs[1] = "sn";
-        $attrs[2] = "givenName";
+        return $_attrs;
+    }
 
-        return $attrs;
+    function getMultiAttributes()
+    {
+        return array();
     }
 
 
@@ -109,14 +113,6 @@ class import extends plugin
      * like class_importstudents, class_archiveaccounts, etc…
      */
     function prepareLdapImport($csv_data_sorted)
-    {
-        return array();
-    }
-    function getMultiAttributes()
-    {
-        return array();
-    }
-    function getAttrsPreSelection($size)
     {
         return array();
     }
