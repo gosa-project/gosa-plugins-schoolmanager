@@ -402,7 +402,8 @@ class import_phases extends import
         $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
 
         /*
-         * Search OUs with objectClass gosaDepartment
+         * Search OUs with objectClass gosaDepartment to find available OUs
+         * for group placement and populate the OU tree selector
          */
         $this->csvinfo['ou_tree'] = array();
         $_ldapsearch = $this->_ldap->search("(objectClass=gosaDepartment)", array("ou", "description"));
@@ -419,7 +420,7 @@ class import_phases extends import
             $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0] . " - " . $result['description'][0];
             $this->csvinfo['ou_tree']['DNs'][]        = $result['dn'];
 
-            if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
+            if (strcasecmp($result['ou'][0], $this->default_groups_ou) == 0) {
                 $default_ou_for_groups = $i;
             }
             $i = $i + 1;
