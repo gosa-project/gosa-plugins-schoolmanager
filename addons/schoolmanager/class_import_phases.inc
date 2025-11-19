@@ -480,6 +480,8 @@ class import_phases extends import
         $this->csvinfo['sel_ldap_match_attr_snname']        = isset($_POST["sel_ldap_match_attr_snname"]);
         $this->csvinfo['sel_ldap_match_attr_birthday']      = isset($_POST["sel_ldap_match_attr_birthday"]);
         $this->csvinfo['sel_ldap_match_attr_gender']        = isset($_POST["sel_ldap_match_attr_gender"]);
+
+        // TODO: Validate form data here…
     }
 
     /*

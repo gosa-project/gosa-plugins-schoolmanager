@@ -1722,6 +1722,10 @@ class import extends plugin
                         ($user_data['main_account']['_group_actions'][$group_key] === "add")
                     ) {
                         $_uid = $user_data['main_account']['uid'][0];
+                        // TODO: Check if $_uid is not "{%uid}" or empty!
+                        // This would be the case, if the main account was not
+                        // created/updated properly.
+
                         if (!in_array($group_key, array_keys($this->posixgroup_members))) {
                             $this->posixgroup_members[$group_key] = array();
                         }
@@ -1752,6 +1756,10 @@ class import extends plugin
                             ($aux_account['_group_actions'][$group_key] === "add")
                         ) {
                             $_uid = $aux_account['uid'][0];
+                            // TODO: Check if $_uid is not "{%uid}" or empty!
+                            // This would be the case, if the main account was not
+                            // created/updated properly.
+
                             if (!in_array($group_key, array_keys($this->posixgroup_members))) {
                                 $this->posixgroup_members[$group_key] = array();
                             }
