@@ -55,6 +55,7 @@ class import extends plugin
     // To be overriden by sub-classes.
     var $default_template_main = "";
     var $default_template_aux = "";
+    var $default_groups_ou = "schoolmanager";
 
     // To be overriden by sub-classes.
     // Indicates if the import type has the feature 'accounts_in_class_ou' enabled.
