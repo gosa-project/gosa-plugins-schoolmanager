@@ -746,6 +746,11 @@ class import_phases extends import
     {
         $this->parse_phase4($smarty);
         if ($this->failure_in_this_phase === true) {
+            // Show failure messages
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks(array($msg));
+            }
+
             $this->prepare_phase4($smarty);
             return;
         }
@@ -841,6 +846,11 @@ class import_phases extends import
     {
         $this->parse_phase5($smarty);
         if ($this->failure_in_this_phase === true) {
+            // Show failure messages
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks(array($msg));
+            }
+
             $this->prepare_phase5($smarty);
             return;
         }
@@ -914,6 +924,11 @@ class import_phases extends import
     {
         $this->parse_phase6($smarty);
         if ($this->failure_in_this_phase === true) {
+            // Show failure messages
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks(array($msg));
+            }
+
             $this->prepare_phase6($smarty);
             return;
         }
