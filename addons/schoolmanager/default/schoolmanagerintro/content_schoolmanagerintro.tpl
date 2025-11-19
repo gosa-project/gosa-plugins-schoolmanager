@@ -1,3 +1,5 @@
+{include file="`$phases_path`../common/fontawesome.tpl" inline}
+
 <div class="card-content-scroll">
 <div class="row">
     <div class="col s12">
