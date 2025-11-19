@@ -1,0 +1,597 @@
+/**
+ * Phase 1 CSV Upload - Default/Modern Theme Styles
+ */
+
+/* Drop Zone Styles */
+.drop-zone {
+    border: 3px dashed #ccc;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    background-color: #fafafa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin: 20px 0;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.drop-zone:hover {
+    border-color: #999;
+    background-color: #f5f5f5;
+}
+
+.drop-zone.dragover {
+    border-color: #007bff;
+    background-color: #e7f3ff;
+    transform: scale(1.02);
+}
+
+.drop-zone.has-file {
+    border-color: #28a745;
+    background-color: #e8f5e9;
+}
+
+.drop-zone-icon {
+    font-size: 48px;
+    color: #999;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+
+.drop-zone.has-file .drop-zone-icon {
+    color: #28a745;
+}
+
+.drop-zone-text {
+    font-size: 16px;
+    color: #666;
+}
+
+.drop-zone-text strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.drop-zone-subtitle {
+    font-size: 14px;
+    color: #999;
+    margin-top: 5px;
+}
+
+.file-input-hidden {
+    display: none;
+}
+
+/* Error Message */
+.error-message {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 12px 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+    display: none;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.error-message.active {
+    display: block;
+}
+
+/* Warning Message */
+.warning-message {
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    padding: 12px 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+    display: none;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.warning-message.active {
+    display: block;
+}
+
+.warning-message strong,
+.error-message strong {
+    font-weight: 700;
+}
+
+/* Collapsible Section */
+.collapsible-section {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.collapsible-header {
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.collapsible-header:hover {
+    background-color: #e9ecef;
+}
+
+.collapsible-header h4 {
+    margin: 0;
+    color: #555;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.collapsible-toggle {
+    font-size: 18px;
+    color: #666;
+    transition: transform 0.3s ease;
+    line-height: 1;
+}
+
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.collapsible-section.open .collapsible-content {
+    max-height: 3000px;
+    padding: 15px;
+}
+
+.collapsible-section.open .collapsible-toggle {
+    transform: rotate(180deg);
+}
+
+/* Column Table */
+.column-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.column-table tr {
+    border-bottom: 1px solid #eee;
+}
+
+.column-table tr:last-child {
+    border-bottom: none;
+}
+
+.column-table td {
+    padding: 10px;
+    vertical-align: top;
+}
+
+.column-table td:first-child {
+    font-weight: bold;
+    color: #666;
+    width: 100px;
+    white-space: nowrap;
+}
+
+.column-table td:nth-child(2) {
+    font-weight: bold;
+    color: #007bff;
+    width: 200px;
+}
+
+.column-table td:nth-child(3) {
+    color: #555;
+}
+
+/* Download Template Button */
+.download-template-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.download-template-btn:hover {
+    background-color: #0056b3;
+}
+
+.download-template-btn:active {
+    background-color: #004085;
+}
+
+.download-template-btn::before {
+    content: '⬇';
+    font-size: 16px;
+}
+
+/* CSV Format Options */
+.csv-format-options {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.csv-format-options h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #555;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.csv-format-options label {
+    display: block;
+    margin: 10px 0;
+    cursor: pointer;
+    color: #333;
+}
+
+.csv-format-options input[type="checkbox"] {
+    margin-right: 8px;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.csv-format-options input[type="radio"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.delimiter-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.delimiter-options label {
+    margin: 0;
+    padding: 8px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.delimiter-options label:hover {
+    background-color: #e9ecef;
+    border-color: #007bff;
+}
+
+/* Note Box */
+.note-box {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.note-box ul {
+    margin: 10px 0 0 0;
+    padding-left: 25px;
+}
+
+.note-box li {
+    margin: 5px 0;
+    color: #856404;
+}
+
+.note-box b {
+    color: #856404;
+}
+
+/* CSV Preview */
+.csv-preview {
+    margin: 20px 0;
+    display: none;
+}
+
+.csv-preview.active {
+    display: block;
+}
+
+.csv-preview h4 {
+    color: #555;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.csv-stats {
+    display: flex;
+    gap: 20px;
+    margin: 15px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.stat-item {
+    flex: 1;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #007bff;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    margin-top: 5px;
+    letter-spacing: 0.5px;
+}
+
+.csv-table-wrapper {
+    max-height: fit-content;
+    overflow-x: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.csv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.csv-table th,
+.csv-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.csv-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    color: #555;
+}
+
+.csv-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.csv-table tr:hover {
+    background-color: #e9ecef;
+}
+
+.csv-table tr.header-row {
+    text-decoration: line-through;
+    background-color: #fff3cd;
+    border: 2px solid #ffc107;
+}
+
+.csv-table tr.header-row td {
+    font-weight: bold;
+    font-style: italic;
+    color: #856404;
+}
+
+/* Section Spacing */
+.section {
+    margin: 20px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .drop-zone {
+        padding: 30px 15px;
+    }
+
+    .drop-zone-icon {
+        font-size: 36px;
+    }
+
+    .column-table td:first-child,
+    .column-table td:nth-child(2) {
+        display: block;
+        width: 100%;
+    }
+
+    .delimiter-options {
+        grid-template-columns: 1fr;
+    }
+
+    .csv-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* ========================================
+   Column Mapping & Drag-Drop Styles
+   ======================================== */
+
+/* Column Header with Drag Handle and Mapping Dropdown */
+.column-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #007bff;
+}
+
+.drag-handle {
+    cursor: grab;
+    font-size: 20px;
+    line-height: 1;
+    color: #666;
+    user-select: none;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.drag-handle:hover {
+    color: #007bff;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Column Mapping Container and Select */
+.column-mapping {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.column-mapping-select {
+    width: fit-content;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.column-mapping-select:hover {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.column-mapping-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+/* Drag States */
+.csv-table th.dragging {
+    opacity: 0.5;
+    background-color: #e9ecef;
+    cursor: grabbing;
+}
+
+.csv-table th.drag-over {
+    border-left: 3px solid #007bff;
+    background-color: #e7f3ff;
+}
+
+.csv-table th.drag-over.drag-over-right {
+    border-left: none;
+    border-right: 3px solid #007bff;
+}
+
+/* Column Number Badge */
+.column-number {
+    font-size: 11px;
+    color: #999;
+    font-weight: normal;
+    margin-left: 4px;
+}
+
+/* More Rows Indicator */
+.more-rows-indicator {
+    text-align: center !important;
+    padding: 12px !important;
+    color: #666;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* Sticky Header Enhancement for Column Mapping */
+.csv-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Column Mapping Select - Enhanced Styles */
+.column-mapping-select option[value="ignore"] {
+    color: #999;
+    font-style: italic;
+}
+
+.column-mapping-select option:not([value="ignore"]) {
+    color: #333;
+    font-weight: 500;
+}
+
+/* Duplicate Mapping Warning (optional enhancement) */
+.column-mapping-select.duplicate-warning {
+    border-color: #ffc107;
+    background-color: #fff3cd;
+}
+
+/* Responsive Enhancements for Column Mapping */
+@media (max-width: 768px) {
+    .column-header {
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px;
+    }
+
+    .drag-handle {
+        font-size: 16px;
+        cursor: default; /* Disable drag on mobile */
+        color: #ccc;
+    }
+
+    .column-mapping-select {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .csv-table th {
+        min-width: 150px;
+    }
+}
+
+/* Print Styles - Hide Interactive Elements */
+@media print {
+    .drag-handle,
+    .column-mapping-select {
+        display: none !important;
+    }
+
+    .column-header {
+        border-bottom: 1px solid #000;
+        padding: 4px;
+    }
+}

@@ -1,0 +1,458 @@
+/**
+ * Phase 1 CSV Upload - Classic Theme Styles
+ * Simplified styling for the classic GOsa² theme
+ */
+
+/* Drop Zone Styles */
+.drop-zone {
+    border: 2px dashed #999;
+    padding: 30px;
+    text-align: center;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    margin: 15px 0;
+    min-height: 100px;
+}
+
+.drop-zone:hover {
+    border-color: #666;
+    background-color: #efefef;
+}
+
+.drop-zone.dragover {
+    border-color: #0066cc;
+    background-color: #e6f2ff;
+}
+
+.drop-zone.has-file {
+    border-color: #009900;
+    background-color: #e6ffe6;
+}
+
+.drop-zone-icon {
+    font-size: 36px;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.drop-zone.has-file .drop-zone-icon {
+    color: #009900;
+}
+
+.drop-zone-text {
+    font-size: 14px;
+    color: #666;
+}
+
+.drop-zone-text strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.drop-zone-subtitle {
+    font-size: 12px;
+    color: #999;
+    margin-top: 5px;
+}
+
+.file-input-hidden {
+    display: none;
+}
+
+/* Error Message */
+.error-message {
+    color: #cc0000;
+    background-color: #ffe6e6;
+    border: 1px solid #cc0000;
+    padding: 10px;
+    margin: 15px 0;
+    display: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.error-message.active {
+    display: block;
+}
+
+/* Warning Message */
+.warning-message {
+    color: #856404;
+    background-color: #ffffcc;
+    border: 1px solid #cccc00;
+    padding: 10px;
+    margin: 15px 0;
+    display: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.warning-message.active {
+    display: block;
+}
+
+.warning-message strong,
+.error-message strong {
+    font-weight: bold;
+}
+
+/* Collapsible Section */
+.collapsible-section {
+    border: 1px solid #ccc;
+    margin: 15px 0;
+}
+
+.collapsible-header {
+    background-color: #e0e0e0;
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ccc;
+}
+
+.collapsible-header:hover {
+    background-color: #d0d0d0;
+}
+
+.collapsible-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 14px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.collapsible-toggle {
+    float: right;
+    font-size: 16px;
+    color: #666;
+}
+
+.collapsible-content {
+    display: none;
+    padding: 10px;
+}
+
+.collapsible-section.open .collapsible-content {
+    display: block;
+}
+
+.collapsible-section.open .collapsible-toggle {
+    transform: rotate(180deg);
+}
+
+/* Column Table */
+.column-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.column-table tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.column-table td {
+    padding: 8px;
+    vertical-align: top;
+}
+
+.column-table td:first-child {
+    font-weight: bold;
+    color: #666;
+    width: 90px;
+}
+
+.column-table td:nth-child(2) {
+    font-weight: bold;
+    color: #0066cc;
+    width: 180px;
+}
+
+.column-table td:nth-child(3) {
+    color: #333;
+}
+
+/* Download Template Button (most of the styles come from GOsa² */
+.download-template-btn {
+    padding: 8px 16px;
+    margin-top: 10px;
+}
+
+/* CSV Format Options */
+.csv-format-options {
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.csv-format-options h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.csv-format-options label {
+    display: block;
+    margin: 8px 0;
+    cursor: pointer;
+}
+
+.csv-format-options input[type="checkbox"] {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.csv-format-options input[type="radio"] {
+    margin-right: 5px;
+}
+
+/* Note Box */
+.note-box {
+    background-color: #ffffcc;
+    border: 1px solid #cccc00;
+    padding: 10px;
+    margin: 15px 0;
+}
+
+.note-box ul {
+    margin: 10px 0 0 0;
+    padding-left: 20px;
+}
+
+.note-box li {
+    margin: 5px 0;
+}
+
+.note-box b {
+    color: #333;
+}
+
+/* CSV Preview */
+.csv-preview {
+    margin: 15px 0;
+    display: none;
+}
+
+.csv-preview.active {
+    display: block;
+}
+
+.csv-preview h4 {
+    color: #333;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.csv-stats {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+}
+
+.stat-item {
+    flex: 1;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0066cc;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    margin-top: 3px;
+}
+
+.csv-table-wrapper {
+    max-height: fit-content;
+    overflow-x: auto;
+    border: 1px solid #ccc;
+    background-color: white;
+}
+
+.csv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.csv-table th,
+.csv-table td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: left;
+}
+
+.csv-table th {
+    background-color: #e0e0e0;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    color: #333;
+}
+
+.csv-table tr:nth-child(even) {
+    background-color: #f5f5f5;
+}
+
+.csv-table tr:hover {
+    background-color: #e0e0e0;
+}
+
+.csv-table tr.header-row {
+    text-decoration: line-through;
+    background-color: #ffffcc;
+    border: 2px solid #cccc00;
+}
+
+.csv-table tr.header-row td {
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Section Spacing */
+.section {
+    margin: 15px 0;
+}
+
+/* ========================================
+   Column Mapping & Drag-Drop Styles
+   Classic Theme Version
+   ======================================== */
+
+/* Column Header with Drag Handle and Mapping Dropdown */
+.column-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    background-color: #e0e0e0;
+    border-bottom: 2px solid #0066cc;
+}
+
+.drag-handle {
+    cursor: move;
+    font-size: 18px;
+    line-height: 1;
+    color: #666;
+    user-select: none;
+    padding: 2px;
+}
+
+.drag-handle:hover {
+    color: #0066cc;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Column Mapping Container and Select */
+.column-mapping {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.column-mapping-select {
+    width: fit-content;
+    padding: 5px 8px;
+    border: 1px solid #ccc;
+    font-size: 12px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.column-mapping-select:hover {
+    border-color: #0066cc;
+}
+
+.column-mapping-select:focus {
+    outline: 1px solid #0066cc;
+    border-color: #0066cc;
+}
+
+/* Drag States */
+.csv-table th.dragging {
+    opacity: 0.5;
+    background-color: #d0d0d0;
+    cursor: grabbing;
+}
+
+.csv-table th.drag-over {
+    border-left: 3px solid #0066cc;
+    background-color: #e6f2ff;
+}
+
+.csv-table th.drag-over.drag-over-right {
+    border-left: none;
+    border-right: 3px solid #0066cc;
+}
+
+/* Column Number Badge */
+.column-number {
+    font-size: 10px;
+    color: #999;
+    font-weight: normal;
+    margin-left: 3px;
+}
+
+/* More Rows Indicator */
+.more-rows-indicator {
+    text-align: center !important;
+    padding: 12px !important;
+    color: #666;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* Sticky Header Enhancement for Column Mapping */
+.csv-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: #fff;
+}
+
+/* Column Mapping Select - Enhanced Styles */
+.column-mapping-select option[value="ignore"] {
+    color: #999;
+    font-style: italic;
+}
+
+.column-mapping-select option:not([value="ignore"]) {
+    color: #333;
+    font-weight: bold;
+}
+
+/* Duplicate Mapping Warning (optional enhancement) */
+.column-mapping-select.duplicate-warning {
+    border-color: #cccc00;
+    background-color: #ffffcc;
+}
+
+/* Print Styles - Hide Interactive Elements */
+@media print {
+    .drag-handle,
+    .column-mapping-select {
+        display: none !important;
+    }
+
+    .column-header {
+        border-bottom: 1px solid #000;
+        padding: 3px;
+    }
+}

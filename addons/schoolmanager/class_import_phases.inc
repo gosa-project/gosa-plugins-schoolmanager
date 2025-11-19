@@ -2,7 +2,7 @@
 
 /*
  * This code is an addon for GOsa² (https://gosa.gonicus.de)
- * Copyright (C) 2018-2022 Daniel Teichmann
+ * Copyright (C) 2018-2025 Daniel Teichmann
  * Copyright (C) 2015-2022 Mike Gabriel
  * Copyright (C) 2015 Marius Rasch
  *
@@ -28,32 +28,69 @@ class import_phases extends import
     public const TEMPLATE_URI = "importaccounts/content_importaccounts_base.tpl";
 
     /*
-     * PHASE 01:
-     *   - Check uploaded file
-     *   - Parse CSV file
-     *   - Prepare '$this->csvinfo' with templates
-     *   - Set form presets
+     * Prepare PHASE 01: form presets
      */
-    function execute_phase1($smarty, $quick_import = false)
+    function prepare_phase1($smarty)
     {
-        // This is the first phase, so no need to worry about quick-import.
-        $_delim_id                = $_POST['delimiter_id'];
-        $_csv_with_column_headers = $_POST['csv_with_column_headers'];
+        // Get default delimiter from config
+        $delim_char_default = $this->utils->getConfigStrValue("csv_column_delimiter");
 
-        $ret_array = $this->utils->checkUploadedFile();
+        // Define standard delimiters (actual characters)
+        $delims_chars = array(
+            0 => ',',
+            1 => ';',
+            2 => "\t",  // Actual tab character
+            3 => ' '
+        );
 
-        // If successful.
-        if ($ret_array[0]) {
-            $raw_csv_data = $ret_array[1];
-            $smarty->assign("file_uploaded", true);
-        } else {
-            $this->failure_in_this_phase = true;
-            $smarty->assign("LDIFError", true);
+        // Define delimiter display texts
+        $delims_texts = array(
+            0 => '","'  . " - " . _("comma separated values"),
+            1 => '";"'  . " - " . _("semicolon separated values"),
+            2 => '"\t"' . " - " . _("tabstop separated values"),
+            3 => '" "'  . " - " . _("blank separated values")
+        );
 
-            msg_dialog::display(_("Error"), $ret_array[1], ERROR_DIALOG);
-            return;
+        // Find which delimiter index matches the default
+        $delims_default_key = -1;
+        for ($i = 0; $i < 4; $i++) {
+            if ($delims_chars[$i] === $delim_char_default) {
+                $delims_default_key = $i;
+                break;
+            }
         }
 
+        // If default delimiter is not standard, add it as custom (index 4)
+        if ($delims_default_key === -1) {
+            $delims_chars[4] = $delim_char_default;
+            $delims_texts[4] = '"' . $delim_char_default . '" - ' . _("values separated by custom character");
+            $delims_default_key = 4;
+        }
+
+        $smarty->assign('delims_default_key', $delims_default_key);
+        $smarty->assign('delims_chars', $delims_chars);
+        $smarty->assign('delims_texts', $delims_texts);
+
+        // Get setting's default.
+        $value = $this->utils->getConfigBoolValue("ignore_first_row_of_csv_file");
+        $smarty->assign('preset_csv_with_column_headers', $value);
+
+        // User import attributes
+        $this->csvinfo['attributes_all']   = $this->getAttributes();
+        $this->csvinfo['attributes_multi'] = $this->getMultiAttributes();
+        $smarty->assign("attributes_all", $this->csvinfo['attributes_all']);
+        $smarty->assign("attributes_multi", $this->csvinfo['attributes_multi']);
+    }
+
+    /*
+     * Parse PHASE 01:
+     *  - Delimiter
+     *  - First CSV row is column headers
+     */
+    function parse_phase1($smarty)
+    {
+        $_delim_id                = $_POST['delimiter_id'];
+        $_csv_with_column_headers = $_POST['csv_with_column_headers'];
 
         // Parse user settings…
         switch ($_delim_id) {
@@ -79,35 +116,201 @@ class import_phases extends import
                 break;
         }
 
+        $this->csvinfo['csv_delimiter'] = $delimiter_char;
+
         if (isset($_csv_with_column_headers)) {
             $this->csvinfo['skip_first_line'] = true;
         } else {
             $this->csvinfo['skip_first_line'] = false;
         }
 
+        if (!isset($_POST['column_head_count']) or !is_numeric($_POST['column_head_count'])) {
+            $this->failure_in_this_phase = true;
+            $this->failure_messages[] = _("There is form data missing.");
+            return;
+        }
+
+        $num_columns = intval($_POST['column_head_count']);
+        if ($num_columns <= 0) {
+            $this->failure_in_this_phase = true;
+            $this->failure_messages[] = _("There is invalid form data.");
+            return;
+        }
+
+        $new_attrs_selected = array();
+        for ($i = 0; $i < $num_columns; $i++) {
+            if (!isset($_POST["column_head_$i"])) {
+                $this->failure_in_this_phase = true;
+                $this->failure_messages[] = _("There is form data missing.");
+                return;
+            }
+
+            $val = $_POST["column_head_$i"];
+
+            // Client data sanitation
+            if ($val != "---" && !array_key_exists($val, $this->csvinfo['attributes_all'])) {
+                $this->failure_in_this_phase = true;
+                $this->failure_messages[] = sprintf(_("The selected attribute '%s' is invalid."), bold($val));
+                return;
+            }
+
+            $new_attrs_selected[] = $val;
+        }
+
+        /*
+         * Maps attributes selected by the user in the web form
+         * to the actual CSV columns.
+         *
+         * Example:
+         * 0 => 'uid',       // 0'th CSV column has uid attribute
+         * 1 => 'sn',        // 1'st CSV column has sn attribute
+         * 2 => 'givenName', // 2'nd CSV column has givenName attribute
+         * ...
+         */
+        $this->csvinfo['attributes_selected'] = $new_attrs_selected;
+    }
+
+    /*
+     * PHASE 01:
+     *   - Check uploaded file
+     *   - Parse CSV file
+     *   - Prepare '$this->csvinfo' with templates
+     */
+    function execute_phase1($smarty, $quick_import = false)
+    {
+        $this->parse_phase1($smarty);
+        if ($this->failure_in_this_phase === true) {
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::display(
+                    _("Error"),
+                    _("Error while processing selected CSV column headers.") . "<br>" .
+                    $msg . "<br>" .
+                    _("Sorry, please try again."),
+                    ERROR_DIALOG
+                );
+            }
+
+            $this->prepare_phase1($smarty);
+            return;
+        }
+
+        $ret_array = $this->utils->checkUploadedFile();
+
+        // If successful.
+        if ($ret_array[0]) {
+            $raw_csv_data = $ret_array[1];
+        } else {
+            $this->failure_in_this_phase = true;
+            $smarty->assign("LDIFError", true);
+
+            msg_dialog::display(_("Error"), $ret_array[1], ERROR_DIALOG);
+            $this->prepare_phase1($smarty);
+            return;
+        }
+
         // Parse CSV file using utils class.
         $parser_ret = $this->utils->parseCSV(
             $raw_csv_data,
-            $delimiter_char,
+            $this->csvinfo['csv_delimiter'],
             $this->csvinfo['skip_first_line']
         );
 
+        unset($ret_array);    // Keep memory footprint low.
+        unset($raw_csv_data); // Keep memory footprint low.
+
         if (empty($parser_ret)) {
             $smarty->assign("LDIFError", true);
-            $smarty->assign("file_uploaded", false);
             $this->failure_in_this_phase = true;
 
             msg_dialog::display(_("Error"), _("Cannot find CSV data in the selected file!"), ERROR_DIALOG);
 
+            $this->prepare_phase1($smarty);
             return;
-        } else {
-            // Copy each element from $parser_ret into $this->csvinfo…
-            $this->csvinfo = array_merge($this->csvinfo, $parser_ret);
-
-            // We don't need it anymore. Keep memory footprint low.
-            unset($parser_ret);
         }
 
+        // Copy each element from $parser_ret into $this->csvinfo…
+        $this->csvinfo = array_merge($this->csvinfo, $parser_ret);
+
+        // We don't need it anymore. Keep memory footprint low.
+        unset($parser_ret);
+
+        // Transform $this->csvinfo['data'] ---> $this->csvinfo['data_sorted'] using $this->csvinfo['attributes_selected']'
+        // Sort the CSV data table according to how it got re-ordered by the plugin-user
+        $this->csvinfo['data_sorted'] = array();
+        $attributes_selected = $this->csvinfo['attributes_selected'];
+        $attributes_multi    = $this->csvinfo['attributes_multi'];
+
+        // At this point we can be sure that
+        // number of columns matches the number of selected attributes
+
+        foreach ($this->csvinfo['data'] as $data_row) {
+            $attrs_counter = array();
+            $data_row_sorted = array();
+
+            for ($i = 0; $i < count($data_row); $i++) {
+                $data_in_cell = $data_row[$i];
+                $value_of_selection = $attributes_selected[$i];
+
+                // Skip every '---'
+                if ($value_of_selection == "---") {
+                    continue;
+                }
+
+                if (in_array($value_of_selection, $attributes_multi)) {
+                    if (isset($attrs_counter[$value_of_selection])) {
+                        $attrs_counter[$value_of_selection] = $attrs_counter[$value_of_selection];
+                    } else {
+                        $attrs_counter[$value_of_selection] = 0;
+                    }
+                    $data_row_sorted[$value_of_selection . $attrs_counter[$value_of_selection]] = $data_in_cell;
+                    $attrs_counter[$value_of_selection]++;
+                } elseif (empty($attrs_counter[$value_of_selection])) {
+                    $data_row_sorted[$value_of_selection] = $data_in_cell;
+                    $attrs_counter[$value_of_selection] = 1;
+                } else {
+                    $this->failure_in_this_phase = true;
+                    $smarty->assign("LDIFError", true);
+                    msg_dialog::display(
+                        _("Error"),
+                        sprintf(
+                            _("The attribute '%s' is only allowed to be selected once!"),
+                            bold($value_of_selection)
+                        ),
+                        ERROR_DIALOG
+                    );
+
+                    // Prepare for reloading this phase's web page again…
+                    $this->prepare_phase1($smarty);
+                    return;
+                }
+            }
+
+            $this->csvinfo['data_sorted'][] = $data_row_sorted;
+        }
+
+        // We don't need it anymore. Keep memory footprint low.
+        unset($this->csvinfo['data']);
+        unset($data_row);
+        unset($data_row_sorted);
+
+        if ($this->failure_in_this_phase === true) {
+            // Prepare for reloading this phase's web page again…
+            $this->prepare_phase1($smarty);
+            return;
+        }
+
+        $this->prepare_phase2($smarty);
+    }
+
+
+    /*
+     * Prepare PHASE 02:
+     *   - Populate template selectors
+     *   - Populate OU tree selector
+     *   - Set form presets
+     */
+    function prepare_phase2($smarty)
+    {
         /* --- Populate the Template Selectors for PHASE 2 --- */
         $this->csvinfo["template_main"] = 0;
         $this->csvinfo["template_aux"]  = 0;
@@ -199,7 +402,8 @@ class import_phases extends import
         $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
 
         /*
-         * Search OUs with objectClass gosaDepartment
+         * Search OUs with objectClass gosaDepartment to find available OUs
+         * for group placement and populate the OU tree selector
          */
         $this->csvinfo['ou_tree'] = array();
         $_ldapsearch = $this->_ldap->search("(objectClass=gosaDepartment)", array("ou", "description"));
@@ -216,7 +420,7 @@ class import_phases extends import
             $this->csvinfo['ou_tree']['formfields'][] = $result['ou'][0] . " - " . $result['description'][0];
             $this->csvinfo['ou_tree']['DNs'][]        = $result['dn'];
 
-            if (strcasecmp($result['ou'][0], "schoolmanager") == 0) {
+            if (strcasecmp($result['ou'][0], $this->default_groups_ou) == 0) {
                 $default_ou_for_groups = $i;
             }
             $i = $i + 1;
@@ -252,41 +456,52 @@ class import_phases extends import
         $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
         $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
         $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
+        $smarty->assign("file_uploaded", true);
     }
 
+    /*
+     * Parse PHASE 02:
+     */
+    function parse_phase2($smarty)
+    {
+        /* Load the properties we need in this phase */
+        $this->csvinfo['template_main'] = $_POST["template_" . $this->import_account_type];
+        $this->csvinfo['template_aux']  = $_POST["template_" . $this->import_account_type . "_aux"] ?? null;
+        $this->csvinfo['ou_groups']     = $_POST["ou_groups"];
+        $this->csvinfo['domain_users']  = $_POST["domain_users"];
+        $this->csvinfo['domain_groups'] = $_POST["domain_groups"];
+
+        $this->csvinfo['accounts_in_class_ou']    = $this->feature_accounts_in_class_ou    ? isset($_POST["accounts_in_class_ou"])    : false;
+        $this->csvinfo['aliases_in_schooldomain'] = $this->feature_aliases_in_schooldomain ? isset($_POST["aliases_in_schooldomain"]) : false;
+        $this->csvinfo['try_mail_as_uid']                   = isset($_POST["try_mail_as_uid"]);
+        $this->csvinfo['add_course_members_to_class_group'] = isset($_POST["add_course_members_to_class_group"]);
+        $this->csvinfo['sel_ldap_match_attr_studentid']     = isset($_POST["sel_ldap_match_attr_studentid"]);
+        $this->csvinfo['sel_ldap_match_attr_givenname']     = isset($_POST["sel_ldap_match_attr_givenname"]);
+        $this->csvinfo['sel_ldap_match_attr_snname']        = isset($_POST["sel_ldap_match_attr_snname"]);
+        $this->csvinfo['sel_ldap_match_attr_birthday']      = isset($_POST["sel_ldap_match_attr_birthday"]);
+        $this->csvinfo['sel_ldap_match_attr_gender']        = isset($_POST["sel_ldap_match_attr_gender"]);
+
+        // TODO: Validate form data here…
+    }
 
     /*
      * PHASE 02:
      *   - Set import options which the user configured.
-     *     - Checkboxes, OU's for new groups & users, etc…
+     *   - Checkboxes, OU's for new groups & users, etc…
      */
-    function execute_phase2($smarty, $quick_import = false)
+    function execute_phase2($smarty)
     {
-        /* Load the properties we need in this phase */
-        if ($quick_import === false) {
-            $_template      = $_POST["template_" . $this->import_account_type];
-            $_template_aux  = $_POST["template_" . $this->import_account_type . "_aux"] ?? null;
-            $_ou_groups     = $_POST["ou_groups"];
-            $_domain_users  = $_POST["domain_users"];
-            $_domain_groups = $_POST["domain_groups"];
-            $this->csvinfo['accounts_in_class_ou'] = $this->feature_accounts_in_class_ou ? isset($_POST["accounts_in_class_ou"]) : false;
-            $this->csvinfo['aliases_in_schooldomain'] = $this->feature_aliases_in_schooldomain ? isset($_POST["aliases_in_schooldomain"]) : false;
-            $this->csvinfo['try_mail_as_uid']                   = isset($_POST["try_mail_as_uid"]);
-            $this->csvinfo['add_course_members_to_class_group'] = isset($_POST["add_course_members_to_class_group"]);
-            $this->csvinfo['sel_ldap_match_attr_studentid']     = isset($_POST["sel_ldap_match_attr_studentid"]);
-            $this->csvinfo['sel_ldap_match_attr_givenname']     = isset($_POST["sel_ldap_match_attr_givenname"]);
-            $this->csvinfo['sel_ldap_match_attr_snname']        = isset($_POST["sel_ldap_match_attr_snname"]);
-            $this->csvinfo['sel_ldap_match_attr_birthday']      = isset($_POST["sel_ldap_match_attr_birthday"]);
-            $this->csvinfo['sel_ldap_match_attr_gender']        = isset($_POST["sel_ldap_match_attr_gender"]);
-        } else {
-            // A few items were already computed in phase 1!
-            // So, we just use the presets which phase 1 set.
-            $_template                          = $this->csvinfo['template_main'];
-            $_template_aux                      = $this->csvinfo['template_aux'];
-            $_ou_groups                         = $this->csvinfo['ou_groups'];
-            $_domain_users                      = $this->csvinfo["domain_users"];
-            $_domain_groups                     = $this->csvinfo["domain_groups"];
+        $this->parse_phase2($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase2($smarty);
+            return;
         }
+
+        $_template      = $this->csvinfo['template_main'];
+        $_template_aux  = $this->csvinfo['template_aux'];
+        $_ou_groups     = $this->csvinfo['ou_groups'];
+        $_domain_users  = $this->csvinfo["domain_users"];
+        $_domain_groups = $this->csvinfo["domain_groups"];
 
         // Configure import options
         if (isset($_template) and isset($_ou_groups)) {
@@ -332,29 +547,6 @@ class import_phases extends import
             if (isset($_template_aux)) {
                 $this->csvinfo['template_aux'] = $_template_aux;
             }
-
-            if ($this->failure_in_this_phase === false) {
-                $smarty->assign("import_configured", true);
-
-                $this->csvinfo['attrs'] = $this->getAttributes();
-                $this->csvinfo['attrs'][] = "---";
-
-                // Initialize $this->csvinfo['attrs_selected'], only do this here and once
-                $this->csvinfo['attrs_selected'] = $this->getAttrsPreSelection($this->csvinfo['num_cols']);
-
-                // User import attributes
-                $smarty->assign("attrs", $this->csvinfo['attrs']);
-
-                // Per row selected user import attributes
-                $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
-
-                // Number of CSV columns --==-> Number of rows in 90°-counter-clockwise-rotated table
-                $smarty->assign("num_rows", $this->csvinfo['num_cols']);
-
-                // CSV data
-                $smarty->assign("data_size", $this->csvinfo['num_rows']);
-                $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
-            }
         } else {
             /* Something is not right! */
             $this->failure_in_this_phase = true;
@@ -365,154 +557,155 @@ class import_phases extends import
             );
         }
 
-        if ($this->failure_in_this_phase === true) {
-            // Prepare for reloading this phase's web page again…
-            $smarty->assign("templates", $this->csvinfo['templates']['formfields']);
-            $smarty->assign("ous_available", $this->csvinfo['ou_tree']['formfields']);
-            $smarty->assign("preset_template_" . $this->import_account_type, $this->csvinfo['template_main']);
-            $smarty->assign("preset_template_" . $this->import_account_type . "_aux", $this->csvinfo['template_aux']);
-            $smarty->assign("preset_ou_groups", $this->csvinfo['ou_groups']);
-            $smarty->assign("preset_domain_groups", $this->csvinfo['domain_groups']);
-            $smarty->assign("preset_accounts_in_class_ou", $this->csvinfo['accounts_in_class_ou']);
-            $smarty->assign("preset_aliases_in_schooldomain", $this->csvinfo['aliases_in_schooldomain']);
-            $smarty->assign("preset_try_mail_as_uid", $this->csvinfo['try_mail_as_uid']);
-            $smarty->assign("preset_sel_ldap_match_attr_studentid", $this->csvinfo['sel_ldap_match_attr_studentid']);
-            $smarty->assign("preset_sel_ldap_match_attr_name", $this->csvinfo['sel_ldap_match_attr_name']);
-            $smarty->assign("preset_sel_ldap_match_attr_snname", $this->csvinfo['sel_ldap_match_attr_snname']);
-            $smarty->assign("preset_sel_ldap_match_attr_birthday", $this->csvinfo['sel_ldap_match_attr_birthday']);
-            $smarty->assign("preset_sel_ldap_match_attr_gender", $this->csvinfo['sel_ldap_match_attr_gender']);
-            $smarty->assign("preset_add_course_members_to_class_group", $this->csvinfo['add_course_members_to_class_group']);
-        }
-    }
-
-
-    /*
-     * PHASE 03:
-     *   - Sort data using user-selected attributes.
-     */
-    function execute_phase3($smarty, $quick_import = false)
-    {
-        /* Sanity checks on LDAP attributes assignments */
-
-        if ($quick_import === true) {
-            // Just use already set $this->csvinfo['attrs_selected'].
-        } else {
-            // Read attributes assignments from $_POST
-            $new_attrs_selected = array();
-            for ($i = 0; $i < count($this->csvinfo['attrs_selected']); $i++) {
-                if (isset($_POST["column_head_$i"])) {
-                    $new_attrs_selected[] = $_POST["column_head_$i"];
-                } else {
-                    $new_attrs_selected[] = $i;
-                }
-            }
-            $this->csvinfo['attrs_selected'] = $new_attrs_selected;
-        }
-
-        // Transform $this->csvinfo['data'] ---> $this->csvinfo['data_sorted'] using $this->csvinfo['attrs_selected']'
-        // Sort the CSV data table according to how it got re-ordered by the plugin-user
-        $this->csvinfo['data_sorted'] = array();
-        $multi_attrs = $this->getMultiAttributes();
-        foreach ($this->csvinfo['data'] as $data_row) {
-            $attrs_counter = array();
-            $data_row_sorted = array();
-
-            for ($i = 0; $i < count($data_row); $i++) {
-                $data_in_cell = $data_row[$i];
-                $selection_in_cell = $this->csvinfo['attrs_selected'][$i];
-                $value_of_selection = $this->csvinfo['attrs'][$selection_in_cell];
-
-                // Skip every '---'
-                if ($value_of_selection == "---") {
-                    continue;
-                }
-
-                if (in_array($value_of_selection, $multi_attrs)) {
-                    if (isset($attrs_counter[$value_of_selection])) {
-                        $attrs_counter[$value_of_selection] = $attrs_counter[$value_of_selection];
-                    } else {
-                        $attrs_counter[$value_of_selection] = 0;
-                    }
-                    $data_row_sorted[$value_of_selection . $attrs_counter[$value_of_selection]] = $data_in_cell;
-                    $attrs_counter[$value_of_selection]++;
-                } elseif (empty($attrs_counter[$value_of_selection])) {
-                    $data_row_sorted[$value_of_selection] = $data_in_cell;
-                    $attrs_counter[$value_of_selection] = 1;
-                } else {
-                    $this->failure_in_this_phase = true;
-                    $smarty->assign("LDIFError", true);
-                    msg_dialog::display(
-                        _("Error"),
-                        sprintf(
-                            _("The attribute '%s' is only allowed to be selected once!"),
-                            bold($value_of_selection)
-                        ),
-                        ERROR_DIALOG
-                    );
-                }
-            }
-
-            $this->csvinfo['data_sorted'][] = $data_row_sorted;
-        }
-
         // Transform 'data_sorted' ---> 'data_preldap' array
         // by using by sub-class overloaded prepareLdapImport()
         $this->csvinfo['data_preldap'] = $this->prepareLdapImport($this->csvinfo['data_sorted']);
 
-        // $this->failure_in_this_phase may have been set above or in $this->prepareLdapImport()…
-        if ($this->failure_in_this_phase === false) {
-            // Free old & now unused memory
-            unset($this->csvinfo['data_sorted']);
+        // We don't need it anymore. Keep memory footprint low.
+        unset($this->csvinfo['data_sorted']);
 
-            $this->accountStatusCheck();
-
-            $smarty->assign("data_sorted", true);
-            $smarty->assign("data", $this->csvinfo['data_preldap']);
-        } else {
+        if ($this->failure_in_this_phase === true) {
             // Prepare for reloading this phase's web page again…
-            $smarty->assign("attrs", $this->csvinfo['attrs']);
-            $smarty->assign("attrs_selected", $this->csvinfo['attrs_selected']);
-            $smarty->assign("num_rows", $this->csvinfo['num_cols']);
-            $smarty->assign("data", array_slice($this->csvinfo['data'], 0, 5));
+            $this->prepare_phase2($smarty);
+            return;
         }
+
+        $this->prepare_phase3($smarty);
     }
 
 
     /*
-     * PHASE 04:
+     * Prepare PHASE 03:
      */
-    function execute_phase4($smarty)
+    function prepare_phase3($smarty)
     {
-        /*
-         * Add users to / update users in LDAP
-         */
-        foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
-            // Import the user's main account
-            if (isset($user_data['main_account']) and !empty($user_data['main_account'])) {
-                $this->importLDAPUserObject($user_data['main_account']);
+        $this->accountStatusCheck();
+        $smarty->assign("data", $this->csvinfo['data_preldap']);
+        $smarty->assign("import_configured", true);
+    }
+
+    /*
+     * Parse PHASE 03:
+     */
+    function parse_phase3($smarty)
+    {
+        // TODO: parse here…
+    }
+
+    /*
+     * PHASE 03:
+     */
+    function execute_phase3($smarty)
+    {
+        $this->parse_phase3($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase3($smarty);
+            return;
+        }
+
+        // Check if job immediately became idle (shouldn't happen normally)
+        $idle_status = array(
+            'is_idle' => true,
+            'reason'  => '',    // If $job = null, use default idle_status.
+            'error'   => ''
+        );
+
+        try {
+            // Create and spawn new worker
+            list($job, $job_data) = $this->prepareImportJob();
+
+            // Spawn background worker process
+            $worker_script = __DIR__ . "/class_cli_import_worker.inc";
+            $pid = $job->spawnWorker($worker_script, $this->utils);
+
+            $this->utils->debug_to_console(
+                sprintf(
+                    _("✅ Spawned worker process '%s' (PID: %d)"),
+                    $worker_script,
+                    $pid
+                )
+            );
+
+            // Store job ID in session for monitoring
+            $this->csvinfo['async_job_id'] = $job->getJobId();
+
+            // Check if job is idle (completed or died)
+            $timeout_seconds = $this->utils->getConfigIntValue('async_import_timeout', 10);
+            $idle_status = $job->isIdle($timeout_seconds);
+        } catch (Exception $e) {
+            $this->utils->debug_to_console(
+                sprintf(_("❌ Async import failed: %s"), $e->getMessage())
+            );
+
+            // Set idle_status to indicate exception/failure
+            $idle_status = array(
+                'is_idle' => true,
+                'reason'  => 'exception',
+                'error'   => sprintf(_("Failed to start async import: %s"), $e->getMessage())
+            );
+        }
+
+        if ($idle_status['is_idle']) {
+            $error_message = null;
+            $failure_message = null;
+
+            switch ($idle_status['reason']) {
+                case 'exception':
+                    // Exception occurred during job creation/spawning
+                    $error_message = $idle_status['error'];
+                    $failure_message = $idle_status['error'];
+                    break;
+                case 'failed':
+                    // Worker failed immediately
+                    $error_message = sprintf(
+                        _("Import worker failed to start: %s"),
+                        $idle_status['error']
+                    );
+                    $failure_message = $idle_status['error'];
+                    break;
+                case 'timeout':
+                    // Worker timed out (suspicious if just spawned)
+                    $error_message = sprintf(
+                        _("Import worker did not start properly: %s"),
+                        $idle_status['error']
+                    );
+                    $failure_message = $idle_status['error'];
+                    break;
+                case 'no_job_file':
+                    // Job file disappeared - serious error
+                    $error_message = _("Job file not found after spawning worker");
+                    $failure_message = _("Job file not found");
+                    break;
+                case 'completed':
+                    // Worker finished very quickly (unlikely but OK)
+                    break;
+                default:
+                    // Generic error for unknown status
+                    $error_message = sprintf(
+                        _("Unexpected import worker status: %s"),
+                        $idle_status['reason']
+                    );
+                    $failure_message = $idle_status['reason'];
+                    break;
             }
 
-            // Import the user's aux account (e.g., parent accounts)
-            if (isset($user_data['aux_accounts']) and !empty($user_data['aux_accounts'])) {
-                foreach ($user_data['aux_accounts'] as $idx_aux => $aux_account) {
-                    // Import aux account $aux_account_data
-                    $this->importLDAPUserObject($aux_account);
-                }
+            // Display error message if an error occurred
+            if ($error_message !== null) {
+                $this->failure_messages[] = $failure_message;
+                $this->failure_in_this_phase = true;
             }
         }
 
+        // Get refresh time for page auto-reload (seconds)
+        $refresh_time = $this->utils->getConfigIntValue('async_import_refresh_time', 5);
+
+        // Assign job information to template
+        $smarty->assign("data", $this->csvinfo['data_preldap']);
+        $smarty->assign("job_id", $this->csvinfo['async_job_id']);
+        $smarty->assign("import_job_refresh_time", $refresh_time);
+
         if ($this->failure_in_this_phase === false) {
-            /*
-             * FIXME: Present a message dialog box that informs on the statistics of
-             *        the LDAP group import. (How many groups got created? How many
-             *        groups have been updated? How many groups were not empty and
-             *        required dropping of all members? Etc…)
-             */
-
             $smarty->assign("accounts_reviewed", true);
-
-            $this->accountStatusCheck();
-            $smarty->assign("data", $this->csvinfo['data_preldap']);
         } else {
             // Show failure messages
             foreach ($this->failure_messages as $msg) {
@@ -520,24 +713,85 @@ class import_phases extends import
             }
 
             // Prepare for reloading this phase's web page again…
-            $this->accountStatusCheck();
-            $smarty->assign("data", $this->csvinfo['data_preldap']);
+            $this->prepare_phase3($smarty);
+            return;
         }
+
+        $this->prepare_phase4($smarty);
     }
 
 
     /*
-     * PHASE 05:
+     * Prepare PHASE 04:
      */
-    function execute_phase5($smarty)
+    function prepare_phase4($smarty)
     {
-        if ($this->failure_in_this_phase !== false) {
-            // Prepare for reloading this phase's web page again…
-            $this->accountStatusCheck();
-            $smarty->assign("data", $this->csvinfo['data_preldap']);
+        // TODO: prepare here…
+    }
 
+    /*
+     * Parse PHASE 04:
+     */
+    function parse_phase4($smarty)
+    {
+        if (isset($_POST['ajax_status_check'])) {
+            $this->csvinfo['ajax_status_check'] = true;
+        } else {
+            $this->csvinfo['ajax_status_check'] = false;
+        }
+    }
+
+    /*
+     * PHASE 04:
+     */
+    function execute_phase4($smarty)
+    {
+        $this->parse_phase4($smarty);
+        if ($this->failure_in_this_phase === true) {
+            // Show failure messages
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks(array($msg));
+            }
+
+            $this->prepare_phase4($smarty);
             return;
         }
+
+        // AJAX request detection - return JSON status and exit
+        if ($this->csvinfo['ajax_status_check'] === true) {
+            $status = $this->getCurrentJobStatusJSON();
+
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode($status);
+            exit;
+        }
+
+        if ($this->failure_in_this_phase === true) {
+            // Show failure messages
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks(array($msg));
+            }
+
+            $this->prepare_phase4($smarty);
+            return;
+        }
+
+        $this->prepare_phase5($smarty);
+    }
+
+
+    /*
+     * Prepare PHASE 05:
+     */
+    function prepare_phase5($smarty)
+    {
+        // Get refresh time for AJAX polling (seconds)
+        $refresh_time = $this->utils->getConfigIntValue('async_import_refresh_time', 5);
+
+        // Assign job information to template for initial page load
+        // JavaScript StatusMonitor will handle all status checking via AJAX
+        $smarty->assign("job_id", $this->csvinfo['async_job_id'] ?? '');
+        $smarty->assign("import_job_refresh_time", $refresh_time);
 
         $smarty->assign("accounts_imported", true);
 
@@ -579,12 +833,30 @@ class import_phases extends import
         $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
     }
 
+    /*
+     * Parse PHASE 05:
+     */
+    function parse_phase5($smarty)
+    {
+        // TODO: parse here…
+    }
 
     /*
-     * PHASE 06:
+     * PHASE 05:
      */
-    function execute_phase6($smarty)
+    function execute_phase5($smarty)
     {
+        $this->parse_phase5($smarty);
+        if ($this->failure_in_this_phase === true) {
+            // Show failure messages
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks(array($msg));
+            }
+
+            $this->prepare_phase5($smarty);
+            return;
+        }
+
         // Import posixgroups objects into LDAP-tree.
         foreach ($this->csvinfo['data_preldap_posixgroups'] as $group_name => $group_data) {
             // Only perform on this group if _actions is not "none" or "ignore"
@@ -621,15 +893,48 @@ class import_phases extends import
             }
 
             // Prepare for reloading this phase's web page again…
+            $this->prepare_phase5($smarty);
+            return;
         }
+
+        $this->prepare_phase6($smarty);
     }
 
 
     /*
-     * PHASE 07:
+     * Prepare PHASE 06:
      */
-    function execute_phase7($smarty)
+    function prepare_phase6($smarty)
     {
+        $this->groupStatusCheck();
+        $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
+        $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
+    }
+
+    /*
+     * Parse PHASE 06:
+     */
+    function parse_phase6($smarty)
+    {
+        // TODO: parse here…
+    }
+
+    /*
+     * PHASE 06:
+     */
+    function execute_phase6($smarty)
+    {
+        $this->parse_phase6($smarty);
+        if ($this->failure_in_this_phase === true) {
+            // Show failure messages
+            foreach ($this->failure_messages as $msg) {
+                msg_dialog::displayChecks(array($msg));
+            }
+
+            $this->prepare_phase6($smarty);
+            return;
+        }
+
         $this->accountStatusCheck();
         $this->groupStatusCheck();
         $this->prepareGroupMemberships();
@@ -638,19 +943,41 @@ class import_phases extends import
         if ($this->failure_in_this_phase === false) {
             $smarty->assign("groups_imported", true);
         } else {
-            // Prepare for reloading this phase's web page again…
-            $this->groupStatusCheck();
-            $smarty->assign("data_groups", $this->csvinfo['data_preldap_posixgroups']);
-            $smarty->assign("data_ogroups", $this->csvinfo['data_preldap_ogroups']);
+            $this->prepare_phase6($smarty);
+            return;
         }
+
+        $this->prepare_phase7($smarty);
     }
 
 
     /*
-     * PHASE 08:
+     * Prepare PHASE 07:
      */
-    function execute_phase8($smarty)
+    function prepare_phase7($smarty)
     {
+        $this->prepareGroupMemberships();
+    }
+
+    /*
+     * Parse PHASE 07:
+     */
+    function parse_phase7($smarty)
+    {
+        // TODO: parse here…
+    }
+
+    /*
+     * PHASE 07:
+     */
+    function execute_phase7($smarty)
+    {
+        $this->parse_phase7($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase7($smarty);
+            return;
+        }
+
         $this->addLDAPUserObjectsToGroups($this->posixgroup_members);
         $this->addLDAPUserObjectsToOGroups($this->groupofnames_members);
         $this->moveLDAPPrimGroupObjects();
@@ -663,33 +990,84 @@ class import_phases extends import
         $this->accountStatusCheck();
         $this->groupStatusCheck();
         $smarty->assign("data", $this->csvinfo['data_preldap']);
+
         if ($this->failure_in_this_phase === false) {
             $smarty->assign("accounts_groupmembers_reviewed", true);
         } else {
-            // Prepare for reloading this phase's web page again…
-            $this->prepareGroupMemberships();
+            $this->prepare_phase7($smarty);
+            return;
         }
+
+        $this->prepare_phase8($smarty);
     }
 
+
+    /*
+     * Prepare PHASE 08:
+     */
+    function prepare_phase8($smarty)
+    {
+        // TODO: prepare here…
+    }
+
+    /*
+     * Parse PHASE 08:
+     */
+    function parse_phase8($smarty)
+    {
+        // TODO: parse here…
+    }
+
+    /*
+     * PHASE 08:
+     */
+    function execute_phase8($smarty)
+    {
+        $this->parse_phase8($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase8($smarty);
+            return;
+        }
+
+        if ($this->failure_in_this_phase === false) {
+            $smarty->assign("accounts_groupmembers_updated", true);
+        } else {
+            // Prepare for reloading this phase's web page again…
+            $this->prepare_phase8($smarty);
+            return;
+        }
+
+        $this->prepare_phase9($smarty);
+    }
+
+
+    /*
+     * Prepare PHASE 09:
+     */
+    function prepare_phase9($smarty)
+    {
+        // TODO: prepare here…
+    }
+
+    /*
+     * Parse PHASE 09:
+     */
+    function parse_phase9($smarty)
+    {
+        // TODO: parse here…
+    }
 
     /*
      * PHASE 09:
      */
     function execute_phase9($smarty)
     {
-        if ($this->failure_in_this_phase === false) {
-            $smarty->assign("accounts_groupmembers_updated", true);
-        } else {
-            // Prepare for reloading this phase's web page again…
+        $this->parse_phase9($smarty);
+        if ($this->failure_in_this_phase === true) {
+            $this->prepare_phase9($smarty);
+            return;
         }
-    }
 
-
-    /*
-     * PHASE 10:
-     */
-    function execute_phase10($smarty)
-    {
         if ($this->failure_in_this_phase === false) {
             /*
              * FIXME: If automatic password generation is used, present a download link
@@ -700,7 +1078,11 @@ class import_phases extends import
             $smarty->assign("cleanup_completed", true);
         } else {
             /* FIXME: no clue what to do on failures here… We will see. */
+            $this->prepare_phase9($smarty);
+            return;
         }
+
+        // $this->prepare_phaseX($smarty);
     }
 
 
@@ -726,33 +1108,29 @@ class import_phases extends import
 
         /* PHASE 01 done, set $file_uploaded to TRUE */
         $smarty->assign("file_uploaded", 0);
-        $smarty->assign("file_uploaded_do_quickimport", 0);
 
         /* PHASE 02 done, set $import_configured to TRUE  */
         $smarty->assign("import_configured", 0);
 
-        /* PHASE 03 done, set $data_sorted to TRUE  */
-        $smarty->assign("data_sorted", 0);
-
-        /* PHASE 04 done, set $accounts_reviewed to TRUE  */
+        /* PHASE 03 done, set $accounts_reviewed to TRUE  */
         $smarty->assign("accounts_reviewed", 0);
 
-        /* PHASE 05 done, set $accounts_imported to TRUE  */
+        /* PHASE 04 done, set $accounts_imported to TRUE  */
         $smarty->assign("accounts_imported", 0);
 
-        /* PHASE 06 done, set $groups_reviewed to TRUE  */
+        /* PHASE 05 done, set $groups_reviewed to TRUE  */
         $smarty->assign("groups_reviewed", 0);
 
-        /* PHASE 07 done, set $groups_imported to TRUE  */
+        /* PHASE 06 done, set $groups_imported to TRUE  */
         $smarty->assign("groups_imported", 0);
 
-        /* PHASE 08 done, set $accounts_groupmembers_reviewed to TRUE */
+        /* PHASE 07 done, set $accounts_groupmembers_reviewed to TRUE */
         $smarty->assign("accounts_groupmembers_reviewed", 0);
 
-        /* PHASE 09 done, set $accounts_groupmembers_updated to TRUE */
+        /* PHASE 08 done, set $accounts_groupmembers_updated to TRUE */
         $smarty->assign("accounts_groupmembers_updated", 0);
 
-        /* PHASE 10 done, set $cleanup_completed to TRUE */
+        /* PHASE 09 done, set $cleanup_completed to TRUE */
         $smarty->assign("cleanup_completed", 0);
 
         /* Get the LDAP link, to generate the Export */
@@ -763,55 +1141,12 @@ class import_phases extends import
             $this->csvinfo = array();
         }
 
-        // Get setting's default.
-        $delim_char = $this->utils->getConfigStrValue("csv_column_delimiter");
-
-        switch ($delim_char) {
-            case ",":
-                $delimiter_index = 0;
-                break;
-            case ";":
-                $delimiter_index = 1;
-                break;
-            case "\\t": // Not the actual tab char but literally '\t'
-                $delimiter_index = 2;
-                break;
-            case " ":
-                $delimiter_index = 3;
-                break;
-            default:
-                // Custom character…
-                $delimiter_index = 4;
-                break;
-        }
-
-        $smarty->assign('preset_delimiter_id', $delimiter_index);
-        $available_delims = array(
-            0 => '","'  . " - " . _("comma separated values"),
-            1 => '";"'  . " - " . _("semicolon separated values"),
-            2 => '"\t"' . " - " . _("tabstop separated values"),
-            3 => '" "'  . " - " . _("blank separated values"),
-        );
-
-        // Add custom character radio button only if it should appear.
-        if ($delimiter_index === 4) {
-            $available_delims[4] = '"' . $delim_char . '" - ' . _("values separated by custom character");
-        }
-
-        $smarty->assign('available_delimiters', $available_delims);
-
-        // Get setting's default.
-        $value = $this->utils->getConfigBoolValue("ignore_first_row_of_csv_file");
-        $smarty->assign('preset_csv_with_column_headers', $value);
-
         /* Check permissions for import */
         $acl = $this->ui->get_permissions($this->config->current['BASE'], "all/all");
         if (!preg_match("/w/", $acl)) {
             if (
                 isset($_POST['file_uploaded']) or
-                isset($_POST['file_uploaded_do_quickimport']) or
                 isset($_POST['import_configured']) or
-                isset($_POST['data_sorted']) or
                 isset($_POST['accounts_reviewed']) or
                 isset($_POST['accounts_imported']) or
                 isset($_POST['groups_reviewed']) or
@@ -839,109 +1174,74 @@ class import_phases extends import
 
         // Execute next phase, if user didn't abort.
         if (!isset($_POST['cancel_import'])) {
-            if (isset($_POST['phase_01']) and isset($_POST['file_uploaded_do_quickimport'])) {
-                // Delete old references…
-                $this->csvinfo = array();
-
-                $this->utils->debug_to_console("Doing a Quick-Import…");
-
-                $functions = [
-                    "Phase 1"  => "execute_phase1",
-                    "Phase 2"  => "execute_phase2",
-                    "Phase 3"  => "execute_phase3",
-                    // "Phase 4"  => "execute_phase4",
-                    // "Phase 5"  => "execute_phase5",
-                    // "Phase 6"  => "execute_phase6",
-                    // "Phase 7"  => "execute_phase7",
-                    // "Phase 8"  => "execute_phase8",
-                    // "Phase 9"  => "execute_phase9",
-                    // "Phase 10" => "execute_phase10",
-                ];
-
-                // Call each function defined above and check if there was an error.
-                foreach ($functions as $key => $value) {
-                    $this->utils->debug_to_console("Executing " . $key . "…");
-                    call_user_func(array($this, $value), $smarty, true);
-
-                    if ($this->failure_in_this_phase === true) {
-                        // Phase failed.
-                        $this->utils->debug_to_console("Failed executing " . $key . "…");
-                        break;
-                    }
-                }
-            } elseif (isset($_POST['phase_01']) and isset($_POST['file_uploaded'])) {
-                // Delete old references…
-                $this->csvinfo = array();
-
-                $this->utils->debug_to_console("Executing normal Phase1…");
+            if (isset($_POST['phase_01']) and isset($_POST['file_uploaded'])) {
                 $this->execute_phase1($smarty);
             } elseif (isset($_POST['phase_02']) and isset($_POST['import_configured'])) {
-                $this->utils->debug_to_console("Executing normal Phase2…");
                 $smarty->assign("file_uploaded", true);
                 $this->execute_phase2($smarty);
-            } elseif (isset($_POST['phase_03']) and isset($_POST['data_sorted'])) {
-                $this->utils->debug_to_console("Executing normal Phase3…");
+            } elseif (isset($_POST['phase_03']) and isset($_POST['accounts_reviewed'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
                 $this->execute_phase3($smarty);
-            } elseif (isset($_POST['phase_04']) and isset($_POST['accounts_reviewed'])) {
-                $this->utils->debug_to_console("Executing normal Phase4…");
+            } elseif (isset($_POST['phase_04']) and isset($_POST['accounts_imported'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
-                $this->execute_phase4($smarty);
-            } elseif (isset($_POST['phase_05']) and isset($_POST['accounts_imported'])) {
-                $smarty->assign("file_uploaded", true);
-                $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
-                $this->execute_phase5($smarty);
-            } elseif (isset($_POST['phase_06']) and isset($_POST['groups_reviewed'])) {
+                $this->execute_phase4($smarty);
+            } elseif (isset($_POST['phase_04']) and isset($_POST["ajax_status_check"])) {
+                $this->execute_phase4($smarty);
+                // Will never return here, as execute_phase4() exits on AJAX requests.
+            } elseif (isset($_POST['phase_05']) and isset($_POST['groups_reviewed'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
                 $smarty->assign("accounts_imported", true);
-                $this->execute_phase6($smarty);
-            } elseif (isset($_POST['phase_07']) and isset($_POST['groups_imported'])) {
+                $this->execute_phase5($smarty);
+            } elseif (isset($_POST['phase_06']) and isset($_POST['groups_imported'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
                 $smarty->assign("accounts_imported", true);
                 $smarty->assign("groups_reviewed", true);
-                $this->execute_phase7($smarty);
-            } elseif (isset($_POST['phase_08']) and isset($_POST['accounts_groupmembers_reviewed'])) {
+                $this->execute_phase6($smarty);
+            } elseif (isset($_POST['phase_07']) and isset($_POST['accounts_groupmembers_reviewed'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
                 $smarty->assign("accounts_imported", true);
                 $smarty->assign("groups_reviewed", true);
                 $smarty->assign("groups_imported", true);
-                $this->execute_phase8($smarty);
-            } elseif (isset($_POST['phase_09']) and isset($_POST['accounts_groupmembers_updated'])) {
+                $this->execute_phase7($smarty);
+            } elseif (isset($_POST['phase_08']) and isset($_POST['accounts_groupmembers_updated'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
                 $smarty->assign("accounts_imported", true);
                 $smarty->assign("groups_reviewed", true);
                 $smarty->assign("groups_imported", true);
                 $smarty->assign("accounts_groupmembers_reviewed", true);
-                $this->execute_phase9($smarty);
-            } elseif (isset($_POST['phase_10']) and isset($_POST['cleanup_completed'])) {
+                $this->execute_phase8($smarty);
+            } elseif (isset($_POST['phase_9']) and isset($_POST['cleanup_completed'])) {
                 $smarty->assign("file_uploaded", true);
                 $smarty->assign("import_configured", true);
-                $smarty->assign("data_sorted", true);
                 $smarty->assign("accounts_reviewed", true);
                 $smarty->assign("accounts_imported", true);
                 $smarty->assign("groups_reviewed", true);
                 $smarty->assign("groups_imported", true);
                 $smarty->assign("accounts_groupmembers_reviewed", true);
                 $smarty->assign("accounts_groupmembers_updated", true);
-                $this->execute_phase10($smarty);
+                $this->execute_phase9($smarty);
+            } else {
+                // Initial phase, so Phase 0…
+                // Delete old references…
+                $this->csvinfo = array();
+
+                // Prepare smarty variables and such for main page (Phase 1)
+                $this->prepare_phase1($smarty);
             }
+        } else {
+            // User aborted import, return to phase 1.
+            msg_dialog::display(_("Import cancelled"), _("The import process has been cancelled by the user."), INFO_DIALOG);
         }
 
         // Show main page…
