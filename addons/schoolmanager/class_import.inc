@@ -360,10 +360,8 @@ class import extends plugin
         /* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail… */
         if (!is_array($this->csvinfo['data_preldap']) or (empty($this->csvinfo['data_preldap']))) {
             $this->failure_in_this_phase = true;
-
-            /* FIXME: Show a proper error message here... */
-            echo "FIXME: BOOM";
-
+            $this->failure_messages[] = _("Something wen't wrong while trying to check for account status.");
+            $this->failure_messages[] = _("No account data (csvinfo[data_preldap]) available for status check.");
             return;
         }
 
