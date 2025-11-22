@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       # Our supported PHP Versions:
       matrix:
-        php-versions: ['7.3', '7.4', '8.0', '8.1']
+        php-versions: ['7.3', '7.4', '8.0', '8.1', '8.4']
 
     name: php${{ matrix.php-versions }} lint
     steps:
