@@ -1481,9 +1481,25 @@ class import extends plugin
             }
         }
 
+        /*
+         * Handle templates for new accounts
+         */
+        if (
+            !isset($user_data['_template'])
+            or !is_numeric($user_data['_template'][0])
+        ) {
+            throw new RuntimeException(
+                _("No valid template index given for user account creation!")
+            );
+
+            $user_data['_template'][0] = 0;
+        }
+        /* Ensure base DN exists */
+        $template_dn = "";
         if ($user_data['_template'][0] != 0) {
             $template_dn = $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
         }
+
 
         /* test if base DN exists, this is only relevant for actions "create" and "move" but does not hurt for updates, either */
         $this->_ldap->cat($user_data['_base'][0]);
@@ -1663,6 +1679,9 @@ class import extends plugin
 
     function genAccountBase($user_data, $groups_data = array())
     {
+        $template_dn = "";
+        $template_base = "";
+
         if ($user_data['_template'][0] != 0) {
             $template_dn = $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
             $template_base = preg_replace("/^[^,]+," . preg_quote(get_people_ou(), '/i') . "/", '', $template_dn);
