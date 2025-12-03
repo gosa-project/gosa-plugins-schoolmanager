@@ -422,10 +422,34 @@ class import extends plugin
 
                 if ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) == 1)) {
                     $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'similar-object-found';
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
                 } elseif ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) > 1)) {
                     $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'similar-objects-found';
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
+                } else {
+                    // No account found in LDAP, set status to 'not-found' and action to 'create'
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]  = 'not-found';
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'create,set-password';
+
+                    // Generate passwords for main accounts (if not provided)
+                    if (
+                        (!isset($row['main_account']['userPassword'][0])) or
+                        ($row['main_account']['userPassword'][0] === "")  or
+                        ($row['main_account']['userPassword'][0] === '{%userPassword}')
+                    ) {
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] .= ",password-generated";
+                        $this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0] = $this->randomAlphaNumPassword(12);
+                    }
+
+                    // Set the main account's base for object creation
+                    $expected_base = $this->genAccountBase($row['main_account'], $row['groups']);
+                    if (isset($row['main_account']['uid'][0])) {
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array("uid=" . $row['main_account']['uid'][0] . "," . get_people_ou() . $expected_base);
+                    } else {
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array("new");
+                    }
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_base'] = array($expected_base);
                 }
-                $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
             } elseif ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) == 1)) {
                 $gosa_account = $gosa_main_accounts[0];
 
@@ -550,9 +574,13 @@ class import extends plugin
                     $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
                 }
             } elseif ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) > 1)) {
-                msg_dialog::display(_("LDAP Tree Error"), _("The LDAP search query with filter '" . $_ldapfilter . "' returned more than one account object. There should only be one such object in the LDAP tree."), ERROR_DIALOG);
+                $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'multiple-objects-found';
+                $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
+                //msg_dialog::display(_("LDAP Tree Error"), _("The LDAP search query with filter '" . $_ldapfilter . "' returned more than one account object. There should only be one such object in the LDAP tree."), ERROR_DIALOG);
             } elseif ((!is_countable($gosa_main_accounts))) {
-                msg_dialog::display(_("LDAP Error"), _("The LDAP search query with filter '.$_ldapfilter.' returned with an unknown error."), ERROR_DIALOG);
+                $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'unknown-error';
+                $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
+                //msg_dialog::display(_("LDAP Error"), _("The LDAP search query with filter '.$_ldapfilter.' returned with an unknown error."), ERROR_DIALOG);
             }
 
             if (!isset($row['aux_accounts'])) {
@@ -592,6 +620,30 @@ class import extends plugin
 
                 if ((is_countable($gosa_aux_accounts)) and (count($gosa_aux_accounts) == 0)) {
                     // No account was found using this email address. So just create the account.
+                    if (isset($aux_account['sn']) and isset($aux_account['mail']) and isset($aux_account['givenName'])) {
+                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'not-found';
+                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'create,set-password,skip-aliases';
+                        /* set the aux account's base for object creation */
+                        $expected_base = $this->genAccountBase($aux_account);
+                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base'] = array($expected_base);
+                    } else {
+                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'data-incomplete';
+                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'ignore';
+                    }
+
+                    // generate passwords for aux accounts (if not provided)
+                    if (
+                        (!isset($aux_account['userPassword'][0])) or
+                        ($aux_account['userPassword'][0] === "") or
+                        ($aux_account['userPassword'][0] === '{%userPassword}')
+                    ) {
+                        if ($this->utils->strcontains($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0], 'create')) {
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] .= ",password-generated";
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0] = $this->randomAlphaNumPassword(12);
+                        } else {
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'] = array("<keep>");
+                        }
+                    }
                 } elseif ((is_countable($gosa_aux_accounts)) and (count($gosa_aux_accounts) == 1)) {
                     // We only found one account, assume it's at 0th place.
                     $gosa_account = $gosa_aux_accounts[0];
@@ -645,69 +697,13 @@ class import extends plugin
                      */
                     $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base'] = array($expected_base);
                 } elseif ((is_countable($gosa_aux_accounts)) and (count($gosa_aux_accounts) > 1)) {
-                    msg_dialog::display(_("LDAP Tree Error"), _("The LDAP search query with filter '" . $_ldapfilter . "' returned more than one account object. There should only be one such object in the LDAP tree."), ERROR_DIALOG);
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'multiple-objects-found';
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'ignore,check-manually';
+                    //msg_dialog::display(_("LDAP Tree Error"), _("The LDAP search query with filter '" . $_ldapfilter . "' returned more than one account object. There should only be one such object in the LDAP tree."), ERROR_DIALOG);
                 } elseif ((!is_countable($gosa_aux_accounts))) {
-                    msg_dialog::display(_("LDAP Error"), _("The LDAP search query with filter '.$_ldapfilter.' returned with an unknown error."), ERROR_DIALOG);
-                }
-            }
-        }
-
-        // Post-processing, probably appendable to above code block…
-        foreach ($this->csvinfo['data_preldap'] as $key => $row) {
-            if (isset($row['main_account'])) {
-                if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] == 'unchecked') {
-                    $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]  = 'not-found';
-                    $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'create,set-password';
-
-                    // Generate passwords for main accounts (if not provided)
-                    if (
-                        (!isset($row['main_account']['userPassword'][0])) or
-                        ($row['main_account']['userPassword'][0] === "")  or
-                        ($row['main_account']['userPassword'][0] === '{%userPassword}')
-                    ) {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] .= ",password-generated";
-                        $this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0] = $this->randomAlphaNumPassword(12);
-                    }
-
-                    // Set the main account's base for object creation
-                    $expected_base = $this->genAccountBase($row['main_account'], $row['groups']);
-                    if (isset($row['main_account']['uid'][0])) {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array("uid=" . $row['main_account']['uid'][0] . "," . get_people_ou() . $expected_base);
-                    } else {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array("new");
-                    }
-                    $this->csvinfo['data_preldap'][$key]['main_account']['_base'] = array($expected_base);
-                }
-
-                if (isset($row['aux_accounts'])) {
-                    foreach ($row['aux_accounts'] as $idx_aux => $aux_account) {
-                        if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] == 'unchecked') {
-                            if (isset($aux_account['sn']) and isset($aux_account['mail']) and isset($aux_account['givenName'])) {
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'not-found';
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'create,set-password,skip-aliases';
-                                /* set the main account's base for object creation */
-                                $expected_base = $this->genAccountBase($aux_account);
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base'] = array($expected_base);
-                            } else {
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'data-incomplete';
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'ignore';
-                            }
-
-                            // generate passwords for aux accounts (if not provided)
-                            if (
-                                (!isset($aux_account['userPassword'][0])) or
-                                ($aux_account['userPassword'][0] === "") or
-                                ($aux_account['userPassword'][0] === '{%userPassword}')
-                            ) {
-                                if ($this->utils->strcontains($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0], 'create')) {
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] .= ",password-generated";
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0] = $this->randomAlphaNumPassword(12);
-                                } else {
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'] = array("<keep>");
-                                }
-                            }
-                        }
-                    }
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'unknown-error';
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'ignore,check-manually';
+                    //msg_dialog::display(_("LDAP Error"), _("The LDAP search query with filter '.$_ldapfilter.' returned with an unknown error."), ERROR_DIALOG);
                 }
             }
         }
@@ -1562,9 +1558,10 @@ class import extends plugin
         if (count($usertab_check)) {
             // Throw exception with all validation errors
             throw new RuntimeException(
+                // This means accountStatusCheck() failed to find existing account!!!
                 sprintf(
                     _("User account validation failed: %s"),
-                    implode(', ', $usertab_check)
+                    implode(', ', $usertab_check),
                 )
             );
         } else {
