@@ -431,6 +431,25 @@ class import extends plugin
                     $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]  = 'not-found';
                     $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'create,set-password';
 
+                    // Generate UID for new accounts if not already set
+                    try {
+                        $generated_uid = $this->generateUID($this->csvinfo['data_preldap'][$key]['main_account']);
+                        // Update local reference after UID generation (must be array for [0] access)
+                        $row['main_account']['uid'] = array($generated_uid);
+                        // Mark that UID was auto-generated
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] .= ",uid-generated";
+                    } catch (RuntimeException $e) {
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'uid-generation-failed';
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
+                        $this->failure_messages[] = sprintf(
+                            _("UID generation failed for %s %s: %s"),
+                            $row['main_account']['givenName'][0],
+                            $row['main_account']['sn'][0],
+                            $e->getMessage()
+                        );
+                        continue;
+                    }
+
                     // Generate passwords for main accounts (if not provided)
                     if (
                         (!isset($row['main_account']['userPassword'][0])) or
@@ -443,11 +462,7 @@ class import extends plugin
 
                     // Set the main account's base for object creation
                     $expected_base = $this->genAccountBase($row['main_account'], $row['groups']);
-                    if (isset($row['main_account']['uid'][0])) {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array("uid=" . $row['main_account']['uid'][0] . "," . get_people_ou() . $expected_base);
-                    } else {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array("new");
-                    }
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array("uid=" . $row['main_account']['uid'][0] . "," . get_people_ou() . $expected_base);
                     $this->csvinfo['data_preldap'][$key]['main_account']['_base'] = array($expected_base);
                 }
             } elseif ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) == 1)) {
@@ -959,6 +974,93 @@ class import extends plugin
     }
 
 
+    /**
+     * Generate a unique UID for a user account
+     *
+     * This method generates a unique user identifier (UID) for new accounts.
+     * It uses the following strategy in order of priority:
+     * 1. If uid is already set and not a placeholder, use it as-is
+     * 2. If uid is a placeholder ({%uid} or empty), use GOsa²'s idGenerator
+     * 3. If try_mail_as_uid is enabled and mail is available, use mail as uid
+     *
+     * @param array $user_data User account data with 'sn', 'givenName', 'uid', 'mail'
+     *                         All values are expected as arrays with [0] index
+     *
+     * @return string|null The generated UID, or null if UID was already set
+     *
+     * @throws RuntimeException If UID cannot be generated (no idGenerator configured,
+     *                          generation failed, or insufficient data)
+     */
+    function generateUID(&$user_data)
+    {
+        // If UID is already set and valid, nothing to do
+        if (
+            isset($user_data['uid'][0]) and
+            $user_data['uid'][0] !== "{%uid}" and
+            $user_data['uid'][0] !== ""
+        ) {
+            return $user_data['uid'][0];
+        }
+
+        // Require sn and givenName for UID generation
+        if (!isset($user_data['sn'][0]) or !isset($user_data['givenName'][0])) {
+            $error_msg = _("If UID is not provided and sn+givenName is not provided either or incomplete, we cannot go on…");
+            new log(_("ERROR"), $error_msg, $this->dn);
+            throw new RuntimeException($error_msg);
+        }
+
+        // Try to generate UID using idGenerator
+        if (
+            isset($user_data['uid'][0]) and
+            ($user_data['uid'][0] === "{%uid}" or $user_data['uid'][0] === "")
+        ) {
+            // Get "idGenerator" property from "core" class.
+            $_genStr = $this->config->get_cfg_value("core", "idGenerator");
+            if ($_genStr == "") {
+                throw new RuntimeException(
+                    _("We can only auto-generate UID strings if the idGenerator is configured!")
+                );
+            }
+
+            // Use _attributes to generate a unique ID.
+            $_attributes = array(
+                'sn'        => $user_data['sn'][0],
+                'givenName' => $user_data['givenName'][0]
+            );
+            $_genUids = gen_uids($_genStr, $_attributes);
+
+            // If successful, use the first UID we generated above.
+            if (is_countable($_genUids) and (count($_genUids) >= 1)) {
+                $user_data['uid'] = array($_genUids[0]);
+                return $_genUids[0];
+            } else {
+                throw new RuntimeException(
+                    sprintf(
+                        _("Failure during UID auto-generation for %s %s! No list of possible UIDs returned."),
+                        $user_data['givenName'][0],
+                        $user_data['sn'][0]
+                    )
+                );
+            }
+        }
+
+        // Try to use mail as UID if configured
+        if (
+            ($this->csvinfo['try_mail_as_uid'] === true) and
+            (isset($user_data['mail'][0]) and $user_data['mail'][0])
+        ) {
+            $generated_uid = strtolower($user_data['mail'][0]);
+            $user_data['uid'] = array($generated_uid);
+            return $generated_uid;
+        }
+
+        // No way to generate UID
+        $error_msg = _("No exact UIDs given, no UID column in the CSV sheet, no permission to use the MAIL attribute as UID…");
+        new log(_("ERROR"), $error_msg, $this->dn);
+        throw new RuntimeException($error_msg);
+    }
+
+
     function CSVRowSanityChecksOk($csv_row, $idx)
     {
         $ret_ok = false;
@@ -1290,57 +1392,9 @@ class import extends plugin
             $_user_properties_base["sn"]        = $user_data['sn'][0];
             $_user_properties_base["givenName"] = $user_data['givenName'][0];
 
-            // The below attributes must exist and be set with meaningful data once we arrive here!
-            if (isset($user_data['uid'][0]) and $user_data['uid'][0] !== "{%uid}") {
-                $_user_properties_base["uid"] = $user_data['uid'][0];
-            } elseif (isset($user_data['sn'][0]) and isset($user_data['givenName'][0])) {
-                if (
-                    isset($user_data['uid'][0]) and
-                    ($user_data['uid'][0] === "{%uid}" or
-                    $user_data['uid'][0] === "")
-                ) {
-                    // Get "idGenerator" property from "core" class.
-                    $_genStr = $this->config->get_cfg_value("core", "idGenerator");
-                    if ($_genStr == "") {
-                        throw new RuntimeException(
-                            _("We can only auto-generate UID strings if the idGenerator is configured!")
-                        );
-                    }
-
-                    // Use _attributes to generate a unique ID.
-                    $_attributes = array(
-                        'sn'        => $user_data['sn'][0],
-                        'givenName' => $user_data['givenName'][0]
-                    );
-                    $_genUids = gen_uids($_genStr, $_attributes);
-
-                    // If successfull, use the first UID we generated above.
-                    if (is_countable($_genUids) and (count($_genUids) >= 1)) {
-                        $_user_properties_base['uid'] = $_genUids[0];
-                    } else {
-                        throw new RuntimeException(
-                            sprintf(
-                                _("Failure during UID auto-generation for %s %s! No list of possible UIDs returned."),
-                                $user_data['givenName'][0],
-                                $user_data['sn'][0]
-                            )
-                        );
-                    }
-                } elseif (
-                    ($this->csvinfo['try_mail_as_uid'] === true) and
-                    (isset($user_data['mail'][0]) and $user_data['mail'][0])
-                ) {
-                    $_user_properties_base['uid'] = strtolower($user_data['mail'][0]);
-                } else {
-                    $error_msg = _("No exact UIDs given, no UID column in the CSV sheet, no permission to use the MAIL attribute as UID…");
-                    new log(_("ERROR"), $error_msg, $this->dn);
-                    throw new RuntimeException($error_msg);
-                }
-            } else {
-                $error_msg = _("If UID is not provided and sn+givenName is not provided either or incomplete, we cannot go on…");
-                new log(_("ERROR"), $error_msg, $this->dn);
-                throw new RuntimeException($error_msg);
-            }
+            // UID should already be generated in accountStatusCheck(), but handle edge cases
+            // where it might still be a placeholder or missing
+            $_user_properties_base["uid"] = $this->generateUID($user_data);
 
             // Update $usertab with $_user_properties_base
             foreach ($_user_properties_base as $attr => $val) {
