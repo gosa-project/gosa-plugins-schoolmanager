@@ -1305,30 +1305,29 @@ class import extends plugin
                 ) {
                     // Get "idGenerator" property from "core" class.
                     $_genStr = $this->config->get_cfg_value("core", "idGenerator");
-
-                    if ($_genStr != "") {
-                        // Use _attributes to generate a unique ID.
-                        $_attributes = array(
-                            'sn'        => $user_data['sn'][0],
-                            'givenName' => $user_data['givenName'][0]
-                        );
-                        $_genUids = gen_uids($_genStr, $_attributes);
-
-                        // If successfull, use the first UID we generated above.
-                        if (is_countable($_genUids) and (count($_genUids) >= 1)) {
-                            $_user_properties_base['uid'] = $_genUids[0];
-                        } else {
-                            throw new RuntimeException(
-                                sprintf(
-                                    _("Failure during UID auto-generation for %s %s! No list of possible UIDs returned."),
-                                    $user_data['givenName'][0],
-                                    $user_data['sn'][0]
-                                )
-                            );
-                        }
-                    } else {
+                    if ($_genStr == "") {
                         throw new RuntimeException(
                             _("We can only auto-generate UID strings if the idGenerator is configured!")
+                        );
+                    }
+
+                    // Use _attributes to generate a unique ID.
+                    $_attributes = array(
+                        'sn'        => $user_data['sn'][0],
+                        'givenName' => $user_data['givenName'][0]
+                    );
+                    $_genUids = gen_uids($_genStr, $_attributes);
+
+                    // If successfull, use the first UID we generated above.
+                    if (is_countable($_genUids) and (count($_genUids) >= 1)) {
+                        $_user_properties_base['uid'] = $_genUids[0];
+                    } else {
+                        throw new RuntimeException(
+                            sprintf(
+                                _("Failure during UID auto-generation for %s %s! No list of possible UIDs returned."),
+                                $user_data['givenName'][0],
+                                $user_data['sn'][0]
+                            )
                         );
                     }
                 } elseif (
