@@ -1184,21 +1184,24 @@ class import extends plugin
                 )
             ) {
                 // Include $uid_at_school_domain in $_user_properties_extras["alias"]
-                // if it isn't already.
+                // if it isn't already. In little steps...
+
+                // uid_at_schooldomain as an alias only makes sense if mail attribute is set and it is
+                // not set to uid_at_schooldomain
                 if (
-                    (
-                        isset($_user_properties_extras["alias"]) and
-                        is_array($_user_properties_extras["alias"]) and
-                        !in_array($uid_at_school_domain, $_user_properties_extras["alias"])
-                    ) and (
-                        isset($_user_properties_extras["mail"]) and
-                        ($_user_properties_extras["mail"] === $uid_at_school_domain)
-                    )
+                    isset($_user_properties_extras["mail"]) and
+                    ($_user_properties_extras["mail"] !== $uid_at_school_domain)
                 ) {
+                    // create the alias attribute array if it does not exist...
                     if (!isset($_user_properties_extras["alias"])) {
                         $_user_properties_extras["alias"] = array();
                     }
-                    $_user_properties_extras["alias"][] = $uid_at_school_domain;
+                    // check if uid_at_schooldomain is already set as an alias, if not then add it...
+                    if (
+                        !in_array($uid_at_school_domain, $_user_properties_extras["alias"])
+                    ) {
+                        $_user_properties_extras["alias"][] = $uid_at_school_domain;
+                    }
                 }
             }
         }
