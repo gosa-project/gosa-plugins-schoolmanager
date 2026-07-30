@@ -1,6 +1,6 @@
 <input type="hidden" name="phase_02">
 <br>
-<h3>{t 1="2/11"}STEP %1: Configure import options{/t}</h3>
+<h3>{t 1="2/10"}STEP %1: Configure import options{/t}</h3>
 
 <p>
     {t}School Manager's import functionality is very flexible and can be adapted to

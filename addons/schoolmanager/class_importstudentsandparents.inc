@@ -56,32 +56,34 @@ class importstudentsandparents extends import_phases
         $this->feature_aliases_in_schooldomain = false;
     }
 
+
     function getAttributes()
     {
-        $attrs = array();
+        $_attrs = array(
+            'no'                => _('Number'),
+            'uid'               => _('Login'),
+            'userPassword'      => _('Password'),
+            'employeeNumber'    => _('Student ID'),
+            'sn'                => _('Last Name(s)'),
+            'givenName'         => _('First Name(s)'),
+            'dateOfBirth'       => _('Date of Birth'),
+            'gender'            => _('Gender'),
+            'class'             => _('Class'),
+            'parent1_sn'        => _('Last Name (Parent 1)'),
+            'parent1_givenName' => _('First Name (Parent 1)'),
+            'parent1_mail'      => _('Mail Address (Parent 1)'),
+            'parent2_sn'        => _('Last Name (Parent 2)'),
+            'parent2_givenName' => _('First Name (Parent 2)'),
+            'parent2_mail'      => _('Mail Address (Parent 2)'),
+            'course'            => _('Course')
+        );
 
-        $attrs[] = "no";
-        $attrs[] = "uid";
-        $attrs[] = "userPassword";
-        $attrs[] = "employeeNumber";
-        $attrs[] = "sn";
-        $attrs[] = "givenName";
-        $attrs[] = "dateOfBirth";
-        $attrs[] = "gender";
-        $attrs[] = "class";
-        $attrs[] = "parent1_sn";
-        $attrs[] = "parent1_givenName";
-        $attrs[] = "parent1_mail";
-        $attrs[] = "parent2_sn";
-        $attrs[] = "parent2_givenName";
-        $attrs[] = "parent2_mail";
-        $attrs[] = "course";
         /* FIXME: allow "mail" as possible attribute...
          *        If "mail" is given, it should override the default value from the GOsa user
          *        template (if provided there).
          */
 
-        return $attrs;
+        return $_attrs;
     }
 
     function getMultiAttributes()
@@ -89,23 +91,6 @@ class importstudentsandparents extends import_phases
         $multiAttrs = array();
         $multiAttrs[] = "course";
         return $multiAttrs;
-    }
-
-    function getAttrsPreSelection($size)
-    {
-
-        /* FIXME: Make this more generic by analyzing the return value of $this->getAttributes()
-         *        When done -> move method to parent class (importaccounts).
-         */
-
-        $selection = array();
-        for ($i = 0; $i < 15; $i++) {
-             $selection[] = $i;
-        }
-        for ($i = 15; $i < $size; $i++) {
-             $selection[] = 15;
-        }
-        return $selection;
     }
 
 

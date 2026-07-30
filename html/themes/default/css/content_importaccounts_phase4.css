@@ -1,0 +1,150 @@
+/**
+ * Phase 4 Import Status - Default/Modern Theme Styles
+ * Template-rendered styles for content_importaccounts_phase4.tpl
+ *
+ * Note: Dynamic styles (JavaScript-driven) are in dynamic-account-table.css
+ */
+
+/* ==========================================================================
+   Alert Box Base Styles (template-rendered elements)
+   ========================================================================== */
+
+.alert {
+    padding: 15px 20px;
+    margin: 15px 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.alert h4 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.alert p {
+    margin: 8px 0;
+}
+
+.alert p:last-child {
+    margin-bottom: 0;
+}
+
+.alert code {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+}
+
+/* Alert Info - Blue (initial state rendered by template) */
+.alert-info {
+    color: #004085;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.alert-info h4 {
+    color: #004085;
+}
+
+.alert-info code {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================================================================
+   FontAwesome Icon Styles (template-rendered spinner)
+   ========================================================================== */
+
+.alert .fa-spinner {
+    animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
+   Progress Bar Styles (template-rendered elements)
+   ========================================================================== */
+.progress-container {
+    margin: 15px 0;
+}
+
+.progress-container p strong {
+    color: #333;
+    font-weight: 600;
+}
+
+#progress-message,
+.progress-message {
+    font-size: 14px;
+    margin: 5px 0;
+    color: #555;
+}
+
+#progress-bar-wrapper,
+.progress-bar-wrapper {
+    background: #e0e0e0;
+    border: 1px solid #999;
+    border-radius: 4px;
+    height: 24px;
+    overflow: hidden;
+    position: relative;
+}
+
+#progress-bar,
+.progress-bar {
+    height: 100%;
+    width: 0px;
+    transition: width 0.3s ease;
+    border-radius: 3px 0 0 3px;
+}
+
+#progress-stats,
+.progress-stats {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* ==========================================================================
+   Accounts Table Container (template-rendered elements)
+   ========================================================================== */
+
+#accounts-table-container {
+    margin: 20px 0;
+}
+
+#accounts-table-container p em {
+    color: #999;
+    font-style: italic;
+}
+
+/* ==========================================================================
+   Responsive Design (template elements)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .alert {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+
+    .alert h4 {
+        font-size: 16px;
+    }
+
+    #progress-bar-wrapper,
+    .progress-bar-wrapper {
+        height: 20px;
+    }
+}

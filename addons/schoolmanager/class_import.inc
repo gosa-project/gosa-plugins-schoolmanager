@@ -2,7 +2,7 @@
 
 /*
  * This code is an addon for GOsa² (https://gosa.gonicus.de)
- * Copyright (C) 2018-2022 Daniel Teichmann
+ * Copyright (C) 2018-2025 Daniel Teichmann
  * Copyright (C) 2015-2022 Mike Gabriel
  * Copyright (C) 2015 Marius Rasch
  *
@@ -21,6 +21,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+/**
+ * Async Import Base Class
+ *
+ * Job files: /var/spool/gosa/schoolmgr-import/import_<timestamp>_<random>.json
+ *
+ * Automatic cleanup runs after each import and weekly via systemd timer
+ * gosa-plugin-schoolmanager-cleanup-import-jobs.timer (Debian).
+ * See class_cli_import_worker.inc::perform_cleanup() for details.
+ */
 
 class import extends plugin
 {
@@ -46,6 +55,7 @@ class import extends plugin
     // To be overriden by sub-classes.
     var $default_template_main = "";
     var $default_template_aux = "";
+    var $default_groups_ou = "schoolmanager";
 
     // To be overriden by sub-classes.
     // Indicates if the import type has the feature 'accounts_in_class_ou' enabled.
@@ -84,14 +94,18 @@ class import extends plugin
     // To be overriden by sub-classes.
     function getAttributes()
     {
-        /* CSV columns required for import */
-        $attrs = array();
+        $_attrs = array(
+            'uid'       => _('Login'),
+            'sn'        => _('Last Name(s)'),
+            'givenName' => _('First Name(s)'),
+        );
 
-        $attrs[0] = "uid";
-        $attrs[1] = "sn";
-        $attrs[2] = "givenName";
+        return $_attrs;
+    }
 
-        return $attrs;
+    function getMultiAttributes()
+    {
+        return array();
     }
 
 
@@ -103,13 +117,241 @@ class import extends plugin
     {
         return array();
     }
-    function getMultiAttributes()
+
+
+    function prepareImportJob()
     {
-        return array();
+        $job = new importjob(null); // Create a new Job.
+        $job_id = $job->getJobId();
+
+        $this->utils->debug_to_console(
+            sprintf(_("✅ Created import job: %s"), $job_id)
+        );
+
+        $job_data = array(
+            'job_id' => $job_id,
+            'status' => 'pending',
+            'created_at' => time(),
+            'last_modified' => time(),
+
+            'state' => array(
+                'csvinfo' => $this->csvinfo,
+                'import_account_type' => $this->import_account_type,
+                'session_id' => session_id(),
+                'gosakey' => isset($_SERVER['HTTP_GOSAKEY']) ? $_SERVER['HTTP_GOSAKEY'] : null,
+            ),
+
+            'progress' => array(
+                'current' => 0,
+                'total' => count($this->csvinfo['data_preldap']),
+                'percent' => 0,
+                'message' => 'Initializing import...',
+                'timestamp' => time(),
+            ),
+
+            'results' => array(
+                'stats' => array(
+                    'total' => 0,
+                    'created' => 0,
+                    'updated' => 0,
+                    'skipped' => 0,
+                    'failed' => 0,
+                ),
+                'duration' => 0,
+            ),
+
+            'metadata' => array(
+                'import_type' => $this->import_account_type,
+                'user_dn' => $this->ui->dn,
+                'started_by' => $this->ui->username ?? 'unknown',
+            ),
+        );
+
+        // Write job file using public method
+        $job->saveState($job_data);
+
+        $this->utils->debug_to_console(
+            sprintf(
+                _("✅ Saved job state to disk (%d accounts to import)"),
+                count($this->csvinfo['data_preldap'])
+            )
+        );
+
+        return array($job, $job_data);
     }
-    function getAttrsPreSelection($size)
+
+
+    /**
+     * Get only accounts that have been processed by async worker
+     *
+     * Filters csvinfo['data_preldap'] to return only accounts that have been
+     * processed (either successfully imported or failed with error).
+     * Accounts are marked with _imported flag when successfully processed,
+     * or _error flag when processing failed.
+     *
+     * This is used during AJAX status polling to show progressive import status
+     * without displaying accounts that haven't been processed yet.
+     *
+     * @return array Filtered array of processed accounts (preserves original keys)
+     */
+    function getProcessedAccounts()
     {
-        return array();
+        $processed = array();
+
+        // Sanity check
+        $has_data_preldap = isset($this->csvinfo['data_preldap']) &&
+                           is_array($this->csvinfo['data_preldap']);
+        if (!$has_data_preldap) {
+            return $processed;
+        }
+
+        foreach ($this->csvinfo['data_preldap'] as $idx => $user_data) {
+            // Check if main account has been imported (successfully processed)
+            $is_imported = isset($user_data['main_account']['_imported'][0]) &&
+                          $user_data['main_account']['_imported'][0] === true;
+
+            // Check if main account has error flag (failed but processed)
+            $has_error = isset($user_data['main_account']['_error'][0]) &&
+                        !empty($user_data['main_account']['_error'][0]);
+
+            // Include account if it's been processed (either success or failure)
+            if ($is_imported || $has_error) {
+                $processed[$idx] = $user_data;
+            }
+        }
+
+        return $processed;
+    }
+
+
+    /**
+     * Check if any accounts in the dataset have import errors
+     *
+     * Iterates through processed accounts and checks for the presence
+     * of the _error flag on main accounts and auxiliary accounts.
+     * Used to determine if a warning should be displayed during/after import.
+     *
+     * @param array $accounts Processed accounts data from getProcessedAccounts()
+     * @return bool True if any account has _error flag set, false otherwise
+     */
+    function hasFailedAccounts($accounts)
+    {
+        foreach ($accounts as $user_data) {
+            // Check main account for errors
+            $has_error = isset($user_data['main_account']['_error'][0]) &&
+                        !empty($user_data['main_account']['_error'][0]);
+
+            if ($has_error) {
+                return true;
+            }
+
+            // Check auxiliary accounts for errors
+            $has_aux_accounts = isset($user_data['aux_accounts']) &&
+                               is_array($user_data['aux_accounts']);
+            if ($has_aux_accounts) {
+                foreach ($user_data['aux_accounts'] as $aux_account) {
+                    $aux_has_error = isset($aux_account['_error'][0]) &&
+                                    !empty($aux_account['_error'][0]);
+
+                    if ($aux_has_error) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Get current async import job status as JSON
+     *
+     * Returns comprehensive status for AJAX polling.
+     * Includes job state, progress metrics, processed accounts data, and
+     * failure detection. This method is called via AJAX requests from the
+     * client-side StatusMonitor class.
+     *
+     * @return array Associative array with:
+     *   - job_running (bool): Whether import job is still active
+     *   - completed (bool): Whether job finished successfully
+     *   - progress (array): current, total, percent, message, timestamp
+     *   - accounts (array): Processed accounts from getProcessedAccounts()
+     *   - has_failures (bool): Whether any accounts failed to import
+     *   - error (string|null): Error message if job failed/timeout
+     */
+    function getCurrentJobStatusJSON()
+    {
+        // Initialize default status structure
+        $status = array(
+            'job_running' => false,
+            'completed' => false,
+            'progress' => array(
+                'current' => 0,
+                'total' => 0,
+                'percent' => 0,
+                'message' => '',
+                'timestamp' => time()
+            ),
+            'accounts' => array(),
+            'has_failures' => false,
+            'error' => null
+        );
+
+        // Check if we have an async job ID
+        if (!isset($this->csvinfo['async_job_id']) || empty($this->csvinfo['async_job_id'])) {
+            return $status;
+        }
+
+        // Load job and check status
+        try {
+            $job = new importjob($this->csvinfo['async_job_id']);
+            $timeout = $this->utils->getConfigIntValue('async_import_timeout', 10);
+            $idle_status = $job->isIdle($timeout);
+
+            // Set job_running flag
+            $status['job_running'] = !$idle_status['is_idle'];
+            $status['completed'] = ($idle_status['reason'] === 'completed');
+
+            // Handle errors
+            if (
+                $idle_status['reason'] !== 'completed'
+                and isset($idle_status['error'])
+            ) {
+                $status['error'] = $idle_status['error'];
+            }
+
+            // Load job state for progress and data
+            $job_state = $job->readJob();
+
+            // Extract progress information
+            if (isset($job_state['progress'])) {
+                $status['progress'] = $job_state['progress'];
+            }
+
+            // Update our local data with latest from worker
+            if (isset($job_state['state']['csvinfo']['data_preldap'])) {
+                $this->csvinfo['data_preldap'] = $job_state['state']['csvinfo']['data_preldap'];
+            }
+        } catch (Exception $e) {
+            // Job file not found or error
+            $status['error'] = $e->getMessage();
+            $this->utils->debug_to_console(
+                sprintf(
+                    _("Warning: Could not load job state: %s"),
+                    $e->getMessage()
+                )
+            );
+        }
+
+        // Get processed accounts (only those marked as imported or failed)
+        $processed = $this->getProcessedAccounts();
+        $status['accounts'] = $processed;
+
+        // Check for failures in processed accounts
+        $status['has_failures'] = $this->hasFailedAccounts($processed);
+
+        return $status;
     }
 
 
@@ -118,10 +360,8 @@ class import extends plugin
         /* If we don't have the $this->csvinfo['data_preldap'] dataset, we are doomed to fail… */
         if (!is_array($this->csvinfo['data_preldap']) or (empty($this->csvinfo['data_preldap']))) {
             $this->failure_in_this_phase = true;
-
-            /* FIXME: Show a proper error message here... */
-            echo "FIXME: BOOM";
-
+            $this->failure_messages[] = _("Something wen't wrong while trying to check for account status.");
+            $this->failure_messages[] = _("No account data (csvinfo[data_preldap]) available for status check.");
             return;
         }
 
@@ -182,10 +422,49 @@ class import extends plugin
 
                 if ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) == 1)) {
                     $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'similar-object-found';
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
                 } elseif ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) > 1)) {
                     $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'similar-objects-found';
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
+                } else {
+                    // No account found in LDAP, set status to 'not-found' and action to 'create'
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]  = 'not-found';
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'create,set-password';
+
+                    // Generate UID for new accounts if not already set
+                    try {
+                        $generated_uid = $this->generateUID($this->csvinfo['data_preldap'][$key]['main_account']);
+                        // Update local reference after UID generation (must be array for [0] access)
+                        $row['main_account']['uid'] = array($generated_uid);
+                        // Mark that UID was auto-generated
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] .= ",uid-generated";
+                    } catch (RuntimeException $e) {
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'uid-generation-failed';
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
+                        $this->failure_messages[] = sprintf(
+                            _("UID generation failed for %s %s: %s"),
+                            $row['main_account']['givenName'][0],
+                            $row['main_account']['sn'][0],
+                            $e->getMessage()
+                        );
+                        continue;
+                    }
+
+                    // Generate passwords for main accounts (if not provided)
+                    if (
+                        (!isset($row['main_account']['userPassword'][0])) or
+                        ($row['main_account']['userPassword'][0] === "")  or
+                        ($row['main_account']['userPassword'][0] === '{%userPassword}')
+                    ) {
+                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] .= ",password-generated";
+                        $this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0] = $this->randomAlphaNumPassword(12);
+                    }
+
+                    // Set the main account's base for object creation
+                    $expected_base = $this->genAccountBase($row['main_account'], $row['groups']);
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array("uid=" . $row['main_account']['uid'][0] . "," . get_people_ou() . $expected_base);
+                    $this->csvinfo['data_preldap'][$key]['main_account']['_base'] = array($expected_base);
                 }
-                $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
             } elseif ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) == 1)) {
                 $gosa_account = $gosa_main_accounts[0];
 
@@ -224,8 +503,10 @@ class import extends plugin
                     }
 
                     /*
-                     * Only update attributes that are already set in the main account dataset
-                     * People should be able to change everything. For example because of a typo or a new name.
+                     * Only update attributes that are already set in the main
+                     * account dataset.
+                     * People should be able to change everything. For example
+                     * because of a typo or a new name.
                      */
                     $_updatable_attrs = array();
                     foreach (array("mail", "employeeNumber", "departmentNumber", "sn", "givenName", "gender", "dateOfBirth") as $_attr) {
@@ -250,9 +531,10 @@ class import extends plugin
                     }
 
                     /*
-                        * Obtain the alias field from the LDAP object if present.
-                        * This is required for showing the aliases in the user property overview page.
-                        */
+                     * Obtain the alias field from the LDAP object if present.
+                     * This is required for showing the aliases in the user property
+                     * overview page.
+                     */
                     if (isset($gosa_account['alias'])) {
                         $this->csvinfo['data_preldap'][$key]['main_account']['alias'] = $gosa_account['alias'];
                     }
@@ -307,9 +589,13 @@ class import extends plugin
                     $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
                 }
             } elseif ((is_countable($gosa_main_accounts)) and (count($gosa_main_accounts) > 1)) {
-                msg_dialog::display(_("LDAP Tree Error"), _("The LDAP search query with filter '" . $_ldapfilter . "' returned more than one account object. There should only be one such object in the LDAP tree."), ERROR_DIALOG);
+                $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'multiple-objects-found';
+                $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
+                //msg_dialog::display(_("LDAP Tree Error"), _("The LDAP search query with filter '" . $_ldapfilter . "' returned more than one account object. There should only be one such object in the LDAP tree."), ERROR_DIALOG);
             } elseif ((!is_countable($gosa_main_accounts))) {
-                msg_dialog::display(_("LDAP Error"), _("The LDAP search query with filter '.$_ldapfilter.' returned with an unknown error."), ERROR_DIALOG);
+                $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] = 'unknown-error';
+                $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'ignore,check-manually';
+                //msg_dialog::display(_("LDAP Error"), _("The LDAP search query with filter '.$_ldapfilter.' returned with an unknown error."), ERROR_DIALOG);
             }
 
             if (!isset($row['aux_accounts'])) {
@@ -349,6 +635,30 @@ class import extends plugin
 
                 if ((is_countable($gosa_aux_accounts)) and (count($gosa_aux_accounts) == 0)) {
                     // No account was found using this email address. So just create the account.
+                    if (isset($aux_account['sn']) and isset($aux_account['mail']) and isset($aux_account['givenName'])) {
+                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'not-found';
+                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'create,set-password,skip-aliases';
+                        /* set the aux account's base for object creation */
+                        $expected_base = $this->genAccountBase($aux_account);
+                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base'] = array($expected_base);
+                    } else {
+                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'data-incomplete';
+                        $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'ignore';
+                    }
+
+                    // generate passwords for aux accounts (if not provided)
+                    if (
+                        (!isset($aux_account['userPassword'][0])) or
+                        ($aux_account['userPassword'][0] === "") or
+                        ($aux_account['userPassword'][0] === '{%userPassword}')
+                    ) {
+                        if ($this->utils->strcontains($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0], 'create')) {
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] .= ",password-generated";
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0] = $this->randomAlphaNumPassword(12);
+                        } else {
+                            $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'] = array("<keep>");
+                        }
+                    }
                 } elseif ((is_countable($gosa_aux_accounts)) and (count($gosa_aux_accounts) == 1)) {
                     // We only found one account, assume it's at 0th place.
                     $gosa_account = $gosa_aux_accounts[0];
@@ -359,17 +669,18 @@ class import extends plugin
                     /* Detect status */
 
                     /*
-                        * FIXME: Support automatic moving of AUX accounts!!!
-                        */
+                     * FIXME: Support automatic moving of AUX accounts!!!
+                     */
 
                     $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'exists';
 
                     $_actions = array();
 
                     /*
-                        * FIXME: Hard-code a "none" action here in case we found a matching account in LDAP.
-                        *        Later, we need to make actions more configurable…
-                        */
+                     * FIXME: Hard-code a "none" action here in case we found a
+                     *        matching account in LDAP. Later, we need to make
+                     *        actions more configurable…
+                     */
 
                     // Only update attributes that are already set in the main account dataset
                     $_updatable_attrs = array();
@@ -395,74 +706,19 @@ class import extends plugin
                     $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_dn_ldap'] = array($gosa_account_dn);
 
                     /*
-                        * FIXME: We need a check that DN generation for aux accounts will actually work, probably when
-                        *        constructing $this->csvinfo['data_preldap'].
-                        */
+                     * FIXME: We need a check that DN generation for aux accounts
+                     *        will actually work, probably when constructing
+                     *        $this->csvinfo['data_preldap'].
+                     */
                     $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base'] = array($expected_base);
                 } elseif ((is_countable($gosa_aux_accounts)) and (count($gosa_aux_accounts) > 1)) {
-                    msg_dialog::display(_("LDAP Tree Error"), _("The LDAP search query with filter '" . $_ldapfilter . "' returned more than one account object. There should only be one such object in the LDAP tree."), ERROR_DIALOG);
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'multiple-objects-found';
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'ignore,check-manually';
+                    //msg_dialog::display(_("LDAP Tree Error"), _("The LDAP search query with filter '" . $_ldapfilter . "' returned more than one account object. There should only be one such object in the LDAP tree."), ERROR_DIALOG);
                 } elseif ((!is_countable($gosa_aux_accounts))) {
-                    msg_dialog::display(_("LDAP Error"), _("The LDAP search query with filter '.$_ldapfilter.' returned with an unknown error."), ERROR_DIALOG);
-                }
-            }
-        }
-
-        // Post-processing, probably appendable to above code block…
-        foreach ($this->csvinfo['data_preldap'] as $key => $row) {
-            if (isset($row['main_account'])) {
-                if ($this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] == 'unchecked') {
-                    $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0]  = 'not-found';
-                    $this->csvinfo['data_preldap'][$key]['main_account']['_actions'][0] = 'create,set-password';
-
-                    // Generate passwords for main accounts (if not provided)
-                    if (
-                        (!isset($row['main_account']['userPassword'][0])) or
-                        ($row['main_account']['userPassword'][0] === "")  or
-                        ($row['main_account']['userPassword'][0] === '{%userPassword}')
-                    ) {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_status'][0] .= ",password-generated";
-                        $this->csvinfo['data_preldap'][$key]['main_account']['userPassword'][0] = $this->randomAlphaNumPassword(12);
-                    }
-
-                    // Set the main account's base for object creation
-                    $expected_base = $this->genAccountBase($row['main_account'], $row['groups']);
-                    if (isset($row['main_account']['uid'][0])) {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array("uid=" . $row['main_account']['uid'][0] . "," . get_people_ou() . $expected_base);
-                    } else {
-                        $this->csvinfo['data_preldap'][$key]['main_account']['_dn'] = array("new");
-                    }
-                    $this->csvinfo['data_preldap'][$key]['main_account']['_base'] = array($expected_base);
-                }
-
-                if (isset($row['aux_accounts'])) {
-                    foreach ($row['aux_accounts'] as $idx_aux => $aux_account) {
-                        if ($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] == 'unchecked') {
-                            if (isset($aux_account['sn']) and isset($aux_account['mail']) and isset($aux_account['givenName'])) {
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'not-found';
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'create,set-password,skip-aliases';
-                                /* set the main account's base for object creation */
-                                $expected_base = $this->genAccountBase($aux_account);
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_base'] = array($expected_base);
-                            } else {
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'data-incomplete';
-                                $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'ignore';
-                            }
-
-                            // generate passwords for aux accounts (if not provided)
-                            if (
-                                (!isset($aux_account['userPassword'][0])) or
-                                ($aux_account['userPassword'][0] === "") or
-                                ($aux_account['userPassword'][0] === '{%userPassword}')
-                            ) {
-                                if ($this->utils->strcontains($this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0], 'create')) {
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] .= ",password-generated";
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'][0] = $this->randomAlphaNumPassword(12);
-                                } else {
-                                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['userPassword'] = array("<keep>");
-                                }
-                            }
-                        }
-                    }
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_status'][0] = 'unknown-error';
+                    $this->csvinfo['data_preldap'][$key]['aux_accounts'][$idx_aux]['_actions'][0] = 'ignore,check-manually';
+                    //msg_dialog::display(_("LDAP Error"), _("The LDAP search query with filter '.$_ldapfilter.' returned with an unknown error."), ERROR_DIALOG);
                 }
             }
         }
@@ -718,6 +974,93 @@ class import extends plugin
     }
 
 
+    /**
+     * Generate a unique UID for a user account
+     *
+     * This method generates a unique user identifier (UID) for new accounts.
+     * It uses the following strategy in order of priority:
+     * 1. If uid is already set and not a placeholder, use it as-is
+     * 2. If uid is a placeholder ({%uid} or empty), use GOsa²'s idGenerator
+     * 3. If try_mail_as_uid is enabled and mail is available, use mail as uid
+     *
+     * @param array $user_data User account data with 'sn', 'givenName', 'uid', 'mail'
+     *                         All values are expected as arrays with [0] index
+     *
+     * @return string|null The generated UID, or null if UID was already set
+     *
+     * @throws RuntimeException If UID cannot be generated (no idGenerator configured,
+     *                          generation failed, or insufficient data)
+     */
+    function generateUID(&$user_data)
+    {
+        // If UID is already set and valid, nothing to do
+        if (
+            isset($user_data['uid'][0]) and
+            $user_data['uid'][0] !== "{%uid}" and
+            $user_data['uid'][0] !== ""
+        ) {
+            return $user_data['uid'][0];
+        }
+
+        // Require sn and givenName for UID generation
+        if (!isset($user_data['sn'][0]) or !isset($user_data['givenName'][0])) {
+            $error_msg = _("If UID is not provided and sn+givenName is not provided either or incomplete, we cannot go on…");
+            new log(_("ERROR"), $error_msg, $this->dn);
+            throw new RuntimeException($error_msg);
+        }
+
+        // Try to generate UID using idGenerator
+        if (
+            isset($user_data['uid'][0]) and
+            ($user_data['uid'][0] === "{%uid}" or $user_data['uid'][0] === "")
+        ) {
+            // Get "idGenerator" property from "core" class.
+            $_genStr = $this->config->get_cfg_value("core", "idGenerator");
+            if ($_genStr == "") {
+                throw new RuntimeException(
+                    _("We can only auto-generate UID strings if the idGenerator is configured!")
+                );
+            }
+
+            // Use _attributes to generate a unique ID.
+            $_attributes = array(
+                'sn'        => $user_data['sn'][0],
+                'givenName' => $user_data['givenName'][0]
+            );
+            $_genUids = gen_uids($_genStr, $_attributes);
+
+            // If successful, use the first UID we generated above.
+            if (is_countable($_genUids) and (count($_genUids) >= 1)) {
+                $user_data['uid'] = array($_genUids[0]);
+                return $_genUids[0];
+            } else {
+                throw new RuntimeException(
+                    sprintf(
+                        _("Failure during UID auto-generation for %s %s! No list of possible UIDs returned."),
+                        $user_data['givenName'][0],
+                        $user_data['sn'][0]
+                    )
+                );
+            }
+        }
+
+        // Try to use mail as UID if configured
+        if (
+            ($this->csvinfo['try_mail_as_uid'] === true) and
+            (isset($user_data['mail'][0]) and $user_data['mail'][0])
+        ) {
+            $generated_uid = strtolower($user_data['mail'][0]);
+            $user_data['uid'] = array($generated_uid);
+            return $generated_uid;
+        }
+
+        // No way to generate UID
+        $error_msg = _("No exact UIDs given, no UID column in the CSV sheet, no permission to use the MAIL attribute as UID…");
+        new log(_("ERROR"), $error_msg, $this->dn);
+        throw new RuntimeException($error_msg);
+    }
+
+
     function CSVRowSanityChecksOk($csv_row, $idx)
     {
         $ret_ok = false;
@@ -964,6 +1307,47 @@ class import extends plugin
     }
 
 
+    /**
+     * Import or update a user account object in LDAP
+     *
+     * Processes a single user account from CSV data and performs the appropriate
+     * LDAP operation (create, update, rename, move) based on the '_actions' field.
+     *
+     * This method handles:
+     * - Creating new user accounts from templates
+     * - Updating existing accounts (mail, name, employeeNumber, etc.)
+     * - UID auto-generation if not provided in CSV
+     * - Email alias management (add/drop UID@domain patterns)
+     * - Creating department OUs if they don't exist
+     * - Password setting (if action includes 'set-password')
+     * - User account moves and UID renames
+     *
+     * The method uses GOsa²'s usertabs API to ensure proper LDAP object handling,
+     * including automatic handling of objectClasses, group memberships, and
+     * validation checks.
+     *
+     * @param array $user_data User account data with CSV values and metadata
+     *                         Expected keys:
+     *                         - 'uid', 'sn', 'givenName', 'mail', etc. (LDAP attributes)
+     *                         - '_actions'[0] (string): Actions to perform (comma-separated)
+     *                           Valid actions: 'create', 'update-*', 'move', 'rename-uid',
+     *                                         'set-password', 'add-uid-at-domain-to-aliases',
+     *                                         'drop-uid-at-domain-from-aliases', 'ignore', 'none'
+     *                         - '_template'[0] (int): Template index (0 for no template)
+     *                         - '_base'[0] (string): Base DN for account
+     *                         - '_dn'[0] (string): Target DN for move/rename
+     *                         - '_dn_ldap'[0] (string): Current DN for existing accounts
+     *
+     * @return string Result of the import operation:
+     *                - 'created' - New user account created successfully
+     *                - 'updated' - Existing account modified successfully
+     *                - 'skipped' - Account skipped (action was 'none' or 'ignore')
+     *
+     * @throws RuntimeException For all kinds of exceptions while importing.
+     *
+     * @see usertabs For GOsa² user object handling
+     * @see deptabs For automatic OU creation
+     */
     function importLDAPUserObject($user_data)
     {
         // Only perform on this user dataset if '_actions' does NOT contain "none" or "ignore"
@@ -971,19 +1355,19 @@ class import extends plugin
             $this->utils->strcontains($user_data['_actions'][0], 'none')  or
             $this->utils->strcontains($user_data['_actions'][0], 'ignore')
         ) {
-            return;
+            return 'skipped';
         }
 
         // Only perform on this user dataset, if a valid action was found:
         if (
-            $this->utils->strcontains($user_data['_actions'][0], 'update-') and
-            $this->utils->strcontains($user_data['_actions'][0], 'add-uid-at-domain-to-aliases') and
-            $this->utils->strcontains($user_data['_actions'][0], 'drop-uid-at-domain-from-aliases') and
-            $this->utils->strcontains($user_data['_actions'][0], 'create') and
-            $this->utils->strcontains($user_data['_actions'][0], 'move') and
-            $this->utils->strcontains($user_data['_actions'][0], 'rename-uid')
+            !$this->utils->strcontains($user_data['_actions'][0], 'update-')
+            and !$this->utils->strcontains($user_data['_actions'][0], 'add-uid-at-domain-to-aliases')
+            and !$this->utils->strcontains($user_data['_actions'][0], 'drop-uid-at-domain-from-aliases')
+            and !$this->utils->strcontains($user_data['_actions'][0], 'create')
+            and !$this->utils->strcontains($user_data['_actions'][0], 'move')
+            and !$this->utils->strcontains($user_data['_actions'][0], 'rename-uid')
         ) {
-            return;
+            return 'skipped';
         }
 
         // These should contain the right data
@@ -1008,66 +1392,9 @@ class import extends plugin
             $_user_properties_base["sn"]        = $user_data['sn'][0];
             $_user_properties_base["givenName"] = $user_data['givenName'][0];
 
-            // The below attributes must exist and be set with meaningful data once we arrive here!
-            if (isset($user_data['uid'][0]) and $user_data['uid'][0] !== "{%uid}") {
-                $_user_properties_base["uid"] = $user_data['uid'][0];
-            } elseif (isset($user_data['sn'][0]) and isset($user_data['givenName'][0])) {
-                if (
-                    isset($user_data['uid'][0]) and
-                    ($user_data['uid'][0] === "{%uid}" or
-                    $user_data['uid'][0] === "")
-                ) {
-                    // Get "idGenerator" property from "core" class.
-                    $_genStr = $this->config->get_cfg_value("core", "idGenerator");
-
-                    if ($_genStr != "") {
-                        // Use _attributes to generate a unique ID.
-                        $_attributes = array(
-                            'sn'        => $user_data['sn'][0],
-                            'givenName' => $user_data['givenName'][0]
-                        );
-                        $_genUids = gen_uids($_genStr, $_attributes);
-
-                        // If successfull, use the first UID we generated above.
-                        if (is_countable($_genUids) and (count($_genUids) >= 1)) {
-                            $_user_properties_base['uid'] = $_genUids[0];
-                        } else {
-                            msg_dialog::display(
-                                _("ERROR"),
-                                _("Failure during UID auto-generation for " . $user_data['givenName'][0] .
-                                    " " . $user_data['sn'][0] . "! No list of possible UIDs returned."),
-                                ERROR_DIALOG
-                            );
-                        }
-                    } else {
-                        msg_dialog::display(
-                            _("ERROR"),
-                            _("We can only auto-generate UID strings if " .
-                            "the idGenerator is configured!"),
-                            ERROR_DIALOG
-                        );
-                    }
-                } elseif (
-                    ($this->csvinfo['try_mail_as_uid'] === true) and
-                    (isset($user_data['mail'][0]) and $user_data['mail'][0])
-                ) {
-                    $_user_properties_base['uid'] = strtolower($user_data['mail'][0]);
-                } else {
-                    $error_msg = _("No exact UIDs given, no UID column in the CSV sheet, " .
-                    "no permission to use the MAIL attribute as UID…");
-                    new log(_("ERROR"), $error_msg, $this->dn);
-                    msg_dialog::display(_("ERROR"), $error_msg, ERROR_DIALOG);
-                }
-            } else {
-                $error_msg = _("If UID is not provided and sn+givenName is not " .
-                "provided either or incomplete, we cannot go on…");
-                new log(
-                    _("ERROR"),
-                    $error_msg,
-                    $this->dn
-                );
-                msg_dialog::display(_("ERROR"), $error_msg, ERROR_DIALOG);
-            }
+            // UID should already be generated in accountStatusCheck(), but handle edge cases
+            // where it might still be a placeholder or missing
+            $_user_properties_base["uid"] = $this->generateUID($user_data);
 
             // Update $usertab with $_user_properties_base
             foreach ($_user_properties_base as $attr => $val) {
@@ -1206,9 +1533,25 @@ class import extends plugin
             }
         }
 
+        /*
+         * Handle templates for new accounts
+         */
+        if (
+            !isset($user_data['_template'])
+            or !is_numeric($user_data['_template'][0])
+        ) {
+            throw new RuntimeException(
+                _("No valid template index given for user account creation!")
+            );
+
+            $user_data['_template'][0] = 0;
+        }
+        /* Ensure base DN exists */
+        $template_dn = "";
         if ($user_data['_template'][0] != 0) {
             $template_dn = $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
         }
+
 
         /* test if base DN exists, this is only relevant for actions "create" and "move" but does not hurt for updates, either */
         $this->_ldap->cat($user_data['_base'][0]);
@@ -1270,28 +1613,35 @@ class import extends plugin
         /* Insert into the LDAP tree */
         $usertab_check = $usertab->check();
         if (count($usertab_check)) {
-            $this->failure_messages += $usertab_check;
-
-            /*
-             * FIXME: Collect failure statistics here!
-             */
-
-            $this->failure_in_this_phase = true;
-
-            return;
+            // Throw exception with all validation errors
+            throw new RuntimeException(
+                // This means accountStatusCheck() failed to find existing account!!!
+                sprintf(
+                    _("User account validation failed: %s"),
+                    implode(', ', $usertab_check),
+                )
+            );
         } else {
             $usertab->save();
+
+            // Determine what action was taken for return value
+            $action_result = 'updated'; // Default to updated for existing accounts
 
             // Present a status update in GOsa²'s logging system (/var/log/syslog mostly)
             if ($this->utils->strcontains($user_data['_actions'][0], 'create')) {
                 new log("create", "users/user", $usertab->dn, array(), "New user (" . $usertab->sn . ", " . $usertab->givenName . ") created via SchoolManager add-on.");
+                $action_result = 'created';
             } elseif ($this->utils->strcontains($user_data['_actions'][0], 'none')) {
                 new log("modify", "users/user", $usertab->dn, array(), "Existing user  (" . $usertab->sn . ", " . $usertab->givenName . ") modified via SchoolManager add-on.");
+                $action_result = 'updated';
             }
 
             if ($this->utils->strcontains($user_data['_actions'][0], 'set-password')) {
-                if (!change_password($usertab->dn, $user_data['userPassword'][0], false, '', '', $message)) {
-                    msg_dialog::displayChecks(array($message));
+                $password = $user_data['userPassword'][0];
+                if (!change_password($usertab->dn, $password, false, '', '', $message)) {
+                    throw new RuntimeException(
+                        sprintf(_("Password change failed: %s"), $message)
+                    );
                 }
             }
 
@@ -1302,9 +1652,7 @@ class import extends plugin
                 $usertab->by_object['user']->rename($usertab->dn, $user_data['_dn'][0]);
             }
 
-            /*
-             * FIXME: Collect success statistics here!
-             */
+            return $action_result;
         }
     }
 
@@ -1384,6 +1732,9 @@ class import extends plugin
 
     function genAccountBase($user_data, $groups_data = array())
     {
+        $template_dn = "";
+        $template_base = "";
+
         if ($user_data['_template'][0] != 0) {
             $template_dn = $this->csvinfo['templates']['DNs'][$user_data['_template'][0]];
             $template_base = preg_replace("/^[^,]+," . preg_quote(get_people_ou(), '/i') . "/", '', $template_dn);
@@ -1443,6 +1794,10 @@ class import extends plugin
                         ($user_data['main_account']['_group_actions'][$group_key] === "add")
                     ) {
                         $_uid = $user_data['main_account']['uid'][0];
+                        // TODO: Check if $_uid is not "{%uid}" or empty!
+                        // This would be the case, if the main account was not
+                        // created/updated properly.
+
                         if (!in_array($group_key, array_keys($this->posixgroup_members))) {
                             $this->posixgroup_members[$group_key] = array();
                         }
@@ -1473,6 +1828,10 @@ class import extends plugin
                             ($aux_account['_group_actions'][$group_key] === "add")
                         ) {
                             $_uid = $aux_account['uid'][0];
+                            // TODO: Check if $_uid is not "{%uid}" or empty!
+                            // This would be the case, if the main account was not
+                            // created/updated properly.
+
                             if (!in_array($group_key, array_keys($this->posixgroup_members))) {
                                 $this->posixgroup_members[$group_key] = array();
                             }
@@ -1543,6 +1902,46 @@ class import extends plugin
             $pass .= $chars[random_int(0, $chars_max)];
         }
         return $pass;
+    }
+
+
+    /**
+     * Serialize account data into a human-readable string for logging
+     *
+     * Formats account information (givenName, sn, UID) into a consistent
+     * string representation suitable for log messages and debug output.
+     *
+     * This helper function extracts key identifying information from an
+     * account data array and formats it into a readable string pattern:
+     * "givenName sn (UID: uid)"
+     *
+     * All fields use fallback values of 'unknown' if not present in the
+     * account data, ensuring the function never fails due to missing data.
+     *
+     * @param array $account_data Account data array with LDAP attributes
+     *                            Expected keys (all optional):
+     *                            - 'givenName'[0]: First name
+     *                            - 'sn'[0]: Surname/last name
+     *                            - 'uid'[0]: User ID
+     *
+     * @return string Formatted account string, e.g.:
+     *                "Max Mustermann (UID: mmustermann)"
+     *                "unknown unknown (UID: unknown)" if data missing
+     *
+     * @see worker_log() in class_cli_import_worker.inc for usage example
+     */
+    function serializeAccount($account_data)
+    {
+        $givenName = $account_data['givenName'][0] ?? 'unknown';
+        $sn = $account_data['sn'][0] ?? 'unknown';
+        $uid = $account_data['uid'][0] ?? 'unknown';
+
+        return sprintf(
+            "%s %s (UID: %s)",
+            $givenName,
+            $sn,
+            $uid
+        );
     }
 }
 

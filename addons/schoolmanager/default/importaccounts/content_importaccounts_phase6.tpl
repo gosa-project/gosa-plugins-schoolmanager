@@ -1,6 +1,6 @@
 <input type="hidden" name="phase_06">
 <h3>
-    {t 1="6/11"}
+    {t 1="6/10"}
         STEP %1  (LDAP import status): 
     {/t}
 </h3>
