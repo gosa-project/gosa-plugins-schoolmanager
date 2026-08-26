@@ -1,3 +1,5 @@
+{include file="`$phases_path`../common/fontawesome.tpl" inline}
+
 <div class="card-content-scroll">
 {if !isset($empty_schoolmgr_groups_now_phase1_done)} <!-- Phase1 flow control -->
 <div class="row">
