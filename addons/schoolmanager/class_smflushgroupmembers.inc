@@ -28,6 +28,9 @@ class smflushgroupmembers
     /** Template URI (.tpl file) */
     const TEMPLATE_URI = "smflushgroupmembers/content_smflushgroupmembers.tpl";
 
+    // Schoolmgr Utility class instance
+    var schoolmgr_utils $utils;
+
     function __construct(&$config, schoolmgr_utils &$utils)
     {
         $this->config = $config;
